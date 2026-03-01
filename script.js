@@ -41,6 +41,7 @@ const BANK = {
 // ---- DOM ----
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
+const statsScreen = document.getElementById("stats-screen");
 const endScreen = document.getElementById("end-screen");
 
 const topbar = document.getElementById("topbar");
@@ -57,6 +58,13 @@ const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const backBtn = document.getElementById("back-btn");
 
+const navStartBtn = document.getElementById("nav-start-btn");
+const navStatsBtn = document.getElementById("nav-stats-btn");
+
+const confirmOverlay = document.getElementById("confirm-overlay");
+const confirmYesBtn = document.getElementById("confirm-yes-btn");
+const confirmNoBtn = document.getElementById("confirm-no-btn");
+
 const levelButtons = document.querySelectorAll(".level-btn");
 
 // ---- State ----
@@ -65,6 +73,7 @@ let questions = [];
 let currentIndex = 0;
 let score = 0;
 let locked = false;
+let pendingNavigation = null;
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -95,6 +104,49 @@ function getAllAnswersExcept(correct) {
   return all.filter(a => a !== correct);
 }
 
+function isQuizInProgress() {
+  return !quizScreen.classList.contains("hidden");
+}
+
+function showScreen(screen) {
+  hide(startScreen);
+  hide(quizScreen);
+  hide(statsScreen);
+  hide(endScreen);
+  show(screen);
+
+  if (screen === quizScreen) {
+    show(topbar);
+  } else {
+    hide(topbar);
+  }
+}
+
+function confirmNavigation(destination) {
+  pendingNavigation = destination;
+  show(confirmOverlay);
+  confirmNoBtn.focus();
+}
+
+function navigateTo(destination) {
+  if (destination === "start") {
+    showScreen(startScreen);
+  }
+
+  if (destination === "stats") {
+    showScreen(statsScreen);
+  }
+}
+
+function requestNavigation(destination) {
+  if (isQuizInProgress()) {
+    confirmNavigation(destination);
+    return;
+  }
+
+  navigateTo(destination);
+}
+
 // 4 option хийх: 1 зөв + 3 буруу
 function buildOptions(correct) {
   const pool = shuffle(unique(getAllAnswersExcept(correct)));
@@ -120,11 +172,7 @@ function startQuiz() {
   score = 0;
   locked = false;
 
-  hide(startScreen);
-  hide(endScreen);
-  show(quizScreen);
-  show(topbar);
-
+  showScreen(quizScreen);
   renderQuestion();
 }
 
@@ -190,18 +238,14 @@ function nextQuestion() {
 }
 
 function endQuiz() {
-  hide(quizScreen);
-  show(endScreen);
+  showScreen(endScreen);
 
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
 }
 
 function backToStart() {
-  hide(quizScreen);
-  hide(endScreen);
-  hide(topbar);
-  show(startScreen);
+  showScreen(startScreen);
 }
 
 // ---- Events ----
@@ -211,6 +255,23 @@ levelButtons.forEach(btn => {
     btn.classList.add("active");
     level = btn.dataset.level;
   });
+});
+
+navStartBtn.addEventListener("click", () => requestNavigation("start"));
+navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
+
+confirmNoBtn.addEventListener("click", () => {
+  pendingNavigation = null;
+  hide(confirmOverlay);
+});
+
+confirmYesBtn.addEventListener("click", () => {
+  hide(confirmOverlay);
+
+  if (pendingNavigation) {
+    navigateTo(pendingNavigation);
+    pendingNavigation = null;
+  }
 });
 
 startBtn.addEventListener("click", startQuiz);
