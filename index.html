@@ -1,21 +1,73 @@
 <!DOCTYPE html>
 <html lang="mn">
 <head>
-<meta charset="UTF-8">
-<title>NomadSpeak</title>
-<link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NomadSpeak</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div class="container">
-  <h1>NomadSpeak</h1>
-  <div id="start-screen">
-    <h2>English Learning Quiz</h2>
-    <button id="start-btn">Эхлэх</button>
+  <div class="app">
+    <header class="header">
+      <div class="brand">
+        <div class="logo-dot"></div>
+        <div>
+          <h1 class="logo">NomadSpeak</h1>
+          <p class="subtitle">English Learning Quiz</p>
+        </div>
+      </div>
+
+      <div class="topbar hidden" id="topbar">
+        <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
+        <div class="pill">Оноо: <span id="score">0</span></div>
+        <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+      </div>
+    </header>
+
+    <!-- START SCREEN -->
+    <section class="card" id="start-screen">
+      <h2>Эхлэхээс өмнө</h2>
+      <p class="muted">Түвшин сонгоод “Эхлэх” дар.</p>
+
+      <div class="level-row" id="level-row">
+        <button class="level-btn active" data-level="beginner">Анхан</button>
+        <button class="level-btn" data-level="intermediate">Дунд</button>
+        <button class="level-btn" data-level="advanced">Дээд</button>
+      </div>
+
+      <button class="primary" id="start-btn">Эхлэх</button>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section class="card hidden" id="quiz-screen">
+      <h2 class="question" id="question">Асуулт</h2>
+
+      <div class="options" id="options"></div>
+
+      <div class="result hidden" id="result"></div>
+
+      <div class="actions">
+        <button class="secondary hidden" id="next-btn">Дараагийн асуулт</button>
+      </div>
+    </section>
+
+    <!-- END SCREEN -->
+    <section class="card hidden" id="end-screen">
+      <h2>Дууслаа 🎉</h2>
+      <p class="muted" id="final-text">Таны оноо: 0</p>
+
+      <div class="end-actions">
+        <button class="primary" id="restart-btn">Дахин эхлэх</button>
+        <button class="secondary" id="back-btn">Буцаад түвшин сонгох</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span class="muted">© NomadSpeak</span>
+    </footer>
   </div>
 
-  <div id="quiz-screen" class="hidden">
-    <h2 id="question">Асуулт</h2>
-    <div id="options"></div>
-    <div id="result"></div>
-    <button id="next" class="hidden">Ды
+  <script src="script.js"></script>
+</body>
+</html>
