@@ -37,10 +37,28 @@ body{
   margin-bottom:18px;
 }
 
+.header-main{
+  display:flex;
+  align-items:flex-start;
+  justify-content:space-between;
+  gap:12px;
+}
+
 .brand{
   display:flex;
   align-items:center;
   gap:14px;
+}
+
+.header-nav{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.nav-btn{
+  padding:8px 12px;
+  font-size:14px;
 }
 
 .logo-dot{
@@ -165,6 +183,10 @@ body{
 @media (max-width:700px){
   .logo{font-size:36px;}
   .options{grid-template-columns: 1fr;}
+  .header-main{
+    flex-direction:column;
+    align-items:flex-start;
+  }
 }
 
 .option{
@@ -236,3 +258,33 @@ body{
 }
 
 .hidden{display:none !important;}
+.confirm-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  z-index:10;
+}
+
+.confirm-card{
+  width:min(520px, 100%);
+  background:var(--card);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:18px;
+  box-shadow:var(--shadow);
+  padding:22px;
+}
+
+.confirm-card h2{
+  margin:0 0 16px 0;
+  font-size:24px;
+}
+
+.confirm-actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+}
