@@ -14,57 +14,88 @@
         <div class="logo-dot"></div>
         <div>
           <h1 class="logo">NomadSpeak</h1>
-          <p class="subtitle">English Learning Quiz</p>
+          <p class="subtitle" id="subtitle"></p>
         </div>
       </div>
 
       <div class="topbar hidden" id="topbar">
-        <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
-        <div class="pill">Оноо: <span id="score">0</span></div>
-        <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+        <div class="pill"><span id="level-pill-label"></span>: <span id="level-label"></span></div>
+        <div class="pill"><span id="score-pill-label"></span>: <span id="score">0</span></div>
+        <div class="pill"><span id="question-pill-label"></span>: <span id="progress">0/0</span></div>
       </div>
     </header>
 
-    <!-- START SCREEN -->
+    <!-- START SCREEN + STATS -->
     <section class="card" id="start-screen">
-      <h2>Эхлэхээс өмнө</h2>
-      <p class="muted">Түвшин сонгоод “Эхлэх” дар.</p>
+      <h2 id="start-title"></h2>
+      <p class="muted" id="start-description"></p>
 
       <div class="level-row" id="level-row">
-        <button class="level-btn active" data-level="beginner">Анхан</button>
-        <button class="level-btn" data-level="intermediate">Дунд</button>
-        <button class="level-btn" data-level="advanced">Дээд</button>
+        <button class="level-btn active" data-level="beginner" id="level-beginner"></button>
+        <button class="level-btn" data-level="intermediate" id="level-intermediate"></button>
+        <button class="level-btn" data-level="advanced" id="level-advanced"></button>
       </div>
 
-      <button class="primary" id="start-btn">Эхлэх</button>
+      <button class="primary" id="start-btn"></button>
+
+      <div class="start-stats">
+        <h2 id="stats-title"></h2>
+
+        <div class="stats-grid">
+          <div class="stats-item">
+            <span class="muted" id="stats-total-answered-label"></span>
+            <strong id="stats-total-answered-value">0</strong>
+          </div>
+          <div class="stats-item">
+            <span class="muted" id="stats-total-correct-label"></span>
+            <strong id="stats-total-correct-value">0</strong>
+          </div>
+          <div class="stats-item">
+            <span class="muted" id="stats-accuracy-label"></span>
+            <strong id="stats-accuracy-value">0%</strong>
+          </div>
+          <div class="stats-item">
+            <span class="muted" id="stats-total-score-label"></span>
+            <strong id="stats-total-score-value">0</strong>
+          </div>
+        </div>
+
+        <p class="stats-streak" id="stats-streak"></p>
+
+        <h3 class="stats-subtitle" id="stats-last7-title"></h3>
+        <ul class="stats-history muted" id="stats-history"></ul>
+
+        <h3 class="stats-subtitle" id="stats-level-title"></h3>
+        <div class="stats-level-list" id="stats-level-list"></div>
+      </div>
     </section>
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
-      <h2 class="question" id="question">Асуулт</h2>
+      <h2 class="question" id="question"></h2>
 
       <div class="options" id="options"></div>
 
       <div class="result hidden" id="result"></div>
 
       <div class="actions">
-        <button class="secondary hidden" id="next-btn">Дараагийн асуулт</button>
+        <button class="secondary hidden" id="next-btn"></button>
       </div>
     </section>
 
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
-      <h2>Дууслаа 🎉</h2>
-      <p class="muted" id="final-text">Таны оноо: 0</p>
+      <h2 id="end-title"></h2>
+      <p class="muted" id="final-text"></p>
 
       <div class="end-actions">
-        <button class="primary" id="restart-btn">Дахин эхлэх</button>
-        <button class="secondary" id="back-btn">Буцаад түвшин сонгох</button>
+        <button class="primary" id="restart-btn"></button>
+        <button class="secondary" id="back-btn"></button>
       </div>
     </section>
 
     <footer class="footer">
-      <span class="muted">© NomadSpeak</span>
+      <span class="muted" id="footer-text"></span>
     </footer>
   </div>
 
