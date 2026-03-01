@@ -3,7 +3,54 @@
 // 4 options • 3 levels • score • end screen
 // ======================
 
-// ---- Question bank (эхний багц). Дараа нь бид үүнийг олон болгоно. ----
+const STORAGE_KEY = "nomadspeak_stats_v1";
+
+const UI = {
+  brandSubtitle: "Англи хэл сурах сорил",
+  topbar: {
+    level: "Түвшин",
+    score: "Оноо",
+    question: "Асуулт",
+  },
+  start: {
+    title: "Эхлэхээс өмнө",
+    description: "Түвшин сонгоод “Эхлэх” дар.",
+    button: "Эхлэх",
+    chooseLevel: "Түвшин сонгох",
+  },
+  levels: {
+    beginner: "Анхан",
+    intermediate: "Дунд",
+    advanced: "Дээд",
+  },
+  quiz: {
+    nextQuestion: "Дараагийн асуулт",
+    correct: "✅ Зөв!",
+    incorrectPrefix: "❌ Буруу! Зөв нь:",
+  },
+  end: {
+    title: "Дууслаа 🎉",
+    yourScore: "Таны оноо",
+    level: "Түвшин",
+    restart: "Дахин эхлэх",
+    back: "Буцаад түвшин сонгох",
+  },
+  stats: {
+    title: "Статистик",
+    totalAnswered: "Нийт хариулсан",
+    totalCorrect: "Нийт зөв",
+    accuracy: "Зөв хариултын хувь",
+    totalScore: "Нийт оноо",
+    streak: days => `Цуврал: ${days} өдөр`,
+    last7Days: "Сүүлийн 7 хоног",
+    perLevel: "Түвшин тус бүр",
+    noHistory: "Одоогоор түүх алга.",
+    pts: "оноо",
+  },
+  footer: "© NomadSpeak",
+};
+
+// ---- Асуултын сан (асуулт, хариулт англи хэвээр) ----
 const BANK = {
   beginner: [
     { q: "What month is it now?", a: "It is September now." },
@@ -65,6 +112,9 @@ let questions = [];
 let currentIndex = 0;
 let score = 0;
 let locked = false;
+let quizAnswered = 0;
+let quizCorrect = 0;
+let stats = loadStats();
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -81,9 +131,196 @@ function unique(array) {
 }
 
 function levelName(lv) {
-  if (lv === "beginner") return "Анхан";
-  if (lv === "intermediate") return "Дунд";
-  return "Дээд";
+  if (lv === "beginner") return UI.levels.beginner;
+  if (lv === "intermediate") return UI.levels.intermediate;
+  return UI.levels.advanced;
+}
+
+function isoToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function safePercentage(correctCount, answeredCount) {
+  if (!answeredCount) return 0;
+  return Math.round((correctCount / answeredCount) * 100);
+}
+
+function defaultStats() {
+  return {
+    totalAnswered: 0,
+    totalCorrect: 0,
+    totalScore: 0,
+    history: [],
+    perLevel: {
+      beginner: { answered: 0, correct: 0, score: 0 },
+      intermediate: { answered: 0, correct: 0, score: 0 },
+      advanced: { answered: 0, correct: 0, score: 0 },
+    },
+  };
+}
+
+function sanitizeStats(data) {
+  const base = defaultStats();
+  if (!data || typeof data !== "object") return base;
+
+  const out = {
+    ...base,
+    ...data,
+    perLevel: {
+      beginner: { ...base.perLevel.beginner, ...(data.perLevel?.beginner || {}) },
+      intermediate: { ...base.perLevel.intermediate, ...(data.perLevel?.intermediate || {}) },
+      advanced: { ...base.perLevel.advanced, ...(data.perLevel?.advanced || {}) },
+    },
+    history: Array.isArray(data.history) ? data.history : [],
+  };
+
+  out.history = out.history
+    .filter(item => item && typeof item.date === "string")
+    .map(item => ({
+      date: item.date,
+      score: Number(item.score) || 0,
+      answered: Number(item.answered) || 0,
+      correct: Number(item.correct) || 0,
+    }))
+    .sort((a, b) => a.date.localeCompare(b.date));
+
+  return out;
+}
+
+function loadStats() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return defaultStats();
+    return sanitizeStats(JSON.parse(raw));
+  } catch {
+    return defaultStats();
+  }
+}
+
+function saveStats() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(stats));
+}
+
+function upsertTodayHistory(scoreDelta, answeredDelta, correctDelta) {
+  const today = isoToday();
+  const existing = stats.history.find(item => item.date === today);
+  if (existing) {
+    existing.score += scoreDelta;
+    existing.answered += answeredDelta;
+    existing.correct += correctDelta;
+  } else {
+    stats.history.push({
+      date: today,
+      score: scoreDelta,
+      answered: answeredDelta,
+      correct: correctDelta,
+    });
+  }
+  stats.history.sort((a, b) => a.date.localeCompare(b.date));
+}
+
+function calculateStreakDays() {
+  if (!stats.history.length) return 0;
+
+  const uniqueDates = [...new Set(stats.history.map(item => item.date))].sort((a, b) => a.localeCompare(b));
+  let streak = 0;
+  let cursor = new Date(`${isoToday()}T00:00:00`);
+
+  for (;;) {
+    const key = cursor.toISOString().slice(0, 10);
+    if (!uniqueDates.includes(key)) break;
+    streak += 1;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+
+  return streak;
+}
+
+function renderStats() {
+  const totalAnswered = stats.totalAnswered;
+  const totalCorrect = stats.totalCorrect;
+  const totalScore = stats.totalScore;
+  const accuracy = safePercentage(totalCorrect, totalAnswered);
+
+  document.getElementById("stats-total-answered-value").textContent = totalAnswered;
+  document.getElementById("stats-total-correct-value").textContent = totalCorrect;
+  document.getElementById("stats-accuracy-value").textContent = `${accuracy}%`;
+  document.getElementById("stats-total-score-value").textContent = totalScore;
+  document.getElementById("stats-streak").textContent = UI.stats.streak(calculateStreakDays());
+
+  const historyEl = document.getElementById("stats-history");
+  historyEl.innerHTML = "";
+
+  const sortedDesc = [...stats.history].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 7);
+  if (!sortedDesc.length) {
+    const li = document.createElement("li");
+    li.textContent = UI.stats.noHistory;
+    historyEl.appendChild(li);
+  } else {
+    sortedDesc.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = `${item.date} — ${item.score} ${UI.stats.pts}`;
+      historyEl.appendChild(li);
+    });
+  }
+
+  const levelList = document.getElementById("stats-level-list");
+  levelList.innerHTML = "";
+
+  ["beginner", "intermediate", "advanced"].forEach(lv => {
+    const item = stats.perLevel[lv];
+    const row = document.createElement("div");
+    row.className = "stats-level-item";
+
+    const name = document.createElement("span");
+    name.textContent = levelName(lv);
+
+    const value = document.createElement("strong");
+    const pct = safePercentage(item.correct, item.answered);
+    value.textContent = `${item.score} ${UI.stats.pts} • ${pct}%`;
+
+    row.appendChild(name);
+    row.appendChild(value);
+    levelList.appendChild(row);
+  });
+}
+
+function applyUIText() {
+  document.getElementById("subtitle").textContent = UI.brandSubtitle;
+  document.getElementById("level-pill-label").textContent = UI.topbar.level;
+  document.getElementById("score-pill-label").textContent = UI.topbar.score;
+  document.getElementById("question-pill-label").textContent = UI.topbar.question;
+
+  document.getElementById("start-title").textContent = UI.start.title;
+  document.getElementById("start-description").textContent = UI.start.description;
+  startBtn.textContent = UI.start.button;
+
+  const levelBeginner = document.getElementById("level-beginner");
+  const levelIntermediate = document.getElementById("level-intermediate");
+  const levelAdvanced = document.getElementById("level-advanced");
+
+  levelBeginner.textContent = UI.levels.beginner;
+  levelIntermediate.textContent = UI.levels.intermediate;
+  levelAdvanced.textContent = UI.levels.advanced;
+
+  levelBeginner.setAttribute("aria-label", `${UI.start.chooseLevel}: ${UI.levels.beginner}`);
+  levelIntermediate.setAttribute("aria-label", `${UI.start.chooseLevel}: ${UI.levels.intermediate}`);
+  levelAdvanced.setAttribute("aria-label", `${UI.start.chooseLevel}: ${UI.levels.advanced}`);
+
+  nextBtn.textContent = UI.quiz.nextQuestion;
+  document.getElementById("end-title").textContent = UI.end.title;
+  restartBtn.textContent = UI.end.restart;
+  backBtn.textContent = UI.end.back;
+
+  document.getElementById("stats-title").textContent = UI.stats.title;
+  document.getElementById("stats-total-answered-label").textContent = UI.stats.totalAnswered;
+  document.getElementById("stats-total-correct-label").textContent = UI.stats.totalCorrect;
+  document.getElementById("stats-accuracy-label").textContent = UI.stats.accuracy;
+  document.getElementById("stats-total-score-label").textContent = UI.stats.totalScore;
+  document.getElementById("stats-last7-title").textContent = UI.stats.last7Days;
+  document.getElementById("stats-level-title").textContent = UI.stats.perLevel;
+
+  document.getElementById("footer-text").textContent = UI.footer;
 }
 
 function getAllAnswersExcept(correct) {
@@ -92,15 +329,14 @@ function getAllAnswersExcept(correct) {
     ...BANK.intermediate.map(x => x.a),
     ...BANK.advanced.map(x => x.a),
   ];
-  return all.filter(a => a !== correct);
+  return all.filter(answer => answer !== correct);
 }
 
-// 4 option хийх: 1 зөв + 3 буруу
+// 4 сонголт хийх: 1 зөв + 3 буруу
 function buildOptions(correct) {
   const pool = shuffle(unique(getAllAnswersExcept(correct)));
   const wrongs = pool.slice(0, 3);
-  const mixed = shuffle([correct, ...wrongs]);
-  return mixed;
+  return shuffle([correct, ...wrongs]);
 }
 
 function updateTopbar() {
@@ -113,18 +349,22 @@ function updateTopbar() {
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
+function showOnlyScreen(screenEl) {
+  [startScreen, quizScreen, endScreen].forEach(hide);
+  show(screenEl);
+}
+
 // ---- Quiz logic ----
 function startQuiz() {
-  questions = shuffle(BANK[level]).slice(0); // бүгдийг
+  questions = shuffle(BANK[level]).slice(0);
   currentIndex = 0;
   score = 0;
   locked = false;
+  quizAnswered = 0;
+  quizCorrect = 0;
 
-  hide(startScreen);
-  hide(endScreen);
-  show(quizScreen);
+  showOnlyScreen(quizScreen);
   show(topbar);
-
   renderQuestion();
 }
 
@@ -156,22 +396,23 @@ function pickAnswer(buttonEl, selected) {
   locked = true;
 
   const correct = questions[currentIndex].a;
+  quizAnswered += 1;
 
-  // бүх товчийг disable болгох + өнгө
   const buttons = [...document.querySelectorAll(".option")];
-  buttons.forEach(b => {
-    b.disabled = true;
-    if (b.textContent === correct) b.classList.add("correct");
+  buttons.forEach(btn => {
+    btn.disabled = true;
+    if (btn.textContent === correct) btn.classList.add("correct");
   });
 
   if (selected === correct) {
     score += 1;
+    quizCorrect += 1;
     buttonEl.classList.add("correct");
-    resultEl.textContent = "✅ Зөв!";
+    resultEl.textContent = UI.quiz.correct;
     resultEl.classList.add("ok");
   } else {
     buttonEl.classList.add("wrong");
-    resultEl.textContent = `❌ Буруу! Зөв нь: ${correct}`;
+    resultEl.textContent = `${UI.quiz.incorrectPrefix} ${correct}`;
     resultEl.classList.add("bad");
   }
 
@@ -189,25 +430,40 @@ function nextQuestion() {
   }
 }
 
+function updateStatsFromQuiz() {
+  stats.totalAnswered += quizAnswered;
+  stats.totalCorrect += quizCorrect;
+  stats.totalScore += score;
+
+  stats.perLevel[level].answered += quizAnswered;
+  stats.perLevel[level].correct += quizCorrect;
+  stats.perLevel[level].score += score;
+
+  upsertTodayHistory(score, quizAnswered, quizCorrect);
+  saveStats();
+}
+
 function endQuiz() {
-  hide(quizScreen);
-  show(endScreen);
+  updateStatsFromQuiz();
+  renderStats();
+
+  hide(topbar);
+  showOnlyScreen(endScreen);
 
   const finalText = document.getElementById("final-text");
-  finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+  finalText.textContent = `${UI.end.yourScore}: ${score} / ${questions.length}  •  ${UI.end.level}: ${levelName(level)}`;
 }
 
 function backToStart() {
-  hide(quizScreen);
-  hide(endScreen);
   hide(topbar);
-  show(startScreen);
+  renderStats();
+  showOnlyScreen(startScreen);
 }
 
 // ---- Events ----
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    levelButtons.forEach(b => b.classList.remove("active"));
+    levelButtons.forEach(button => button.classList.remove("active"));
     btn.classList.add("active");
     level = btn.dataset.level;
   });
@@ -217,3 +473,6 @@ startBtn.addEventListener("click", startQuiz);
 nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
 backBtn.addEventListener("click", backToStart);
+
+applyUIText();
+renderStats();
