@@ -78,6 +78,9 @@ const statusStreakEl = document.getElementById("status-streak");
 const statusTodayEl = document.getElementById("status-today");
 const statusRewardEl = document.getElementById("status-reward");
 const completionBannerEl = document.getElementById("completion-banner");
+const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
+const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
+const DAILY_GOAL_COMPLETION_TEXT = "Өнөөдөр чиний хийсэн ганцхан цагийн дадлага бүр нэгдсээр далай мэт мэдлэгийг бий болгодог. Гэрэлт ирээдүйгээ бүтээж байгаа чамд улам их амжилт хүсье. Шинэ зууны иргэн танд урт холын аялалдаа гарч байгаад баярлалаа.";
 
 // ---- State ----
 let level = "beginner";
@@ -105,6 +108,8 @@ let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
 let completionBannerTimer = null;
+let completionBannerSpecialTimer = null;
+let sessionStartedBelowDailyGoal = true;
 
 let progressState = {
   xp: 0,
@@ -217,20 +222,128 @@ function markDailyCompletion() {
   progressState.lastCompletionDate = today;
 }
 
-function showCompletionBanner() {
+function clearBannerEffects() {
   if (!completionBannerEl) return;
+  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+  if (effectsLayer) {
+    effectsLayer.innerHTML = "";
+  }
+}
+
+function createParticle(layer, className, color, x, y, vars = {}) {
+  const particle = document.createElement("span");
+  particle.className = className;
+  particle.style.setProperty("--particle-color", color);
+  particle.style.setProperty("--x", `${x}px`);
+  particle.style.setProperty("--y", `${y}px`);
+  Object.entries(vars).forEach(([key, value]) => {
+    particle.style.setProperty(key, value);
+  });
+  layer.appendChild(particle);
+  particle.addEventListener("animationend", () => particle.remove(), { once: true });
+}
+
+function spawnBannerStars() {
+  if (!completionBannerEl) return;
+  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+  if (!effectsLayer) return;
+
+  const colors = ["#ff4f57", "#ffd54d", "#76ff8b"];
+  const width = completionBannerEl.clientWidth;
+  const height = completionBannerEl.clientHeight;
+  const count = 24;
+
+  for (let i = 0; i < count; i += 1) {
+    const side = i % 4;
+    const progress = Math.random();
+    let x = 0;
+    let y = 0;
+
+    if (side === 0) {
+      x = width * progress;
+      y = 0;
+    } else if (side === 1) {
+      x = width;
+      y = height * progress;
+    } else if (side === 2) {
+      x = width * progress;
+      y = height;
+    } else {
+      x = 0;
+      y = height * progress;
+    }
+
+    createParticle(effectsLayer, "banner-star", colors[i % colors.length], x, y, {
+      "--dx": `${(Math.random() * 2 - 1) * 24}px`,
+      "--dy": `${(Math.random() * 2 - 1) * 24}px`,
+    });
+  }
+}
+
+function spawnDailyGoalEffects() {
+  if (!completionBannerEl) return;
+  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+  if (!effectsLayer) return;
+
+  const confettiColors = ["#f8e083", "#f7c944", "#ffeb99", "#f5d878"];
+  const width = completionBannerEl.clientWidth;
+
+  for (let i = 0; i < 36; i += 1) {
+    createParticle(
+      effectsLayer,
+      "banner-confetti",
+      confettiColors[i % confettiColors.length],
+      12 + Math.random() * (width - 24),
+      -10,
+      {
+        "--drift": `${(Math.random() * 2 - 1) * 40}px`,
+        "--fall": `${34 + Math.random() * 46}px`,
+        "--delay": `${Math.random() * 200}ms`,
+      }
+    );
+  }
+
+  const shine = document.createElement("span");
+  shine.className = "banner-shine";
+  effectsLayer.appendChild(shine);
+  shine.addEventListener("animationend", () => shine.remove(), { once: true });
+}
+
+function showCompletionBanner(showDailyGoalUpgrade = false) {
+  if (!completionBannerEl) return;
+
+  if (completionBannerTextEl) completionBannerTextEl.textContent = DEFAULT_COMPLETION_TEXT;
+  completionBannerEl.classList.remove("premium");
 
   completionBannerEl.classList.remove("hidden", "showing");
   void completionBannerEl.offsetWidth;
   completionBannerEl.classList.add("showing");
+  clearBannerEffects();
+  spawnBannerStars();
   playCompletionBannerSound();
 
   if (completionBannerTimer) clearTimeout(completionBannerTimer);
+  if (completionBannerSpecialTimer) clearTimeout(completionBannerSpecialTimer);
+
+  if (showDailyGoalUpgrade) {
+    completionBannerSpecialTimer = setTimeout(() => {
+      if (completionBannerTextEl) completionBannerTextEl.textContent = DAILY_GOAL_COMPLETION_TEXT;
+      completionBannerEl.classList.add("premium");
+      clearBannerEffects();
+      spawnDailyGoalEffects();
+      playDailyVictoryChime();
+    }, 1800);
+  }
 
   completionBannerTimer = setTimeout(() => {
     completionBannerEl.classList.remove("showing");
-    completionBannerEl.classList.add("hidden");
-  }, 8000);
+    clearBannerEffects();
+    setTimeout(() => {
+      completionBannerEl.classList.add("hidden");
+      completionBannerEl.classList.remove("premium");
+      if (completionBannerTextEl) completionBannerTextEl.textContent = DEFAULT_COMPLETION_TEXT;
+    }, 450);
+  }, 10000);
 }
 
 function playCompletionBannerSound() {
@@ -247,6 +360,23 @@ function playCompletionBannerSound() {
         release: 0.1,
       });
     }, index * 120);
+  });
+}
+
+function playDailyVictoryChime() {
+  if (!soundEnabled) return;
+  const notes = [587.33, 783.99, 987.77, 1174.66];
+  notes.forEach((frequency, index) => {
+    setTimeout(() => {
+      playTone({
+        frequency,
+        type: "triangle",
+        duration: 0.1,
+        volume: 0.05,
+        attack: 0.005,
+        release: 0.11,
+      });
+    }, index * 130);
   });
 }
 
@@ -606,6 +736,7 @@ function startQuiz() {
   currentIndex = 0;
   score = 0;
   locked = false;
+  sessionStartedBelowDailyGoal = progressState.todayProgress < DAILY_GOAL;
 
   stopSpeaking();
   showScreen(quizScreen);
@@ -686,7 +817,8 @@ function endQuiz() {
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
 
-  showCompletionBanner();
+  const completedDailyGoalSession = sessionStartedBelowDailyGoal && progressState.todayProgress >= DAILY_GOAL;
+  showCompletionBanner(completedDailyGoalSession);
 
   if (progressState.todayProgress >= DAILY_GOAL) {
     markDailyCompletion();
