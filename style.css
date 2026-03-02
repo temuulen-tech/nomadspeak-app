@@ -51,13 +51,14 @@ body{
   gap:14px;
 }
 
-.header-nav{
+.header-right{
   display:flex;
-  align-items:center;
-  justify-content:flex-end;
+  flex-direction:column;
+  align-items:flex-end;
   gap:8px;
   margin-left:auto;
-  order:2;
+  flex:1 1 360px;
+  min-width:280px;
 }
 
 .status-bar{
@@ -66,9 +67,14 @@ body{
   gap:8px;
   flex-wrap:wrap;
   justify-content:flex-end;
-  margin-left:auto;
-  flex-basis:100%;
-  order:3;
+}
+
+.header-nav{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 .status-pill{
@@ -114,12 +120,19 @@ body{
   z-index:2;
 }
 
+.banner-overlay{
+  position:absolute;
+  inset:-10px;
+  pointer-events:none;
+  overflow:visible;
+  z-index:9;
+}
+
 .banner-effects{
   position:absolute;
   inset:0;
   pointer-events:none;
   overflow:visible;
-  z-index:3;
 }
 
 .banner-star{
@@ -373,14 +386,19 @@ body{
   .header-main{
     align-items:flex-start;
   }
+  .header-right{
+    width:100%;
+    min-width:0;
+    align-items:flex-end;
+    margin-left:0;
+  }
   .header-nav{
     width:100%;
     justify-content:flex-end;
-    margin-left:0;
   }
   .status-bar{
-    margin-left:0;
-    justify-content:flex-start;
+    width:100%;
+    justify-content:flex-end;
   }
 }
 

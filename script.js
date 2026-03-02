@@ -321,33 +321,33 @@ function spawnBannerStars() {
   const effectsLayer = completionBannerEl.querySelector(".banner-effects");
   if (!effectsLayer) return;
 
-  const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffffff"];
+  const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffd54d", "#ffffff"];
   const width = completionBannerEl.clientWidth;
   const height = completionBannerEl.clientHeight;
-  const count = 26;
+  const count = 30;
 
   const edgePoint = () => {
     const side = Math.floor(Math.random() * 4);
-    const inset = 8;
-    if (side === 0) return { x: inset + Math.random() * (width - inset * 2), y: 2, nx: 0, ny: -1 };
-    if (side === 1) return { x: width - 2, y: inset + Math.random() * (height - inset * 2), nx: 1, ny: 0 };
-    if (side === 2) return { x: inset + Math.random() * (width - inset * 2), y: height - 2, nx: 0, ny: 1 };
-    return { x: 2, y: inset + Math.random() * (height - inset * 2), nx: -1, ny: 0 };
+    const inset = 10;
+    if (side === 0) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: 0, nx: 0, ny: -1 };
+    if (side === 1) return { x: width, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: 1, ny: 0 };
+    if (side === 2) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: height, nx: 0, ny: 1 };
+    return { x: 0, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: -1, ny: 0 };
   };
 
   for (let i = 0; i < count; i += 1) {
     const origin = edgePoint();
-    const spread = (Math.random() - 0.5) * 0.9;
+    const spread = (Math.random() - 0.5) * 0.8;
     const tangentX = -origin.ny;
     const tangentY = origin.nx;
-    const burst = 10 + Math.random() * 22;
-    const drift = (Math.random() - 0.5) * 10;
-    const duration = 760 + Math.random() * 620;
+    const burst = 16 + Math.random() * 20;
+    const drift = (Math.random() - 0.5) * 8;
+    const duration = 780 + Math.random() * 620;
 
     createParticle(effectsLayer, "banner-star", colors[i % colors.length], origin.x, origin.y, {
-      "--dx": `${origin.nx * burst + tangentX * spread * 18 + drift}px`,
-      "--dy": `${origin.ny * burst + tangentY * spread * 18 + drift}px`,
-      "--size": `${4 + Math.random() * 4}px`,
+      "--dx": `${origin.nx * burst + tangentX * spread * 14 + drift}px`,
+      "--dy": `${origin.ny * burst + tangentY * spread * 14 + drift}px`,
+      "--size": `${3 + Math.random() * 3}px`,
       "--duration": `${duration}ms`,
     });
   }
@@ -385,10 +385,12 @@ function spawnDailyGoalEffects() {
 function showCompletionBanner(showDailyGoalUpgrade = false) {
   if (!completionBannerEl) return;
 
+  const bannerText = showDailyGoalUpgrade
+    ? DAILY_GOAL_COMPLETION_TEXT
+    : DEFAULT_COMPLETION_TEXT;
+
   if (completionBannerTextEl) {
-    completionBannerTextEl.textContent = showDailyGoalUpgrade
-      ? DAILY_GOAL_COMPLETION_TEXT
-      : DEFAULT_COMPLETION_TEXT;
+    completionBannerTextEl.textContent = bannerText;
   }
   completionBannerEl.classList.toggle("premium", showDailyGoalUpgrade);
 
@@ -397,6 +399,7 @@ function showCompletionBanner(showDailyGoalUpgrade = false) {
   completionBannerEl.classList.add("showing");
   clearBannerEffects();
   spawnBannerStars();
+  speakBannerText(bannerText);
   if (showDailyGoalUpgrade) {
     playDailyVictoryChime();
   } else {
@@ -448,6 +451,28 @@ function playDailyVictoryChime() {
       });
     }, index * 130);
   });
+}
+
+
+function mongolianVoice() {
+  const voices = availableVoices || [];
+  return voices.find(v => (v.lang || "").toLowerCase().startsWith("mn")) || null;
+}
+
+function speakBannerText(text) {
+  if (!soundEnabled) return;
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const mnVoice = mongolianVoice();
+  if (!mnVoice) return;
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = mnVoice.lang || "mn-MN";
+  utterance.voice = mnVoice;
+  utterance.rate = 1;
+  window.speechSynthesis.speak(utterance);
 }
 
 function getAllAnswersExcept(correct) {

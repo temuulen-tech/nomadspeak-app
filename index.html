@@ -39,17 +39,19 @@
           </div>
         </div>
 
-        <div class="status-bar" id="status-bar" aria-live="polite">
-          <span class="status-pill" id="status-xp">⭐ XP: 0</span>
-          <span class="status-pill" id="status-streak">🔥 Цуврал: 0 өдөр</span>
-          <span class="status-pill" id="status-today">📅 Өнөөдөр: 0/10</span>
-          <span class="status-pill" id="status-reward">⭐ Шагнал</span>
-        </div>
+        <div class="header-right">
+          <div class="status-bar" id="status-bar" aria-live="polite">
+            <span class="status-pill" id="status-xp">⭐ XP: 0</span>
+            <span class="status-pill" id="status-streak">🔥 Цуврал: 0 өдөр</span>
+            <span class="status-pill" id="status-today">📅 Өнөөдөр: 0/10</span>
+            <span class="status-pill" id="status-reward">⭐ Шагнал</span>
+          </div>
 
-        <div class="header-nav" aria-label="Үндсэн навигаци">
-          <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
-          <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
-          <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
+          <div class="header-nav" aria-label="Үндсэн навигаци">
+            <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
+            <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
+            <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
+          </div>
         </div>
       </div>
 
@@ -62,7 +64,9 @@
 
     <div class="completion-banner hidden" id="completion-banner" role="status" aria-live="polite">
       <span class="banner-text">Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.</span>
-      <div class="banner-effects" aria-hidden="true"></div>
+      <div class="banner-overlay" aria-hidden="true">
+        <div class="banner-effects"></div>
+      </div>
     </div>
 
     <!-- START SCREEN -->
