@@ -72,6 +72,7 @@ const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
 const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
+const soundToggleBtn = document.getElementById("sound-toggle-btn");
 
 // ---- State ----
 let level = "beginner";
@@ -87,12 +88,15 @@ let speakingSentenceId = null;
 let availableVoices = [];
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
+const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
   rate: 1,
 };
 
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
+let soundEnabled = true;
+let audioContext = null;
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -190,6 +194,77 @@ function updateTopbar() {
 // ---- UI switch ----
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
+
+function loadSoundSettings() {
+  try {
+    const raw = localStorage.getItem(SOUND_SETTINGS_KEY);
+    if (raw === null) {
+      soundEnabled = true;
+      return;
+    }
+
+    soundEnabled = raw === "on";
+  } catch (error) {
+    soundEnabled = true;
+  }
+}
+
+function persistSoundSettings() {
+  localStorage.setItem(SOUND_SETTINGS_KEY, soundEnabled ? "on" : "off");
+}
+
+function updateSoundToggleState() {
+  if (!soundToggleBtn) return;
+  soundToggleBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+  soundToggleBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+}
+
+function getAudioContext() {
+  if (!(window.AudioContext || window.webkitAudioContext)) return null;
+  if (!audioContext) {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    audioContext = new AudioCtx();
+  }
+  return audioContext;
+}
+
+function playTone({ frequency, type, duration, volume, attack = 0.005, release = 0.05 }) {
+  if (!soundEnabled) return;
+  const ctx = getAudioContext();
+  if (!ctx) return;
+
+  if (ctx.state === "suspended") {
+    ctx.resume();
+  }
+
+  const now = ctx.currentTime;
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+
+  osc.type = type;
+  osc.frequency.setValueAtTime(frequency, now);
+
+  gain.gain.setValueAtTime(0, now);
+  gain.gain.linearRampToValueAtTime(volume, now + attack);
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + release);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+
+  osc.start(now);
+  osc.stop(now + duration + release + 0.02);
+}
+
+function playCorrectSound() {
+  playTone({ frequency: 880, type: "sine", duration: 0.08, volume: 0.12, attack: 0.004, release: 0.06 });
+  setTimeout(() => {
+    playTone({ frequency: 1320, type: "sine", duration: 0.09, volume: 0.1, attack: 0.004, release: 0.07 });
+  }, 55);
+}
+
+function playWrongSound() {
+  playTone({ frequency: 170, type: "triangle", duration: 0.12, volume: 0.1, attack: 0.002, release: 0.1 });
+}
 
 // ---- Speech & sentences ----
 function loadVoices() {
@@ -446,10 +521,12 @@ function pickAnswer(buttonEl, selected) {
     buttonEl.classList.add("correct");
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
+    playCorrectSound();
   } else {
     buttonEl.classList.add("wrong");
     resultEl.textContent = `❌ Буруу! Зөв нь: ${correct}`;
     resultEl.classList.add("bad");
+    playWrongSound();
   }
 
   show(resultEl);
@@ -481,6 +558,8 @@ function backToStart() {
 // ---- Events ----
 loadTtsSettings();
 updateTtsControlState();
+loadSoundSettings();
+updateSoundToggleState();
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -515,6 +594,14 @@ rateOptionButtons.forEach(btn => {
     persistTtsSettings();
   });
 });
+
+if (soundToggleBtn) {
+  soundToggleBtn.addEventListener("click", () => {
+    soundEnabled = !soundEnabled;
+    updateSoundToggleState();
+    persistSoundSettings();
+  });
+}
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
