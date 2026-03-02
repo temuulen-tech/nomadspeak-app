@@ -73,6 +73,11 @@ const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
 const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
 const soundToggleBtn = document.getElementById("sound-toggle-btn");
+const statusXpEl = document.getElementById("status-xp");
+const statusStreakEl = document.getElementById("status-streak");
+const statusTodayEl = document.getElementById("status-today");
+const statusRewardEl = document.getElementById("status-reward");
+const completionBannerEl = document.getElementById("completion-banner");
 
 // ---- State ----
 let level = "beginner";
@@ -89,6 +94,8 @@ let availableVoices = [];
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
+const PROGRESS_SETTINGS_KEY = "nomadspeak:progress:v1";
+const DAILY_GOAL = 10;
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
   rate: 1,
@@ -97,6 +104,16 @@ const DEFAULT_TTS_SETTINGS = {
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
+let completionBannerTimer = null;
+
+let progressState = {
+  xp: 0,
+  streak: 0,
+  lastCompletionDate: "",
+  todayDate: "",
+  todayProgress: 0,
+  bannerShownDate: "",
+};
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -116,6 +133,106 @@ function levelName(lv) {
   if (lv === "beginner") return "Анхан";
   if (lv === "intermediate") return "Дунд";
   return "Дээд";
+}
+
+function todayKey() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, "0");
+  const day = String(now.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function previousDayKey(dayKey) {
+  if (!dayKey) return "";
+  const dt = new Date(`${dayKey}T00:00:00`);
+  dt.setDate(dt.getDate() - 1);
+  const year = dt.getFullYear();
+  const month = String(dt.getMonth() + 1).padStart(2, "0");
+  const day = String(dt.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function rewardForStreak(streak) {
+  if (streak >= 30) return "💎 Бриллиант";
+  if (streak >= 7) return "🏆 Алтан цом";
+  return "⭐ Таван хошуу";
+}
+
+function normalizeProgressState(raw = {}) {
+  return {
+    xp: Number.isFinite(Number(raw.xp)) ? Math.max(0, Number(raw.xp)) : 0,
+    streak: Number.isFinite(Number(raw.streak)) ? Math.max(0, Number(raw.streak)) : 0,
+    lastCompletionDate: typeof raw.lastCompletionDate === "string" ? raw.lastCompletionDate : "",
+    todayDate: typeof raw.todayDate === "string" ? raw.todayDate : "",
+    todayProgress: Number.isFinite(Number(raw.todayProgress)) ? Math.max(0, Math.min(DAILY_GOAL, Number(raw.todayProgress))) : 0,
+    bannerShownDate: typeof raw.bannerShownDate === "string" ? raw.bannerShownDate : "",
+  };
+}
+
+function syncDailyProgressDate() {
+  const today = todayKey();
+  if (progressState.todayDate !== today) {
+    progressState.todayDate = today;
+    progressState.todayProgress = 0;
+  }
+}
+
+function persistProgressState() {
+  localStorage.setItem(PROGRESS_SETTINGS_KEY, JSON.stringify(progressState));
+}
+
+function loadProgressState() {
+  try {
+    const raw = localStorage.getItem(PROGRESS_SETTINGS_KEY);
+    progressState = raw ? normalizeProgressState(JSON.parse(raw)) : normalizeProgressState();
+  } catch (error) {
+    progressState = normalizeProgressState();
+  }
+
+  syncDailyProgressDate();
+}
+
+function updateStatusBar() {
+  syncDailyProgressDate();
+  statusXpEl.textContent = `⭐ XP: ${progressState.xp}`;
+  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streak} өдөр`;
+  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayProgress}/${DAILY_GOAL}`;
+  statusRewardEl.textContent = rewardForStreak(progressState.streak);
+}
+
+function incrementTodayProgress() {
+  syncDailyProgressDate();
+  if (progressState.todayProgress < DAILY_GOAL) {
+    progressState.todayProgress += 1;
+  }
+}
+
+function markDailyCompletion() {
+  const today = todayKey();
+  if (progressState.lastCompletionDate === today) return;
+
+  const yesterday = previousDayKey(today);
+  progressState.streak = progressState.lastCompletionDate === yesterday
+    ? progressState.streak + 1
+    : 1;
+  progressState.lastCompletionDate = today;
+}
+
+function showCompletionBanner() {
+  if (!completionBannerEl) return;
+
+  completionBannerEl.classList.remove("hidden", "fade-out");
+
+  if (completionBannerTimer) clearTimeout(completionBannerTimer);
+
+  completionBannerTimer = setTimeout(() => {
+    completionBannerEl.classList.add("fade-out");
+    setTimeout(() => {
+      completionBannerEl.classList.add("hidden");
+      completionBannerEl.classList.remove("fade-out");
+    }, 550);
+  }, 5000);
 }
 
 function getAllAnswersExcept(correct) {
@@ -516,8 +633,11 @@ function pickAnswer(buttonEl, selected) {
     if (b.textContent === correct) b.classList.add("correct");
   });
 
+  incrementTodayProgress();
+
   if (selected === correct) {
     score += 1;
+    progressState.xp += 1;
     buttonEl.classList.add("correct");
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
@@ -532,6 +652,8 @@ function pickAnswer(buttonEl, selected) {
   show(resultEl);
   show(nextBtn);
   updateTopbar();
+  updateStatusBar();
+  persistProgressState();
 }
 
 function nextQuestion() {
@@ -548,6 +670,19 @@ function endQuiz() {
 
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+
+  const today = todayKey();
+  if (progressState.todayProgress >= DAILY_GOAL) {
+    markDailyCompletion();
+
+    if (progressState.bannerShownDate !== today) {
+      showCompletionBanner();
+      progressState.bannerShownDate = today;
+    }
+  }
+
+  updateStatusBar();
+  persistProgressState();
 }
 
 function backToStart() {
@@ -560,6 +695,9 @@ loadTtsSettings();
 updateTtsControlState();
 loadSoundSettings();
 updateSoundToggleState();
+loadProgressState();
+updateStatusBar();
+persistProgressState();
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {

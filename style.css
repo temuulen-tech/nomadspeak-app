@@ -42,6 +42,7 @@ body{
   align-items:flex-start;
   justify-content:space-between;
   gap:12px;
+  flex-wrap:wrap;
 }
 
 .brand{
@@ -54,6 +55,46 @@ body{
   display:flex;
   align-items:center;
   gap:8px;
+}
+
+.status-bar{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  margin-left:auto;
+}
+
+.status-pill{
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.2);
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:13px;
+  white-space:nowrap;
+}
+
+.completion-banner{
+  border:1px solid rgba(0,240,210,.45);
+  background:linear-gradient(90deg, rgba(0,240,210,.16), rgba(116,255,205,.24));
+  border-radius:14px;
+  padding:12px 14px;
+  margin-bottom:14px;
+  color:#eafff2;
+  box-shadow: 0 0 28px rgba(0,240,210,.32);
+  animation: bannerGlow 1.8s ease-in-out infinite;
+  pointer-events:none;
+}
+
+.completion-banner.fade-out{
+  opacity:0;
+  transition: opacity .55s ease;
+}
+
+@keyframes bannerGlow{
+  0%,100%{ box-shadow: 0 0 16px rgba(0,240,210,.24); }
+  50%{ box-shadow: 0 0 30px rgba(93,255,225,.5); }
 }
 
 .nav-btn{
@@ -209,6 +250,10 @@ body{
   .header-main{
     flex-direction:column;
     align-items:flex-start;
+  }
+  .status-bar{
+    margin-left:0;
+    justify-content:flex-start;
   }
 }
 
