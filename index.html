@@ -50,6 +50,7 @@
           <div class="header-nav" aria-label="Үндсэн навигаци">
             <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
             <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
+            <button class="secondary nav-btn" id="nav-sentence-game-btn" type="button">Өгүүлбэрийн тоглоом</button>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
           </div>
         </div>
@@ -121,6 +122,22 @@
         <button class="filter-btn" type="button" data-filter="advanced">Дээд</button>
       </div>
       <div class="sentences-list" id="sentences-list" aria-live="polite"></div>
+    </section>
+
+    <!-- SENTENCE GAME SCREEN -->
+    <section class="card hidden" id="sentence-game-screen">
+      <h2>Өгүүлбэрийн тоглоом</h2>
+      <p class="muted">Үгсийг зөв дарааллаар оруулаарай.</p>
+
+      <div class="sentence-game-dropzone" id="sentence-game-dropzone" aria-live="polite"></div>
+      <div class="sentence-game-pool" id="sentence-game-pool"></div>
+
+      <div class="sentence-game-actions">
+        <button class="secondary" id="sentence-game-undo-btn" type="button">Буцаах</button>
+        <button class="primary" id="sentence-game-next-btn" type="button" disabled>Дараагийн өгүүлбэр</button>
+      </div>
+
+      <div class="sentence-game-feedback" id="sentence-game-feedback" aria-live="polite"></div>
     </section>
 
     <!-- STATS SCREEN -->
