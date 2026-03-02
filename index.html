@@ -39,11 +39,21 @@
           </div>
         </div>
 
+        <div class="header-status" id="header-status" aria-live="polite">
+          <div class="status-chip"><span>⭐ XP:</span> <strong id="total-xp">0</strong></div>
+          <div class="status-chip"><span id="streak-icon" aria-hidden="true">⭐</span> <span>Цуврал:</span> <strong id="streak-days">0 өдөр</strong></div>
+          <div class="status-chip"><span>📅 Өнөөдөр:</span> <strong id="today-progress">0/10</strong></div>
+        </div>
+
         <div class="header-nav" aria-label="Үндсэн навигаци">
           <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
           <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
           <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
         </div>
+      </div>
+
+      <div class="daily-thanks-banner hidden" id="daily-thanks-banner" role="status" aria-live="polite">
+        Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.
       </div>
 
       <div class="topbar hidden" id="topbar">

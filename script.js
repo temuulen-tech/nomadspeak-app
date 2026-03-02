@@ -74,6 +74,12 @@ const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice
 const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
 const soundToggleBtn = document.getElementById("sound-toggle-btn");
 
+const totalXpEl = document.getElementById("total-xp");
+const streakDaysEl = document.getElementById("streak-days");
+const todayProgressEl = document.getElementById("today-progress");
+const streakIconEl = document.getElementById("streak-icon");
+const dailyThanksBanner = document.getElementById("daily-thanks-banner");
+
 // ---- State ----
 let level = "beginner";
 let questions = [];
@@ -97,6 +103,16 @@ const DEFAULT_TTS_SETTINGS = {
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
+
+const REWARD_STATE_KEY = "nomadspeak:rewards:v1";
+const DAILY_GOAL_TARGET = 10;
+let rewardState = {
+  totalXp: 0,
+  streakDays: 0,
+  completedDays: {},
+  lastCompletionDate: null,
+};
+let dailyThanksTimeoutId = null;
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -468,12 +484,125 @@ async function loadSentences() {
   }
 }
 
+
+function todayKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+function yesterdayKey(date = new Date()) {
+  const d = new Date(date);
+  d.setDate(d.getDate() - 1);
+  return todayKey(d);
+}
+
+function cleanCompletedDays(completedDays = {}) {
+  return Object.fromEntries(Object.entries(completedDays).filter(([, value]) => Number(value) > 0));
+}
+
+function loadRewardState() {
+  try {
+    const raw = localStorage.getItem(REWARD_STATE_KEY);
+    if (!raw) return;
+    const parsed = JSON.parse(raw);
+    rewardState = {
+      totalXp: Math.max(0, Number(parsed.totalXp) || 0),
+      streakDays: Math.max(0, Number(parsed.streakDays) || 0),
+      completedDays: cleanCompletedDays(parsed.completedDays),
+      lastCompletionDate: typeof parsed.lastCompletionDate === "string" ? parsed.lastCompletionDate : null,
+    };
+  } catch (error) {
+    rewardState = {
+      totalXp: 0,
+      streakDays: 0,
+      completedDays: {},
+      lastCompletionDate: null,
+    };
+  }
+}
+
+function persistRewardState() {
+  localStorage.setItem(REWARD_STATE_KEY, JSON.stringify(rewardState));
+}
+
+function streakRewardIcon(streakDays) {
+  if (streakDays >= 30) return "💎";
+  if (streakDays >= 7) return "🏆";
+  return "⭐";
+}
+
+function todayProgressCount() {
+  return Math.min(DAILY_GOAL_TARGET, Number(rewardState.completedDays[todayKey()]) || 0);
+}
+
+function updateHeaderStatus() {
+  if (!totalXpEl || !streakDaysEl || !todayProgressEl || !streakIconEl) return;
+  const progressCount = todayProgressCount();
+  totalXpEl.textContent = String(rewardState.totalXp);
+  streakDaysEl.textContent = `${rewardState.streakDays} өдөр`;
+  todayProgressEl.textContent = `${progressCount}/${DAILY_GOAL_TARGET}`;
+  streakIconEl.textContent = streakRewardIcon(rewardState.streakDays);
+}
+
+function completeDailyProgress() {
+  const today = todayKey();
+  const alreadyCompleted = Number(rewardState.completedDays[today]) >= DAILY_GOAL_TARGET;
+  rewardState.totalXp += score;
+
+  if (!alreadyCompleted) {
+    rewardState.completedDays[today] = DAILY_GOAL_TARGET;
+
+    if (!rewardState.lastCompletionDate) {
+      rewardState.streakDays = 1;
+    } else if (rewardState.lastCompletionDate === today) {
+      rewardState.streakDays = Math.max(1, rewardState.streakDays);
+    } else if (rewardState.lastCompletionDate === yesterdayKey()) {
+      rewardState.streakDays += 1;
+    } else {
+      rewardState.streakDays = 1;
+    }
+
+    rewardState.lastCompletionDate = today;
+  }
+
+  rewardState.completedDays = cleanCompletedDays(rewardState.completedDays);
+  persistRewardState();
+  updateHeaderStatus();
+  return !alreadyCompleted;
+}
+
+function showDailyThanksBannerOnce() {
+  if (!dailyThanksBanner) return;
+
+  dailyThanksBanner.classList.remove("banner-fade-out");
+  dailyThanksBanner.classList.remove("hidden");
+
+  if (dailyThanksTimeoutId) {
+    clearTimeout(dailyThanksTimeoutId);
+  }
+
+  dailyThanksTimeoutId = setTimeout(() => {
+    dailyThanksBanner.classList.add("banner-fade-out");
+    setTimeout(() => {
+      dailyThanksBanner.classList.add("hidden");
+      dailyThanksBanner.classList.remove("banner-fade-out");
+    }, 450);
+  }, 5000);
+}
+
 // ---- Quiz logic ----
 function startQuiz() {
   questions = shuffle(BANK[level]).slice(0); // бүгдийг
   currentIndex = 0;
   score = 0;
   locked = false;
+
+  if (dailyThanksBanner) {
+    dailyThanksBanner.classList.add("hidden");
+    dailyThanksBanner.classList.remove("banner-fade-out");
+  }
 
   stopSpeaking();
   showScreen(quizScreen);
@@ -544,10 +673,16 @@ function nextQuestion() {
 }
 
 function endQuiz() {
+  const shouldShowThanksBanner = completeDailyProgress();
+
   showScreen(endScreen);
 
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+
+  if (todayProgressCount() >= DAILY_GOAL_TARGET && shouldShowThanksBanner) {
+    showDailyThanksBannerOnce();
+  }
 }
 
 function backToStart() {
@@ -560,6 +695,8 @@ loadTtsSettings();
 updateTtsControlState();
 loadSoundSettings();
 updateSoundToggleState();
+loadRewardState();
+updateHeaderStatus();
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
