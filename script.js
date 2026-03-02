@@ -98,7 +98,8 @@ let availableVoices = [];
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
 const PROGRESS_SETTINGS_KEY = "nomadspeak:progress:v1";
-const DAILY_GOAL = 10;
+const DEFAULT_DAILY_GOAL = 10;
+const DAILY_GOAL_SETTINGS_KEY = "nomadspeak:daily-goal:v1";
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
   rate: 1,
@@ -109,14 +110,19 @@ let soundEnabled = true;
 let audioContext = null;
 let completionBannerTimer = null;
 let completionBannerSpecialTimer = null;
-let sessionStartedBelowDailyGoal = true;
-
 let progressState = {
   xp: 0,
   streak: 0,
   lastCompletionDate: "",
   todayDate: "",
   todayProgress: 0,
+  dailySession: {
+    date: "",
+    dailyCount: DEFAULT_DAILY_GOAL,
+    currentIndex: -1,
+    answeredCount: 0,
+    completed: false,
+  },
 };
 
 // ---- Helpers ----
@@ -163,13 +169,42 @@ function rewardForStreak(streak) {
   return "⭐ Таван хошуу";
 }
 
+function getDailyGoalCount() {
+  const raw = localStorage.getItem(DAILY_GOAL_SETTINGS_KEY);
+  const parsed = Number(raw);
+  if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
+  return DEFAULT_DAILY_GOAL;
+}
+
 function normalizeProgressState(raw = {}) {
+  const configuredDailyGoal = getDailyGoalCount();
+  const xpCandidate = raw.xp ?? raw.totalXp ?? raw.totalXP ?? raw.points;
+  const streakCandidate = raw.streak ?? raw.streakDays ?? raw.streakCount;
+  const todayProgressCandidate = raw.todayProgress ?? raw.todayCount ?? raw.dailyProgress;
+  const lastCompletionDateCandidate = raw.lastCompletionDate ?? raw.lastCompletedDate;
+  const todayDateCandidate = raw.todayDate ?? raw.currentDate;
+  const sessionRaw = raw.dailySession || {};
+  const sessionDailyCountCandidate = sessionRaw.dailyCount ?? raw.dailyCount ?? configuredDailyGoal;
+
   return {
-    xp: Number.isFinite(Number(raw.xp)) ? Math.max(0, Number(raw.xp)) : 0,
-    streak: Number.isFinite(Number(raw.streak)) ? Math.max(0, Number(raw.streak)) : 0,
-    lastCompletionDate: typeof raw.lastCompletionDate === "string" ? raw.lastCompletionDate : "",
-    todayDate: typeof raw.todayDate === "string" ? raw.todayDate : "",
-    todayProgress: Number.isFinite(Number(raw.todayProgress)) ? Math.max(0, Math.min(DAILY_GOAL, Number(raw.todayProgress))) : 0,
+    xp: Number.isFinite(Number(xpCandidate)) ? Math.max(0, Number(xpCandidate)) : 0,
+    streak: Number.isFinite(Number(streakCandidate)) ? Math.max(0, Number(streakCandidate)) : 0,
+    lastCompletionDate: typeof lastCompletionDateCandidate === "string" ? lastCompletionDateCandidate : "",
+    todayDate: typeof todayDateCandidate === "string" ? todayDateCandidate : "",
+    todayProgress: Number.isFinite(Number(todayProgressCandidate))
+      ? Math.max(0, Math.min(configuredDailyGoal, Number(todayProgressCandidate)))
+      : 0,
+    dailySession: {
+      date: typeof sessionRaw.date === "string" ? sessionRaw.date : "",
+      dailyCount: Number.isFinite(Number(sessionDailyCountCandidate))
+        ? Math.max(1, Math.floor(Number(sessionDailyCountCandidate)))
+        : configuredDailyGoal,
+      currentIndex: Number.isFinite(Number(sessionRaw.currentIndex)) ? Number(sessionRaw.currentIndex) : -1,
+      answeredCount: Number.isFinite(Number(sessionRaw.answeredCount))
+        ? Math.max(0, Number(sessionRaw.answeredCount))
+        : 0,
+      completed: Boolean(sessionRaw.completed),
+    },
   };
 }
 
@@ -178,6 +213,16 @@ function syncDailyProgressDate() {
   if (progressState.todayDate !== today) {
     progressState.todayDate = today;
     progressState.todayProgress = 0;
+  }
+
+  if (!progressState.dailySession || progressState.dailySession.date !== today) {
+    progressState.dailySession = {
+      date: today,
+      dailyCount: getDailyGoalCount(),
+      currentIndex: -1,
+      answeredCount: progressState.todayProgress,
+      completed: progressState.todayProgress >= getDailyGoalCount(),
+    };
   }
 }
 
@@ -196,19 +241,48 @@ function loadProgressState() {
   syncDailyProgressDate();
 }
 
-function updateStatusBar() {
+function updateHeaderStatus() {
+  loadProgressState();
   syncDailyProgressDate();
   statusXpEl.textContent = `⭐ XP: ${progressState.xp}`;
   statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streak} өдөр`;
-  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayProgress}/${DAILY_GOAL}`;
+  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayProgress}/${progressState.dailySession.dailyCount}`;
   statusRewardEl.textContent = rewardForStreak(progressState.streak);
 }
 
 function incrementTodayProgress() {
   syncDailyProgressDate();
-  if (progressState.todayProgress < DAILY_GOAL) {
+  if (progressState.todayProgress < progressState.dailySession.dailyCount) {
     progressState.todayProgress += 1;
   }
+}
+
+function updateDailySessionProgress() {
+  syncDailyProgressDate();
+  progressState.dailySession.currentIndex = currentIndex;
+  progressState.dailySession.answeredCount = Math.min(
+    progressState.dailySession.dailyCount,
+    progressState.todayProgress
+  );
+  progressState.dailySession.completed =
+    progressState.dailySession.completed ||
+    progressState.todayProgress >= progressState.dailySession.dailyCount ||
+    (
+      progressState.dailySession.currentIndex >= progressState.dailySession.dailyCount - 1 &&
+      progressState.dailySession.answeredCount === progressState.dailySession.dailyCount
+    );
+}
+
+function isDailySessionCompletedToday() {
+  const session = progressState.dailySession;
+  if (!session) return false;
+  const isToday = session.date === todayKey();
+  if (!isToday) return false;
+
+  return session.completed || (
+    session.currentIndex >= session.dailyCount - 1 &&
+    session.answeredCount === session.dailyCount
+  );
 }
 
 function markDailyCompletion() {
@@ -248,34 +322,23 @@ function spawnBannerStars() {
   const effectsLayer = completionBannerEl.querySelector(".banner-effects");
   if (!effectsLayer) return;
 
-  const colors = ["#ff4f57", "#ffd54d", "#76ff8b"];
+  const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffffff"];
   const width = completionBannerEl.clientWidth;
   const height = completionBannerEl.clientHeight;
-  const count = 24;
+  const count = 32;
 
   for (let i = 0; i < count; i += 1) {
-    const side = i % 4;
-    const progress = Math.random();
-    let x = 0;
-    let y = 0;
-
-    if (side === 0) {
-      x = width * progress;
-      y = 0;
-    } else if (side === 1) {
-      x = width;
-      y = height * progress;
-    } else if (side === 2) {
-      x = width * progress;
-      y = height;
-    } else {
-      x = 0;
-      y = height * progress;
-    }
+    const x = width / 2 + (Math.random() * 22 - 11);
+    const y = height / 2 + (Math.random() * 10 - 5);
+    const angle = Math.random() * Math.PI * 2;
+    const radius = 38 + Math.random() * 92;
+    const duration = 1000 + Math.random() * 850;
 
     createParticle(effectsLayer, "banner-star", colors[i % colors.length], x, y, {
-      "--dx": `${(Math.random() * 2 - 1) * 24}px`,
-      "--dy": `${(Math.random() * 2 - 1) * 24}px`,
+      "--dx": `${Math.cos(angle) * radius}px`,
+      "--dy": `${Math.sin(angle) * radius}px`,
+      "--size": `${6 + Math.random() * 6}px`,
+      "--duration": `${duration}ms`,
     });
   }
 }
@@ -406,6 +469,8 @@ function showScreen(screen) {
   } else {
     hide(topbar);
   }
+
+  updateHeaderStatus();
 }
 
 function confirmNavigation(destination) {
@@ -736,7 +801,15 @@ function startQuiz() {
   currentIndex = 0;
   score = 0;
   locked = false;
-  sessionStartedBelowDailyGoal = progressState.todayProgress < DAILY_GOAL;
+  syncDailyProgressDate();
+  progressState.dailySession = {
+    date: todayKey(),
+    dailyCount: getDailyGoalCount(),
+    currentIndex: -1,
+    answeredCount: Math.min(getDailyGoalCount(), progressState.todayProgress),
+    completed: false,
+  };
+  persistProgressState();
 
   stopSpeaking();
   showScreen(quizScreen);
@@ -764,6 +837,7 @@ function renderQuestion() {
   });
 
   updateTopbar();
+  updateHeaderStatus();
 }
 
 function pickAnswer(buttonEl, selected) {
@@ -780,6 +854,7 @@ function pickAnswer(buttonEl, selected) {
   });
 
   incrementTodayProgress();
+  updateDailySessionProgress();
 
   if (selected === correct) {
     score += 1;
@@ -798,12 +873,13 @@ function pickAnswer(buttonEl, selected) {
   show(resultEl);
   show(nextBtn);
   updateTopbar();
-  updateStatusBar();
   persistProgressState();
+  updateHeaderStatus();
 }
 
 function nextQuestion() {
   currentIndex += 1;
+  updateHeaderStatus();
   if (currentIndex < questions.length) {
     renderQuestion();
   } else {
@@ -817,15 +893,16 @@ function endQuiz() {
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
 
-  const completedDailyGoalSession = sessionStartedBelowDailyGoal && progressState.todayProgress >= DAILY_GOAL;
+  updateDailySessionProgress();
+  const completedDailyGoalSession = isDailySessionCompletedToday();
   showCompletionBanner(completedDailyGoalSession);
 
-  if (progressState.todayProgress >= DAILY_GOAL) {
+  if (completedDailyGoalSession) {
     markDailyCompletion();
   }
 
-  updateStatusBar();
   persistProgressState();
+  updateHeaderStatus();
 }
 
 function backToStart() {
@@ -839,7 +916,7 @@ updateTtsControlState();
 loadSoundSettings();
 updateSoundToggleState();
 loadProgressState();
-updateStatusBar();
+updateHeaderStatus();
 persistProgressState();
 
 levelButtons.forEach(btn => {
@@ -847,6 +924,7 @@ levelButtons.forEach(btn => {
     levelButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     level = btn.dataset.level;
+    updateHeaderStatus();
   });
 });
 
@@ -857,6 +935,7 @@ sentenceFilterButtons.forEach(btn => {
     sentenceFilter = btn.dataset.filter;
     stopSpeaking();
     renderSentences();
+    updateHeaderStatus();
   });
 });
 
