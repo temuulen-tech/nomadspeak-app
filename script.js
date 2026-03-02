@@ -455,8 +455,16 @@ function playDailyVictoryChime() {
 
 
 function mongolianVoice() {
-  const voices = availableVoices || [];
-  return voices.find(v => (v.lang || "").toLowerCase().startsWith("mn")) || null;
+  const voices = (availableVoices || []).filter(v => (v.lang || "").toLowerCase().startsWith("mn"));
+  if (!voices.length) return null;
+
+  const femaleHints = ["female", "woman", "эм", "эмэгтэй", "girl", "bolorma", "saraa", "anu", "naraa"];
+  const femaleVoice = voices.find(v => {
+    const name = (v.name || "").toLowerCase();
+    return femaleHints.some(hint => name.includes(hint));
+  });
+
+  return femaleVoice || voices[0];
 }
 
 function speakBannerText(text) {
@@ -471,7 +479,8 @@ function speakBannerText(text) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = mnVoice.lang || "mn-MN";
   utterance.voice = mnVoice;
-  utterance.rate = 1;
+  utterance.rate = 0.88;
+  utterance.pitch = 1;
   window.speechSynthesis.speak(utterance);
 }
 
