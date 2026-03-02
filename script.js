@@ -112,7 +112,6 @@ let progressState = {
   lastCompletionDate: "",
   todayDate: "",
   todayProgress: 0,
-  bannerShownDate: "",
 };
 
 // ---- Helpers ----
@@ -166,7 +165,6 @@ function normalizeProgressState(raw = {}) {
     lastCompletionDate: typeof raw.lastCompletionDate === "string" ? raw.lastCompletionDate : "",
     todayDate: typeof raw.todayDate === "string" ? raw.todayDate : "",
     todayProgress: Number.isFinite(Number(raw.todayProgress)) ? Math.max(0, Math.min(DAILY_GOAL, Number(raw.todayProgress))) : 0,
-    bannerShownDate: typeof raw.bannerShownDate === "string" ? raw.bannerShownDate : "",
   };
 }
 
@@ -222,17 +220,34 @@ function markDailyCompletion() {
 function showCompletionBanner() {
   if (!completionBannerEl) return;
 
-  completionBannerEl.classList.remove("hidden", "fade-out");
+  completionBannerEl.classList.remove("hidden", "showing");
+  void completionBannerEl.offsetWidth;
+  completionBannerEl.classList.add("showing");
+  playCompletionBannerSound();
 
   if (completionBannerTimer) clearTimeout(completionBannerTimer);
 
   completionBannerTimer = setTimeout(() => {
-    completionBannerEl.classList.add("fade-out");
+    completionBannerEl.classList.remove("showing");
+    completionBannerEl.classList.add("hidden");
+  }, 8000);
+}
+
+function playCompletionBannerSound() {
+  if (!soundEnabled) return;
+  const notes = [523.25, 659.25, 783.99];
+  notes.forEach((frequency, index) => {
     setTimeout(() => {
-      completionBannerEl.classList.add("hidden");
-      completionBannerEl.classList.remove("fade-out");
-    }, 550);
-  }, 5000);
+      playTone({
+        frequency,
+        type: "sine",
+        duration: 0.11,
+        volume: 0.08,
+        attack: 0.01,
+        release: 0.1,
+      });
+    }, index * 120);
+  });
 }
 
 function getAllAnswersExcept(correct) {
@@ -671,14 +686,10 @@ function endQuiz() {
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
 
-  const today = todayKey();
+  showCompletionBanner();
+
   if (progressState.todayProgress >= DAILY_GOAL) {
     markDailyCompletion();
-
-    if (progressState.bannerShownDate !== today) {
-      showCompletionBanner();
-      progressState.bannerShownDate = today;
-    }
   }
 
   updateStatusBar();

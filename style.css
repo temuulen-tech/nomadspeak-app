@@ -76,25 +76,75 @@ body{
 }
 
 .completion-banner{
-  border:1px solid rgba(0,240,210,.45);
-  background:linear-gradient(90deg, rgba(0,240,210,.16), rgba(116,255,205,.24));
+  position:relative;
+  border:1px solid rgba(166,255,239,.72);
+  background:linear-gradient(90deg, rgba(0,240,210,.19), rgba(116,255,205,.3));
   border-radius:14px;
   padding:12px 14px;
   margin-bottom:14px;
-  color:#eafff2;
-  box-shadow: 0 0 28px rgba(0,240,210,.32);
-  animation: bannerGlow 1.8s ease-in-out infinite;
+  color:#f7fffb;
+  font-size:1.03rem;
+  font-weight:700;
+  text-shadow:0 1px 10px rgba(1,32,22,.45);
+  box-shadow: 0 0 22px rgba(0,240,210,.32);
   pointer-events:none;
+  overflow:hidden;
+  opacity:0;
 }
 
-.completion-banner.fade-out{
-  opacity:0;
-  transition: opacity .55s ease;
+.completion-banner.showing{
+  animation: bannerLife 8s ease-in-out both, bannerGlow 2.2s ease-in-out infinite;
+}
+
+.completion-banner::before,
+.completion-banner::after{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  pointer-events:none;
+  opacity:.78;
+}
+
+.completion-banner::before{
+  background:
+    radial-gradient(circle at 12% 28%, rgba(255,255,255,.9) 0 2px, transparent 2.4px),
+    radial-gradient(circle at 36% 8%, rgba(232,255,249,.8) 0 1.6px, transparent 2.1px),
+    radial-gradient(circle at 66% 14%, rgba(255,255,255,.9) 0 2px, transparent 2.5px),
+    radial-gradient(circle at 86% 34%, rgba(242,255,252,.85) 0 1.8px, transparent 2.3px),
+    radial-gradient(circle at 9% 74%, rgba(238,255,251,.85) 0 1.6px, transparent 2.1px),
+    radial-gradient(circle at 30% 96%, rgba(255,255,255,.9) 0 1.9px, transparent 2.4px),
+    radial-gradient(circle at 71% 88%, rgba(255,255,255,.82) 0 1.8px, transparent 2.2px),
+    radial-gradient(circle at 92% 70%, rgba(255,255,255,.88) 0 1.6px, transparent 2.1px);
+  animation: sparkleShift 3.6s linear infinite;
+}
+
+.completion-banner::after{
+  background:
+    linear-gradient(130deg, transparent 0%, rgba(255,255,255,.14) 40%, rgba(255,255,255,.28) 50%, transparent 62%);
+  animation: sparkleSweep 2.9s ease-in-out infinite;
+}
+
+@keyframes bannerLife{
+  0%{ opacity:0; }
+  9%{ opacity:1; }
+  84%{ opacity:1; }
+  100%{ opacity:0; }
 }
 
 @keyframes bannerGlow{
-  0%,100%{ box-shadow: 0 0 16px rgba(0,240,210,.24); }
-  50%{ box-shadow: 0 0 30px rgba(93,255,225,.5); }
+  0%,100%{ box-shadow: 0 0 14px rgba(0,240,210,.24); }
+  50%{ box-shadow: 0 0 28px rgba(130,255,233,.5); }
+}
+
+@keyframes sparkleShift{
+  0%,100%{ transform:translateY(0); opacity:.7; }
+  50%{ transform:translateY(-1px); opacity:1; }
+}
+
+@keyframes sparkleSweep{
+  0%{ transform: translateX(-35%); opacity:.12; }
+  45%{ opacity:.22; }
+  100%{ transform: translateX(35%); opacity:.08; }
 }
 
 .nav-btn{
