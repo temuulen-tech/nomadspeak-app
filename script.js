@@ -43,6 +43,7 @@ const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
 const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
+const sentenceGameScreen = document.getElementById("sentence-game-screen");
 const endScreen = document.getElementById("end-screen");
 
 const topbar = document.getElementById("topbar");
@@ -61,6 +62,7 @@ const backBtn = document.getElementById("back-btn");
 
 const navHomeBtn = document.getElementById("nav-home-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
+const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 
 const confirmOverlay = document.getElementById("confirm-overlay");
@@ -77,6 +79,11 @@ const statusXpEl = document.getElementById("status-xp");
 const statusStreakEl = document.getElementById("status-streak");
 const statusTodayEl = document.getElementById("status-today");
 const statusRewardEl = document.getElementById("status-reward");
+const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
+const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
+const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
+const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
+const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -94,6 +101,13 @@ let sentenceItems = [];
 let sentenceFilter = "all";
 let speakingSentenceId = null;
 let availableVoices = [];
+
+let sentenceGameIndex = 0;
+let sentenceGameTiles = [];
+let sentenceGameBuilt = [];
+let sentenceGameCompleted = false;
+let sentenceGameXpAwarded = false;
+let draggingTileId = null;
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
@@ -136,6 +150,11 @@ function shuffle(arr) {
 
 function unique(array) {
   return [...new Set(array)];
+}
+
+function tokenizeSentence(sentence = "") {
+  const tokens = sentence.match(/[A-Za-z0-9']+|[^\sA-Za-z0-9']/g);
+  return tokens ? tokens.filter(Boolean) : [];
 }
 
 function levelName(lv) {
@@ -501,6 +520,7 @@ function showScreen(screen) {
   hide(startScreen);
   hide(quizScreen);
   hide(sentencesScreen);
+  hide(sentenceGameScreen);
   hide(statsScreen);
   hide(endScreen);
   show(screen);
@@ -528,6 +548,12 @@ function navigateTo(destination) {
 
   if (destination === "sentences") {
     showScreen(sentencesScreen);
+  }
+
+  if (destination === "sentence-game") {
+    stopSpeaking();
+    showScreen(sentenceGameScreen);
+    initSentenceGameRound();
   }
 
   if (destination === "stats") {
@@ -830,10 +856,178 @@ async function loadSentences() {
     const response = await fetch("data/sentences.json");
     if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
     sentenceItems = await response.json();
+    sentenceItems = sentenceItems.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
     renderSentences();
+    if (!sentenceGameScreen.classList.contains("hidden")) initSentenceGameRound();
   } catch (error) {
     sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
   }
+}
+
+
+function sentenceGameSentence() {
+  if (!sentenceItems.length) return null;
+  return sentenceItems[sentenceGameIndex % sentenceItems.length];
+}
+
+function sentenceGameIsSolved() {
+  const current = sentenceGameSentence();
+  if (!current) return false;
+  const expected = current.tokens.join(" ");
+  const built = sentenceGameBuilt.map(id => sentenceGameTiles.find(tile => tile.id === id)?.value || "").join(" ");
+  return expected === built;
+}
+
+function createSentenceGameTileButton(tile, inPool) {
+  const btn = document.createElement("button");
+  btn.type = "button";
+  btn.className = "sentence-game-tile";
+  btn.textContent = tile.value;
+  btn.dataset.tileId = String(tile.id);
+  btn.draggable = true;
+
+  btn.addEventListener("dragstart", (event) => {
+    draggingTileId = tile.id;
+    event.dataTransfer.setData("text/plain", String(tile.id));
+  });
+
+  btn.addEventListener("click", () => {
+    if (inPool) {
+      placeSentenceGameTile(tile.id);
+    } else {
+      removeSentenceGameTile(tile.id);
+    }
+  });
+
+  btn.addEventListener("pointerdown", () => {
+    draggingTileId = tile.id;
+  });
+
+  return btn;
+}
+
+function renderSentenceGameBoard() {
+  const current = sentenceGameSentence();
+  if (!current) {
+    sentenceGameDropzoneEl.innerHTML = '<p class="muted">Өгүүлбэр алга.</p>';
+    sentenceGamePoolEl.innerHTML = "";
+    return;
+  }
+
+  sentenceGameDropzoneEl.innerHTML = "";
+  for (let idx = 0; idx < current.tokens.length; idx += 1) {
+    const slot = document.createElement("div");
+    slot.className = "sentence-game-slot";
+
+    const tileId = sentenceGameBuilt[idx];
+    if (tileId !== undefined) {
+      const tile = sentenceGameTiles.find(item => item.id === tileId);
+      if (tile) {
+        slot.appendChild(createSentenceGameTileButton(tile, false));
+      }
+    } else {
+      const placeholder = document.createElement("span");
+      placeholder.className = "sentence-game-slot-placeholder";
+      placeholder.textContent = "...";
+      slot.appendChild(placeholder);
+    }
+
+    slot.addEventListener("dragover", (event) => event.preventDefault());
+    slot.addEventListener("drop", (event) => {
+      event.preventDefault();
+      const droppedId = Number(event.dataTransfer.getData("text/plain") || draggingTileId);
+      placeSentenceGameTile(droppedId);
+      draggingTileId = null;
+    });
+    slot.addEventListener("pointerup", () => {
+      if (draggingTileId !== null) placeSentenceGameTile(Number(draggingTileId));
+      draggingTileId = null;
+    });
+    sentenceGameDropzoneEl.appendChild(slot);
+  }
+
+  sentenceGamePoolEl.innerHTML = "";
+  sentenceGamePoolEl.ondragover = (event) => event.preventDefault();
+  sentenceGamePoolEl.ondrop = (event) => {
+    event.preventDefault();
+    const droppedId = Number(event.dataTransfer.getData("text/plain") || draggingTileId);
+    removeSentenceGameTile(droppedId);
+  };
+  sentenceGamePoolEl.onpointerup = () => {
+    if (draggingTileId !== null) removeSentenceGameTile(Number(draggingTileId));
+    draggingTileId = null;
+  };
+
+  sentenceGameTiles.forEach(tile => {
+    if (sentenceGameBuilt.includes(tile.id)) return;
+    sentenceGamePoolEl.appendChild(createSentenceGameTileButton(tile, true));
+  });
+
+  sentenceGameUndoBtn.disabled = sentenceGameBuilt.length === 0;
+}
+
+function updateSentenceGameState() {
+  sentenceGameCompleted = sentenceGameIsSolved();
+  sentenceGameNextBtn.disabled = !sentenceGameCompleted;
+
+  if (sentenceGameCompleted) {
+    sentenceGameFeedbackEl.textContent = "Зөв!";
+    sentenceGameFeedbackEl.classList.add("ok");
+    if (!sentenceGameXpAwarded) {
+      progressState.xp += 2;
+      sentenceGameXpAwarded = true;
+      persistProgressState();
+      updateHeaderStatus();
+      playCorrectSound();
+    }
+  } else {
+    sentenceGameFeedbackEl.textContent = "";
+    sentenceGameFeedbackEl.classList.remove("ok");
+  }
+}
+
+function placeSentenceGameTile(tileId) {
+  if (!Number.isFinite(tileId) || sentenceGameBuilt.includes(tileId)) return;
+  if (sentenceGameBuilt.length >= sentenceGameTiles.length) return;
+  sentenceGameBuilt.push(tileId);
+  renderSentenceGameBoard();
+  updateSentenceGameState();
+}
+
+function removeSentenceGameTile(tileId) {
+  const idx = sentenceGameBuilt.indexOf(tileId);
+  if (idx === -1) return;
+  sentenceGameBuilt.splice(idx, 1);
+  renderSentenceGameBoard();
+  updateSentenceGameState();
+}
+
+function undoSentenceGameMove() {
+  if (!sentenceGameBuilt.length) return;
+  sentenceGameBuilt.pop();
+  renderSentenceGameBoard();
+  updateSentenceGameState();
+}
+
+function initSentenceGameRound() {
+  const current = sentenceGameSentence();
+  if (!current) return;
+
+  current.tokens = tokenizeSentence(current.en);
+  sentenceGameTiles = shuffle(current.tokens.map((value, id) => ({ id, value })));
+  sentenceGameBuilt = [];
+  sentenceGameCompleted = false;
+  sentenceGameXpAwarded = false;
+  sentenceGameFeedbackEl.textContent = "";
+  sentenceGameFeedbackEl.classList.remove("ok");
+  sentenceGameNextBtn.disabled = true;
+  renderSentenceGameBoard();
+}
+
+function nextSentenceGameRound() {
+  if (!sentenceGameCompleted) return;
+  sentenceGameIndex = (sentenceGameIndex + 1) % Math.max(1, sentenceItems.length);
+  initSentenceGameRound();
 }
 
 // ---- Quiz logic ----
@@ -1006,6 +1200,7 @@ if (soundToggleBtn) {
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
+navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 
 confirmNoBtn.addEventListener("click", () => {
@@ -1026,6 +1221,8 @@ startBtn.addEventListener("click", startQuiz);
 nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
 backBtn.addEventListener("click", backToStart);
+sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
+sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
 
 if ("speechSynthesis" in window) {
   loadVoices();
