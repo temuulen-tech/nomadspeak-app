@@ -58,7 +58,8 @@ const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const backBtn = document.getElementById("back-btn");
 
-const navStartBtn = document.getElementById("nav-start-btn");
+const navHomeBtn = document.getElementById("nav-home-btn");
+const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 
 const confirmOverlay = document.getElementById("confirm-overlay");
@@ -129,7 +130,11 @@ function confirmNavigation(destination) {
 }
 
 function navigateTo(destination) {
-  if (destination === "start") {
+  if (destination === "home") {
+    showScreen(startScreen);
+  }
+
+  if (destination === "sentences") {
     showScreen(startScreen);
   }
 
@@ -257,7 +262,8 @@ levelButtons.forEach(btn => {
   });
 });
 
-navStartBtn.addEventListener("click", () => requestNavigation("start"));
+navHomeBtn.addEventListener("click", () => requestNavigation("home"));
+navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 
 confirmNoBtn.addEventListener("click", () => {

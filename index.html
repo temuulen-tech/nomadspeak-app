@@ -12,12 +12,25 @@
     <header class="header">
       <div class="header-main">
         <div class="brand">
-          <div class="logo-dot"></div>
           <div>
             <h1 class="logo">
-              <svg class="logo-mark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                <path d="M12 2a7 7 0 0 0-7 7c0 4.55 4.68 9.92 6.24 11.58a1 1 0 0 0 1.52 0C14.32 18.92 19 13.55 19 9a7 7 0 0 0-7-7Zm0 9.5A2.5 2.5 0 1 1 12 6a2.5 2.5 0 0 1 0 5.5Z"/>
-                <path d="M20.5 16.5c0 2.22-2.46 4-5.5 4h-2.44l-2.73 1.97a.5.5 0 0 1-.79-.4v-1.57C6.7 20.05 5 18.43 5 16.5"/>
+              <svg class="logo-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <defs>
+                  <radialGradient id="globe-core" cx="30%" cy="26%" r="75%">
+                    <stop offset="0%" stop-color="#8effff" />
+                    <stop offset="58%" stop-color="#2ad8f8" />
+                    <stop offset="100%" stop-color="#0a7cc4" />
+                  </radialGradient>
+                  <linearGradient id="ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" stop-color="#fff8b4" />
+                    <stop offset="100%" stop-color="#6dffe3" />
+                  </linearGradient>
+                </defs>
+                <circle cx="32" cy="32" r="24" fill="url(#globe-core)" stroke="url(#ring)" stroke-width="2.5" />
+                <ellipse cx="32" cy="32" rx="20" ry="7.4" fill="none" stroke="#c9ffff" stroke-width="1.6" opacity="0.88" />
+                <ellipse cx="32" cy="32" rx="12" ry="24" fill="none" stroke="#d6ffff" stroke-width="1.5" opacity="0.84" />
+                <path d="M8 32h48M32 8v48" stroke="#f3ffff" stroke-width="1.5" opacity="0.66" />
+                <text x="32" y="36" text-anchor="middle" font-size="10.5" font-family="Arial, sans-serif" font-weight="700" fill="#08395f">Монгол</text>
               </svg>
               NomadSpeak
             </h1>
@@ -26,7 +39,8 @@
         </div>
 
         <div class="header-nav" aria-label="Үндсэн навигаци">
-          <button class="secondary nav-btn" id="nav-start-btn" type="button">Старт</button>
+          <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
+          <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
           <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
         </div>
       </div>
