@@ -59,6 +59,19 @@ body{
 .nav-btn{
   padding:8px 12px;
   font-size:14px;
+  color:#f2feff;
+  border-color:rgba(154, 246, 255, .48);
+  background:rgba(123, 233, 244, .14);
+  box-shadow: 0 0 0 1px rgba(154, 246, 255, .14) inset;
+}
+
+.nav-btn:hover,
+.nav-btn:focus-visible,
+.nav-btn:active{
+  border-color:rgba(154, 246, 255, .65);
+  background:rgba(123, 233, 244, .2);
+  box-shadow: 0 0 0 2px rgba(154, 246, 255, .2), 0 0 16px rgba(0,240,210,.2);
+  outline:none;
 }
 
 .logo-dot{
@@ -75,6 +88,17 @@ body{
   letter-spacing:.5px;
   color:var(--accent);
   text-shadow: 0 0 28px rgba(0,240,210,.35);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo-mark{
+  width:28px;
+  height:28px;
+  fill:var(--accent);
+  filter: drop-shadow(0 0 10px rgba(0,240,210,.28));
+  transform: translateY(1px);
 }
 
 .subtitle{
