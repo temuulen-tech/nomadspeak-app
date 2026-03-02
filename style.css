@@ -93,7 +93,61 @@ body{
 }
 
 .completion-banner.showing{
-  animation: bannerLife 8s ease-in-out both, bannerGlow 2.2s ease-in-out infinite;
+  animation: bannerLife 10s ease-in-out both, bannerGlow 2.2s ease-in-out infinite;
+}
+
+.completion-banner.premium{
+  border-color:rgba(255,230,138,.95);
+  background:linear-gradient(90deg, rgba(138,107,28,.78), rgba(214,171,52,.72));
+  color:#fffbe8;
+  box-shadow: 0 0 26px rgba(255,219,120,.45);
+  text-shadow:0 1px 10px rgba(78,52,2,.55);
+}
+
+.banner-text{
+  position:relative;
+  z-index:2;
+}
+
+.banner-effects{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  overflow:hidden;
+  z-index:1;
+}
+
+.banner-star{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  width:8px;
+  height:8px;
+  background:var(--particle-color);
+  clip-path:polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 92%, 50% 70%, 21% 92%, 32% 57%, 2% 35%, 39% 35%);
+  transform:translate(-50%, -50%) scale(.45);
+  opacity:.95;
+  animation:starBurst .9s ease-out forwards;
+}
+
+.banner-confetti{
+  position:absolute;
+  left:var(--x);
+  top:var(--y);
+  width:5px;
+  height:9px;
+  background:var(--particle-color);
+  border-radius:1px;
+  opacity:.92;
+  animation:confettiFall .95s ease-out forwards;
+  animation-delay:var(--delay);
+}
+
+.banner-shine{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(115deg, transparent 0%, rgba(255,247,203,0) 34%, rgba(255,247,203,.45) 49%, rgba(255,247,203,0) 63%, transparent 100%);
+  animation:bannerShine 850ms ease-out forwards;
 }
 
 .completion-banner::before,
@@ -147,6 +201,23 @@ body{
   100%{ transform: translateX(35%); opacity:.08; }
 }
 
+
+@keyframes starBurst{
+  from{ transform:translate(-50%, -50%) scale(.35); opacity:.95; }
+  to{ transform:translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) scale(1); opacity:0; }
+}
+
+@keyframes confettiFall{
+  from{ transform:translate(-50%, -50%) rotate(0deg); opacity:0; }
+  20%{ opacity:.92; }
+  to{ transform:translate(calc(-50% + var(--drift)), var(--fall)) rotate(260deg); opacity:0; }
+}
+
+@keyframes bannerShine{
+  from{ transform:translateX(-50%); opacity:0; }
+  25%{ opacity:1; }
+  to{ transform:translateX(50%); opacity:0; }
+}
 .nav-btn{
   padding:8px 12px;
   font-size:14px;
