@@ -82,6 +82,8 @@ const statusRewardEl = document.getElementById("status-reward");
 const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
 const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
 const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
+const sentenceGameShowCorrectBtn = document.getElementById("sentence-game-show-correct-btn");
+const sentenceGameRetryBtn = document.getElementById("sentence-game-retry-btn");
 const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
 const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
 const completionBannerEl = document.getElementById("completion-banner");
@@ -107,6 +109,7 @@ let sentenceGameTiles = [];
 let sentenceGameBuilt = [];
 let sentenceGameCompleted = false;
 let sentenceGameXpAwarded = false;
+let sentenceGameUsedShowCorrect = false;
 let draggingTileId = null;
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
@@ -968,22 +971,32 @@ function renderSentenceGameBoard() {
 
 function updateSentenceGameState() {
   sentenceGameCompleted = sentenceGameIsSolved();
-  sentenceGameNextBtn.disabled = !sentenceGameCompleted;
+  sentenceGameNextBtn.disabled = false;
 
   if (sentenceGameCompleted) {
-    sentenceGameFeedbackEl.textContent = "Зөв!";
-    sentenceGameFeedbackEl.classList.add("ok");
-    if (!sentenceGameXpAwarded) {
+    if (!sentenceGameUsedShowCorrect) {
+      sentenceGameFeedbackEl.textContent = "Зөв!";
+      sentenceGameFeedbackEl.classList.add("ok");
+    }
+    if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
       progressState.xp += 2;
       sentenceGameXpAwarded = true;
       persistProgressState();
       updateHeaderStatus();
       playCorrectSound();
     }
-  } else {
+  } else if (!sentenceGameUsedShowCorrect) {
     sentenceGameFeedbackEl.textContent = "";
     sentenceGameFeedbackEl.classList.remove("ok");
   }
+}
+
+function showSentenceGameCorrectAnswer() {
+  const current = sentenceGameSentence();
+  if (!current) return;
+  sentenceGameUsedShowCorrect = true;
+  sentenceGameFeedbackEl.textContent = `Зөв өгүүлбэр: ${current.en}`;
+  sentenceGameFeedbackEl.classList.remove("ok");
 }
 
 function placeSentenceGameTile(tileId) {
@@ -1018,16 +1031,27 @@ function initSentenceGameRound() {
   sentenceGameBuilt = [];
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;
+  sentenceGameUsedShowCorrect = false;
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
-  sentenceGameNextBtn.disabled = true;
+  sentenceGameNextBtn.disabled = false;
   renderSentenceGameBoard();
 }
 
 function nextSentenceGameRound() {
-  if (!sentenceGameCompleted) return;
   sentenceGameIndex = (sentenceGameIndex + 1) % Math.max(1, sentenceItems.length);
   initSentenceGameRound();
+}
+
+function retrySentenceGameRound() {
+  sentenceGameBuilt = [];
+  sentenceGameCompleted = false;
+  sentenceGameXpAwarded = false;
+  sentenceGameUsedShowCorrect = false;
+  sentenceGameFeedbackEl.textContent = "";
+  sentenceGameFeedbackEl.classList.remove("ok");
+  renderSentenceGameBoard();
+  updateSentenceGameState();
 }
 
 // ---- Quiz logic ----
@@ -1222,6 +1246,8 @@ nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
 backBtn.addEventListener("click", backToStart);
 sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
+sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
+sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
 sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
 
 if ("speechSynthesis" in window) {
