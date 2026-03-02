@@ -109,7 +109,6 @@ let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
 let completionBannerTimer = null;
-let completionBannerSpecialTimer = null;
 let progressState = {
   xp: 0,
   streak: 0,
@@ -325,19 +324,30 @@ function spawnBannerStars() {
   const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffffff"];
   const width = completionBannerEl.clientWidth;
   const height = completionBannerEl.clientHeight;
-  const count = 32;
+  const count = 26;
+
+  const edgePoint = () => {
+    const side = Math.floor(Math.random() * 4);
+    const inset = 8;
+    if (side === 0) return { x: inset + Math.random() * (width - inset * 2), y: 2, nx: 0, ny: -1 };
+    if (side === 1) return { x: width - 2, y: inset + Math.random() * (height - inset * 2), nx: 1, ny: 0 };
+    if (side === 2) return { x: inset + Math.random() * (width - inset * 2), y: height - 2, nx: 0, ny: 1 };
+    return { x: 2, y: inset + Math.random() * (height - inset * 2), nx: -1, ny: 0 };
+  };
 
   for (let i = 0; i < count; i += 1) {
-    const x = width / 2 + (Math.random() * 22 - 11);
-    const y = height / 2 + (Math.random() * 10 - 5);
-    const angle = Math.random() * Math.PI * 2;
-    const radius = 38 + Math.random() * 92;
-    const duration = 1000 + Math.random() * 850;
+    const origin = edgePoint();
+    const spread = (Math.random() - 0.5) * 0.9;
+    const tangentX = -origin.ny;
+    const tangentY = origin.nx;
+    const burst = 10 + Math.random() * 22;
+    const drift = (Math.random() - 0.5) * 10;
+    const duration = 760 + Math.random() * 620;
 
-    createParticle(effectsLayer, "banner-star", colors[i % colors.length], x, y, {
-      "--dx": `${Math.cos(angle) * radius}px`,
-      "--dy": `${Math.sin(angle) * radius}px`,
-      "--size": `${6 + Math.random() * 6}px`,
+    createParticle(effectsLayer, "banner-star", colors[i % colors.length], origin.x, origin.y, {
+      "--dx": `${origin.nx * burst + tangentX * spread * 18 + drift}px`,
+      "--dy": `${origin.ny * burst + tangentY * spread * 18 + drift}px`,
+      "--size": `${4 + Math.random() * 4}px`,
       "--duration": `${duration}ms`,
     });
   }
@@ -375,28 +385,25 @@ function spawnDailyGoalEffects() {
 function showCompletionBanner(showDailyGoalUpgrade = false) {
   if (!completionBannerEl) return;
 
-  if (completionBannerTextEl) completionBannerTextEl.textContent = DEFAULT_COMPLETION_TEXT;
-  completionBannerEl.classList.remove("premium");
+  if (completionBannerTextEl) {
+    completionBannerTextEl.textContent = showDailyGoalUpgrade
+      ? DAILY_GOAL_COMPLETION_TEXT
+      : DEFAULT_COMPLETION_TEXT;
+  }
+  completionBannerEl.classList.toggle("premium", showDailyGoalUpgrade);
 
   completionBannerEl.classList.remove("hidden", "showing");
   void completionBannerEl.offsetWidth;
   completionBannerEl.classList.add("showing");
   clearBannerEffects();
   spawnBannerStars();
-  playCompletionBannerSound();
+  if (showDailyGoalUpgrade) {
+    playDailyVictoryChime();
+  } else {
+    playCompletionBannerSound();
+  }
 
   if (completionBannerTimer) clearTimeout(completionBannerTimer);
-  if (completionBannerSpecialTimer) clearTimeout(completionBannerSpecialTimer);
-
-  if (showDailyGoalUpgrade) {
-    completionBannerSpecialTimer = setTimeout(() => {
-      if (completionBannerTextEl) completionBannerTextEl.textContent = DAILY_GOAL_COMPLETION_TEXT;
-      completionBannerEl.classList.add("premium");
-      clearBannerEffects();
-      spawnDailyGoalEffects();
-      playDailyVictoryChime();
-    }, 1800);
-  }
 
   completionBannerTimer = setTimeout(() => {
     completionBannerEl.classList.remove("showing");
