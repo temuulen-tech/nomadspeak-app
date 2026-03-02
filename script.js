@@ -70,6 +70,8 @@ const confirmNoBtn = document.getElementById("confirm-no-btn");
 const levelButtons = document.querySelectorAll(".level-btn");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
+const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
+const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
 
 // ---- State ----
 let level = "beginner";
@@ -83,6 +85,14 @@ let sentenceItems = [];
 let sentenceFilter = "all";
 let speakingSentenceId = null;
 let availableVoices = [];
+
+const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
+const DEFAULT_TTS_SETTINGS = {
+  voice: "auto",
+  rate: 1,
+};
+
+let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -187,13 +197,92 @@ function loadVoices() {
   availableVoices = window.speechSynthesis.getVoices();
 }
 
+function englishVoices() {
+  return availableVoices.filter(v => {
+    const lang = (v.lang || "").toLowerCase();
+    return lang.startsWith("en-us") || lang.startsWith("en-gb") || lang.startsWith("en");
+  });
+}
+
 function bestEnglishVoice() {
-  if (!availableVoices.length) return null;
+  const voices = englishVoices();
+  if (!voices.length) return null;
+
   return (
-    availableVoices.find(v => v.lang.toLowerCase().startsWith("en-us")) ||
-    availableVoices.find(v => v.lang.toLowerCase().startsWith("en")) ||
-    availableVoices[0]
+    voices.find(v => (v.lang || "").toLowerCase().startsWith("en-us")) ||
+    voices.find(v => (v.lang || "").toLowerCase().startsWith("en-gb")) ||
+    voices[0]
   );
+}
+
+function voiceMatchesHint(voice, selectedVoiceType) {
+  const name = (voice.name || "").toLowerCase();
+
+  if (selectedVoiceType === "male") {
+    return ["male", "man", "david", "guy", "daniel", "james", "mark", "tom", "john", "matthew", "michael", "george"].some(hint => name.includes(hint));
+  }
+
+  if (selectedVoiceType === "female") {
+    return ["female", "woman", "zira", "susan", "samantha", "jenny", "anna", "victoria", "emma", "kate", "sara", "aria"].some(hint => name.includes(hint));
+  }
+
+  return false;
+}
+
+function selectedEnglishVoice() {
+  const voices = englishVoices();
+  if (!voices.length) return null;
+
+  if (ttsSettings.voice === "male" || ttsSettings.voice === "female") {
+    const hinted = voices.find(v => voiceMatchesHint(v, ttsSettings.voice));
+    if (hinted) return hinted;
+  }
+
+  return bestEnglishVoice();
+}
+
+function normalizeTtsSettings(rawSettings = {}) {
+  const voice = ["auto", "male", "female"].includes(rawSettings.voice)
+    ? rawSettings.voice
+    : DEFAULT_TTS_SETTINGS.voice;
+
+  const rate = [0.8, 1, 1.2].includes(Number(rawSettings.rate))
+    ? Number(rawSettings.rate)
+    : DEFAULT_TTS_SETTINGS.rate;
+
+  return { voice, rate };
+}
+
+function loadTtsSettings() {
+  try {
+    const raw = localStorage.getItem(TTS_SETTINGS_KEY);
+    if (!raw) {
+      ttsSettings = { ...DEFAULT_TTS_SETTINGS };
+      return;
+    }
+
+    ttsSettings = normalizeTtsSettings(JSON.parse(raw));
+  } catch (error) {
+    ttsSettings = { ...DEFAULT_TTS_SETTINGS };
+  }
+}
+
+function persistTtsSettings() {
+  localStorage.setItem(TTS_SETTINGS_KEY, JSON.stringify(ttsSettings));
+}
+
+function updateTtsControlState() {
+  voiceOptionButtons.forEach(btn => {
+    const isActive = btn.dataset.voice === ttsSettings.voice;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+
+  rateOptionButtons.forEach(btn => {
+    const isActive = Number(btn.dataset.rate) === ttsSettings.rate;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
 }
 
 function stopSpeaking() {
@@ -209,9 +298,13 @@ function speakSentence(item) {
   stopSpeaking();
 
   const utterance = new SpeechSynthesisUtterance(item.en);
-  utterance.lang = "en-US";
 
-  const selectedVoice = bestEnglishVoice();
+  const selectedVoice = selectedEnglishVoice();
+  utterance.lang = selectedVoice && selectedVoice.lang
+    ? selectedVoice.lang
+    : "en-US";
+  utterance.rate = ttsSettings.rate;
+
   if (selectedVoice) utterance.voice = selectedVoice;
 
   speakingSentenceId = item.id;
@@ -386,6 +479,9 @@ function backToStart() {
 }
 
 // ---- Events ----
+loadTtsSettings();
+updateTtsControlState();
+
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
     levelButtons.forEach(b => b.classList.remove("active"));
@@ -401,6 +497,22 @@ sentenceFilterButtons.forEach(btn => {
     sentenceFilter = btn.dataset.filter;
     stopSpeaking();
     renderSentences();
+  });
+});
+
+voiceOptionButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    ttsSettings.voice = btn.dataset.voice;
+    updateTtsControlState();
+    persistTtsSettings();
+  });
+});
+
+rateOptionButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    ttsSettings.rate = Number(btn.dataset.rate);
+    updateTtsControlState();
+    persistTtsSettings();
   });
 });
 
