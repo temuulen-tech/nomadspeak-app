@@ -311,3 +311,77 @@ body{
   gap:10px;
   flex-wrap:wrap;
 }
+
+.sentences-controls{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:14px 0;
+}
+
+.filter-btn{
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(0,0,0,.18);
+  color:var(--text);
+  padding:9px 12px;
+  border-radius:12px;
+  cursor:pointer;
+}
+
+.filter-btn.active{
+  border-color: rgba(0,240,210,.55);
+  background: rgba(0,240,210,.14);
+  box-shadow: 0 0 18px rgba(0,240,210,.16);
+}
+
+.sentences-list{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  max-height:420px;
+  overflow-y:auto;
+  padding-right:4px;
+}
+
+.sentence-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(0,0,0,.18);
+  border-radius:14px;
+  padding:12px;
+}
+
+.sentence-text{
+  min-width:0;
+}
+
+.sentence-en,
+.sentence-mn{
+  margin:0;
+}
+
+.sentence-en{
+  font-weight:650;
+  margin-bottom:4px;
+}
+
+.speak-btn{
+  width:44px;
+  min-width:44px;
+  height:44px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.18);
+  background:rgba(255,255,255,.08);
+  color:var(--text);
+  font-size:20px;
+  cursor:pointer;
+}
+
+.speak-btn.playing{
+  border-color: rgba(0,240,210,.6);
+  background: rgba(0,240,210,.18);
+  box-shadow: 0 0 16px rgba(0,240,210,.2);
+}

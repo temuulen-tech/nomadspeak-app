@@ -1,0 +1,22 @@
+[
+  {"id":1,"level":"beginner","topic":"Мэндчилгээ","en":"Hello! Nice to meet you.","mn":"Сайн байна уу! Танилцсандаа таатай байна."},
+  {"id":2,"level":"beginner","topic":"Танилцуулга","en":"My name is Anu.","mn":"Миний нэрийг Ану гэдэг."},
+  {"id":3,"level":"beginner","topic":"Байршил","en":"I live in Ulaanbaatar.","mn":"Би Улаанбаатарт амьдардаг."},
+  {"id":4,"level":"beginner","topic":"Цаг","en":"What time is it now?","mn":"Одоо хэдэн цаг болж байна вэ?"},
+  {"id":5,"level":"beginner","topic":"Хоол","en":"I would like a cup of tea.","mn":"Би нэг аяга цай авмаар байна."},
+  {"id":6,"level":"beginner","topic":"Аялал","en":"Where is the bus stop?","mn":"Автобусны буудал хаана байдаг вэ?"},
+  {"id":7,"level":"intermediate","topic":"Ажил","en":"I have a meeting at ten o'clock.","mn":"Би арван цагт уулзалттай."},
+  {"id":8,"level":"intermediate","topic":"Өдөр тутам","en":"I usually exercise after work.","mn":"Би ихэвчлэн ажлын дараа дасгал хийдэг."},
+  {"id":9,"level":"intermediate","topic":"Төлөвлөгөө","en":"We are planning a trip next month.","mn":"Бид ирэх сард аялал төлөвлөж байна."},
+  {"id":10,"level":"intermediate","topic":"Худалдан авалт","en":"Could you show me a cheaper one?","mn":"Илүү хямд нэгийг үзүүлж өгч болох уу?"},
+  {"id":11,"level":"intermediate","topic":"Эрүүл мэнд","en":"I have been feeling tired lately.","mn":"Сүүлийн үед би ядарч байгаа."},
+  {"id":12,"level":"intermediate","topic":"Технологи","en":"Please send me the file by email.","mn":"Надад файлыг имэйлээр илгээнэ үү."},
+  {"id":13,"level":"advanced","topic":"Ажил хэрэг","en":"The project requires careful coordination.","mn":"Энэ төсөл нарийн зохион байгуулалт шаарддаг."},
+  {"id":14,"level":"advanced","topic":"Суралцах","en":"I need to improve my presentation skills.","mn":"Би илтгэх ур чадвараа сайжруулах хэрэгтэй."},
+  {"id":15,"level":"advanced","topic":"Санал бодол","en":"In my opinion, this solution is sustainable.","mn":"Миний бодлоор энэ шийдэл тогтвортой."},
+  {"id":16,"level":"advanced","topic":"Харилцаа","en":"We should clarify expectations in advance.","mn":"Бид хүлээлтүүдийг урьдчилан тодруулах хэрэгтэй."},
+  {"id":17,"level":"advanced","topic":"Судалгаа","en":"The data indicates a significant trend.","mn":"Өгөгдөл нь мэдэгдэхүйц чиг хандлагыг харуулж байна."},
+  {"id":18,"level":"advanced","topic":"Асуудал шийдэх","en":"Let's evaluate the risks before deciding.","mn":"Шийдэхээсээ өмнө эрсдэлийг үнэлцгээе."},
+  {"id":19,"level":"beginner","topic":"Гэр бүл","en":"I have two sisters and one brother.","mn":"Би хоёр эгч, нэг ахтай."},
+  {"id":20,"level":"intermediate","topic":"Цаг агаар","en":"It might rain this evening, so bring an umbrella.","mn":"Өнөө орой бороо орж магадгүй, тиймээс шүхэр авч яваарай."}
+]
