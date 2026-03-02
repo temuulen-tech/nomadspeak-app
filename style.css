@@ -59,18 +59,18 @@ body{
 .nav-btn{
   padding:8px 12px;
   font-size:14px;
-  color:#f2feff;
-  border-color:rgba(154, 246, 255, .48);
-  background:rgba(123, 233, 244, .14);
-  box-shadow: 0 0 0 1px rgba(154, 246, 255, .14) inset;
+  color:#f4ffff;
+  border-color:rgba(148, 255, 248, .95);
+  background:rgba(38, 172, 199, .38);
+  box-shadow: 0 0 0 1px rgba(148, 255, 248, .35) inset;
 }
 
 .nav-btn:hover,
 .nav-btn:focus-visible,
 .nav-btn:active{
-  border-color:rgba(154, 246, 255, .65);
-  background:rgba(123, 233, 244, .2);
-  box-shadow: 0 0 0 2px rgba(154, 246, 255, .2), 0 0 16px rgba(0,240,210,.2);
+  border-color:rgba(201, 255, 250, 1);
+  background:rgba(62, 203, 227, .48);
+  box-shadow: 0 0 0 2px rgba(173, 255, 249, .28), 0 0 18px rgba(96, 255, 240, .34);
   outline:none;
 }
 
@@ -94,10 +94,9 @@ body{
 }
 
 .logo-mark{
-  width:28px;
-  height:28px;
-  fill:var(--accent);
-  filter: drop-shadow(0 0 10px rgba(0,240,210,.28));
+  width:40px;
+  height:40px;
+  filter: drop-shadow(0 0 14px rgba(111,255,247,.52));
   transform: translateY(1px);
 }
 
