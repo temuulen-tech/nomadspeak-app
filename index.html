@@ -39,6 +39,13 @@
           </div>
         </div>
 
+        <div class="status-bar" id="status-bar" aria-live="polite">
+          <span class="status-pill" id="status-xp">⭐ XP: 0</span>
+          <span class="status-pill" id="status-streak">🔥 Цуврал: 0 өдөр</span>
+          <span class="status-pill" id="status-today">📅 Өнөөдөр: 0/10</span>
+          <span class="status-pill" id="status-reward">⭐ Шагнал</span>
+        </div>
+
         <div class="header-nav" aria-label="Үндсэн навигаци">
           <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
           <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
@@ -52,6 +59,10 @@
         <div class="pill">Асуулт: <span id="progress">0/0</span></div>
       </div>
     </header>
+
+    <div class="completion-banner hidden" id="completion-banner" role="status" aria-live="polite">
+      Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.
+    </div>
 
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
