@@ -84,6 +84,20 @@
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
       <h2>Өгүүлбэрүүд</h2>
+      <div class="tts-controls" aria-label="Дуудлагын тохиргоо">
+        <div class="tts-group" role="group" aria-label="Дуу хоолой">
+          <span class="tts-label">Дуу хоолой:</span>
+          <button class="tts-option-btn active" type="button" data-voice="auto">Авто</button>
+          <button class="tts-option-btn" type="button" data-voice="male">Эр</button>
+          <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
+        </div>
+        <div class="tts-group" role="group" aria-label="Хурд">
+          <span class="tts-label">Хурд:</span>
+          <button class="tts-option-btn" type="button" data-rate="0.8">0.8×</button>
+          <button class="tts-option-btn active" type="button" data-rate="1">1.0×</button>
+          <button class="tts-option-btn" type="button" data-rate="1.2">1.2×</button>
+        </div>
+      </div>
       <div class="sentences-controls" role="group" aria-label="Түвшин шүүлтүүр">
         <button class="filter-btn active" type="button" data-filter="all">Бүгд</button>
         <button class="filter-btn" type="button" data-filter="beginner">Анхан</button>
