@@ -41,6 +41,7 @@ const BANK = {
 // ---- DOM ----
 const startScreen = document.getElementById("start-screen");
 const quizScreen = document.getElementById("quiz-screen");
+const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
 const endScreen = document.getElementById("end-screen");
 
@@ -67,6 +68,8 @@ const confirmYesBtn = document.getElementById("confirm-yes-btn");
 const confirmNoBtn = document.getElementById("confirm-no-btn");
 
 const levelButtons = document.querySelectorAll(".level-btn");
+const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
+const sentencesListEl = document.getElementById("sentences-list");
 
 // ---- State ----
 let level = "beginner";
@@ -75,6 +78,11 @@ let currentIndex = 0;
 let score = 0;
 let locked = false;
 let pendingNavigation = null;
+
+let sentenceItems = [];
+let sentenceFilter = "all";
+let speakingSentenceId = null;
+let availableVoices = [];
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -112,6 +120,7 @@ function isQuizInProgress() {
 function showScreen(screen) {
   hide(startScreen);
   hide(quizScreen);
+  hide(sentencesScreen);
   hide(statsScreen);
   hide(endScreen);
   show(screen);
@@ -131,14 +140,16 @@ function confirmNavigation(destination) {
 
 function navigateTo(destination) {
   if (destination === "home") {
+    stopSpeaking();
     showScreen(startScreen);
   }
 
   if (destination === "sentences") {
-    showScreen(startScreen);
+    showScreen(sentencesScreen);
   }
 
   if (destination === "stats") {
+    stopSpeaking();
     showScreen(statsScreen);
   }
 }
@@ -170,6 +181,125 @@ function updateTopbar() {
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
+// ---- Speech & sentences ----
+function loadVoices() {
+  if (!("speechSynthesis" in window)) return;
+  availableVoices = window.speechSynthesis.getVoices();
+}
+
+function bestEnglishVoice() {
+  if (!availableVoices.length) return null;
+  return (
+    availableVoices.find(v => v.lang.toLowerCase().startsWith("en-us")) ||
+    availableVoices.find(v => v.lang.toLowerCase().startsWith("en")) ||
+    availableVoices[0]
+  );
+}
+
+function stopSpeaking() {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+  speakingSentenceId = null;
+  updateSpeakingState();
+}
+
+function speakSentence(item) {
+  if (!("speechSynthesis" in window)) return;
+
+  stopSpeaking();
+
+  const utterance = new SpeechSynthesisUtterance(item.en);
+  utterance.lang = "en-US";
+
+  const selectedVoice = bestEnglishVoice();
+  if (selectedVoice) utterance.voice = selectedVoice;
+
+  speakingSentenceId = item.id;
+  updateSpeakingState();
+
+  utterance.onend = () => {
+    speakingSentenceId = null;
+    updateSpeakingState();
+  };
+
+  utterance.onerror = () => {
+    speakingSentenceId = null;
+    updateSpeakingState();
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
+function filteredSentences() {
+  if (sentenceFilter === "all") return sentenceItems;
+  return sentenceItems.filter(item => item.level === sentenceFilter);
+}
+
+function updateSpeakingState() {
+  const allButtons = sentencesListEl.querySelectorAll(".speak-btn");
+  allButtons.forEach(btn => {
+    const isPlaying = Number(btn.dataset.id) === speakingSentenceId;
+    btn.classList.toggle("playing", isPlaying);
+    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    btn.setAttribute("aria-label", isPlaying ? "Уншиж байна" : "Дуу сонсох");
+  });
+}
+
+function renderSentences() {
+  const list = filteredSentences();
+
+  if (!list.length) {
+    sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэр олдсонгүй.</p>';
+    return;
+  }
+
+  sentencesListEl.innerHTML = "";
+
+  list.forEach(item => {
+    const row = document.createElement("div");
+    row.className = "sentence-row";
+
+    const textWrap = document.createElement("div");
+    textWrap.className = "sentence-text";
+
+    const en = document.createElement("p");
+    en.className = "sentence-en";
+    en.textContent = item.en;
+
+    const mn = document.createElement("p");
+    mn.className = "sentence-mn muted";
+    mn.textContent = item.mn;
+
+    textWrap.appendChild(en);
+    textWrap.appendChild(mn);
+
+    const speakBtn = document.createElement("button");
+    speakBtn.type = "button";
+    speakBtn.className = "speak-btn";
+    speakBtn.dataset.id = item.id;
+    speakBtn.setAttribute("aria-label", "Дуу сонсох");
+    speakBtn.textContent = "🔊";
+    speakBtn.addEventListener("click", () => speakSentence(item));
+
+    row.appendChild(textWrap);
+    row.appendChild(speakBtn);
+    sentencesListEl.appendChild(row);
+  });
+
+  updateSpeakingState();
+}
+
+async function loadSentences() {
+  try {
+    const response = await fetch("data/sentences.json");
+    if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
+    sentenceItems = await response.json();
+    renderSentences();
+  } catch (error) {
+    sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
+  }
+}
+
 // ---- Quiz logic ----
 function startQuiz() {
   questions = shuffle(BANK[level]).slice(0); // бүгдийг
@@ -177,6 +307,7 @@ function startQuiz() {
   score = 0;
   locked = false;
 
+  stopSpeaking();
   showScreen(quizScreen);
   renderQuestion();
 }
@@ -250,6 +381,7 @@ function endQuiz() {
 }
 
 function backToStart() {
+  stopSpeaking();
   showScreen(startScreen);
 }
 
@@ -259,6 +391,16 @@ levelButtons.forEach(btn => {
     levelButtons.forEach(b => b.classList.remove("active"));
     btn.classList.add("active");
     level = btn.dataset.level;
+  });
+});
+
+sentenceFilterButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    sentenceFilterButtons.forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+    sentenceFilter = btn.dataset.filter;
+    stopSpeaking();
+    renderSentences();
   });
 });
 
@@ -284,3 +426,10 @@ startBtn.addEventListener("click", startQuiz);
 nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
 backBtn.addEventListener("click", backToStart);
+
+if ("speechSynthesis" in window) {
+  loadVoices();
+  window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+}
+
+loadSentences();
