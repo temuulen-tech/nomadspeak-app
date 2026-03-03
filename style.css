@@ -16,43 +16,69 @@
 }
 
 button{
-  border:1px solid transparent;
-  color:var(--btn-text);
-  background:
-    linear-gradient(140deg, rgba(28,180,90,.98), rgba(13,160,123,.95) 45%, rgba(10,128,118,.95));
+  position:relative;
+  isolation:isolate;
+  border:0;
+  color:#f8fffb;
+  background: linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);
   border-radius:12px;
+  font-weight:700;
+  text-shadow: none;
   box-shadow:
-    0 0 0 1px rgba(220,255,235,.24) inset,
-    0 0 0 1.2px rgba(150,255,102,.36),
-    0 0 16px rgba(83,255,210,.28),
-    0 10px 22px rgba(1,40,28,.36);
-  text-shadow:0 1px 6px rgba(2,30,22,.55);
-  transition: transform .12s ease, filter .16s ease, box-shadow .18s ease;
+    inset 0 1px 0 rgba(255,255,255,.22),
+    0 8px 18px rgba(2,34,28,.38),
+    0 0 18px rgba(41,210,158,.24),
+    0 0 14px rgba(255,215,110,.2);
+  transition: transform .14s ease, filter .18s ease, box-shadow .2s ease;
+  cursor:pointer;
+}
+
+button::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  padding:1.5px;
+  border-radius:inherit;
+  background:linear-gradient(120deg, #fff0b3 0%, #d8a93f 25%, #fff4c6 47%, #b37b21 70%, #ffe8a1 100%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events:none;
+  opacity:.95;
 }
 
 button:hover,
 button:focus-visible{
   transform: translateY(-2px);
-  filter: brightness(1.08) saturate(1.08);
+  filter: brightness(1.07) saturate(1.05);
   box-shadow:
-    0 0 0 1px rgba(233,255,242,.35) inset,
-    0 0 0 1.2px rgba(150,255,102,.62),
-    0 0 20px rgba(83,255,210,.42),
-    0 0 24px rgba(70,200,255,.22),
-    0 12px 25px rgba(2,40,30,.42);
-  outline:none;
+    inset 0 1px 0 rgba(255,255,255,.28),
+    0 12px 24px rgba(2,34,28,.45),
+    0 0 22px rgba(80,255,215,.34),
+    0 0 18px rgba(255,214,120,.34);
+}
+
+button:focus-visible{
+  outline:2px solid rgba(244,226,147,.95);
+  outline-offset:2px;
 }
 
 button:active{
   transform: translateY(1px);
-  filter: brightness(1.02);
+  filter: brightness(1.01);
 }
 
 button:disabled{
-  opacity:.58;
+  color:rgba(244,255,252,.86);
+  background:linear-gradient(145deg, #4a7267 0%, #3f6c64 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 4px 10px rgba(0,0,0,.26);
   cursor:not-allowed;
   transform:none;
   filter:none;
+}
+
+button:disabled::before{
+  opacity:.5;
 }
 
 *{box-sizing:border-box}
@@ -280,8 +306,7 @@ body{
 .nav-btn{
   padding:8px 12px;
   font-size:14px;
-  color:#f4ffff;
-  border-color:transparent;
+  color:#f8fffb;
 }
 
 
@@ -376,18 +401,10 @@ body{
 }
 
 .primary, .secondary{
-  cursor:pointer;
   border-radius:12px;
   padding:12px 16px;
   font-weight:700;
-}
-
-.primary{
-  color:var(--btn-text);
-}
-
-.secondary{
-  color:var(--btn-text);
+  color:#f8fffb;
 }
 
 .question{
@@ -547,12 +564,10 @@ body{
 }
 
 .tts-option-btn{
-  border:1px solid transparent;
-  color:var(--text);
+  color:#f8fffb;
   padding:6px 10px;
   border-radius:10px;
   font-size:13px;
-  cursor:pointer;
 }
 
 .tts-option-btn.active{
@@ -570,11 +585,9 @@ body{
 }
 
 .filter-btn{
-  border:1px solid transparent;
-  color:var(--text);
+  color:#f8fffb;
   padding:9px 12px;
   border-radius:12px;
-  cursor:pointer;
 }
 
 .filter-btn.active{
@@ -623,10 +636,8 @@ body{
   min-width:44px;
   height:44px;
   border-radius:12px;
-  border:1px solid transparent;
-  color:var(--text);
+  color:#f8fffb;
   font-size:20px;
-  cursor:pointer;
 }
 
 .speak-btn.playing{
@@ -674,11 +685,10 @@ body{
 }
 
 .sentence-game-tile{
-  border:1px solid transparent;
-  color:var(--text);
+  color:#f8fffb;
   border-radius:10px;
   padding:8px 10px;
-  font-weight:650;
+  font-weight:700;
   cursor:grab;
 }
 
@@ -722,6 +732,22 @@ body{
 .sentence-game-title-row h2{
   margin:0;
 }
+
+
+.sentence-game-title-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.sound-toggle-btn{
+  padding:10px 14px;
+  font-size:14px;
+  white-space:nowrap;
+}
+
 
 .sentence-game-tip-toggle{
   cursor:pointer;
@@ -779,8 +805,14 @@ body{
     align-items:flex-start;
   }
 
-  .sentence-game-tip-toggle{
+  .sentence-game-title-actions{
     width:100%;
+    justify-content:flex-end;
+  }
+
+  .sentence-game-tip-toggle,
+  .sound-toggle-btn{
+    flex:1 1 180px;
     justify-content:center;
   }
 }
