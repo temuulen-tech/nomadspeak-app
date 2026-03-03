@@ -143,6 +143,7 @@ let sentenceGameLastOutcomeForThisSentence = null;
 let sentenceGameClimbLevel = 0;
 let sentenceGameLastRenderedClimbLevel = 0;
 let sentenceGamePeakPulseTimer = null;
+let sentenceGameAttemptResolved = false;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
@@ -156,12 +157,12 @@ const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлэ
 const SENTENCE_GAME_DEBUG = false;
 const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
 const SENTENCE_GAME_CLIMB_POSITIONS = [
-  { x: 18, y: 106 },
-  { x: 72, y: 88 },
-  { x: 134, y: 74 },
-  { x: 198, y: 58 },
-  { x: 274, y: 42 },
-  { x: 356, y: 22 },
+  { x: 14, y: 102 },
+  { x: 62, y: 88 },
+  { x: 138, y: 72 },
+  { x: 208, y: 57 },
+  { x: 286, y: 38 },
+  { x: 362, y: 20 },
 ];
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
@@ -767,19 +768,19 @@ function playWrongSound() {
 
 function stageRewardIconSvg(stage = 0) {
   if (stage === 1) {
-    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 2v14" stroke="#ffdca0" stroke-width="1.5"/><path d="M4 3h9l-2 3 2 3H4z" fill="#f25555" stroke="#ffb3b3" stroke-width=".8"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v18.5" stroke="#ffe6bf" stroke-width="2.1" stroke-linecap="round"/><path d="M6.3 4h12l-2.8 4.1 2.8 4.1h-12z" fill="#e53a3a" stroke="#ffd1d1" stroke-width="1.2"/></svg>';
   }
   if (stage === 2) {
-    return '<svg viewBox="0 0 18 18" aria-hidden="true"><defs><radialGradient id="rg-star" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#ffefc1"/><stop offset="100%" stop-color="#ff4d5a"/></radialGradient></defs><path d="M9 2.3l1.9 3.8 4.2.6-3 2.9.7 4.1L9 11.8l-3.8 1.9.7-4.1-3-2.9 4.2-.6z" fill="url(#rg-star)" stroke="#ffe5a8" stroke-width=".8"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.6 5.3 5.8.8-4.2 4.1 1 5.6-5.2-2.7-5.2 2.7 1-5.6-4.2-4.1 5.8-.8z" fill="#ff4f58" stroke="#ffe8b0" stroke-width="1.2"/><circle cx="12" cy="12" r="9" fill="none" stroke="#ff7880" stroke-opacity=".55" stroke-width="1.4"/></svg>';
   }
   if (stage === 3) {
-    return '<svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="#f2c45d" stroke="#ffe39d" stroke-width="1.2"/><circle cx="9" cy="9" r="3.3" fill="none" stroke="#b88729" stroke-width="1"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="#f4bf44" stroke="#ffe6a7" stroke-width="1.6"/><circle cx="12" cy="12" r="4.4" fill="none" stroke="#b17815" stroke-width="1.4"/><path d="M12 6.6v10.8M6.6 12h10.8" stroke="#f8d88e" stroke-width="1" opacity=".8"/></svg>';
   }
   if (stage === 4) {
-    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M5 4h8v2.2c0 2.5-1.8 4.7-4 4.7s-4-2.2-4-4.7z" fill="#e9bf5f" stroke="#ffe6a7" stroke-width=".9"/><path d="M3.8 4.4h1.5c0 1.8-.7 2.7-2.2 2.7V5.7c.5 0 .7-.2.7-1.3zm10.9 0h-1.5c0 1.8.7 2.7 2.2 2.7V5.7c-.5 0-.7-.2-.7-1.3z" fill="#f6d788"/><path d="M7.3 10.9h3.4v2H7.3zM6 13h6v1.9H6z" fill="#d5a13e"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.1h10v3.2c0 3.7-2.2 6.6-5 6.6s-5-3-5-6.6z" fill="#edbe5f" stroke="#ffe8b2" stroke-width="1.2"/><path d="M4.8 5.8h2c0 2.5-.9 3.8-2.8 3.8V7.8c.5 0 .8-.3.8-2zm14.4 0h-2c0 2.5.9 3.8 2.8 3.8V7.8c-.5 0-.8-.3-.8-2z" fill="#f9d782"/><path d="M10 14.9h4v2.8h-4zM8.2 18h7.6v2.2H8.2z" fill="#d69c2e"/></svg>';
   }
   if (stage === 5) {
-    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 1.8l4.9 4.9L9 16.2 4.1 6.7z" fill="#8fefff" stroke="#d4f9ff" stroke-width=".9"/><path d="M9 1.8v14.4M4.1 6.7h9.8" stroke="#5dc9dc" stroke-width=".8"/></svg>';
+    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.1l6.8 6.9L12 21.9 5.2 9z" fill="#7deaff" stroke="#dcf9ff" stroke-width="1.3"/><path d="M12 2.1v19.8M5.2 9h13.6" stroke="#45bfd6" stroke-width="1.1"/></svg>';
   }
   return "";
 }
@@ -1385,7 +1386,8 @@ function renderSentenceGameBoard() {
 function updateSentenceGameState() {
   const evaluation = evaluateSentenceGameAttempt();
   const allSlotsFilled = evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots;
-  sentenceGameCompleted = allSlotsFilled && isSentenceFullyCorrect();
+  const sentenceCorrect = allSlotsFilled && isSentenceFullyCorrect();
+  sentenceGameCompleted = sentenceCorrect;
   sentenceGameNextBtn.disabled = false;
 
   if (SENTENCE_GAME_DEBUG) {
@@ -1397,12 +1399,10 @@ function updateSentenceGameState() {
     });
   }
 
-  if (sentenceGameCompleted) {
+  if (sentenceCorrect) {
     if (!sentenceGameSuccessAlreadyShownForThisSentence) {
       showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
       sentenceGameSuccessAlreadyShownForThisSentence = true;
-      sentenceGameLastOutcomeForThisSentence = "success";
-      updateSentenceGameClimbFromOutcome("success");
     }
 
     if (!sentenceGameUsedShowCorrect) {
@@ -1420,16 +1420,17 @@ function updateSentenceGameState() {
     sentenceGameSuccessAlreadyShownForThisSentence = false;
     sentenceGameFeedbackEl.textContent = "";
     sentenceGameFeedbackEl.classList.remove("ok");
+  }
 
-    if (evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots) {
+  if (allSlotsFilled && !sentenceGameAttemptResolved) {
+    sentenceGameAttemptResolved = true;
+    sentenceGameLastOutcomeForThisSentence = sentenceCorrect ? "success" : "fail";
+    updateSentenceGameClimbFromOutcome(sentenceGameLastOutcomeForThisSentence);
+    if (!sentenceCorrect && !sentenceGameUsedShowCorrect) {
       showSentenceGameToast(SENTENCE_GAME_INCORRECT_TOAST);
-      if (sentenceGameLastOutcomeForThisSentence !== "fail") {
-        sentenceGameLastOutcomeForThisSentence = "fail";
-        updateSentenceGameClimbFromOutcome("fail");
-      }
-    } else {
-      sentenceGameLastOutcomeForThisSentence = null;
     }
+  } else if (!allSlotsFilled && !sentenceGameAttemptResolved) {
+    sentenceGameLastOutcomeForThisSentence = null;
   }
 }
 
@@ -1667,6 +1668,7 @@ function initSentenceGameRound() {
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
   sentenceGameLastOutcomeForThisSentence = null;
+  sentenceGameAttemptResolved = false;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
@@ -1706,6 +1708,7 @@ function retrySentenceGameRound() {
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
   sentenceGameLastOutcomeForThisSentence = null;
+  sentenceGameAttemptResolved = false;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
