@@ -155,12 +155,15 @@
 
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden" id="sentence-game-screen">
-      <div class="sentence-game-title-row">
-        <h2>Өгүүлбэрийн тоглоом</h2>
-      </div>
-      <div class="sentence-game-title-actions" aria-label="Sentence game quick actions">
-        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-        <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар унших</button>
+      <div class="sentence-game-header-card">
+        <div class="sentence-game-title-row">
+          <h2>Өгүүлбэрийн тоглоом</h2>
+          <p class="sentence-game-subtitle">Үгсийг зөв дараалалд оруулаарай</p>
+        </div>
+        <div class="sentence-game-title-actions" aria-label="Sentence game quick actions">
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар унших</button>
+        </div>
       </div>
       <div class="sentence-game-tip-panel hidden" id="sentence-game-tip-panel">
         <div class="sentence-game-tip-actions">
@@ -173,7 +176,6 @@
           <button class="secondary" id="sentence-game-tip-close-btn" type="button">Хаах</button>
         </div>
       </div>
-      <p class="muted">Үгсийг зөв дарааллаар оруулаарай.</p>
 
       <div class="sentence-game-dropzone" id="sentence-game-dropzone" aria-live="polite"></div>
       <div class="sentence-game-pool" id="sentence-game-pool"></div>
