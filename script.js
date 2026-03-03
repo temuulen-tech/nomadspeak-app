@@ -126,7 +126,7 @@ let sentenceGameTipSpeaking = false;
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
-const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
+const SOUND_SETTINGS_KEY = "soundEnabled";
 const PROGRESS_SETTINGS_KEY = "nomadspeak:progress:v1";
 const DEFAULT_DAILY_GOAL = 10;
 const DAILY_GOAL_SETTINGS_KEY = "nomadspeak:daily-goal:v1";
@@ -615,14 +615,14 @@ function loadSoundSettings() {
       return;
     }
 
-    soundEnabled = raw === "on";
+    soundEnabled = raw === "true" || raw === "on";
   } catch (error) {
     soundEnabled = true;
   }
 }
 
 function persistSoundSettings() {
-  localStorage.setItem(SOUND_SETTINGS_KEY, soundEnabled ? "on" : "off");
+  localStorage.setItem(SOUND_SETTINGS_KEY, soundEnabled ? "true" : "false");
 }
 
 function updateSoundToggleState() {
@@ -859,6 +859,7 @@ function showSentenceGameTipText() {
 }
 
 function speakSentenceGameTip() {
+  if (!soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
   stopSentenceGameTipSpeech();
 
@@ -897,6 +898,7 @@ function stopSpeaking() {
 }
 
 function speakSentence(item) {
+  if (!soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
 
   stopSpeaking();

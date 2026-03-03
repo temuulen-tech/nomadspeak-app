@@ -128,7 +128,10 @@
     <section class="card hidden" id="sentence-game-screen">
       <div class="sentence-game-title-row">
         <h2>Өгүүлбэрийн тоглоом</h2>
-        <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар</button>
+        <div class="sentence-game-title-actions">
+          <button class="secondary sound-toggle-btn" id="sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар</button>
+        </div>
       </div>
       <div class="sentence-game-tip-panel hidden" id="sentence-game-tip-panel">
         <div class="sentence-game-tip-actions">
@@ -161,7 +164,6 @@
     <section class="card hidden" id="stats-screen">
       <h2>Статистик</h2>
       <p class="muted">Өдрийн ахиц болон үр дүн энд харагдана.</p>
-      <button class="secondary" id="sound-toggle-btn" type="button" aria-pressed="false">🔊 Sound: ON</button>
     </section>
 
     <!-- END SCREEN -->
