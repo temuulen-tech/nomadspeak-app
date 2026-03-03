@@ -127,6 +127,7 @@ let sentenceGameTiles = [];
 let sentenceGameBuilt = [];
 let sentenceGameCompleted = false;
 let sentenceGameXpAwarded = false;
+let sentenceGameHintXpAwarded = false;
 let sentenceGameUsedShowCorrect = false;
 let sentenceGameCorrectVisible = false;
 let draggingTileId = null;
@@ -170,9 +171,8 @@ const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const LEGACY_TTS_RATE_KEY = "ttsRate";
 const SOUND_SETTINGS_KEY = "soundEnabled";
-const PROGRESS_SETTINGS_KEY = "nomadspeak:progress:v1";
+const PROGRESS_SETTINGS_KEY = "nomadProgress";
 const DEFAULT_DAILY_GOAL = 10;
-const DAILY_GOAL_SETTINGS_KEY = "nomadspeak:daily-goal:v1";
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
   rate: 0.85,
@@ -184,18 +184,13 @@ let audioContext = null;
 let audioPrimed = false;
 let completionBannerTimer = null;
 let progressState = {
-  xp: 0,
-  streak: 0,
-  lastCompletionDate: "",
-  todayDate: "",
-  todayProgress: 0,
-  dailySession: {
-    date: "",
-    dailyCount: DEFAULT_DAILY_GOAL,
-    currentIndex: -1,
-    answeredCount: 0,
-    completed: false,
-  },
+  xpTotal: 0,
+  level: 1,
+  streakDays: 0,
+  lastActiveDate: null,
+  dailyGoalXP: DEFAULT_DAILY_GOAL,
+  dailyXP: 0,
+  dailyCompleted: false,
 };
 
 // ---- Helpers ----
@@ -223,7 +218,7 @@ function levelName(lv) {
   return "Дээд";
 }
 
-function todayKey() {
+function getTodayKey() {
   const now = new Date();
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, "0");
@@ -247,64 +242,41 @@ function rewardForStreak(streak) {
   return "⭐ Таван хошуу";
 }
 
-function getDailyGoalCount() {
-  const raw = localStorage.getItem(DAILY_GOAL_SETTINGS_KEY);
-  const parsed = Number(raw);
-  if (Number.isFinite(parsed) && parsed > 0) return Math.floor(parsed);
-  return DEFAULT_DAILY_GOAL;
-}
-
 function normalizeProgressState(raw = {}) {
-  const configuredDailyGoal = getDailyGoalCount();
-  const xpCandidate = raw.xp ?? raw.totalXp ?? raw.totalXP ?? raw.points;
-  const streakCandidate = raw.streak ?? raw.streakDays ?? raw.streakCount;
-  const todayProgressCandidate = raw.todayProgress ?? raw.todayCount ?? raw.dailyProgress;
-  const lastCompletionDateCandidate = raw.lastCompletionDate ?? raw.lastCompletedDate;
-  const todayDateCandidate = raw.todayDate ?? raw.currentDate;
-  const sessionRaw = raw.dailySession || {};
-  const sessionDailyCountCandidate = sessionRaw.dailyCount ?? raw.dailyCount ?? configuredDailyGoal;
+  const configuredDailyGoal = Number.isFinite(Number(raw.dailyGoalXP)) && Number(raw.dailyGoalXP) > 0
+    ? Math.floor(Number(raw.dailyGoalXP))
+    : DEFAULT_DAILY_GOAL;
+
+  const xpTotal = Number.isFinite(Number(raw.xpTotal)) ? Math.max(0, Number(raw.xpTotal)) : 0;
+  const level = Math.floor(xpTotal / 100) + 1;
 
   return {
-    xp: Number.isFinite(Number(xpCandidate)) ? Math.max(0, Number(xpCandidate)) : 0,
-    streak: Number.isFinite(Number(streakCandidate)) ? Math.max(0, Number(streakCandidate)) : 0,
-    lastCompletionDate: typeof lastCompletionDateCandidate === "string" ? lastCompletionDateCandidate : "",
-    todayDate: typeof todayDateCandidate === "string" ? todayDateCandidate : "",
-    todayProgress: Number.isFinite(Number(todayProgressCandidate))
-      ? Math.max(0, Math.min(configuredDailyGoal, Number(todayProgressCandidate)))
-      : 0,
-    dailySession: {
-      date: typeof sessionRaw.date === "string" ? sessionRaw.date : "",
-      dailyCount: Number.isFinite(Number(sessionDailyCountCandidate))
-        ? Math.max(1, Math.floor(Number(sessionDailyCountCandidate)))
-        : configuredDailyGoal,
-      currentIndex: Number.isFinite(Number(sessionRaw.currentIndex)) ? Number(sessionRaw.currentIndex) : -1,
-      answeredCount: Number.isFinite(Number(sessionRaw.answeredCount))
-        ? Math.max(0, Number(sessionRaw.answeredCount))
-        : 0,
-      completed: Boolean(sessionRaw.completed),
-    },
+    xpTotal,
+    level,
+    streakDays: Number.isFinite(Number(raw.streakDays)) ? Math.max(0, Math.floor(Number(raw.streakDays))) : 0,
+    lastActiveDate: typeof raw.lastActiveDate === "string" ? raw.lastActiveDate : null,
+    dailyGoalXP: configuredDailyGoal,
+    dailyXP: Number.isFinite(Number(raw.dailyXP)) ? Math.max(0, Number(raw.dailyXP)) : 0,
+    dailyCompleted: Boolean(raw.dailyCompleted),
   };
 }
 
-function syncDailyProgressDate() {
-  const today = todayKey();
-  if (progressState.todayDate !== today) {
-    progressState.todayDate = today;
-    progressState.todayProgress = 0;
+function syncProgressForToday() {
+  const today = getTodayKey();
+  const lastActive = progressState.lastActiveDate;
+  if (!lastActive || lastActive === today) return;
+
+  const yesterday = previousDayKey(today);
+  if (lastActive !== yesterday) {
+    progressState.streakDays = 0;
   }
 
-  if (!progressState.dailySession || progressState.dailySession.date !== today) {
-    progressState.dailySession = {
-      date: today,
-      dailyCount: getDailyGoalCount(),
-      currentIndex: -1,
-      answeredCount: progressState.todayProgress,
-      completed: progressState.todayProgress >= getDailyGoalCount(),
-    };
-  }
+  progressState.dailyXP = 0;
+  progressState.dailyCompleted = false;
 }
 
 function persistProgressState() {
+  progressState.level = Math.floor(progressState.xpTotal / 100) + 1;
   localStorage.setItem(PROGRESS_SETTINGS_KEY, JSON.stringify(progressState));
 }
 
@@ -316,62 +288,61 @@ function loadProgressState() {
     progressState = normalizeProgressState();
   }
 
-  syncDailyProgressDate();
+  syncProgressForToday();
+}
+
+function playDailyGoalSuccessChime() {
+  if (!soundEnabled) return;
+  [988, 1319].forEach((frequency, index) => {
+    setTimeout(() => {
+      playTone({ frequency, type: "triangle", duration: 0.08, volume: 0.09, attack: 0.006, release: 0.08 });
+    }, index * 90);
+  });
+}
+
+function awardXP(amount, reason = "") {
+  const earned = Number(amount);
+  if (!Number.isFinite(earned) || earned <= 0) return;
+
+  loadProgressState();
+  syncProgressForToday();
+
+  const today = getTodayKey();
+  const yesterday = previousDayKey(today);
+  const firstActivityToday = progressState.lastActiveDate !== today;
+
+  progressState.xpTotal += earned;
+  progressState.dailyXP += earned;
+  progressState.level = Math.floor(progressState.xpTotal / 100) + 1;
+
+  const wasDailyCompleted = progressState.dailyCompleted;
+  if (progressState.dailyXP >= progressState.dailyGoalXP) {
+    progressState.dailyCompleted = true;
+    if (!wasDailyCompleted) playDailyGoalSuccessChime();
+  }
+
+  if (firstActivityToday) {
+    progressState.streakDays = progressState.lastActiveDate === yesterday
+      ? progressState.streakDays + 1
+      : 1;
+  }
+
+  progressState.lastActiveDate = today;
+  persistProgressState();
+  updateHeaderStatus();
+
+  if (SENTENCE_GAME_DEBUG) {
+    console.log("[Progress] awardXP", { amount: earned, reason, ...progressState });
+  }
 }
 
 function updateHeaderStatus() {
   loadProgressState();
-  syncDailyProgressDate();
-  statusXpEl.textContent = `⭐ XP: ${progressState.xp}`;
-  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streak} өдөр`;
-  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayProgress}/${progressState.dailySession.dailyCount}`;
-  statusRewardEl.textContent = rewardForStreak(progressState.streak);
-}
-
-function incrementTodayProgress() {
-  syncDailyProgressDate();
-  if (progressState.todayProgress < progressState.dailySession.dailyCount) {
-    progressState.todayProgress += 1;
-  }
-}
-
-function updateDailySessionProgress() {
-  syncDailyProgressDate();
-  progressState.dailySession.currentIndex = currentIndex;
-  progressState.dailySession.answeredCount = Math.min(
-    progressState.dailySession.dailyCount,
-    progressState.todayProgress
-  );
-  progressState.dailySession.completed =
-    progressState.dailySession.completed ||
-    progressState.todayProgress >= progressState.dailySession.dailyCount ||
-    (
-      progressState.dailySession.currentIndex >= progressState.dailySession.dailyCount - 1 &&
-      progressState.dailySession.answeredCount === progressState.dailySession.dailyCount
-    );
-}
-
-function isDailySessionCompletedToday() {
-  const session = progressState.dailySession;
-  if (!session) return false;
-  const isToday = session.date === todayKey();
-  if (!isToday) return false;
-
-  return session.completed || (
-    session.currentIndex >= session.dailyCount - 1 &&
-    session.answeredCount === session.dailyCount
-  );
-}
-
-function markDailyCompletion() {
-  const today = todayKey();
-  if (progressState.lastCompletionDate === today) return;
-
-  const yesterday = previousDayKey(today);
-  progressState.streak = progressState.lastCompletionDate === yesterday
-    ? progressState.streak + 1
-    : 1;
-  progressState.lastCompletionDate = today;
+  syncProgressForToday();
+  statusXpEl.textContent = `⭐ XP: ${progressState.xpTotal}`;
+  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streakDays} өдөр`;
+  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.dailyXP}/${progressState.dailyGoalXP}`;
+  statusRewardEl.textContent = `Lv.${progressState.level} • ${rewardForStreak(progressState.streakDays)}`;
 }
 
 function clearBannerEffects() {
@@ -1410,10 +1381,8 @@ function updateSentenceGameState() {
       sentenceGameFeedbackEl.classList.add("ok");
     }
     if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
-      progressState.xp += 2;
+      awardXP(10, "sentence_game_success");
       sentenceGameXpAwarded = true;
-      persistProgressState();
-      updateHeaderStatus();
       playCorrectSound();
     }
   } else if (!sentenceGameUsedShowCorrect) {
@@ -1598,6 +1567,10 @@ function showSentenceGameCorrectAnswer() {
   }
 
   if (sentenceGameCorrectVisible) {
+    if (!sentenceGameHintXpAwarded) {
+      awardXP(3, "hint_used");
+      sentenceGameHintXpAwarded = true;
+    }
     showSentenceGameToast(SENTENCE_GAME_SHOW_CORRECT_TOAST);
   }
 
@@ -1664,6 +1637,7 @@ function initSentenceGameRound() {
   sentenceGameBuilt = [];
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;
+  sentenceGameHintXpAwarded = false;
   sentenceGameUsedShowCorrect = false;
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
@@ -1704,6 +1678,7 @@ function retrySentenceGameRound() {
   sentenceGameBuilt = [];
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;
+  sentenceGameHintXpAwarded = false;
   sentenceGameUsedShowCorrect = false;
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
@@ -1723,14 +1698,8 @@ function startQuiz() {
   currentIndex = 0;
   score = 0;
   locked = false;
-  syncDailyProgressDate();
-  progressState.dailySession = {
-    date: todayKey(),
-    dailyCount: getDailyGoalCount(),
-    currentIndex: -1,
-    answeredCount: Math.min(getDailyGoalCount(), progressState.todayProgress),
-    completed: false,
-  };
+  loadProgressState();
+  syncProgressForToday();
   persistProgressState();
 
   stopSpeaking();
@@ -1775,12 +1744,9 @@ function pickAnswer(buttonEl, selected) {
     if (b.textContent === correct) b.classList.add("correct");
   });
 
-  incrementTodayProgress();
-  updateDailySessionProgress();
-
   if (selected === correct) {
     score += 1;
-    progressState.xp += 1;
+    awardXP(1, "quiz_correct_answer");
     buttonEl.classList.add("correct");
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
@@ -1795,7 +1761,6 @@ function pickAnswer(buttonEl, selected) {
   show(resultEl);
   show(nextBtn);
   updateTopbar();
-  persistProgressState();
   updateHeaderStatus();
 }
 
@@ -1815,15 +1780,8 @@ function endQuiz() {
   const finalText = document.getElementById("final-text");
   finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
 
-  updateDailySessionProgress();
-  const completedDailyGoalSession = isDailySessionCompletedToday();
-  showCompletionBanner(completedDailyGoalSession);
-
-  if (completedDailyGoalSession) {
-    markDailyCompletion();
-  }
-
-  persistProgressState();
+  loadProgressState();
+  showCompletionBanner(progressState.dailyCompleted);
   updateHeaderStatus();
 }
 
