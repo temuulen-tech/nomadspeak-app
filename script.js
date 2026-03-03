@@ -92,6 +92,9 @@ const sentenceGameTipPanelEl = document.getElementById("sentence-game-tip-panel"
 const sentenceGameTipTextEl = document.getElementById("sentence-game-tip-text");
 const sentenceGameTipSpeakBtn = document.getElementById("sentence-game-tip-speak-btn");
 const sentenceGameTipStopBtn = document.getElementById("sentence-game-tip-stop-btn");
+const sentenceGameTipReadBtn = document.getElementById("sentence-game-tip-read-btn");
+const sentenceGameTipCloseRowEl = document.getElementById("sentence-game-tip-close-row");
+const sentenceGameTipCloseBtn = document.getElementById("sentence-game-tip-close-btn");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -772,6 +775,32 @@ function stopSentenceGameTipSpeech() {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   sentenceGameTipSpeaking = false;
+  updateSentenceGameTipControls();
+}
+
+function updateSentenceGameTipControls() {
+  if (sentenceGameTipSpeakBtn) {
+    sentenceGameTipSpeakBtn.disabled = sentenceGameTipSpeaking;
+  }
+
+  if (sentenceGameTipStopBtn) {
+    sentenceGameTipStopBtn.hidden = !sentenceGameTipSpeaking;
+    sentenceGameTipStopBtn.disabled = !sentenceGameTipSpeaking;
+  }
+}
+
+function closeSentenceGameTipPanel() {
+  if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
+  stopSentenceGameTipSpeech();
+  sentenceGameTipPanelEl.classList.add("hidden");
+  sentenceGameTipToggleBtn.setAttribute("aria-expanded", "false");
+
+  if (sentenceGameTipTextEl) {
+    sentenceGameTipTextEl.classList.add("hidden");
+  }
+  if (sentenceGameTipCloseRowEl) {
+    sentenceGameTipCloseRowEl.classList.add("hidden");
+  }
 }
 
 function toggleSentenceGameTipPanel() {
@@ -779,7 +808,20 @@ function toggleSentenceGameTipPanel() {
   const willOpen = sentenceGameTipPanelEl.classList.contains("hidden");
   sentenceGameTipPanelEl.classList.toggle("hidden", !willOpen);
   sentenceGameTipToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
-  if (!willOpen) stopSentenceGameTipSpeech();
+  if (!willOpen) {
+    closeSentenceGameTipPanel();
+    return;
+  }
+  updateSentenceGameTipControls();
+}
+
+function showSentenceGameTipText() {
+  if (sentenceGameTipTextEl) {
+    sentenceGameTipTextEl.classList.remove("hidden");
+  }
+  if (sentenceGameTipCloseRowEl) {
+    sentenceGameTipCloseRowEl.classList.remove("hidden");
+  }
 }
 
 function speakSentenceGameTip() {
@@ -797,12 +839,15 @@ function speakSentenceGameTip() {
   utterance.rate = 0.92;
   utterance.onstart = () => {
     sentenceGameTipSpeaking = true;
+    updateSentenceGameTipControls();
   };
   utterance.onend = () => {
     sentenceGameTipSpeaking = false;
+    closeSentenceGameTipPanel();
   };
   utterance.onerror = () => {
     sentenceGameTipSpeaking = false;
+    updateSentenceGameTipControls();
   };
 
   window.speechSynthesis.speak(utterance);
@@ -812,6 +857,7 @@ function stopSpeaking() {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
   sentenceGameTipSpeaking = false;
+  updateSentenceGameTipControls();
   speakingSentenceId = null;
   updateSpeakingState();
 }
@@ -1286,6 +1332,16 @@ if (sentenceGameTipSpeakBtn) {
 if (sentenceGameTipStopBtn) {
   sentenceGameTipStopBtn.addEventListener("click", stopSentenceGameTipSpeech);
 }
+
+if (sentenceGameTipReadBtn) {
+  sentenceGameTipReadBtn.addEventListener("click", showSentenceGameTipText);
+}
+
+if (sentenceGameTipCloseBtn) {
+  sentenceGameTipCloseBtn.addEventListener("click", closeSentenceGameTipPanel);
+}
+
+updateSentenceGameTipControls();
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
