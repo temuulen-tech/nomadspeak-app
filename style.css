@@ -927,27 +927,35 @@ body{
   position:relative;
 }
 
-.sentence-game-header-card{
-  position:relative;
+.sentence-game-header-row{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
   gap:16px;
-  flex-wrap:wrap;
-  padding:16px 18px;
   margin-bottom:12px;
+  flex-wrap:wrap;
+}
+
+.sentence-game-header-card{
+  position:relative;
+  display:block;
+  padding:16px 18px;
   border-radius:16px;
-  border:1px solid rgba(255,218,120,.72);
+  border:1px solid rgba(255,230,165,.85);
   background:
-    radial-gradient(120% 90% at 12% 0%, rgba(255,226,146,.18), rgba(255,226,146,0) 55%),
-    radial-gradient(90% 120% at 100% 30%, rgba(255,208,110,.12), rgba(255,208,110,0) 62%),
-    linear-gradient(145deg, rgba(45,33,18,.72), rgba(24,18,11,.88));
+    radial-gradient(140% 120% at 12% 0%, rgba(126,255,227,.26), rgba(126,255,227,0) 56%),
+    radial-gradient(110% 120% at 100% 24%, rgba(255,205,115,.2), rgba(255,205,115,0) 58%),
+    linear-gradient(145deg, rgba(20,90,100,.86) 0%, rgba(13,65,49,.9) 48%, rgba(84,66,27,.86) 100%);
   box-shadow:
-    inset 0 1px 0 rgba(255,248,221,.28),
-    inset 0 -14px 24px rgba(255,196,79,.08),
-    0 8px 26px rgba(0,0,0,.28);
+    inset 0 1px 0 rgba(255,249,230,.42),
+    inset 0 -14px 28px rgba(255,206,118,.16),
+    inset 0 0 24px rgba(189,255,239,.12),
+    0 10px 28px rgba(0,0,0,.3);
+  backdrop-filter:blur(6px);
   overflow:hidden;
   isolation:isolate;
+  flex:1 1 460px;
+  max-width:760px;
 }
 
 .sentence-game-header-card::before,
@@ -960,17 +968,27 @@ body{
 .sentence-game-header-card::before{
   inset:0;
   background:
-    radial-gradient(circle at 18% 28%, rgba(255,240,190,.22) 0 1px, transparent 2px),
-    radial-gradient(circle at 38% 12%, rgba(255,237,170,.18) 0 1.2px, transparent 2.5px),
-    radial-gradient(circle at 62% 34%, rgba(255,238,184,.17) 0 1px, transparent 2px),
-    radial-gradient(circle at 82% 18%, rgba(255,227,156,.14) 0 1.2px, transparent 2.3px);
-  opacity:.65;
+    radial-gradient(circle at 12% 26%, rgba(255,243,198,.26) 0 1px, transparent 2.3px),
+    radial-gradient(circle at 34% 14%, rgba(255,243,198,.22) 0 1.3px, transparent 2.6px),
+    radial-gradient(circle at 58% 32%, rgba(255,243,198,.2) 0 1px, transparent 2.1px),
+    radial-gradient(circle at 76% 20%, rgba(255,243,198,.2) 0 1.2px, transparent 2.4px),
+    radial-gradient(circle at 90% 36%, rgba(255,243,198,.18) 0 1px, transparent 2px);
+  filter:blur(.3px);
+  opacity:.52;
 }
 
 .sentence-game-header-card::after{
   inset:1px;
   border-radius:15px;
-  box-shadow:inset 0 0 0 1px rgba(255,230,164,.2);
+  border:1px solid transparent;
+  background:
+    linear-gradient(160deg, rgba(255,244,196,.78), rgba(255,211,110,.42) 48%, rgba(173,114,33,.38)) border-box;
+  -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor;
+  mask-composite:exclude;
+  box-shadow:inset 0 0 0 1px rgba(255,241,193,.25), inset 0 14px 20px rgba(255,255,255,.06);
 }
 
 .sentence-game-title-row{
@@ -980,24 +998,26 @@ body{
   justify-content:flex-start;
   gap:6px;
   min-width:220px;
-  flex:1 1 320px;
 }
 
 .sentence-game-title-row h2{
   margin:0;
-  font-size:30px;
+  font-size:32px;
   line-height:1.15;
-  font-weight:900;
-  letter-spacing:.2px;
-  color:#ffefc9;
-  text-shadow:0 1px 0 rgba(70,52,26,.55), 0 0 14px rgba(255,212,128,.28);
+  font-weight:800;
+  letter-spacing:.45px;
+  color:#fff3d1;
+  font-family:"Trebuchet MS", "Segoe UI", Arial, sans-serif;
+  text-shadow:0 1px 0 rgba(47,36,19,.58), 0 0 12px rgba(255,220,138,.35);
 }
 
 .sentence-game-subtitle{
   margin:0;
-  color:#ffe8b9;
+  color:#f9f4d8;
   font-weight:700;
-  letter-spacing:.1px;
+  letter-spacing:.28px;
+  font-family:"Segoe UI", Tahoma, Arial, sans-serif;
+  text-shadow:0 0 8px rgba(133,255,220,.2);
 }
 
 .sentence-game-title-actions{
@@ -1083,9 +1103,13 @@ body{
     align-items:flex-start;
   }
 
+  .sentence-game-header-row{
+    gap:12px;
+  }
+
   .sentence-game-header-card{
     padding:14px;
-    gap:12px;
+    width:100%;
   }
 
   .sentence-game-title-row h2{
