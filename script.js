@@ -73,7 +73,8 @@ const levelButtons = document.querySelectorAll(".level-btn");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
-const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
+const ttsRateSlider = document.getElementById("tts-rate-slider");
+const ttsRateValueEl = document.getElementById("tts-rate-value");
 const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
 const statusXpEl = document.getElementById("status-xp");
 const statusStreakEl = document.getElementById("status-streak");
@@ -126,13 +127,14 @@ let sentenceGameTipSpeaking = false;
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
+const LEGACY_TTS_RATE_KEY = "ttsRate";
 const SOUND_SETTINGS_KEY = "soundEnabled";
 const PROGRESS_SETTINGS_KEY = "nomadspeak:progress:v1";
 const DEFAULT_DAILY_GOAL = 10;
 const DAILY_GOAL_SETTINGS_KEY = "nomadspeak:daily-goal:v1";
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
-  rate: 1,
+  rate: 0.85,
 };
 
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
@@ -515,7 +517,7 @@ function speakBannerText(text) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = mnVoice.lang || "mn-MN";
   utterance.voice = mnVoice;
-  utterance.rate = 0.88;
+  utterance.rate = ttsSettings.rate;
   utterance.pitch = 1;
   window.speechSynthesis.speak(utterance);
 }
@@ -767,8 +769,9 @@ function normalizeTtsSettings(rawSettings = {}) {
     ? rawSettings.voice
     : DEFAULT_TTS_SETTINGS.voice;
 
-  const rate = [0.8, 1, 1.2].includes(Number(rawSettings.rate))
-    ? Number(rawSettings.rate)
+  const rateCandidate = Number(rawSettings.rate);
+  const rate = Number.isFinite(rateCandidate) && rateCandidate >= 0.45 && rateCandidate <= 1.4
+    ? Math.round(rateCandidate * 20) / 20
     : DEFAULT_TTS_SETTINGS.rate;
 
   return { voice, rate };
@@ -777,12 +780,18 @@ function normalizeTtsSettings(rawSettings = {}) {
 function loadTtsSettings() {
   try {
     const raw = localStorage.getItem(TTS_SETTINGS_KEY);
-    if (!raw) {
-      ttsSettings = { ...DEFAULT_TTS_SETTINGS };
+    if (raw) {
+      ttsSettings = normalizeTtsSettings(JSON.parse(raw));
       return;
     }
 
-    ttsSettings = normalizeTtsSettings(JSON.parse(raw));
+    const legacyRate = Number(localStorage.getItem(LEGACY_TTS_RATE_KEY));
+    if (Number.isFinite(legacyRate) && legacyRate >= 0.45 && legacyRate <= 1.4) {
+      ttsSettings = { ...DEFAULT_TTS_SETTINGS, rate: Math.round(legacyRate * 20) / 20 };
+      return;
+    }
+
+    ttsSettings = { ...DEFAULT_TTS_SETTINGS };
   } catch (error) {
     ttsSettings = { ...DEFAULT_TTS_SETTINGS };
   }
@@ -790,6 +799,7 @@ function loadTtsSettings() {
 
 function persistTtsSettings() {
   localStorage.setItem(TTS_SETTINGS_KEY, JSON.stringify(ttsSettings));
+  localStorage.setItem(LEGACY_TTS_RATE_KEY, String(ttsSettings.rate));
 }
 
 function updateTtsControlState() {
@@ -799,11 +809,13 @@ function updateTtsControlState() {
     btn.setAttribute("aria-pressed", isActive ? "true" : "false");
   });
 
-  rateOptionButtons.forEach(btn => {
-    const isActive = Number(btn.dataset.rate) === ttsSettings.rate;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
-  });
+  if (ttsRateSlider) {
+    ttsRateSlider.value = ttsSettings.rate.toFixed(2);
+  }
+
+  if (ttsRateValueEl) {
+    ttsRateValueEl.textContent = `${ttsSettings.rate.toFixed(2)}x`;
+  }
 }
 
 function stopSentenceGameTipSpeech() {
@@ -872,7 +884,7 @@ function speakSentenceGameTip() {
   } else {
     utterance.lang = "mn-MN";
   }
-  utterance.rate = 0.92;
+  utterance.rate = ttsSettings.rate;
   utterance.onstart = () => {
     sentenceGameTipSpeaking = true;
     updateSentenceGameTipControls();
@@ -1434,13 +1446,13 @@ voiceOptionButtons.forEach(btn => {
   });
 });
 
-rateOptionButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    ttsSettings.rate = Number(btn.dataset.rate);
+if (ttsRateSlider) {
+  ttsRateSlider.addEventListener("input", () => {
+    ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
     updateTtsControlState();
     persistTtsSettings();
   });
-});
+}
 
 soundToggleButtons.forEach(toggleBtn => {
   toggleBtn.addEventListener("click", () => {

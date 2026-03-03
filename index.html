@@ -118,11 +118,26 @@
           <button class="tts-option-btn" type="button" data-voice="male">Эр</button>
           <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
         </div>
-        <div class="tts-group" role="group" aria-label="Хурд">
-          <span class="tts-label">Хурд:</span>
-          <button class="tts-option-btn" type="button" data-rate="0.8">0.8×</button>
-          <button class="tts-option-btn active" type="button" data-rate="1">1.0×</button>
-          <button class="tts-option-btn" type="button" data-rate="1.2">1.2×</button>
+        <div class="tts-group tts-rate-group" aria-label="Хурд">
+          <div class="tts-rate-header">
+            <label class="tts-label" for="tts-rate-slider">Хурд</label>
+            <span class="tts-rate-value" id="tts-rate-value">0.85x</span>
+          </div>
+          <input
+            id="tts-rate-slider"
+            class="tts-rate-slider"
+            type="range"
+            min="0.45"
+            max="1.4"
+            step="0.05"
+            value="0.85"
+            aria-label="Унших хурд"
+          />
+          <div class="tts-rate-hints" aria-hidden="true">
+            <span>👂 Маш удаан</span>
+            <span>Хэвийн</span>
+            <span>Хурдан</span>
+          </div>
         </div>
       </div>
       <div class="sentences-controls" role="group" aria-label="Түвшин шүүлтүүр">
