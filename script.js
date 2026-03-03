@@ -100,6 +100,9 @@ const sentenceGameTipStopBtn = document.getElementById("sentence-game-tip-stop-b
 const sentenceGameTipReadBtn = document.getElementById("sentence-game-tip-read-btn");
 const sentenceGameTipCloseRowEl = document.getElementById("sentence-game-tip-close-row");
 const sentenceGameTipCloseBtn = document.getElementById("sentence-game-tip-close-btn");
+const sentenceGameClimbEl = document.getElementById("sentence-game-climb");
+const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
+const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -136,6 +139,10 @@ let sentenceGameToastHideDeadline = 0;
 let sentenceGameToastSpeechActive = false;
 let sentenceGameSuccessAlreadyShownForThisSentence = false;
 let sentenceGameSuccessToastLockUntil = 0;
+let sentenceGameLastOutcomeForThisSentence = null;
+let sentenceGameClimbLevel = 0;
+let sentenceGameLastRenderedClimbLevel = 0;
+let sentenceGamePeakPulseTimer = null;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
@@ -147,6 +154,15 @@ const SENTENCE_GAME_CORRECT_TOAST = "Чи уулын оргилд гарлаа."
 const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, Андаа.";
 const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлээд байна аа, Андаа.";
 const SENTENCE_GAME_DEBUG = false;
+const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
+const SENTENCE_GAME_CLIMB_POSITIONS = [
+  { x: 18, y: 106 },
+  { x: 72, y: 88 },
+  { x: 134, y: 74 },
+  { x: 198, y: 58 },
+  { x: 274, y: 42 },
+  { x: 356, y: 22 },
+];
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -749,6 +765,137 @@ function playWrongSound() {
   playErrorSound();
 }
 
+function stageRewardIconSvg(stage = 0) {
+  if (stage === 1) {
+    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M3 2v14" stroke="#ffdca0" stroke-width="1.5"/><path d="M4 3h9l-2 3 2 3H4z" fill="#f25555" stroke="#ffb3b3" stroke-width=".8"/></svg>';
+  }
+  if (stage === 2) {
+    return '<svg viewBox="0 0 18 18" aria-hidden="true"><defs><radialGradient id="rg-star" cx="50%" cy="50%" r="60%"><stop offset="0%" stop-color="#ffefc1"/><stop offset="100%" stop-color="#ff4d5a"/></radialGradient></defs><path d="M9 2.3l1.9 3.8 4.2.6-3 2.9.7 4.1L9 11.8l-3.8 1.9.7-4.1-3-2.9 4.2-.6z" fill="url(#rg-star)" stroke="#ffe5a8" stroke-width=".8"/></svg>';
+  }
+  if (stage === 3) {
+    return '<svg viewBox="0 0 18 18" aria-hidden="true"><circle cx="9" cy="9" r="6.2" fill="#f2c45d" stroke="#ffe39d" stroke-width="1.2"/><circle cx="9" cy="9" r="3.3" fill="none" stroke="#b88729" stroke-width="1"/></svg>';
+  }
+  if (stage === 4) {
+    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M5 4h8v2.2c0 2.5-1.8 4.7-4 4.7s-4-2.2-4-4.7z" fill="#e9bf5f" stroke="#ffe6a7" stroke-width=".9"/><path d="M3.8 4.4h1.5c0 1.8-.7 2.7-2.2 2.7V5.7c.5 0 .7-.2.7-1.3zm10.9 0h-1.5c0 1.8.7 2.7 2.2 2.7V5.7c-.5 0-.7-.2-.7-1.3z" fill="#f6d788"/><path d="M7.3 10.9h3.4v2H7.3zM6 13h6v1.9H6z" fill="#d5a13e"/></svg>';
+  }
+  if (stage === 5) {
+    return '<svg viewBox="0 0 18 18" aria-hidden="true"><path d="M9 1.8l4.9 4.9L9 16.2 4.1 6.7z" fill="#8fefff" stroke="#d4f9ff" stroke-width=".9"/><path d="M9 1.8v14.4M4.1 6.7h9.8" stroke="#5dc9dc" stroke-width=".8"/></svg>';
+  }
+  return "";
+}
+
+function persistSentenceGameClimbLevel() {
+  try {
+    localStorage.setItem(SENTENCE_GAME_CLIMB_STORAGE_KEY, String(sentenceGameClimbLevel));
+  } catch (error) {
+    // noop
+  }
+}
+
+function loadSentenceGameClimbLevel() {
+  try {
+    const raw = localStorage.getItem(SENTENCE_GAME_CLIMB_STORAGE_KEY);
+    const parsed = Number(raw);
+    if (Number.isFinite(parsed)) {
+      sentenceGameClimbLevel = Math.max(0, Math.min(5, Math.round(parsed)));
+      sentenceGameLastRenderedClimbLevel = sentenceGameClimbLevel;
+      return;
+    }
+  } catch (error) {
+    // noop
+  }
+  sentenceGameClimbLevel = 0;
+  sentenceGameLastRenderedClimbLevel = 0;
+}
+
+function renderSentenceGameClimb(level = 0, options = {}) {
+  if (!sentenceGameClimberEl || !sentenceGameClimbEl) return;
+  const position = SENTENCE_GAME_CLIMB_POSITIONS[level] || SENTENCE_GAME_CLIMB_POSITIONS[0];
+  sentenceGameClimberEl.style.setProperty("--x", `${position.x}px`);
+  sentenceGameClimberEl.style.setProperty("--y", `${position.y}px`);
+  sentenceGameClimbEl.setAttribute("aria-label", `Mountain climb progress level ${level} of 5`);
+
+  if (sentenceGameRewardIconEl) {
+    sentenceGameRewardIconEl.innerHTML = stageRewardIconSvg(level);
+  }
+
+  document.querySelectorAll(".sentence-game-peak").forEach((peakEl) => {
+    const peak = Number(peakEl.dataset.peak || 0);
+    peakEl.classList.toggle("active", peak > 0 && peak <= level);
+    peakEl.classList.remove("pulse");
+  });
+
+  if (options.pulsePeak && level > 0) {
+    const reachedPeak = document.querySelector(`.sentence-game-peak[data-peak="${level}"]`);
+    if (reachedPeak) {
+      void reachedPeak.getBoundingClientRect();
+      reachedPeak.classList.add("pulse");
+      if (sentenceGamePeakPulseTimer) clearTimeout(sentenceGamePeakPulseTimer);
+      sentenceGamePeakPulseTimer = setTimeout(() => {
+        reachedPeak.classList.remove("pulse");
+      }, 620);
+    }
+  }
+}
+
+function playSentenceGameLevelUpSound(stage) {
+  if (!soundEnabled || stage < 1 || stage > 5) return;
+  const stagePatterns = {
+    1: [620, 740, 930],
+    2: [660, 880, 1100],
+    3: [720, 960, 1280],
+    4: [784, 1046, 1396],
+    5: [880, 1174, 1568],
+  };
+  const notes = stagePatterns[stage] || stagePatterns[1];
+  notes.forEach((freq, index) => {
+    setTimeout(() => {
+      playTone({ frequency: freq, type: "triangle", duration: 0.08, volume: 0.11 + stage * 0.01, attack: 0.006, release: 0.09 });
+    }, index * 78);
+  });
+}
+
+function playSentenceGameLevelDownSound() {
+  if (!soundEnabled) return;
+  [300, 230, 170].forEach((freq, index) => {
+    setTimeout(() => {
+      playTone({ frequency: freq, type: "sawtooth", duration: 0.09, volume: 0.095, attack: 0.002, release: 0.08 });
+    }, index * 62);
+  });
+}
+
+function updateSentenceGameClimbFromOutcome(outcome) {
+  if (!outcome) return;
+  const previousLevel = sentenceGameClimbLevel;
+  if (outcome === "success") {
+    sentenceGameClimbLevel = Math.min(5, sentenceGameClimbLevel + 1);
+  }
+  if (outcome === "fail") {
+    sentenceGameClimbLevel = Math.max(0, sentenceGameClimbLevel - 1);
+  }
+
+  if (sentenceGameClimbLevel === previousLevel) {
+    renderSentenceGameClimb(sentenceGameClimbLevel);
+    return;
+  }
+
+  const leveledUp = sentenceGameClimbLevel > previousLevel;
+  sentenceGameClimberEl?.setAttribute("data-animating", "true");
+  renderSentenceGameClimb(sentenceGameClimbLevel, { pulsePeak: leveledUp });
+  persistSentenceGameClimbLevel();
+  sentenceGameLastRenderedClimbLevel = sentenceGameClimbLevel;
+
+  if (leveledUp) {
+    playSentenceGameLevelUpSound(sentenceGameClimbLevel);
+  } else {
+    playSentenceGameLevelDownSound();
+  }
+
+  setTimeout(() => {
+    sentenceGameClimberEl?.setAttribute("data-animating", "false");
+  }, 620);
+}
+
 // ---- Speech & sentences ----
 function loadVoices() {
   if (!("speechSynthesis" in window)) return;
@@ -1254,6 +1401,8 @@ function updateSentenceGameState() {
     if (!sentenceGameSuccessAlreadyShownForThisSentence) {
       showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
       sentenceGameSuccessAlreadyShownForThisSentence = true;
+      sentenceGameLastOutcomeForThisSentence = "success";
+      updateSentenceGameClimbFromOutcome("success");
     }
 
     if (!sentenceGameUsedShowCorrect) {
@@ -1274,6 +1423,12 @@ function updateSentenceGameState() {
 
     if (evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots) {
       showSentenceGameToast(SENTENCE_GAME_INCORRECT_TOAST);
+      if (sentenceGameLastOutcomeForThisSentence !== "fail") {
+        sentenceGameLastOutcomeForThisSentence = "fail";
+        updateSentenceGameClimbFromOutcome("fail");
+      }
+    } else {
+      sentenceGameLastOutcomeForThisSentence = null;
     }
   }
 }
@@ -1476,6 +1631,7 @@ function removeSentenceGameTile(tileId) {
   if (idx === -1) return;
   sentenceGameBuilt.splice(idx, 1);
   sentenceGameSuccessAlreadyShownForThisSentence = false;
+  sentenceGameLastOutcomeForThisSentence = null;
   renderSentenceGameBoard();
   updateSentenceGameState();
 }
@@ -1484,6 +1640,7 @@ function undoSentenceGameMove() {
   if (!sentenceGameBuilt.length) return;
   sentenceGameBuilt.pop();
   sentenceGameSuccessAlreadyShownForThisSentence = false;
+  sentenceGameLastOutcomeForThisSentence = null;
   renderSentenceGameBoard();
   updateSentenceGameState();
 }
@@ -1509,6 +1666,7 @@ function initSentenceGameRound() {
   sentenceGameUsedShowCorrect = false;
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
+  sentenceGameLastOutcomeForThisSentence = null;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
@@ -1547,6 +1705,7 @@ function retrySentenceGameRound() {
   sentenceGameUsedShowCorrect = false;
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameSuccessToastLockUntil = 0;
+  sentenceGameLastOutcomeForThisSentence = null;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
@@ -1676,6 +1835,8 @@ updateTtsControlState();
 loadSoundSettings();
 updateSoundToggleState();
 ensureAudioUnlocked();
+loadSentenceGameClimbLevel();
+renderSentenceGameClimb(sentenceGameClimbLevel);
 loadProgressState();
 updateHeaderStatus();
 persistProgressState();
