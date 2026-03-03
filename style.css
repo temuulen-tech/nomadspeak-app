@@ -982,7 +982,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:22px;
+  gap:18px;
   margin-bottom:12px;
   flex-wrap:nowrap;
 }
@@ -1085,14 +1085,16 @@ body{
   gap:8px;
   z-index:1;
   flex:0 0 auto;
+  min-width:182px;
 }
 
 .sentence-game-climb{
   position:relative;
-  width:min(430px, 100%);
-  height:124px;
-  flex:1 1 300px;
-  min-width:260px;
+  width:100%;
+  max-width:620px;
+  height:130px;
+  flex:1 1 360px;
+  min-width:280px;
   display:flex;
   align-items:center;
   justify-content:center;
@@ -1105,17 +1107,25 @@ body{
   display:block;
 }
 
+.sentence-game-mountain-base{
+  fill:url(#mountainFillPremium);
+  stroke:url(#mountainStrokeGold);
+  stroke-width:2;
+  stroke-linejoin:round;
+  filter:url(#mountainGlow);
+}
+
 .sentence-game-mountain-path{
   fill:none;
-  stroke:url(#mountainPathGold);
-  stroke-width:4.5;
+  stroke:url(#mountainStrokeGold);
+  stroke-width:4.4;
   stroke-linecap:round;
   stroke-linejoin:round;
   filter:url(#mountainGlow);
 }
 
 .sentence-game-sparkles{
-  fill:#a8fff0;
+  fill:#d7fff8;
 }
 
 .sentence-game-peaks .sentence-game-peak{
@@ -1135,28 +1145,24 @@ body{
 }
 
 .sentence-game-climber{
-  --x: 18px;
-  --y: 106px;
+  --x: 14px;
+  --y: 102px;
   position:absolute;
   left:0;
   top:0;
-  transform:translate(calc(var(--x) - 13px), calc(var(--y) - 30px));
-  transition:transform .56s cubic-bezier(.25,.8,.25,1), filter .4s ease;
+  transform:translate(calc(var(--x) - 24px), calc(var(--y) - 66px));
+  transition:transform .72s cubic-bezier(.22,.86,.35,1), filter .4s ease;
   display:flex;
-  align-items:center;
-  gap:5px;
+  align-items:flex-start;
   pointer-events:none;
 }
 
-.sentence-game-climber-svg{
-  width:26px;
-  height:26px;
-  stroke:#ffe8aa;
-  fill:none;
-  stroke-width:2;
-  stroke-linecap:round;
-  stroke-linejoin:round;
-  filter:drop-shadow(0 0 8px rgba(255,220,126,.48));
+.sentence-game-climber-image{
+  width:54px;
+  height:auto;
+  display:block;
+  filter:drop-shadow(0 4px 8px rgba(0,0,0,.38));
+  animation:sentenceGameClimberBob 2.4s ease-in-out infinite;
 }
 
 .sentence-game-climber[data-animating="true"]{
@@ -1164,15 +1170,24 @@ body{
 }
 
 .sentence-game-reward-icon{
-  width:17px;
-  height:17px;
+  position:absolute;
+  left:40px;
+  top:22px;
+  width:24px;
+  height:24px;
   display:inline-flex;
+  filter:drop-shadow(0 0 10px rgba(255,231,158,.5));
 }
 
 .sentence-game-reward-icon svg{
   width:100%;
   height:100%;
   display:block;
+}
+
+@keyframes sentenceGameClimberBob{
+  0%,100%{transform:translateY(0);} 
+  50%{transform:translateY(-3px);} 
 }
 
 @keyframes sentenceGamePeakPulse{
@@ -1269,7 +1284,23 @@ body{
     order:3;
     width:100%;
     min-width:0;
-    height:112px;
+    max-width:none;
+    height:116px;
+  }
+
+  .sentence-game-climber{
+    transform:translate(calc(var(--x) - 20px), calc(var(--y) - 58px));
+  }
+
+  .sentence-game-climber-image{
+    width:46px;
+  }
+
+  .sentence-game-reward-icon{
+    left:34px;
+    top:18px;
+    width:21px;
+    height:21px;
   }
 
   .sentence-game-title-row h2{
