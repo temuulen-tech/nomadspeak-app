@@ -1417,6 +1417,7 @@ if (sentenceGameTipCloseBtn) {
 }
 
 updateSentenceGameTipControls();
+updateSentenceFilterActiveState();
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
@@ -1427,11 +1428,17 @@ levelButtons.forEach(btn => {
   });
 });
 
+function updateSentenceFilterActiveState() {
+  sentenceFilterButtons.forEach((btn) => {
+    const isActive = btn.dataset.filter === sentenceFilter;
+    btn.classList.toggle("active", isActive);
+  });
+}
+
 sentenceFilterButtons.forEach(btn => {
   btn.addEventListener("click", () => {
-    sentenceFilterButtons.forEach(b => b.classList.remove("active"));
-    btn.classList.add("active");
     sentenceFilter = btn.dataset.filter;
+    updateSentenceFilterActiveState();
     stopSpeaking();
     renderSentences();
     updateHeaderStatus();

@@ -654,6 +654,16 @@ body{
     0 0 18px rgba(83,255,210,.4);
 }
 
+.level-filter-btn.active{
+  border-color:rgba(108, 233, 255, .96);
+  background:linear-gradient(145deg, #34c089 0%, #18a994 52%, #0f7ba6 100%);
+  box-shadow:
+    0 0 0 1px rgba(242, 252, 255, .58) inset,
+    0 0 0 2px rgba(96, 233, 255, .92),
+    0 0 20px rgba(124, 255, 242, .7),
+    0 0 34px rgba(91, 206, 255, .62);
+}
+
 .sentences-list{
   display:flex;
   flex-direction:column;
