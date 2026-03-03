@@ -643,17 +643,39 @@ body{
 .tts-rate-hints{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
-  color:rgba(240, 250, 244, 0.86);
   font-size:12px;
-  font-weight:600;
   letter-spacing:.01em;
+  gap:8px;
+}
+
+.speed-hint-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  justify-self:start;
+  width:fit-content;
+  padding:4px 10px;
+  border-radius:999px;
+  border:1px solid rgba(255, 214, 110, 0.94);
+  background:
+    linear-gradient(rgba(255, 214, 118, 0.16), rgba(255, 214, 118, 0.16)) padding-box,
+    linear-gradient(130deg, rgba(255, 247, 207, 0.98), rgba(243, 189, 73, 0.96), rgba(172, 123, 26, 0.94)) border-box;
+  color:#0b1b22;
+  font-weight:700;
+  text-shadow:0 0 6px rgba(255, 244, 206, 0.22);
+  box-shadow:
+    0 0 0 1px rgba(255, 248, 220, 0.16) inset,
+    0 0 10px rgba(255, 202, 94, 0.24),
+    0 0 18px rgba(255, 188, 72, 0.14);
 }
 
 .tts-rate-hints span:nth-child(2){
+  justify-self:center;
   text-align:center;
 }
 
 .tts-rate-hints span:last-child{
+  justify-self:end;
   text-align:right;
 }
 
@@ -675,6 +697,11 @@ body{
 
   .tts-rate-hints{
     font-size:11.5px;
+    gap:6px;
+  }
+
+  .speed-hint-pill{
+    padding:4px 8px;
   }
 }
 
