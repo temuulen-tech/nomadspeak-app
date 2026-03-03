@@ -138,10 +138,11 @@ let sentenceGameToastSpeechActive = false;
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
 const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
+const SENTENCE_GAME_TOAST_MAX_DURATION = 12000;
 
-const SENTENCE_GAME_CORRECT_TOAST = "Yes, Чи уулын оргилд гарлаа.";
-const SENTENCE_GAME_INCORRECT_TOAST = "Oh.. My God. Гэхдээ зүгээрээ, Андаа.";
-const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчилээд байнаа, Андаа.";
+const SENTENCE_GAME_CORRECT_TOAST = "Чи уулын оргилд гарлаа.";
+const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, Андаа.";
+const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлээд байна аа, Андаа.";
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -525,7 +526,14 @@ function mongolianVoice() {
 }
 
 function toastSpeechText(message = "") {
-  return String(message || "").trim();
+  return String(message || "").replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
+}
+
+function toastTypeFromMessage(message = "") {
+  if (message === SENTENCE_GAME_CORRECT_TOAST) return "success";
+  if (message === SENTENCE_GAME_INCORRECT_TOAST) return "fail";
+  if (message === SENTENCE_GAME_SHOW_CORRECT_TOAST) return "hint";
+  return "unknown";
 }
 
 function speakBannerText(text) {
@@ -1219,25 +1227,29 @@ function speakSentenceGameToast(message, handlers = {}) {
   const textToSpeak = toastSpeechText(message);
   if (!textToSpeak) return;
 
-  window.speechSynthesis.cancel();
-
   const utterance = new SpeechSynthesisUtterance(textToSpeak);
   const mnVoice = mongolianVoice();
+  const toastType = handlers.toastType || toastTypeFromMessage(message);
 
   utterance.lang = "mn-MN";
   if (mnVoice) {
     utterance.voice = mnVoice;
     utterance.lang = (mnVoice.lang || "").toLowerCase().startsWith("mn") ? mnVoice.lang : "mn-MN";
+  } else {
+    utterance.lang = "mn";
   }
   utterance.rate = ttsSettings.rate;
   utterance.pitch = 1;
   utterance.onstart = () => {
+    console.log(`[SentenceGameToast][${toastType}] speech start`);
     if (typeof handlers.onstart === "function") handlers.onstart();
   };
   utterance.onend = () => {
+    console.log(`[SentenceGameToast][${toastType}] speech end`);
     if (typeof handlers.onend === "function") handlers.onend();
   };
   utterance.onerror = () => {
+    console.log(`[SentenceGameToast][${toastType}] speech end (error)`);
     if (typeof handlers.onend === "function") handlers.onend();
   };
   window.speechSynthesis.speak(utterance);
@@ -1279,8 +1291,16 @@ function hideSentenceGameToast() {
 function showSentenceGameToast(message) {
   if (!sentenceGameToastEl || !message) return;
 
+  const hasActiveToast =
+    sentenceGameToastEl.classList.contains("show") ||
+    sentenceGameToastSpeechActive ||
+    Boolean(sentenceGameToastSpeechTimer);
+
+  if (hasActiveToast && "speechSynthesis" in window) {
+    window.speechSynthesis.cancel();
+  }
+
   clearSentenceGameToastTimers();
-  stopSpeaking();
 
   sentenceGameToastEl.textContent = message;
   sentenceGameToastEl.setAttribute("aria-hidden", "false");
@@ -1290,22 +1310,26 @@ function showSentenceGameToast(message) {
   sentenceGameToastEl.classList.add("show");
 
   sentenceGameToastShownAt = Date.now();
+  const maxHideTimestamp = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION;
   sentenceGameToastHideDeadline = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_DURATION;
   sentenceGameToastSpeechActive = false;
+  const toastType = toastTypeFromMessage(message);
 
   sentenceGameToastSpeechTimer = setTimeout(() => {
     speakSentenceGameToast(message, {
+      toastType,
       onstart: () => {
         sentenceGameToastSpeechActive = true;
       },
       onend: () => {
         sentenceGameToastSpeechActive = false;
-        scheduleSentenceGameToastHide(Date.now() + SENTENCE_GAME_TOAST_SPEECH_END_BUFFER);
+        const nextHideAt = Math.min(Date.now() + SENTENCE_GAME_TOAST_SPEECH_END_BUFFER, maxHideTimestamp);
+        scheduleSentenceGameToastHide(nextHideAt);
       },
     });
   }, SENTENCE_GAME_TOAST_SPEECH_DELAY);
 
-  scheduleSentenceGameToastHide(sentenceGameToastHideDeadline);
+  scheduleSentenceGameToastHide(Math.min(sentenceGameToastHideDeadline, maxHideTimestamp));
 }
 
 function hideSentenceGameCorrectPanel() {
