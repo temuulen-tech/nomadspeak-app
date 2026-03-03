@@ -41,6 +41,7 @@ button::before{
   border-radius:inherit;
   background:linear-gradient(120deg, #fff0b3 0%, #d8a93f 25%, #fff4c6 47%, #b37b21 70%, #ffe8a1 100%);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   pointer-events:none;
@@ -1035,6 +1036,9 @@ body{
   background:
     linear-gradient(160deg, rgba(255,244,196,.78), rgba(255,211,110,.42) 48%, rgba(173,114,33,.38)) border-box;
   -webkit-mask:
+    linear-gradient(#000 0 0) padding-box,
+    linear-gradient(#000 0 0);
+  mask:
     linear-gradient(#000 0 0) padding-box,
     linear-gradient(#000 0 0);
   -webkit-mask-composite:xor;
