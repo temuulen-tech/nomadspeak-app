@@ -86,6 +86,11 @@ const sentenceGameShowCorrectBtn = document.getElementById("sentence-game-show-c
 const sentenceGameRetryBtn = document.getElementById("sentence-game-retry-btn");
 const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
 const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
+const sentenceGameTipToggleBtn = document.getElementById("sentence-game-tip-toggle-btn");
+const sentenceGameTipPanelEl = document.getElementById("sentence-game-tip-panel");
+const sentenceGameTipTextEl = document.getElementById("sentence-game-tip-text");
+const sentenceGameTipSpeakBtn = document.getElementById("sentence-game-tip-speak-btn");
+const sentenceGameTipStopBtn = document.getElementById("sentence-game-tip-stop-btn");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -111,6 +116,9 @@ let sentenceGameCompleted = false;
 let sentenceGameXpAwarded = false;
 let sentenceGameUsedShowCorrect = false;
 let draggingTileId = null;
+let sentenceGameTipSpeaking = false;
+
+const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
@@ -550,6 +558,7 @@ function navigateTo(destination) {
   }
 
   if (destination === "sentences") {
+    stopSpeaking();
     showScreen(sentencesScreen);
   }
 
@@ -757,9 +766,49 @@ function updateTtsControlState() {
   });
 }
 
+function stopSentenceGameTipSpeech() {
+  if (!("speechSynthesis" in window)) return;
+  window.speechSynthesis.cancel();
+}
+
+function toggleSentenceGameTipPanel() {
+  if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
+  const willOpen = sentenceGameTipPanelEl.classList.contains("hidden");
+  sentenceGameTipPanelEl.classList.toggle("hidden", !willOpen);
+  sentenceGameTipToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  if (!willOpen) stopSentenceGameTipSpeech();
+}
+
+function speakSentenceGameTip() {
+  if (!("speechSynthesis" in window)) return;
+  stopSentenceGameTipSpeech();
+
+  const utterance = new SpeechSynthesisUtterance(SENTENCE_GAME_TIP_TEXT);
+  const mnVoice = mongolianVoice();
+  if (mnVoice) {
+    utterance.voice = mnVoice;
+    utterance.lang = mnVoice.lang || "mn-MN";
+  } else {
+    utterance.lang = "mn-MN";
+  }
+  utterance.rate = 0.92;
+  utterance.onstart = () => {
+    sentenceGameTipSpeaking = true;
+  };
+  utterance.onend = () => {
+    sentenceGameTipSpeaking = false;
+  };
+  utterance.onerror = () => {
+    sentenceGameTipSpeaking = false;
+  };
+
+  window.speechSynthesis.speak(utterance);
+}
+
 function stopSpeaking() {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
+  sentenceGameTipSpeaking = false;
   speakingSentenceId = null;
   updateSpeakingState();
 }
@@ -1177,6 +1226,22 @@ updateSoundToggleState();
 loadProgressState();
 updateHeaderStatus();
 persistProgressState();
+
+if (sentenceGameTipTextEl) {
+  sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
+}
+
+if (sentenceGameTipToggleBtn) {
+  sentenceGameTipToggleBtn.addEventListener("click", toggleSentenceGameTipPanel);
+}
+
+if (sentenceGameTipSpeakBtn) {
+  sentenceGameTipSpeakBtn.addEventListener("click", speakSentenceGameTip);
+}
+
+if (sentenceGameTipStopBtn) {
+  sentenceGameTipStopBtn.addEventListener("click", stopSentenceGameTipSpeech);
+}
 
 levelButtons.forEach(btn => {
   btn.addEventListener("click", () => {
