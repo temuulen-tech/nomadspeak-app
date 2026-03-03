@@ -577,6 +577,27 @@ body{
   font-size:14px;
 }
 
+.tts-rate-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:6px 14px;
+  border-radius:999px;
+  border:1px solid rgba(255, 214, 110, 0.94);
+  background:
+    linear-gradient(rgba(255, 214, 118, 0.15), rgba(255, 214, 118, 0.15)) padding-box,
+    linear-gradient(130deg, rgba(255, 247, 207, 0.98), rgba(243, 189, 73, 0.96), rgba(172, 123, 26, 0.94)) border-box;
+  color:#fffdf5;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:.02em;
+  text-shadow:0 0 8px rgba(255, 224, 136, 0.26);
+  box-shadow:
+    0 0 0 1px rgba(255, 248, 220, 0.16) inset,
+    0 0 12px rgba(255, 202, 94, 0.2),
+    0 0 24px rgba(255, 188, 72, 0.12);
+}
+
 .tts-option-btn{
   color:#f8fffb;
   padding:6px 10px;
@@ -622,8 +643,10 @@ body{
 .tts-rate-hints{
   display:grid;
   grid-template-columns:repeat(3, minmax(0, 1fr));
-  color:rgba(231, 242, 234, 0.72);
+  color:rgba(240, 250, 244, 0.86);
   font-size:12px;
+  font-weight:600;
+  letter-spacing:.01em;
 }
 
 .tts-rate-hints span:nth-child(2){
@@ -632,6 +655,27 @@ body{
 
 .tts-rate-hints span:last-child{
   text-align:right;
+}
+
+
+@media (max-width:520px){
+  .tts-rate-header{
+    flex-wrap:wrap;
+    row-gap:6px;
+  }
+
+  .tts-rate-pill{
+    padding:5px 12px;
+    font-size:12px;
+  }
+
+  .tts-rate-value{
+    font-size:13px;
+  }
+
+  .tts-rate-hints{
+    font-size:11.5px;
+  }
 }
 
 .sentences-controls{
