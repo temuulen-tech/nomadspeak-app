@@ -131,9 +131,14 @@ let sentenceGameTipSpeaking = false;
 let sentenceGameToastTimer = null;
 let sentenceGameToastHideTimer = null;
 let sentenceGameToastSpeechTimer = null;
+let sentenceGameToastShownAt = 0;
+let sentenceGameToastHideDeadline = 0;
+let sentenceGameToastSpeechActive = false;
 
-const SENTENCE_GAME_TOAST_DURATION = 3000;
-const SENTENCE_GAME_TOAST_SPEECH_DELAY = 250;
+const SENTENCE_GAME_TOAST_DURATION = 4500;
+const SENTENCE_GAME_TOAST_MAX_DURATION = 8000;
+const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
+const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
 
 const SENTENCE_GAME_CORRECT_TOAST = "🏔️ Yes, Чи уулын оргилд гарлаа. Одоо илүү өндөр оргилд авирхад бэлэн үү? Тэгвэл уригшаа…";
 const SENTENCE_GAME_INCORRECT_TOAST = "😵 Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.. Андаа. Гол нь, зогсож л, болохгүй шүү ахиад оролдвол чи оргилд гарч л, таараа..";
@@ -518,6 +523,22 @@ function mongolianVoice() {
   });
 
   return femaleVoice || voices[0];
+}
+
+function stripEmoji(text = "") {
+  return text
+    .replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function toastSpeechText(message = "") {
+  const sanitized = stripEmoji(message);
+  const firstMongolianCharIndex = sanitized.search(/[\u0400-\u04FF]/);
+  if (firstMongolianCharIndex >= 0) {
+    return sanitized.slice(firstMongolianCharIndex).trim();
+  }
+  return sanitized;
 }
 
 function speakBannerText(text) {
@@ -1201,25 +1222,61 @@ function clearSentenceGameToastTimers() {
     clearTimeout(sentenceGameToastSpeechTimer);
     sentenceGameToastSpeechTimer = null;
   }
+  sentenceGameToastSpeechActive = false;
 }
 
-function speakSentenceGameToast(message) {
+function speakSentenceGameToast(message, handlers = {}) {
   if (!soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
 
+  const textToSpeak = toastSpeechText(message);
+  if (!textToSpeak) return;
+
   window.speechSynthesis.cancel();
 
-  const utterance = new SpeechSynthesisUtterance(message);
+  const utterance = new SpeechSynthesisUtterance(textToSpeak);
   const mnVoice = mongolianVoice();
+  const fallbackVoice = selectedEnglishVoice() || bestEnglishVoice();
+
+  utterance.lang = "mn-MN";
   if (mnVoice) {
     utterance.voice = mnVoice;
-    utterance.lang = mnVoice.lang || "mn-MN";
-  } else {
-    utterance.lang = "mn-MN";
+    utterance.lang = (mnVoice.lang || "").toLowerCase().startsWith("mn") ? mnVoice.lang : "mn-MN";
+  } else if (fallbackVoice) {
+    utterance.voice = fallbackVoice;
   }
   utterance.rate = ttsSettings.rate;
   utterance.pitch = 1;
+  utterance.onstart = () => {
+    if (typeof handlers.onstart === "function") handlers.onstart();
+  };
+  utterance.onend = () => {
+    if (typeof handlers.onend === "function") handlers.onend();
+  };
+  utterance.onerror = () => {
+    if (typeof handlers.onend === "function") handlers.onend();
+  };
   window.speechSynthesis.speak(utterance);
+}
+
+function scheduleSentenceGameToastHide(targetTimestamp) {
+  const cappedTarget = Math.min(sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION, targetTimestamp);
+  sentenceGameToastHideDeadline = Math.max(sentenceGameToastHideDeadline, cappedTarget);
+
+  if (sentenceGameToastTimer) {
+    clearTimeout(sentenceGameToastTimer);
+    sentenceGameToastTimer = null;
+  }
+
+  const wait = Math.max(0, sentenceGameToastHideDeadline - Date.now());
+  sentenceGameToastTimer = setTimeout(() => {
+    const maxDeadline = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION;
+    if (sentenceGameToastSpeechActive && Date.now() < maxDeadline) {
+      scheduleSentenceGameToastHide(Date.now() + 180);
+      return;
+    }
+    hideSentenceGameToast();
+  }, wait);
 }
 
 function hideSentenceGameToast() {
@@ -1251,13 +1308,23 @@ function showSentenceGameToast(message) {
   void sentenceGameToastEl.offsetWidth;
   sentenceGameToastEl.classList.add("show");
 
+  sentenceGameToastShownAt = Date.now();
+  sentenceGameToastHideDeadline = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_DURATION;
+  sentenceGameToastSpeechActive = false;
+
   sentenceGameToastSpeechTimer = setTimeout(() => {
-    speakSentenceGameToast(message);
+    speakSentenceGameToast(message, {
+      onstart: () => {
+        sentenceGameToastSpeechActive = true;
+      },
+      onend: () => {
+        sentenceGameToastSpeechActive = false;
+        scheduleSentenceGameToastHide(Date.now() + SENTENCE_GAME_TOAST_SPEECH_END_BUFFER);
+      },
+    });
   }, SENTENCE_GAME_TOAST_SPEECH_DELAY);
 
-  sentenceGameToastTimer = setTimeout(() => {
-    hideSentenceGameToast();
-  }, SENTENCE_GAME_TOAST_DURATION);
+  scheduleSentenceGameToastHide(sentenceGameToastHideDeadline);
 }
 
 function hideSentenceGameCorrectPanel() {
