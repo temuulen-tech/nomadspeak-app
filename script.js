@@ -1073,20 +1073,35 @@ function sentenceGameIsSolved() {
   return evaluateSentenceGameAttempt().isAllCorrect;
 }
 
+function normalizeSentence(str = "") {
+  return String(str)
+    .replace(/[’`´]/g, "'")
+    .replace(/\s+/g, " ")
+    .replace(/\s+([.,!?:;])/g, "$1")
+    .replace(/([.,!?:;])(?!\s|$)/g, "$1 ")
+    .replace(/\s+/g, " ")
+    .trim()
+    .toLowerCase();
+}
+
+function getPlacedSentenceText() {
+  const placedTokens = sentenceGameBuilt
+    .map((tileId) => sentenceGameTiles.find((tile) => tile.id === tileId)?.value || "")
+    .filter(Boolean);
+
+  return normalizeSentence(placedTokens.join(" "));
+}
+
 function isSentenceFullyCorrect() {
   const current = sentenceGameSentence();
   if (!current) return false;
 
-  const expectedTokens = tokenizeSentence(current.en);
-  if (!expectedTokens.length || sentenceGameBuilt.length !== expectedTokens.length) return false;
+  const expectedSentence = current.en || "";
+  const placedSentence = getPlacedSentenceText();
+  const normalizedPlaced = normalizeSentence(placedSentence);
+  const normalizedExpected = normalizeSentence(expectedSentence);
 
-  for (let idx = 0; idx < expectedTokens.length; idx += 1) {
-    const placedTileId = sentenceGameBuilt[idx];
-    const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
-    if (!placedTile || placedTile.value !== expectedTokens[idx]) return false;
-  }
-
-  return true;
+  return normalizedPlaced === normalizedExpected;
 }
 
 function normalizeSentenceGameToken(token = "") {
@@ -1222,7 +1237,8 @@ function renderSentenceGameBoard() {
 
 function updateSentenceGameState() {
   const evaluation = evaluateSentenceGameAttempt();
-  sentenceGameCompleted = isSentenceFullyCorrect();
+  const allSlotsFilled = evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots;
+  sentenceGameCompleted = allSlotsFilled && isSentenceFullyCorrect();
   sentenceGameNextBtn.disabled = false;
 
   if (SENTENCE_GAME_DEBUG) {
@@ -1235,6 +1251,11 @@ function updateSentenceGameState() {
   }
 
   if (sentenceGameCompleted) {
+    if (!sentenceGameSuccessAlreadyShownForThisSentence) {
+      showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
+      sentenceGameSuccessAlreadyShownForThisSentence = true;
+    }
+
     if (!sentenceGameUsedShowCorrect) {
       sentenceGameFeedbackEl.textContent = "Зөв!";
       sentenceGameFeedbackEl.classList.add("ok");
@@ -1247,6 +1268,7 @@ function updateSentenceGameState() {
       playCorrectSound();
     }
   } else if (!sentenceGameUsedShowCorrect) {
+    sentenceGameSuccessAlreadyShownForThisSentence = false;
     sentenceGameFeedbackEl.textContent = "";
     sentenceGameFeedbackEl.classList.remove("ok");
 
@@ -1441,11 +1463,6 @@ function placeSentenceGameTile(tileId) {
 
   renderSentenceGameBoard();
   updateSentenceGameState();
-
-  if (isSentenceFullyCorrect() && !sentenceGameSuccessAlreadyShownForThisSentence) {
-    showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
-    sentenceGameSuccessAlreadyShownForThisSentence = true;
-  }
 
   if (isCorrectPlacement) {
     playSuccessSound();
