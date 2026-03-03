@@ -134,11 +134,14 @@ let sentenceGameToastSpeechTimer = null;
 let sentenceGameToastShownAt = 0;
 let sentenceGameToastHideDeadline = 0;
 let sentenceGameToastSpeechActive = false;
+let sentenceGameSuccessAlreadyShownForThisSentence = false;
+let sentenceGameSuccessToastLockUntil = 0;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
 const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
 const SENTENCE_GAME_TOAST_MAX_DURATION = 12000;
+const SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS = 1000;
 
 const SENTENCE_GAME_CORRECT_TOAST = "Чи уулын оргилд гарлаа.";
 const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, Андаа.";
@@ -1070,6 +1073,22 @@ function sentenceGameIsSolved() {
   return evaluateSentenceGameAttempt().isAllCorrect;
 }
 
+function isSentenceFullyCorrect() {
+  const current = sentenceGameSentence();
+  if (!current) return false;
+
+  const expectedTokens = tokenizeSentence(current.en);
+  if (!expectedTokens.length || sentenceGameBuilt.length !== expectedTokens.length) return false;
+
+  for (let idx = 0; idx < expectedTokens.length; idx += 1) {
+    const placedTileId = sentenceGameBuilt[idx];
+    const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
+    if (!placedTile || placedTile.value !== expectedTokens[idx]) return false;
+  }
+
+  return true;
+}
+
 function normalizeSentenceGameToken(token = "") {
   return String(token).replace(/\s+/g, " ").trim();
 }
@@ -1203,8 +1222,7 @@ function renderSentenceGameBoard() {
 
 function updateSentenceGameState() {
   const evaluation = evaluateSentenceGameAttempt();
-  const wasCompleted = sentenceGameCompleted;
-  sentenceGameCompleted = evaluation.isAllCorrect;
+  sentenceGameCompleted = isSentenceFullyCorrect();
   sentenceGameNextBtn.disabled = false;
 
   if (SENTENCE_GAME_DEBUG) {
@@ -1220,12 +1238,6 @@ function updateSentenceGameState() {
     if (!sentenceGameUsedShowCorrect) {
       sentenceGameFeedbackEl.textContent = "Зөв!";
       sentenceGameFeedbackEl.classList.add("ok");
-      if (!wasCompleted) {
-        if (SENTENCE_GAME_DEBUG) {
-          console.log("SUCCESS TOAST TRIGGERED");
-        }
-        showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
-      }
     }
     if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
       progressState.xp += 2;
@@ -1331,6 +1343,15 @@ function hideSentenceGameToast() {
 function showSentenceGameToast(message) {
   if (!sentenceGameToastEl || !message) return;
 
+  const isSuccessToast = message === SENTENCE_GAME_CORRECT_TOAST;
+  if (!isSuccessToast && Date.now() < sentenceGameSuccessToastLockUntil) {
+    return;
+  }
+
+  if (isSuccessToast) {
+    sentenceGameSuccessToastLockUntil = Date.now() + SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS;
+  }
+
   const hasActiveToast =
     sentenceGameToastEl.classList.contains("show") ||
     sentenceGameToastSpeechActive ||
@@ -1421,6 +1442,11 @@ function placeSentenceGameTile(tileId) {
   renderSentenceGameBoard();
   updateSentenceGameState();
 
+  if (isSentenceFullyCorrect() && !sentenceGameSuccessAlreadyShownForThisSentence) {
+    showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
+    sentenceGameSuccessAlreadyShownForThisSentence = true;
+  }
+
   if (isCorrectPlacement) {
     playSuccessSound();
   } else {
@@ -1432,6 +1458,7 @@ function removeSentenceGameTile(tileId) {
   const idx = sentenceGameBuilt.indexOf(tileId);
   if (idx === -1) return;
   sentenceGameBuilt.splice(idx, 1);
+  sentenceGameSuccessAlreadyShownForThisSentence = false;
   renderSentenceGameBoard();
   updateSentenceGameState();
 }
@@ -1439,6 +1466,7 @@ function removeSentenceGameTile(tileId) {
 function undoSentenceGameMove() {
   if (!sentenceGameBuilt.length) return;
   sentenceGameBuilt.pop();
+  sentenceGameSuccessAlreadyShownForThisSentence = false;
   renderSentenceGameBoard();
   updateSentenceGameState();
 }
@@ -1462,6 +1490,8 @@ function initSentenceGameRound() {
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;
   sentenceGameUsedShowCorrect = false;
+  sentenceGameSuccessAlreadyShownForThisSentence = false;
+  sentenceGameSuccessToastLockUntil = 0;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
@@ -1498,6 +1528,8 @@ function retrySentenceGameRound() {
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;
   sentenceGameUsedShowCorrect = false;
+  sentenceGameSuccessAlreadyShownForThisSentence = false;
+  sentenceGameSuccessToastLockUntil = 0;
   hideSentenceGameCorrectPanel();
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
