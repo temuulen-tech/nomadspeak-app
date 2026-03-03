@@ -84,6 +84,7 @@ const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
 const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
 const sentenceGameShowCorrectBtn = document.getElementById("sentence-game-show-correct-btn");
 const sentenceGameRetryBtn = document.getElementById("sentence-game-retry-btn");
+const sentenceGamePrevBtn = document.getElementById("sentence-game-prev-btn");
 const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
 const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
 const sentenceGameTipToggleBtn = document.getElementById("sentence-game-tip-toggle-btn");
@@ -109,7 +110,8 @@ let sentenceFilter = "all";
 let speakingSentenceId = null;
 let availableVoices = [];
 
-let sentenceGameIndex = 0;
+let sentenceGameHistory = [];
+let sentenceGameIndex = -1;
 let sentenceGameTiles = [];
 let sentenceGameBuilt = [];
 let sentenceGameCompleted = false;
@@ -118,7 +120,7 @@ let sentenceGameUsedShowCorrect = false;
 let draggingTileId = null;
 let sentenceGameTipSpeaking = false;
 
-const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
+const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const SOUND_SETTINGS_KEY = "nomadspeak:sfx:v1";
@@ -769,6 +771,7 @@ function updateTtsControlState() {
 function stopSentenceGameTipSpeech() {
   if (!("speechSynthesis" in window)) return;
   window.speechSynthesis.cancel();
+  sentenceGameTipSpeaking = false;
 }
 
 function toggleSentenceGameTipPanel() {
@@ -910,6 +913,8 @@ async function loadSentences() {
     sentenceItems = await response.json();
     sentenceItems = sentenceItems.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
     renderSentences();
+    sentenceGameHistory = [];
+    sentenceGameIndex = -1;
     if (!sentenceGameScreen.classList.contains("hidden")) initSentenceGameRound();
   } catch (error) {
     sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
@@ -918,8 +923,20 @@ async function loadSentences() {
 
 
 function sentenceGameSentence() {
+  if (!sentenceGameHistory.length || sentenceGameIndex < 0) return null;
+  return sentenceGameHistory[sentenceGameIndex] || null;
+}
+
+function sentenceGameRandomSentence() {
   if (!sentenceItems.length) return null;
-  return sentenceItems[sentenceGameIndex % sentenceItems.length];
+  const randomIndex = Math.floor(Math.random() * sentenceItems.length);
+  return sentenceItems[randomIndex] || null;
+}
+
+function updateSentenceGameNavButtons() {
+  if (sentenceGamePrevBtn) {
+    sentenceGamePrevBtn.disabled = sentenceGameIndex <= 0;
+  }
 }
 
 function sentenceGameIsSolved() {
@@ -1072,6 +1089,14 @@ function undoSentenceGameMove() {
 }
 
 function initSentenceGameRound() {
+  if (!sentenceGameHistory.length || sentenceGameIndex < 0) {
+    sentenceGameHistory = [];
+    const firstSentence = sentenceGameRandomSentence();
+    if (!firstSentence) return;
+    sentenceGameHistory.push(firstSentence);
+    sentenceGameIndex = 0;
+  }
+
   const current = sentenceGameSentence();
   if (!current) return;
 
@@ -1084,11 +1109,29 @@ function initSentenceGameRound() {
   sentenceGameFeedbackEl.textContent = "";
   sentenceGameFeedbackEl.classList.remove("ok");
   sentenceGameNextBtn.disabled = false;
+  updateSentenceGameNavButtons();
   renderSentenceGameBoard();
 }
 
 function nextSentenceGameRound() {
-  sentenceGameIndex = (sentenceGameIndex + 1) % Math.max(1, sentenceItems.length);
+  const nextIndex = sentenceGameIndex + 1;
+
+  if (nextIndex < sentenceGameHistory.length) {
+    sentenceGameIndex = nextIndex;
+    initSentenceGameRound();
+    return;
+  }
+
+  const nextSentence = sentenceGameRandomSentence();
+  if (!nextSentence) return;
+  sentenceGameHistory.push(nextSentence);
+  sentenceGameIndex = nextIndex;
+  initSentenceGameRound();
+}
+
+function prevSentenceGameRound() {
+  if (sentenceGameIndex <= 0) return;
+  sentenceGameIndex -= 1;
   initSentenceGameRound();
 }
 
@@ -1101,6 +1144,7 @@ function retrySentenceGameRound() {
   sentenceGameFeedbackEl.classList.remove("ok");
   renderSentenceGameBoard();
   updateSentenceGameState();
+  updateSentenceGameNavButtons();
 }
 
 // ---- Quiz logic ----
@@ -1313,6 +1357,9 @@ backBtn.addEventListener("click", backToStart);
 sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
 sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
 sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
+if (sentenceGamePrevBtn) {
+  sentenceGamePrevBtn.addEventListener("click", prevSentenceGameRound);
+}
 sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
 
 if ("speechSynthesis" in window) {
