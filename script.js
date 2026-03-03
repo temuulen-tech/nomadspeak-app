@@ -135,7 +135,7 @@ let sentenceGameToastShownAt = 0;
 let sentenceGameToastHideDeadline = 0;
 let sentenceGameToastSpeechActive = false;
 
-const SENTENCE_GAME_TOAST_DURATION = 4500;
+const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_MAX_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
 const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
@@ -143,6 +143,9 @@ const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
 const SENTENCE_GAME_CORRECT_TOAST = "🏔️ Yes, Чи уулын оргилд гарлаа. Одоо илүү өндөр оргилд авирхад бэлэн үү? Тэгвэл уригшаа…";
 const SENTENCE_GAME_INCORRECT_TOAST = "😵 Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.. Андаа. Гол нь, зогсож л, болохгүй шүү ахиад оролдвол чи оргилд гарч л, таараа..";
 const SENTENCE_GAME_SHOW_CORRECT_TOAST = "😉 Өөө.. Чи битгий бэлэнчлээд бай л, даа..";
+const SENTENCE_GAME_CORRECT_TOAST_SPEECH = "Yes, Чи уулын оргилд гарлаа.";
+const SENTENCE_GAME_INCORRECT_TOAST_SPEECH = "Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.";
+const SENTENCE_GAME_SHOW_CORRECT_TOAST_SPEECH = "Өөө.. Яагаад бэлэнчилээд байнаа Андаа.";
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -533,6 +536,10 @@ function stripEmoji(text = "") {
 }
 
 function toastSpeechText(message = "") {
+  if (message === SENTENCE_GAME_CORRECT_TOAST) return SENTENCE_GAME_CORRECT_TOAST_SPEECH;
+  if (message === SENTENCE_GAME_INCORRECT_TOAST) return SENTENCE_GAME_INCORRECT_TOAST_SPEECH;
+  if (message === SENTENCE_GAME_SHOW_CORRECT_TOAST) return SENTENCE_GAME_SHOW_CORRECT_TOAST_SPEECH;
+
   const sanitized = stripEmoji(message);
   const firstMongolianCharIndex = sanitized.search(/[\u0400-\u04FF]/);
   if (firstMongolianCharIndex >= 0) {
