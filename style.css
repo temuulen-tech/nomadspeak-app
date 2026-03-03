@@ -685,13 +685,22 @@ body{
   align-items:flex-start;
 }
 
-.sentences-audio-controls{
-  margin-left:auto;
+.sentences-top-controls{
   display:flex;
-  flex-direction:column;
   align-items:flex-end;
-  gap:6px;
-  min-width:min(360px, 100%);
+  justify-content:space-between;
+  gap:14px;
+  margin:8px 0 14px;
+}
+
+.sentences-filters-column{
+  flex:1 1 auto;
+  min-width:0;
+}
+
+.sentences-speed-block{
+  margin-left:auto;
+  align-self:flex-end;
 }
 
 .tts-rate-compact{
@@ -1021,14 +1030,15 @@ body{
     align-items:stretch;
   }
 
-  .sentences-audio-controls{
-    margin-left:0;
-    width:100%;
+  .sentences-top-controls{
+    flex-direction:column;
     align-items:stretch;
-    margin-top:8px;
+    gap:10px;
   }
 
+  .sentences-speed-block,
   .tts-rate-compact{
     width:100%;
+    margin-left:0;
   }
 }
