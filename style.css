@@ -680,6 +680,62 @@ body{
 }
 
 
+
+.sentences-panel-header{
+  align-items:flex-start;
+}
+
+.sentences-audio-controls{
+  margin-left:auto;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:6px;
+  min-width:min(360px, 100%);
+}
+
+.tts-rate-compact{
+  flex:none;
+  width:min(340px, 100%);
+  min-width:220px;
+  gap:4px;
+}
+
+.tts-rate-compact .tts-rate-pill{
+  padding:4px 10px;
+  font-size:12px;
+}
+
+.tts-rate-compact .tts-rate-value{
+  font-size:13px;
+}
+
+.tts-rate-compact .tts-rate-hints{
+  gap:6px;
+  font-size:11px;
+}
+
+.tts-rate-compact .speed-hint-pill{
+  padding:3px 8px;
+  font-size:11px;
+}
+
+.sentence-game-correct-panel{
+  margin-top:10px;
+  border:1px solid rgba(255,255,255,.16);
+  background:rgba(0,0,0,.2);
+  border-radius:12px;
+  padding:10px 12px;
+}
+
+.sentence-game-correct-panel p{
+  margin:0;
+  line-height:1.35;
+}
+
+.sentence-game-correct-panel p + p{
+  margin-top:6px;
+}
 @media (max-width:520px){
   .tts-rate-header{
     flex-wrap:wrap;
@@ -956,5 +1012,23 @@ body{
   .sound-toggle-btn{
     flex:1 1 180px;
     justify-content:center;
+  }
+}
+
+
+@media (max-width:760px){
+  .sentences-panel-header{
+    align-items:stretch;
+  }
+
+  .sentences-audio-controls{
+    margin-left:0;
+    width:100%;
+    align-items:stretch;
+    margin-top:8px;
+  }
+
+  .tts-rate-compact{
+    width:100%;
   }
 }
