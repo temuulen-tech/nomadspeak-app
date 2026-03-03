@@ -138,6 +138,7 @@ const DEFAULT_TTS_SETTINGS = {
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
+let audioPrimed = false;
 let completionBannerTimer = null;
 let progressState = {
   xp: 0,
@@ -639,6 +640,28 @@ function getAudioContext() {
   return audioContext;
 }
 
+function primeAudioContext() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === "suspended") {
+    ctx.resume();
+  }
+}
+
+function ensureAudioUnlocked() {
+  if (audioPrimed) return;
+  audioPrimed = true;
+
+  const unlock = () => {
+    primeAudioContext();
+    window.removeEventListener("pointerdown", unlock, true);
+    window.removeEventListener("keydown", unlock, true);
+  };
+
+  window.addEventListener("pointerdown", unlock, true);
+  window.addEventListener("keydown", unlock, true);
+}
+
 function playTone({ frequency, type, duration, volume, attack = 0.005, release = 0.05 }) {
   if (!soundEnabled) return;
   const ctx = getAudioContext();
@@ -666,15 +689,26 @@ function playTone({ frequency, type, duration, volume, attack = 0.005, release =
   osc.stop(now + duration + release + 0.02);
 }
 
-function playCorrectSound() {
+function playSuccessSound() {
   playTone({ frequency: 880, type: "sine", duration: 0.08, volume: 0.12, attack: 0.004, release: 0.06 });
   setTimeout(() => {
     playTone({ frequency: 1320, type: "sine", duration: 0.09, volume: 0.1, attack: 0.004, release: 0.07 });
   }, 55);
 }
 
+function playErrorSound() {
+  playTone({ frequency: 190, type: "sawtooth", duration: 0.1, volume: 0.11, attack: 0.002, release: 0.08 });
+  setTimeout(() => {
+    playTone({ frequency: 130, type: "square", duration: 0.12, volume: 0.1, attack: 0.001, release: 0.09 });
+  }, 35);
+}
+
+function playCorrectSound() {
+  playSuccessSound();
+}
+
 function playWrongSound() {
-  playTone({ frequency: 170, type: "triangle", duration: 0.12, volume: 0.1, attack: 0.002, release: 0.1 });
+  playErrorSound();
 }
 
 // ---- Speech & sentences ----
@@ -1021,6 +1055,15 @@ function createSentenceGameTileButton(tile, inPool) {
   return btn;
 }
 
+function sentenceGamePlacementStatus(slotIndex) {
+  const current = sentenceGameSentence();
+  if (!current) return "";
+  const placedTileId = sentenceGameBuilt[slotIndex];
+  const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
+  if (!placedTile) return "";
+  return current.tokens[slotIndex] === placedTile.value ? "word-correct" : "word-wrong";
+}
+
 function renderSentenceGameBoard() {
   const current = sentenceGameSentence();
   if (!current) {
@@ -1038,7 +1081,11 @@ function renderSentenceGameBoard() {
     if (tileId !== undefined) {
       const tile = sentenceGameTiles.find(item => item.id === tileId);
       if (tile) {
-        slot.appendChild(createSentenceGameTileButton(tile, false));
+        const placedTileButton = createSentenceGameTileButton(tile, false);
+        placedTileButton.classList.remove("word-correct", "word-wrong");
+        const placementStatus = sentenceGamePlacementStatus(idx);
+        if (placementStatus) placedTileButton.classList.add(placementStatus);
+        slot.appendChild(placedTileButton);
       }
     } else {
       const placeholder = document.createElement("span");
@@ -1115,8 +1162,20 @@ function placeSentenceGameTile(tileId) {
   if (!Number.isFinite(tileId) || sentenceGameBuilt.includes(tileId)) return;
   if (sentenceGameBuilt.length >= sentenceGameTiles.length) return;
   sentenceGameBuilt.push(tileId);
+
+  const current = sentenceGameSentence();
+  const insertedIndex = sentenceGameBuilt.length - 1;
+  const placedTile = sentenceGameTiles.find(tile => tile.id === tileId);
+  const isCorrectPlacement = Boolean(current && placedTile && current.tokens[insertedIndex] === placedTile.value);
+
   renderSentenceGameBoard();
   updateSentenceGameState();
+
+  if (isCorrectPlacement) {
+    playSuccessSound();
+  } else {
+    playErrorSound();
+  }
 }
 
 function removeSentenceGameTile(tileId) {
@@ -1260,12 +1319,12 @@ function pickAnswer(buttonEl, selected) {
     buttonEl.classList.add("correct");
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
-    playCorrectSound();
+    playSuccessSound();
   } else {
     buttonEl.classList.add("wrong");
     resultEl.textContent = `❌ Буруу! Зөв нь: ${correct}`;
     resultEl.classList.add("bad");
-    playWrongSound();
+    playErrorSound();
   }
 
   show(resultEl);
@@ -1313,6 +1372,7 @@ loadTtsSettings();
 updateTtsControlState();
 loadSoundSettings();
 updateSoundToggleState();
+ensureAudioUnlocked();
 loadProgressState();
 updateHeaderStatus();
 persistProgressState();
