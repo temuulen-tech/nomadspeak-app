@@ -136,16 +136,12 @@ let sentenceGameToastHideDeadline = 0;
 let sentenceGameToastSpeechActive = false;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
-const SENTENCE_GAME_TOAST_MAX_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
 const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
 
-const SENTENCE_GAME_CORRECT_TOAST = "🏔️ Yes, Чи уулын оргилд гарлаа. Одоо илүү өндөр оргилд авирхад бэлэн үү? Тэгвэл уригшаа…";
-const SENTENCE_GAME_INCORRECT_TOAST = "😵 Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.. Андаа. Гол нь, зогсож л, болохгүй шүү ахиад оролдвол чи оргилд гарч л, таараа..";
-const SENTENCE_GAME_SHOW_CORRECT_TOAST = "😉 Өөө.. Чи битгий бэлэнчлээд бай л, даа..";
-const SENTENCE_GAME_CORRECT_TOAST_SPEECH = "Yes, Чи уулын оргилд гарлаа.";
-const SENTENCE_GAME_INCORRECT_TOAST_SPEECH = "Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.";
-const SENTENCE_GAME_SHOW_CORRECT_TOAST_SPEECH = "Өөө.. Яагаад бэлэнчилээд байнаа Андаа.";
+const SENTENCE_GAME_CORRECT_TOAST = "Yes, Чи уулын оргилд гарлаа.";
+const SENTENCE_GAME_INCORRECT_TOAST = "Oh.. My God. Гэхдээ зүгээрээ, Андаа.";
+const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчилээд байнаа, Андаа.";
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -528,24 +524,8 @@ function mongolianVoice() {
   return femaleVoice || voices[0];
 }
 
-function stripEmoji(text = "") {
-  return text
-    .replace(/[\p{Extended_Pictographic}\uFE0F]/gu, "")
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
 function toastSpeechText(message = "") {
-  if (message === SENTENCE_GAME_CORRECT_TOAST) return SENTENCE_GAME_CORRECT_TOAST_SPEECH;
-  if (message === SENTENCE_GAME_INCORRECT_TOAST) return SENTENCE_GAME_INCORRECT_TOAST_SPEECH;
-  if (message === SENTENCE_GAME_SHOW_CORRECT_TOAST) return SENTENCE_GAME_SHOW_CORRECT_TOAST_SPEECH;
-
-  const sanitized = stripEmoji(message);
-  const firstMongolianCharIndex = sanitized.search(/[\u0400-\u04FF]/);
-  if (firstMongolianCharIndex >= 0) {
-    return sanitized.slice(firstMongolianCharIndex).trim();
-  }
-  return sanitized;
+  return String(message || "").trim();
 }
 
 function speakBannerText(text) {
@@ -1243,14 +1223,11 @@ function speakSentenceGameToast(message, handlers = {}) {
 
   const utterance = new SpeechSynthesisUtterance(textToSpeak);
   const mnVoice = mongolianVoice();
-  const fallbackVoice = selectedEnglishVoice() || bestEnglishVoice();
 
   utterance.lang = "mn-MN";
   if (mnVoice) {
     utterance.voice = mnVoice;
     utterance.lang = (mnVoice.lang || "").toLowerCase().startsWith("mn") ? mnVoice.lang : "mn-MN";
-  } else if (fallbackVoice) {
-    utterance.voice = fallbackVoice;
   }
   utterance.rate = ttsSettings.rate;
   utterance.pitch = 1;
@@ -1267,8 +1244,7 @@ function speakSentenceGameToast(message, handlers = {}) {
 }
 
 function scheduleSentenceGameToastHide(targetTimestamp) {
-  const cappedTarget = Math.min(sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION, targetTimestamp);
-  sentenceGameToastHideDeadline = Math.max(sentenceGameToastHideDeadline, cappedTarget);
+  sentenceGameToastHideDeadline = Math.max(sentenceGameToastHideDeadline, targetTimestamp);
 
   if (sentenceGameToastTimer) {
     clearTimeout(sentenceGameToastTimer);
@@ -1277,8 +1253,7 @@ function scheduleSentenceGameToastHide(targetTimestamp) {
 
   const wait = Math.max(0, sentenceGameToastHideDeadline - Date.now());
   sentenceGameToastTimer = setTimeout(() => {
-    const maxDeadline = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION;
-    if (sentenceGameToastSpeechActive && Date.now() < maxDeadline) {
+    if (sentenceGameToastSpeechActive) {
       scheduleSentenceGameToastHide(Date.now() + 180);
       return;
     }
@@ -1288,7 +1263,6 @@ function scheduleSentenceGameToastHide(targetTimestamp) {
 
 function hideSentenceGameToast() {
   clearSentenceGameToastTimers();
-  stopSpeaking();
   if (!sentenceGameToastEl) return;
 
   sentenceGameToastEl.classList.remove("show");
