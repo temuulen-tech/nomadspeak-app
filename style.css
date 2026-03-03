@@ -369,6 +369,20 @@ body{
   margin:0 0 10px 0;
 }
 
+
+.panel-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.panel-header h2{
+  margin:0;
+}
+
 .muted{
   color:var(--muted);
 }
@@ -801,6 +815,10 @@ body{
 }
 
 @media (max-width:700px){
+  .panel-header{
+    align-items:flex-start;
+  }
+
   .sentence-game-title-row{
     align-items:flex-start;
   }

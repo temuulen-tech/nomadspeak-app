@@ -74,7 +74,7 @@ const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
 const rateOptionButtons = document.querySelectorAll(".tts-option-btn[data-rate]");
-const soundToggleBtn = document.getElementById("sound-toggle-btn");
+const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
 const statusXpEl = document.getElementById("status-xp");
 const statusStreakEl = document.getElementById("status-streak");
 const statusTodayEl = document.getElementById("status-today");
@@ -626,9 +626,10 @@ function persistSoundSettings() {
 }
 
 function updateSoundToggleState() {
-  if (!soundToggleBtn) return;
-  soundToggleBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
-  soundToggleBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+  soundToggleButtons.forEach(toggleBtn => {
+    toggleBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+    toggleBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+  });
 }
 
 function getAudioContext() {
@@ -1441,13 +1442,16 @@ rateOptionButtons.forEach(btn => {
   });
 });
 
-if (soundToggleBtn) {
-  soundToggleBtn.addEventListener("click", () => {
+soundToggleButtons.forEach(toggleBtn => {
+  toggleBtn.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
+    if (!soundEnabled) {
+      stopSpeaking();
+    }
     updateSoundToggleState();
     persistSoundSettings();
   });
-}
+});
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));

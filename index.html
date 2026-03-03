@@ -72,7 +72,10 @@
 
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
-      <h2>Эхлэхээс өмнө</h2>
+      <div class="panel-header">
+        <h2>Эхлэхээс өмнө</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
       <p class="muted"><strong>Танилцуулга:</strong> Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
 
       <div class="level-row" id="level-row">
@@ -86,6 +89,10 @@
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
+      <div class="panel-header">
+        <h2>Асуулт хариулт</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
       <h2 class="question" id="question">Асуулт</h2>
 
       <div class="options" id="options"></div>
@@ -100,7 +107,10 @@
 
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
-      <h2>Өгүүлбэрүүд</h2>
+      <div class="panel-header">
+        <h2>Өгүүлбэрүүд</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
       <div class="tts-controls" aria-label="Дуудлагын тохиргоо">
         <div class="tts-group" role="group" aria-label="Дуу хоолой">
           <span class="tts-label">Дуу хоолой:</span>
@@ -129,7 +139,7 @@
       <div class="sentence-game-title-row">
         <h2>Өгүүлбэрийн тоглоом</h2>
         <div class="sentence-game-title-actions">
-          <button class="secondary sound-toggle-btn" id="sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар</button>
         </div>
       </div>
@@ -162,13 +172,19 @@
 
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
-      <h2>Статистик</h2>
+      <div class="panel-header">
+        <h2>Статистик</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
       <p class="muted">Өдрийн ахиц болон үр дүн энд харагдана.</p>
     </section>
 
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
-      <h2>Дууслаа 🎉</h2>
+      <div class="panel-header">
+        <h2>Дууслаа 🎉</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
       <p class="muted" id="final-text">Таны оноо: 0</p>
 
       <div class="end-actions">
