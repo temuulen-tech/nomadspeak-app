@@ -88,6 +88,7 @@ const sentenceGameRetryBtn = document.getElementById("sentence-game-retry-btn");
 const sentenceGamePrevBtn = document.getElementById("sentence-game-prev-btn");
 const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
 const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
+const sentenceGameToastEl = document.getElementById("sentence-game-toast");
 const sentenceGameCorrectPanelEl = document.getElementById("sentence-game-correct-panel");
 const sentenceGameCorrectEnEl = document.getElementById("sentence-game-correct-en");
 const sentenceGameCorrectMnEl = document.getElementById("sentence-game-correct-mn");
@@ -127,6 +128,16 @@ let sentenceGameUsedShowCorrect = false;
 let sentenceGameCorrectVisible = false;
 let draggingTileId = null;
 let sentenceGameTipSpeaking = false;
+let sentenceGameToastTimer = null;
+let sentenceGameToastHideTimer = null;
+let sentenceGameToastSpeechTimer = null;
+
+const SENTENCE_GAME_TOAST_DURATION = 3000;
+const SENTENCE_GAME_TOAST_SPEECH_DELAY = 250;
+
+const SENTENCE_GAME_CORRECT_TOAST = "🏔️ Yes, Чи уулын оргилд гарлаа. Одоо илүү өндөр оргилд авирхад бэлэн үү? Тэгвэл уригшаа…";
+const SENTENCE_GAME_INCORRECT_TOAST = "😵 Oh.. My God, Чи унчихлаа. Гэхдээ зүгээрээ.. Андаа. Гол нь, зогсож л, болохгүй шүү ахиад оролдвол чи оргилд гарч л, таараа..";
+const SENTENCE_GAME_SHOW_CORRECT_TOAST = "😉 Өөө.. Чи битгий бэлэнчлээд бай л, даа..";
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -1148,6 +1159,7 @@ function renderSentenceGameBoard() {
 }
 
 function updateSentenceGameState() {
+  const wasCompleted = sentenceGameCompleted;
   sentenceGameCompleted = sentenceGameIsSolved();
   sentenceGameNextBtn.disabled = false;
 
@@ -1155,6 +1167,9 @@ function updateSentenceGameState() {
     if (!sentenceGameUsedShowCorrect) {
       sentenceGameFeedbackEl.textContent = "Зөв!";
       sentenceGameFeedbackEl.classList.add("ok");
+      if (!wasCompleted) {
+        showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
+      }
     }
     if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
       progressState.xp += 2;
@@ -1166,7 +1181,83 @@ function updateSentenceGameState() {
   } else if (!sentenceGameUsedShowCorrect) {
     sentenceGameFeedbackEl.textContent = "";
     sentenceGameFeedbackEl.classList.remove("ok");
+
+    if (sentenceGameBuilt.length === sentenceGameTiles.length) {
+      showSentenceGameToast(SENTENCE_GAME_INCORRECT_TOAST);
+    }
   }
+}
+
+function clearSentenceGameToastTimers() {
+  if (sentenceGameToastTimer) {
+    clearTimeout(sentenceGameToastTimer);
+    sentenceGameToastTimer = null;
+  }
+  if (sentenceGameToastHideTimer) {
+    clearTimeout(sentenceGameToastHideTimer);
+    sentenceGameToastHideTimer = null;
+  }
+  if (sentenceGameToastSpeechTimer) {
+    clearTimeout(sentenceGameToastSpeechTimer);
+    sentenceGameToastSpeechTimer = null;
+  }
+}
+
+function speakSentenceGameToast(message) {
+  if (!soundEnabled) return;
+  if (!("speechSynthesis" in window)) return;
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(message);
+  const mnVoice = mongolianVoice();
+  if (mnVoice) {
+    utterance.voice = mnVoice;
+    utterance.lang = mnVoice.lang || "mn-MN";
+  } else {
+    utterance.lang = "mn-MN";
+  }
+  utterance.rate = ttsSettings.rate;
+  utterance.pitch = 1;
+  window.speechSynthesis.speak(utterance);
+}
+
+function hideSentenceGameToast() {
+  clearSentenceGameToastTimers();
+  stopSpeaking();
+  if (!sentenceGameToastEl) return;
+
+  sentenceGameToastEl.classList.remove("show");
+  sentenceGameToastEl.classList.add("hide");
+  sentenceGameToastEl.setAttribute("aria-hidden", "true");
+
+  sentenceGameToastHideTimer = setTimeout(() => {
+    if (!sentenceGameToastEl) return;
+    sentenceGameToastEl.classList.remove("hide");
+    sentenceGameToastEl.textContent = "";
+  }, 320);
+}
+
+function showSentenceGameToast(message) {
+  if (!sentenceGameToastEl || !message) return;
+
+  clearSentenceGameToastTimers();
+  stopSpeaking();
+
+  sentenceGameToastEl.textContent = message;
+  sentenceGameToastEl.setAttribute("aria-hidden", "false");
+  sentenceGameToastEl.classList.remove("hide");
+  sentenceGameToastEl.classList.remove("show");
+  void sentenceGameToastEl.offsetWidth;
+  sentenceGameToastEl.classList.add("show");
+
+  sentenceGameToastSpeechTimer = setTimeout(() => {
+    speakSentenceGameToast(message);
+  }, SENTENCE_GAME_TOAST_SPEECH_DELAY);
+
+  sentenceGameToastTimer = setTimeout(() => {
+    hideSentenceGameToast();
+  }, SENTENCE_GAME_TOAST_DURATION);
 }
 
 function hideSentenceGameCorrectPanel() {
@@ -1193,6 +1284,10 @@ function showSentenceGameCorrectAnswer() {
     renderSentenceGameCorrectPanel();
   } else {
     hideSentenceGameCorrectPanel();
+  }
+
+  if (sentenceGameCorrectVisible) {
+    showSentenceGameToast(SENTENCE_GAME_SHOW_CORRECT_TOAST);
   }
 
   if (!sentenceGameCompleted) {
@@ -1237,6 +1332,7 @@ function undoSentenceGameMove() {
 }
 
 function initSentenceGameRound() {
+  hideSentenceGameToast();
   if (!sentenceGameHistory.length || sentenceGameIndex < 0) {
     sentenceGameHistory = [];
     const firstSentence = sentenceGameRandomSentence();
@@ -1285,6 +1381,7 @@ function prevSentenceGameRound() {
 }
 
 function retrySentenceGameRound() {
+  hideSentenceGameToast();
   sentenceGameBuilt = [];
   sentenceGameCompleted = false;
   sentenceGameXpAwarded = false;

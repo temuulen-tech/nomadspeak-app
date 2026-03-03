@@ -927,6 +927,56 @@ body{
   position:relative;
 }
 
+
+.sentence-game-toast{
+  position:absolute;
+  top:18px;
+  left:50%;
+  transform:translate(-50%, -20px) scale(.96);
+  width:min(92%, 720px);
+  padding:14px 18px;
+  border-radius:14px;
+  border:1px solid rgba(255,221,128,.9);
+  background:
+    radial-gradient(160% 170% at 8% 0%, rgba(255,245,204,.22), rgba(255,245,204,0) 40%),
+    linear-gradient(140deg, rgba(53,40,14,.96) 0%, rgba(81,58,18,.95) 52%, rgba(36,30,10,.96) 100%);
+  color:#fff4cc;
+  font-weight:800;
+  letter-spacing:.15px;
+  text-align:center;
+  z-index:12;
+  pointer-events:none;
+  opacity:0;
+  box-shadow:
+    0 0 0 1px rgba(255,236,173,.2) inset,
+    0 14px 34px rgba(0,0,0,.35),
+    0 0 26px rgba(255,204,94,.28);
+}
+
+.sentence-game-toast.show{
+  animation:sentenceGameToastIn .32s ease forwards, sentenceGameToastGlow 2s ease-in-out infinite;
+}
+
+.sentence-game-toast.hide{
+  animation:sentenceGameToastOut .3s ease forwards;
+}
+
+@keyframes sentenceGameToastIn{
+  from{opacity:0;transform:translate(-50%, -20px) scale(.96);} 
+  to{opacity:1;transform:translate(-50%, 0) scale(1);} 
+}
+
+@keyframes sentenceGameToastOut{
+  from{opacity:1;transform:translate(-50%, 0) scale(1);} 
+  to{opacity:0;transform:translate(-50%, -16px) scale(.97);} 
+}
+
+@keyframes sentenceGameToastGlow{
+  0%,100%{box-shadow:0 0 0 1px rgba(255,236,173,.2) inset,0 14px 34px rgba(0,0,0,.35),0 0 22px rgba(255,204,94,.22);} 
+  50%{box-shadow:0 0 0 1px rgba(255,236,173,.28) inset,0 14px 34px rgba(0,0,0,.36),0 0 34px rgba(255,214,115,.35);} 
+}
+
+
 .sentence-game-header-row{
   display:flex;
   align-items:flex-start;
