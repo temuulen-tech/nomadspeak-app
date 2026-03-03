@@ -163,6 +163,52 @@
             <p class="sentence-game-subtitle">Үгсийг зөв дараалалд оруулаарай</p>
           </div>
         </div>
+        <div class="sentence-game-climb" id="sentence-game-climb" aria-live="polite" aria-label="Mountain climb progress level 0 of 5">
+          <svg class="sentence-game-climb-svg" viewBox="0 0 420 130" role="img" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="mountainPathGold" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#ffe8a6" />
+                <stop offset="55%" stop-color="#ffd16a" />
+                <stop offset="100%" stop-color="#b88a32" />
+              </linearGradient>
+              <filter id="mountainGlow" x="-20%" y="-40%" width="140%" height="180%">
+                <feGaussianBlur stdDeviation="3.5" result="blur" />
+                <feMerge>
+                  <feMergeNode in="blur" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+            <g class="sentence-game-sparkles" opacity="0.34">
+              <circle cx="26" cy="28" r="1.8" />
+              <circle cx="62" cy="18" r="1.5" />
+              <circle cx="96" cy="42" r="1.7" />
+              <circle cx="147" cy="24" r="1.4" />
+              <circle cx="182" cy="16" r="1.6" />
+              <circle cx="244" cy="30" r="1.8" />
+              <circle cx="278" cy="16" r="1.5" />
+              <circle cx="332" cy="24" r="1.7" />
+              <circle cx="372" cy="36" r="1.4" />
+              <path d="M212 18l1.7 3.4 3.7.5-2.7 2.6.6 3.7-3.3-1.8-3.3 1.8.6-3.7-2.7-2.6 3.7-.5z" />
+              <path d="M352 12l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.3 1.3.4-2.6-1.8-1.8 2.6-.4z" />
+            </g>
+            <path class="sentence-game-mountain-path" d="M18 106 L72 88 L134 74 L198 58 L274 42 L356 22" />
+            <g class="sentence-game-peaks">
+              <circle class="sentence-game-peak" data-peak="1" cx="72" cy="88" r="5.5" />
+              <circle class="sentence-game-peak" data-peak="2" cx="134" cy="74" r="5.5" />
+              <circle class="sentence-game-peak" data-peak="3" cx="198" cy="58" r="5.5" />
+              <circle class="sentence-game-peak" data-peak="4" cx="274" cy="42" r="5.5" />
+              <circle class="sentence-game-peak" data-peak="5" cx="356" cy="22" r="6" />
+            </g>
+          </svg>
+          <div class="sentence-game-climber" id="sentence-game-climber">
+            <svg class="sentence-game-climber-svg" viewBox="0 0 26 26" aria-hidden="true" focusable="false">
+              <circle cx="13" cy="6.2" r="3.5" />
+              <path d="M13 10.5l-3.4 5.8m3.4-5.8l4 5.2m-4 0.2l-3.3 6.2m3.3-6.2l4.2 5.7" />
+            </svg>
+            <span class="sentence-game-reward-icon" id="sentence-game-reward-icon" aria-hidden="true"></span>
+          </div>
+        </div>
         <div class="sentence-game-title-actions" aria-label="Sentence game quick actions">
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар унших</button>
