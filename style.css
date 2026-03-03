@@ -591,6 +591,49 @@ body{
     0 0 16px rgba(83,255,210,.35);
 }
 
+.tts-rate-group{
+  flex:1 1 260px;
+  min-width:220px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  align-items:stretch;
+}
+
+.tts-rate-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+}
+
+.tts-rate-value{
+  color:#f8fffb;
+  font-weight:700;
+  font-size:14px;
+}
+
+.tts-rate-slider{
+  width:100%;
+  accent-color:#94ff66;
+  cursor:pointer;
+}
+
+.tts-rate-hints{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  color:rgba(231, 242, 234, 0.72);
+  font-size:12px;
+}
+
+.tts-rate-hints span:nth-child(2){
+  text-align:center;
+}
+
+.tts-rate-hints span:last-child{
+  text-align:right;
+}
+
 .sentences-controls{
   display:flex;
   gap:10px;
