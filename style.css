@@ -931,14 +931,15 @@ body{
   display:flex;
   align-items:flex-start;
   justify-content:space-between;
-  gap:16px;
+  gap:22px;
   margin-bottom:12px;
   flex-wrap:wrap;
 }
 
 .sentence-game-header-card{
   position:relative;
-  display:block;
+  display:inline-block;
+  width:fit-content;
   padding:16px 18px;
   border-radius:16px;
   border:1px solid rgba(255,230,165,.85);
@@ -954,8 +955,8 @@ body{
   backdrop-filter:blur(6px);
   overflow:hidden;
   isolation:isolate;
-  flex:1 1 460px;
-  max-width:760px;
+  flex:0 1 auto;
+  max-width:min(100%, 560px);
 }
 
 .sentence-game-header-card::before,
@@ -1004,20 +1005,22 @@ body{
   margin:0;
   font-size:32px;
   line-height:1.15;
-  font-weight:800;
-  letter-spacing:.45px;
+  font-weight:700;
+  letter-spacing:.2px;
   color:#fff3d1;
   font-family:"Trebuchet MS", "Segoe UI", Arial, sans-serif;
-  text-shadow:0 1px 0 rgba(47,36,19,.58), 0 0 12px rgba(255,220,138,.35);
+  text-shadow:0 1px 0 rgba(47,36,19,.35);
+  text-rendering:geometricPrecision;
 }
 
 .sentence-game-subtitle{
   margin:0;
   color:#f9f4d8;
   font-weight:700;
-  letter-spacing:.28px;
+  letter-spacing:.2px;
   font-family:"Segoe UI", Tahoma, Arial, sans-serif;
-  text-shadow:0 0 8px rgba(133,255,220,.2);
+  text-shadow:none;
+  text-rendering:optimizeLegibility;
 }
 
 .sentence-game-title-actions{
@@ -1109,7 +1112,8 @@ body{
 
   .sentence-game-header-card{
     padding:14px;
-    width:100%;
+    width:fit-content;
+    max-width:100%;
   }
 
   .sentence-game-title-row h2{
