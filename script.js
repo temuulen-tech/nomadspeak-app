@@ -143,6 +143,7 @@ const SENTENCE_GAME_TOAST_MAX_DURATION = 12000;
 const SENTENCE_GAME_CORRECT_TOAST = "Чи уулын оргилд гарлаа.";
 const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, Андаа.";
 const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлээд байна аа, Андаа.";
+const SENTENCE_GAME_DEBUG = false;
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
 
@@ -1066,11 +1067,37 @@ function updateSentenceGameNavButtons() {
 }
 
 function sentenceGameIsSolved() {
+  return evaluateSentenceGameAttempt().isAllCorrect;
+}
+
+function normalizeSentenceGameToken(token = "") {
+  return String(token).replace(/\s+/g, " ").trim();
+}
+
+function evaluateSentenceGameAttempt() {
   const current = sentenceGameSentence();
-  if (!current) return false;
-  const expected = current.tokens.join(" ");
-  const built = sentenceGameBuilt.map(id => sentenceGameTiles.find(tile => tile.id === id)?.value || "").join(" ");
-  return expected === built;
+  const expectedTokens = current?.tokens || [];
+  const totalSlots = expectedTokens.length;
+
+  let correctCount = 0;
+  let wrongCount = 0;
+
+  for (let idx = 0; idx < totalSlots; idx += 1) {
+    const placedTileId = sentenceGameBuilt[idx];
+    const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
+    const expectedToken = normalizeSentenceGameToken(expectedTokens[idx]);
+    const placedToken = normalizeSentenceGameToken(placedTile?.value || "");
+
+    if (!placedToken) continue;
+    if (placedToken === expectedToken) {
+      correctCount += 1;
+    } else {
+      wrongCount += 1;
+    }
+  }
+
+  const isAllCorrect = totalSlots > 0 && correctCount === totalSlots;
+  return { isAllCorrect, totalSlots, correctCount, wrongCount };
 }
 
 function createSentenceGameTileButton(tile, inPool) {
@@ -1175,15 +1202,28 @@ function renderSentenceGameBoard() {
 }
 
 function updateSentenceGameState() {
+  const evaluation = evaluateSentenceGameAttempt();
   const wasCompleted = sentenceGameCompleted;
-  sentenceGameCompleted = sentenceGameIsSolved();
+  sentenceGameCompleted = evaluation.isAllCorrect;
   sentenceGameNextBtn.disabled = false;
+
+  if (SENTENCE_GAME_DEBUG) {
+    console.log("[SentenceGame] evaluation", {
+      isAllCorrect: evaluation.isAllCorrect,
+      totalSlots: evaluation.totalSlots,
+      correctCount: evaluation.correctCount,
+      wrongCount: evaluation.wrongCount,
+    });
+  }
 
   if (sentenceGameCompleted) {
     if (!sentenceGameUsedShowCorrect) {
       sentenceGameFeedbackEl.textContent = "Зөв!";
       sentenceGameFeedbackEl.classList.add("ok");
       if (!wasCompleted) {
+        if (SENTENCE_GAME_DEBUG) {
+          console.log("SUCCESS TOAST TRIGGERED");
+        }
         showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
       }
     }
@@ -1198,7 +1238,7 @@ function updateSentenceGameState() {
     sentenceGameFeedbackEl.textContent = "";
     sentenceGameFeedbackEl.classList.remove("ok");
 
-    if (sentenceGameBuilt.length === sentenceGameTiles.length) {
+    if (evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots) {
       showSentenceGameToast(SENTENCE_GAME_INCORRECT_TOAST);
     }
   }
