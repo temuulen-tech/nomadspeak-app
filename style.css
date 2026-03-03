@@ -9,6 +9,50 @@
   --danger:#ff5a7a;
   --ok:#2dff8f;
   --shadow: 0 24px 80px rgba(0,0,0,.35);
+  --btn-text:#eafff5;
+  --btn-border-a:#96ff66;
+  --btn-border-b:#53ffd2;
+  --btn-border-c:#46c8ff;
+}
+
+button{
+  border:1px solid transparent;
+  color:var(--btn-text);
+  background:
+    linear-gradient(140deg, rgba(28,180,90,.98), rgba(13,160,123,.95) 45%, rgba(10,128,118,.95));
+  border-radius:12px;
+  box-shadow:
+    0 0 0 1px rgba(220,255,235,.24) inset,
+    0 0 0 1.2px rgba(150,255,102,.36),
+    0 0 16px rgba(83,255,210,.28),
+    0 10px 22px rgba(1,40,28,.36);
+  text-shadow:0 1px 6px rgba(2,30,22,.55);
+  transition: transform .12s ease, filter .16s ease, box-shadow .18s ease;
+}
+
+button:hover,
+button:focus-visible{
+  transform: translateY(-2px);
+  filter: brightness(1.08) saturate(1.08);
+  box-shadow:
+    0 0 0 1px rgba(233,255,242,.35) inset,
+    0 0 0 1.2px rgba(150,255,102,.62),
+    0 0 20px rgba(83,255,210,.42),
+    0 0 24px rgba(70,200,255,.22),
+    0 12px 25px rgba(2,40,30,.42);
+  outline:none;
+}
+
+button:active{
+  transform: translateY(1px);
+  filter: brightness(1.02);
+}
+
+button:disabled{
+  opacity:.58;
+  cursor:not-allowed;
+  transform:none;
+  filter:none;
 }
 
 *{box-sizing:border-box}
@@ -237,19 +281,10 @@ body{
   padding:8px 12px;
   font-size:14px;
   color:#f4ffff;
-  border-color:rgba(148, 255, 248, .95);
-  background:rgba(38, 172, 199, .38);
-  box-shadow: 0 0 0 1px rgba(148, 255, 248, .35) inset;
+  border-color:transparent;
 }
 
-.nav-btn:hover,
-.nav-btn:focus-visible,
-.nav-btn:active{
-  border-color:rgba(201, 255, 250, 1);
-  background:rgba(62, 203, 227, .48);
-  box-shadow: 0 0 0 2px rgba(173, 255, 249, .28), 0 0 18px rgba(96, 255, 240, .34);
-  outline:none;
-}
+
 
 .logo-dot{
   width:14px;
@@ -321,13 +356,11 @@ body{
 }
 
 .level-btn{
-  border:1px solid rgba(255,255,255,.14);
-  background: rgba(0,0,0,.18);
+  border:1px solid transparent;
   color:var(--text);
   padding:10px 14px;
   border-radius:12px;
   cursor:pointer;
-  transition: transform .08s ease, box-shadow .15s ease, background .2s ease;
 }
 
 .level-btn:hover{
@@ -335,35 +368,26 @@ body{
 }
 
 .level-btn.active{
-  border-color: rgba(0,240,210,.55);
-  background: rgba(0,240,210,.14);
-  box-shadow: 0 0 24px rgba(0,240,210,.22);
+  box-shadow:
+    0 0 0 1px rgba(244,255,249,.42) inset,
+    0 0 0 1.4px rgba(150,255,102,.72),
+    0 0 20px rgba(83,255,210,.48),
+    0 0 26px rgba(70,200,255,.28);
 }
 
 .primary, .secondary{
-  border:none;
   cursor:pointer;
   border-radius:12px;
   padding:12px 16px;
   font-weight:700;
-  transition: transform .08s ease, filter .15s ease;
 }
 
 .primary{
-  background: linear-gradient(180deg, var(--accent), var(--accent2));
-  color:#062022;
-  box-shadow: 0 0 30px rgba(0,240,210,.26);
+  color:var(--btn-text);
 }
 
 .secondary{
-  background: rgba(255,255,255,.08);
-  border:1px solid rgba(255,255,255,.14);
-  color:var(--text);
-}
-
-.primary:hover, .secondary:hover{
-  transform: translateY(-1px);
-  filter: brightness(1.02);
+  color:var(--btn-text);
 }
 
 .question{
@@ -523,8 +547,7 @@ body{
 }
 
 .tts-option-btn{
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.18);
+  border:1px solid transparent;
   color:var(--text);
   padding:6px 10px;
   border-radius:10px;
@@ -533,9 +556,10 @@ body{
 }
 
 .tts-option-btn.active{
-  border-color: rgba(0,240,210,.55);
-  background: rgba(0,240,210,.14);
-  box-shadow: 0 0 14px rgba(0,240,210,.12);
+  box-shadow:
+    0 0 0 1px rgba(244,255,249,.38) inset,
+    0 0 0 1.2px rgba(150,255,102,.68),
+    0 0 16px rgba(83,255,210,.35);
 }
 
 .sentences-controls{
@@ -546,8 +570,7 @@ body{
 }
 
 .filter-btn{
-  border:1px solid rgba(255,255,255,.14);
-  background:rgba(0,0,0,.18);
+  border:1px solid transparent;
   color:var(--text);
   padding:9px 12px;
   border-radius:12px;
@@ -555,9 +578,10 @@ body{
 }
 
 .filter-btn.active{
-  border-color: rgba(0,240,210,.55);
-  background: rgba(0,240,210,.14);
-  box-shadow: 0 0 18px rgba(0,240,210,.16);
+  box-shadow:
+    0 0 0 1px rgba(244,255,249,.4) inset,
+    0 0 0 1.2px rgba(150,255,102,.72),
+    0 0 18px rgba(83,255,210,.4);
 }
 
 .sentences-list{
@@ -599,17 +623,17 @@ body{
   min-width:44px;
   height:44px;
   border-radius:12px;
-  border:1px solid rgba(255,255,255,.18);
-  background:rgba(255,255,255,.08);
+  border:1px solid transparent;
   color:var(--text);
   font-size:20px;
   cursor:pointer;
 }
 
 .speak-btn.playing{
-  border-color: rgba(0,240,210,.6);
-  background: rgba(0,240,210,.18);
-  box-shadow: 0 0 16px rgba(0,240,210,.2);
+  box-shadow:
+    0 0 0 1px rgba(244,255,249,.42) inset,
+    0 0 0 1.2px rgba(150,255,102,.72),
+    0 0 18px rgba(83,255,210,.42);
 }
 
 .sentence-game-dropzone,
@@ -650,13 +674,22 @@ body{
 }
 
 .sentence-game-tile{
-  border:1px solid rgba(255,255,255,.2);
-  background:rgba(255,255,255,.08);
+  border:1px solid transparent;
   color:var(--text);
   border-radius:10px;
   padding:8px 10px;
   font-weight:650;
   cursor:grab;
+}
+
+.word-correct{
+  border-color:#66ff84 !important;
+  box-shadow: 0 0 0 1.4px rgba(102,255,132,.72), 0 0 16px rgba(45,255,143,.65), 0 0 26px rgba(102,255,132,.35);
+}
+
+.word-wrong{
+  border-color:#ff355e !important;
+  box-shadow: 0 0 0 1.4px rgba(255,53,94,.75), 0 0 16px rgba(255,53,94,.6), 0 0 26px rgba(255,98,98,.32);
 }
 
 .sentence-game-actions{
@@ -691,29 +724,12 @@ body{
 }
 
 .sentence-game-tip-toggle{
-  border:none;
   cursor:pointer;
   border-radius:999px;
   padding:12px 24px;
   font-size:16px;
   font-weight:800;
-  color:#e8ffff;
-  background:linear-gradient(135deg, #11e9d4, #03b8c7 55%, #0ea9b5);
-  box-shadow: 0 0 0 1px rgba(189,255,250,.45) inset, 0 12px 24px rgba(0,240,210,.25), 0 0 20px rgba(50,245,237,.28);
-  transition: transform .12s ease, filter .16s ease, box-shadow .18s ease;
-}
-
-.sentence-game-tip-toggle:hover,
-.sentence-game-tip-toggle:focus-visible{
-  transform:translateY(-2px);
-  filter:brightness(1.08);
-  box-shadow: 0 0 0 1px rgba(220,255,252,.7) inset, 0 16px 28px rgba(0,240,210,.32), 0 0 24px rgba(93,255,242,.4);
-  outline:none;
-}
-
-.sentence-game-tip-toggle:active{
-  transform:translateY(0);
-  filter:brightness(1.02);
+  color:var(--btn-text);
 }
 
 .sentence-game-tip-panel{
