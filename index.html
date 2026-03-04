@@ -52,6 +52,7 @@
             <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
             <button class="secondary nav-btn" id="nav-sentence-game-btn" type="button">Өгүүлбэрийн тоглоом</button>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button">Статистик</button>
+            <button class="secondary nav-btn" id="nav-profile-btn" type="button">👤 Профайл</button>
           </div>
         </div>
       </div>
@@ -218,6 +219,54 @@
       <p class="muted">Өдрийн ахиц болон үр дүн энд харагдана.</p>
     </section>
 
+    <!-- PROFILE SCREEN -->
+    <section class="card hidden" id="profile-screen">
+      <div class="panel-header">
+        <h2>👤 Профайл</h2>
+        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+      </div>
+
+      <div class="profile-grid">
+        <article class="profile-card">
+          <h3>Ахиц</h3>
+          <label class="profile-label" for="profile-name-input">Nickname</label>
+          <input class="profile-input" id="profile-name-input" type="text" maxlength="24" placeholder="Нэрээ оруулна уу" />
+          <p class="muted" id="profile-name-saved">Хадгалагдсан нэр: —</p>
+          <ul class="profile-progress-list">
+            <li>⭐ Нийт XP: <strong id="profile-total-xp">0</strong></li>
+            <li>📈 Түвшин: <strong id="profile-level">1</strong></li>
+            <li>🔥 Цуврал: <strong id="profile-streak-days">0 өдөр</strong></li>
+            <li>📅 Өнөөдөр: <strong id="profile-daily-progress">0/10 XP</strong></li>
+            <li>🎁 Reward stage: <strong id="profile-reward-stage">⭐ Таван хошуу</strong></li>
+          </ul>
+        </article>
+
+        <article class="profile-card premium-card">
+          <h3>Premium</h3>
+          <p class="muted" id="profile-plan-status">Төлөв: Free</p>
+          <div class="premium-features">
+            <div>
+              <h4>Free</h4>
+              <ul>
+                <li>Өдөрт 10 XP хүртэл (Sentence Game)</li>
+                <li>Үндсэн хичээл, статистик</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Premium</h4>
+              <ul>
+                <li>Хязгааргүй Sentence Game</li>
+                <li>Ирээдүйн premium контент</li>
+              </ul>
+            </div>
+          </div>
+          <p class="premium-pricing">Сард: 9,900₮</p>
+          <p class="premium-pricing">Жилээр: 89,000₮</p>
+          <button class="primary" id="upgrade-premium-btn" type="button">Premium-д шилжих</button>
+        </article>
+      </div>
+    </section>
+
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
       <div class="panel-header">
@@ -243,6 +292,16 @@
       <div class="confirm-actions">
         <button class="primary" id="confirm-yes-btn" type="button">Тийм, гаръя</button>
         <button class="secondary" id="confirm-no-btn" type="button">Үгүй</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay hidden" id="premium-overlay" role="dialog" aria-modal="true" aria-labelledby="premium-title">
+    <div class="confirm-card">
+      <h2 id="premium-title">Premium</h2>
+      <p class="muted" id="premium-message">Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)</p>
+      <div class="confirm-actions">
+        <button class="primary" id="premium-ok-btn" type="button">Ойлголоо</button>
       </div>
     </div>
   </div>

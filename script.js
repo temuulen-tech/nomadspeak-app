@@ -44,6 +44,7 @@ const quizScreen = document.getElementById("quiz-screen");
 const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
+const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
 
 const topbar = document.getElementById("topbar");
@@ -64,6 +65,7 @@ const navHomeBtn = document.getElementById("nav-home-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
+const navProfileBtn = document.getElementById("nav-profile-btn");
 
 const confirmOverlay = document.getElementById("confirm-overlay");
 const confirmYesBtn = document.getElementById("confirm-yes-btn");
@@ -110,6 +112,21 @@ const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
 const DAILY_GOAL_COMPLETION_TEXT = "Өнөөдөр чиний хийсэн ганцхан цагийн дадлага бүр нэгдсээр далай мэт мэдлэгийг бий болгодог. Гэрэлт ирээдүйгээ бүтээж байгаа чамд улам их амжилт хүсье. Шинэ зууны иргэн танд урт холын аялалдаа гарч байгаад баярлалаа.";
+
+
+const premiumOverlay = document.getElementById("premium-overlay");
+const premiumTitleEl = document.getElementById("premium-title");
+const premiumMessageEl = document.getElementById("premium-message");
+const premiumOkBtn = document.getElementById("premium-ok-btn");
+const upgradePremiumBtn = document.getElementById("upgrade-premium-btn");
+const profileNameInput = document.getElementById("profile-name-input");
+const profileNameSaved = document.getElementById("profile-name-saved");
+const profileTotalXpEl = document.getElementById("profile-total-xp");
+const profileLevelEl = document.getElementById("profile-level");
+const profileStreakDaysEl = document.getElementById("profile-streak-days");
+const profileDailyProgressEl = document.getElementById("profile-daily-progress");
+const profileRewardStageEl = document.getElementById("profile-reward-stage");
+const profilePlanStatusEl = document.getElementById("profile-plan-status");
 
 // ---- State ----
 let level = "beginner";
@@ -193,6 +210,9 @@ const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const LEGACY_TTS_RATE_KEY = "ttsRate";
 const SOUND_SETTINGS_KEY = "soundEnabled";
 const PROGRESS_SETTINGS_KEY = "nomadProgress";
+const PROFILE_NAME_STORAGE_KEY = "nomadProfileName";
+const PREMIUM_STORAGE_KEY = "isPremium";
+const FREE_DAILY_XP_LIMIT = 10;
 const DEFAULT_DAILY_GOAL = 10;
 const DEFAULT_TTS_SETTINGS = {
   voice: "auto",
@@ -204,6 +224,9 @@ let soundEnabled = true;
 let audioContext = null;
 let audioPrimed = false;
 let completionBannerTimer = null;
+let isPremium = false;
+let profileName = "";
+
 let progressState = {
   xpTotal: 0,
   level: 1,
@@ -312,6 +335,73 @@ function loadProgressState() {
   syncProgressForToday();
 }
 
+function loadPremiumStatus() {
+  try {
+    isPremium = localStorage.getItem(PREMIUM_STORAGE_KEY) === "true";
+  } catch (error) {
+    isPremium = false;
+  }
+}
+
+function persistPremiumStatus() {
+  localStorage.setItem(PREMIUM_STORAGE_KEY, isPremium ? "true" : "false");
+}
+
+function loadProfileName() {
+  try {
+    profileName = (localStorage.getItem(PROFILE_NAME_STORAGE_KEY) || "").trim();
+  } catch (error) {
+    profileName = "";
+  }
+}
+
+function persistProfileName() {
+  localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
+}
+
+function openPremiumModal(message, title = "Premium") {
+  if (!premiumOverlay || !premiumMessageEl) return;
+  premiumTitleEl.textContent = title;
+  premiumMessageEl.textContent = message;
+  show(premiumOverlay);
+}
+
+function closePremiumModal() {
+  if (!premiumOverlay) return;
+  hide(premiumOverlay);
+}
+
+function canEarnMoreSentenceGameXp(amount = 0) {
+  if (isPremium) return true;
+  loadProgressState();
+  syncProgressForToday();
+  return progressState.dailyXP + amount <= FREE_DAILY_XP_LIMIT;
+}
+
+function enforceFreeXpGate() {
+  if (isPremium) return false;
+  loadProgressState();
+  syncProgressForToday();
+  if (progressState.dailyXP >= FREE_DAILY_XP_LIMIT) {
+    openPremiumModal("Premium авахад хязгааргүй болно", "Free хязгаар хүрлээ");
+    return true;
+  }
+  return false;
+}
+
+function updateProfileUI() {
+  loadProgressState();
+  syncProgressForToday();
+  if (profileNameInput) profileNameInput.value = profileName;
+  if (profileNameSaved) profileNameSaved.textContent = `Хадгалагдсан нэр: ${profileName || "—"}`;
+  if (profileTotalXpEl) profileTotalXpEl.textContent = String(progressState.xpTotal);
+  if (profileLevelEl) profileLevelEl.textContent = String(progressState.level);
+  if (profileStreakDaysEl) profileStreakDaysEl.textContent = `${progressState.streakDays} өдөр`;
+  if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.dailyXP}/${progressState.dailyGoalXP} XP`;
+  if (profileRewardStageEl) profileRewardStageEl.textContent = rewardForStreak(progressState.streakDays);
+  if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${isPremium ? "Premium" : "Free"}`;
+}
+
 function playDailyGoalSuccessChime() {
   if (!soundEnabled) return;
   [988, 1319].forEach((frequency, index) => {
@@ -324,6 +414,11 @@ function playDailyGoalSuccessChime() {
 function awardXP(amount, reason = "") {
   const earned = Number(amount);
   if (!Number.isFinite(earned) || earned <= 0) return;
+
+  if (reason.startsWith("sentence_game") && !canEarnMoreSentenceGameXp(earned)) {
+    openPremiumModal("Premium авахад хязгааргүй болно", "Free хязгаар хүрлээ");
+    return;
+  }
 
   loadProgressState();
   syncProgressForToday();
@@ -362,7 +457,8 @@ function updateHeaderStatus() {
   syncProgressForToday();
   statusXpEl.textContent = `⭐ XP: ${progressState.xpTotal}`;
   statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streakDays} өдөр`;
-  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.dailyXP}/${progressState.dailyGoalXP}`;
+  const todayLimit = isPremium ? progressState.dailyGoalXP : FREE_DAILY_XP_LIMIT;
+  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.dailyXP}/${todayLimit}`;
   statusRewardEl.textContent = `Lv.${progressState.level} • ${rewardForStreak(progressState.streakDays)}`;
 }
 
@@ -587,6 +683,7 @@ function showScreen(screen) {
   hide(sentencesScreen);
   hide(sentenceGameScreen);
   hide(statsScreen);
+  hide(profileScreen);
   hide(endScreen);
   show(screen);
 
@@ -594,6 +691,10 @@ function showScreen(screen) {
     show(topbar);
   } else {
     hide(topbar);
+  }
+
+  if (screen === profileScreen) {
+    updateProfileUI();
   }
 
   if (screen === sentenceGameScreen && !wasSentenceGameVisible) {
@@ -628,11 +729,17 @@ function navigateTo(destination) {
     stopSpeaking();
     showScreen(sentenceGameScreen);
     initSentenceGameRound();
+    enforceFreeXpGate();
   }
 
   if (destination === "stats") {
     stopSpeaking();
     showScreen(statsScreen);
+  }
+
+  if (destination === "profile") {
+    stopSpeaking();
+    showScreen(profileScreen);
   }
 }
 
@@ -2015,8 +2122,12 @@ renderSentenceGameClimb(sentenceGameClimbLevel);
 loadSentenceGameRewardState();
 updateSentenceGameRewardLevel({ allowBanner: false });
 persistSentenceGameRewardState();
+loadPremiumStatus();
+loadProfileName();
 loadProgressState();
 updateHeaderStatus();
+updateProfileUI();
+persistPremiumStatus();
 persistProgressState();
 
 if (sentenceGameTipTextEl) {
@@ -2103,6 +2214,7 @@ navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
+navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
 
 confirmNoBtn.addEventListener("click", () => {
   pendingNavigation = null;
@@ -2148,6 +2260,31 @@ window.addEventListener("pagehide", () => {
 if ("speechSynthesis" in window) {
   loadVoices();
   window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+}
+
+
+if (profileNameInput) {
+  profileNameInput.addEventListener("input", () => {
+    profileName = profileNameInput.value.trim();
+    persistProfileName();
+    updateProfileUI();
+  });
+}
+
+if (upgradePremiumBtn) {
+  upgradePremiumBtn.addEventListener("click", () => {
+    openPremiumModal("Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)");
+  });
+}
+
+if (premiumOkBtn) {
+  premiumOkBtn.addEventListener("click", closePremiumModal);
+}
+
+if (premiumOverlay) {
+  premiumOverlay.addEventListener("click", (event) => {
+    if (event.target === premiumOverlay) closePremiumModal();
+  });
 }
 
 loadSentences();
