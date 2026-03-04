@@ -82,6 +82,44 @@ button:disabled::before{
   opacity:.5;
 }
 
+
+button,
+.primary,
+.secondary,
+.option,
+.level-btn,
+.nav-btn,
+.sentence-game-tile{
+  min-height:40px;
+}
+
+.install-hint{
+  position:fixed;
+  left:50%;
+  bottom:14px;
+  transform:translateX(-50%);
+  width:min(92vw, 620px);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(8, 35, 42, .94);
+  border-radius:14px;
+  padding:10px 12px;
+  z-index:40;
+  box-shadow:0 12px 28px rgba(0,0,0,.35);
+}
+
+.install-hint span{
+  font-size:14px;
+  color:var(--text);
+}
+
+.install-hint .primary{
+  white-space:nowrap;
+}
+
 *{box-sizing:border-box}
 body{
   margin:0;
@@ -1462,5 +1500,142 @@ body{
   .tts-rate-compact{
     width:100%;
     margin-left:0;
+  }
+}
+
+
+@media (max-width:900px){
+  body{
+    padding:16px;
+    align-items:flex-start;
+  }
+
+  .app{
+    width:100%;
+  }
+
+  .header-right,
+  .header-nav,
+  .status-bar{
+    width:100%;
+  }
+
+  .header-nav{
+    justify-content:center;
+    gap:8px;
+  }
+
+  .header-nav .nav-btn{
+    flex:1 1 calc(50% - 8px);
+    max-width:260px;
+  }
+
+  .sentence-game-header-row{
+    flex-wrap:wrap;
+    align-items:flex-start;
+  }
+
+  .sentence-game-header-card{
+    flex:1 1 100%;
+    max-width:100%;
+  }
+
+  .sentence-game-reward-middle{
+    order:2;
+    flex:1 1 100%;
+    justify-content:center;
+  }
+
+  .sentence-game-title-actions{
+    order:3;
+    flex:1 1 100%;
+    flex-direction:row;
+    justify-content:flex-end;
+    align-items:center;
+    min-width:0;
+  }
+
+  .sentence-game-actions{
+    justify-content:center;
+  }
+
+  .sentence-game-actions button{
+    flex:1 1 calc(50% - 10px);
+  }
+}
+
+@media (max-width:600px){
+  body{
+    padding:10px;
+  }
+
+  .logo{font-size:30px;}
+
+  .card{
+    padding:14px;
+  }
+
+  .header-nav{
+    justify-content:stretch;
+  }
+
+  .header-nav .nav-btn{
+    flex:1 1 calc(50% - 8px);
+    max-width:none;
+  }
+
+  button,
+  .primary,
+  .secondary,
+  .option,
+  .level-btn,
+  .nav-btn,
+  .sentence-game-tile,
+  .sentence-game-slot{
+    min-height:44px;
+  }
+
+  .sentence-game-dropzone,
+  .sentence-game-pool{
+    padding:10px;
+    gap:8px;
+  }
+
+  .sentence-game-tile{
+    padding:10px 12px;
+    font-size:15px;
+  }
+
+  .sentence-game-header-row{
+    gap:10px;
+  }
+
+  .sentence-game-title-actions{
+    justify-content:center;
+    row-gap:8px;
+    flex-wrap:wrap;
+  }
+
+  .sentence-game-title-actions .sound-toggle-btn,
+  .sentence-game-title-actions .sentence-game-tip-toggle{
+    padding:10px 12px;
+    font-size:13px;
+  }
+
+  .sentence-game-reward-row{
+    flex-wrap:wrap;
+    gap:8px;
+  }
+
+  .sentence-game-reward-image{
+    height:44px;
+  }
+
+  .install-hint{
+    width:min(96vw, 620px);
+    padding:10px;
+    flex-wrap:wrap;
+    justify-content:center;
+    text-align:center;
   }
 }
