@@ -1,0 +1,24 @@
+{
+  "name": "NomadSpeak",
+  "short_name": "NomadSpeak",
+  "description": "NomadSpeak English learning app",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b1f24",
+  "theme_color": "#0d2a2f",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}

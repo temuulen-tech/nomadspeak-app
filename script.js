@@ -127,6 +127,8 @@ const profileStreakDaysEl = document.getElementById("profile-streak-days");
 const profileDailyProgressEl = document.getElementById("profile-daily-progress");
 const profileRewardStageEl = document.getElementById("profile-reward-stage");
 const profilePlanStatusEl = document.getElementById("profile-plan-status");
+const installHintEl = document.getElementById("install-hint");
+const installBtn = document.getElementById("install-btn");
 
 // ---- State ----
 let level = "beginner";
@@ -236,6 +238,33 @@ let progressState = {
   dailyXP: 0,
   dailyCompleted: false,
 };
+
+
+let deferredInstallPrompt = null;
+
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {
+      // silent fail in unsupported/private contexts
+    });
+  });
+}
+
+function updateInstallHintVisibility() {
+  if (!installHintEl) return;
+  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
+  if (standalone) {
+    hide(installHintEl);
+    return;
+  }
+
+  if (deferredInstallPrompt) {
+    show(installHintEl);
+  } else {
+    hide(installHintEl);
+  }
+}
 
 // ---- Helpers ----
 function shuffle(arr) {
@@ -2286,5 +2315,31 @@ if (premiumOverlay) {
     if (event.target === premiumOverlay) closePremiumModal();
   });
 }
+
+
+registerServiceWorker();
+
+window.addEventListener('beforeinstallprompt', (event) => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  updateInstallHintVisibility();
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  updateInstallHintVisibility();
+});
+
+if (installBtn) {
+  installBtn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    updateInstallHintVisibility();
+  });
+}
+
+updateInstallHintVisibility();
 
 loadSentences();
