@@ -982,7 +982,7 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:16px;
+  gap:14px;
   margin-bottom:6px;
   flex-wrap:nowrap;
 }
@@ -991,7 +991,7 @@ body{
   position:relative;
   display:inline-block;
   width:fit-content;
-  padding:9px 13px;
+  padding:7px 10px;
   border-radius:16px;
   border:1px solid rgba(255,230,165,.85);
   background:
@@ -1051,13 +1051,13 @@ body{
   flex-direction:column;
   align-items:flex-start;
   justify-content:flex-start;
-  gap:6px;
-  min-width:220px;
+  gap:4px;
+  min-width:176px;
 }
 
 .sentence-game-title-row h2{
   margin:0;
-  font-size:28px;
+  font-size:22px;
   line-height:1.15;
   font-weight:700;
   letter-spacing:.2px;
@@ -1069,7 +1069,7 @@ body{
 
 .sentence-game-subtitle{
   margin:0;
-  font-size:14px;
+  font-size:12px;
   color:#f9f4d8;
   font-weight:700;
   letter-spacing:.2px;
@@ -1110,14 +1110,14 @@ body{
   display:flex;
   align-items:center;
   justify-content:center;
-  gap:clamp(8px, 1.2vw, 12px);
+  gap:clamp(10px, 1.2vw, 14px);
   margin:0;
   padding:0;
   flex-wrap:nowrap;
 }
 
 .sentence-game-reward-image{
-  height:clamp(34px, 5vw, 52px);
+  height:clamp(54px, 7vw, 82px);
   width:auto;
   object-fit:contain;
   border-radius:12px;
@@ -1346,16 +1346,32 @@ body{
 
   .sentence-game-header-row{
     gap:12px;
+    flex-wrap:wrap;
+    align-items:flex-start;
   }
 
   .sentence-game-header-card{
-    padding:11px 13px;
+    padding:7px 10px;
     width:fit-content;
     max-width:100%;
   }
 
+  .sentence-game-reward-middle{
+    order:3;
+    flex:1 1 100%;
+  }
+
+  .sentence-game-title-actions{
+    order:2;
+    margin-left:auto;
+  }
+
   .sentence-game-title-row h2{
-    font-size:24px;
+    font-size:20px;
+  }
+
+  .sentence-game-subtitle{
+    font-size:11px;
   }
 
 }
