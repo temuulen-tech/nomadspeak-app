@@ -559,6 +559,14 @@ function formatLast7DayLabels() {
   });
 }
 
+function formatStudyMinutes(totalMinutes) {
+  const safeMinutes = Math.max(0, Number(totalMinutes) || 0);
+  if (safeMinutes < 60) return `${safeMinutes} мин`;
+  const hours = Math.floor(safeMinutes / 60);
+  const minutes = safeMinutes % 60;
+  return `${hours} цаг ${minutes} мин`;
+}
+
 function updateStatsUI() {
   loadProgressState();
   syncProgressForToday();
@@ -567,7 +575,7 @@ function updateStatsUI() {
   if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
   if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
   if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
-  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = `${progressState.todayMinutes} минут`;
+  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatStudyMinutes(progressState.todayMinutes);
   if (statsRewardTierLabelEl) statsRewardTierLabelEl.textContent = `Одоогийн түвшин: ${progressState.rewardTierUnlocked}`;
 
   statsRewardImageEls.forEach((imgEl) => {
