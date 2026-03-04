@@ -1639,3 +1639,131 @@ body{
     text-align:center;
   }
 }
+
+@media (max-width:420px){
+  html,
+  body{
+    overflow-x:hidden;
+    max-width:100%;
+  }
+
+  body{
+    padding:8px;
+  }
+
+  .app,
+  .card,
+  #sentence-game-screen{
+    max-width:100%;
+    overflow-x:hidden;
+  }
+
+  #sentence-game-screen{
+    padding:12px;
+  }
+
+  .sentence-game-header-row{
+    flex-direction:column;
+    align-items:stretch;
+    gap:8px;
+    margin-bottom:4px;
+  }
+
+  .sentence-game-header-card{
+    order:1;
+    width:100%;
+    padding:6px 8px;
+    border-radius:12px;
+  }
+
+  .sentence-game-title-row h2{
+    font-size:18px;
+    line-height:1.2;
+  }
+
+  .sentence-game-subtitle{
+    font-size:10px;
+  }
+
+  .sentence-game-reward-middle{
+    order:2;
+    width:100%;
+    justify-content:center;
+  }
+
+  .sentence-game-reward-row{
+    gap:6px;
+    flex-wrap:wrap;
+  }
+
+  .sentence-game-reward-image{
+    height:38px;
+  }
+
+  .sentence-game-title-actions{
+    order:3;
+    width:100%;
+    min-width:0;
+    margin-left:0;
+    align-items:stretch;
+    flex-direction:column;
+    gap:8px;
+  }
+
+  .sentence-game-title-actions .sound-toggle-btn,
+  .sentence-game-title-actions .sentence-game-tip-toggle,
+  .sentence-game-tip-actions .secondary,
+  .sentence-game-tip-close-row .secondary{
+    width:100%;
+    min-height:44px;
+    white-space:normal;
+    text-align:center;
+    justify-content:center;
+  }
+
+  .sentence-game-active-time{
+    margin:0 0 8px;
+    text-align:center;
+    font-size:11px;
+  }
+
+  .sentence-game-dropzone,
+  .sentence-game-pool{
+    padding:8px;
+    gap:6px;
+    min-height:56px;
+    overflow-x:hidden;
+  }
+
+  .sentence-game-slot,
+  .sentence-game-tile{
+    min-height:42px;
+    max-width:100%;
+    white-space:normal;
+    word-break:break-word;
+    font-size:14px;
+  }
+
+  .sentence-game-slot{
+    min-width:56px;
+  }
+
+  .sentence-game-actions{
+    gap:8px;
+  }
+
+  .sentence-game-actions button,
+  #sentence-game-screen .panel-header .secondary,
+  #sentence-game-screen .primary,
+  #sentence-game-screen .secondary{
+    width:100%;
+    min-height:44px;
+    white-space:normal;
+  }
+
+  .sentence-game-actions #sentence-game-prev-btn,
+  .sentence-game-actions #sentence-game-next-btn{
+    width:calc(50% - 4px);
+    flex:1 1 calc(50% - 4px);
+  }
+}
