@@ -57,6 +57,9 @@ const optionsEl = document.getElementById("options");
 const resultEl = document.getElementById("result");
 
 const startBtn = document.getElementById("start-btn");
+const introToggleBtn = document.getElementById("intro-toggle-btn");
+const introPanel = document.getElementById("intro-panel");
+const introCloseBtn = document.getElementById("intro-close-btn");
 const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const backBtn = document.getElementById("back-btn");
@@ -746,6 +749,7 @@ function confirmNavigation(destination) {
 function navigateTo(destination) {
   if (destination === "home") {
     stopSpeaking();
+    hideStartIntroPanel();
     showScreen(startScreen);
   }
 
@@ -798,6 +802,20 @@ function updateTopbar() {
 // ---- UI switch ----
 function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
+
+function hideStartIntroPanel() {
+  if (!introPanel || !introToggleBtn) return;
+  hide(introPanel);
+  introToggleBtn.setAttribute("aria-expanded", "false");
+}
+
+function toggleStartIntroPanel() {
+  if (!introPanel || !introToggleBtn) return;
+  const willOpen = introPanel.classList.contains("hidden");
+  introPanel.classList.toggle("hidden", !willOpen);
+  introToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+}
+
 
 function loadSoundSettings() {
   try {
@@ -2137,6 +2155,7 @@ function endQuiz() {
 
 function backToStart() {
   stopSpeaking();
+  hideStartIntroPanel();
   showScreen(startScreen);
 }
 
@@ -2258,6 +2277,14 @@ confirmYesBtn.addEventListener("click", () => {
     pendingNavigation = null;
   }
 });
+
+if (introToggleBtn) {
+  introToggleBtn.addEventListener("click", toggleStartIntroPanel);
+}
+
+if (introCloseBtn) {
+  introCloseBtn.addEventListener("click", hideStartIntroPanel);
+}
 
 startBtn.addEventListener("click", startQuiz);
 nextBtn.addEventListener("click", nextQuestion);
