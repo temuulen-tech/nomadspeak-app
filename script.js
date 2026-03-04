@@ -111,6 +111,9 @@ const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-i
 const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
 const sentenceGameRewardTimeEl = document.getElementById("sentence-game-active-time");
 const sentenceGameRewardImageEls = document.querySelectorAll(".sentence-game-reward-image");
+const sentenceGameDifficultyToggleBtn = document.getElementById("sentence-game-difficulty-toggle-btn");
+const sentenceGameDifficultyPanelEl = document.getElementById("sentence-game-difficulty-panel");
+const sentenceGameDifficultyButtons = document.querySelectorAll(".sentence-game-difficulty-btn");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -185,6 +188,7 @@ let sentenceGameLastActivityAt = 0;
 let sentenceGameLastTick = 0;
 let sentenceGameActiveTimer = null;
 let sentenceGameRewardBannerTimer = null;
+let sentenceGameDifficulty = "beginner";
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
@@ -200,7 +204,13 @@ const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
 const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
 const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
 const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
+const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
 const SENTENCE_GAME_IDLE_TIMEOUT_SECONDS = 60;
+const SENTENCE_GAME_DIFFICULTY_LABELS = {
+  beginner: "Анхан шат",
+  intermediate: "Дунд шат",
+  advanced: "Дээд түвшин",
+};
 const SENTENCE_GAME_REWARD_THRESHOLDS = [1200, 1800, 3000, 3600, 5400];
 const SENTENCE_GAME_REWARD_BANNERS = [
   "🏳️ Эхлэл амжилттай!",
@@ -1684,13 +1694,115 @@ function sentenceGameSentence() {
   return sentenceGameHistory[sentenceGameIndex] || null;
 }
 
+function sentenceGameComplexityScore(item = {}) {
+  const levelTag = String(item.level || item.cefr || "").toLowerCase();
+  const levelWeight = levelTag.includes("advanced") || levelTag.includes("c1") || levelTag.includes("c2")
+    ? 8
+    : (levelTag.includes("intermediate") || levelTag.includes("b1") || levelTag.includes("b2")
+      ? 4
+      : (levelTag.includes("beginner") || levelTag.includes("a1") || levelTag.includes("a2") ? 0 : 2));
+  const tokenCount = tokenizeSentence(item.en || "").length;
+  const longWordCount = String(item.en || "").split(/\s+/).filter((word) => word.replace(/[^A-Za-z]/g, "").length >= 8).length;
+  return tokenCount * 2 + longWordCount + levelWeight;
+}
+
+function sentenceGameBucketsByFallback() {
+  const sorted = [...sentenceItems].sort((a, b) => sentenceGameComplexityScore(a) - sentenceGameComplexityScore(b));
+  if (!sorted.length) return { beginner: [], intermediate: [], advanced: [] };
+  const beginnerEnd = Math.max(1, Math.ceil(sorted.length / 3));
+  const intermediateEnd = Math.max(beginnerEnd + 1, Math.ceil((sorted.length * 2) / 3));
+  return {
+    beginner: sorted.slice(0, beginnerEnd),
+    intermediate: sorted.slice(beginnerEnd, intermediateEnd),
+    advanced: sorted.slice(intermediateEnd),
+  };
+}
+
+function sentenceGameSentencesByDifficulty(difficulty = sentenceGameDifficulty) {
+  const normalizedDifficulty = ["beginner", "intermediate", "advanced"].includes(difficulty) ? difficulty : "beginner";
+  const tagged = sentenceItems.filter((item) => {
+    const rawLevel = String(item.level || item.cefr || "").toLowerCase();
+    if (normalizedDifficulty === "beginner") return rawLevel.includes("beginner") || rawLevel.includes("a1") || rawLevel.includes("a2");
+    if (normalizedDifficulty === "intermediate") return rawLevel.includes("intermediate") || rawLevel.includes("b1") || rawLevel.includes("b2");
+    return rawLevel.includes("advanced") || rawLevel.includes("c1") || rawLevel.includes("c2");
+  });
+
+  if (tagged.length) return tagged;
+
+  const fallback = sentenceGameBucketsByFallback();
+  const selectedFallback = fallback[normalizedDifficulty] || [];
+  if (selectedFallback.length) return selectedFallback;
+
+  return sentenceItems;
+}
+
 function sentenceGameRandomSentence() {
-  if (!sentenceItems.length) return null;
-  const randomIndex = Math.floor(Math.random() * sentenceItems.length);
-  return sentenceItems[randomIndex] || null;
+  const available = sentenceGameSentencesByDifficulty(sentenceGameDifficulty);
+  if (!available.length) return null;
+  const randomIndex = Math.floor(Math.random() * available.length);
+  return available[randomIndex] || null;
+}
+
+function sentenceGameDifficultyButtonLabel(difficulty = sentenceGameDifficulty) {
+  return SENTENCE_GAME_DIFFICULTY_LABELS[difficulty] || SENTENCE_GAME_DIFFICULTY_LABELS.beginner;
+}
+
+function updateSentenceGameDifficultyUI() {
+  if (sentenceGameDifficultyToggleBtn) {
+    const label = sentenceGameDifficultyButtonLabel(sentenceGameDifficulty);
+    sentenceGameDifficultyToggleBtn.textContent = `Тоглох түвшин: ${label}`;
+  }
+
+  sentenceGameDifficultyButtons.forEach((btn) => {
+    const isActive = btn.dataset.difficulty === sentenceGameDifficulty;
+    btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+  });
+}
+
+function setSentenceGameDifficultyPanelOpen(isOpen) {
+  if (!sentenceGameDifficultyPanelEl || !sentenceGameDifficultyToggleBtn) return;
+  sentenceGameDifficultyPanelEl.classList.toggle("hidden", !isOpen);
+  sentenceGameDifficultyToggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}
+
+function loadSentenceGameDifficulty() {
+  try {
+    const stored = localStorage.getItem(SENTENCE_GAME_DIFFICULTY_KEY);
+    if (["beginner", "intermediate", "advanced"].includes(stored || "")) {
+      sentenceGameDifficulty = stored;
+    } else {
+      sentenceGameDifficulty = "beginner";
+      localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
+    }
+  } catch (_error) {
+    sentenceGameDifficulty = "beginner";
+  }
+
+  updateSentenceGameDifficultyUI();
+}
+
+function selectSentenceGameDifficulty(difficulty, { collapsePanel = true } = {}) {
+  if (!["beginner", "intermediate", "advanced"].includes(difficulty)) return;
+  sentenceGameDifficulty = difficulty;
+  try {
+    localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
+  } catch (_error) {
+    // ignore storage errors in private mode
+  }
+
+  updateSentenceGameDifficultyUI();
+  sentenceGameHistory = [];
+  sentenceGameIndex = -1;
+  initSentenceGameRound();
+
+  if (collapsePanel && window.matchMedia("(max-width: 700px)").matches) {
+    setSentenceGameDifficultyPanelOpen(false);
+  }
 }
 
 function updateSentenceGameNavButtons() {
+
   if (sentenceGamePrevBtn) {
     sentenceGamePrevBtn.disabled = sentenceGameIndex <= 0;
   }
@@ -2350,7 +2462,22 @@ if (sentenceGameTipCloseBtn) {
   sentenceGameTipCloseBtn.addEventListener("click", closeSentenceGameTipPanel);
 }
 
+if (sentenceGameDifficultyToggleBtn) {
+  sentenceGameDifficultyToggleBtn.addEventListener("click", () => {
+    const nextOpen = sentenceGameDifficultyPanelEl ? sentenceGameDifficultyPanelEl.classList.contains("hidden") : false;
+    setSentenceGameDifficultyPanelOpen(nextOpen);
+  });
+}
+
+sentenceGameDifficultyButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    selectSentenceGameDifficulty(btn.dataset.difficulty || "beginner", { collapsePanel: true });
+  });
+});
+
 updateSentenceGameTipControls();
+loadSentenceGameDifficulty();
+setSentenceGameDifficultyPanelOpen(false);
 updateSentenceFilterActiveState();
 
 levelButtons.forEach(btn => {
