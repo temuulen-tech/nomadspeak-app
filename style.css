@@ -1354,9 +1354,61 @@ body{
 .sentence-game-reward-middle{
   flex:1;
   display:flex;
+  flex-direction:column;
   justify-content:center;
   align-items:center;
   min-width:0;
+  gap:10px;
+}
+
+.sentence-game-difficulty-wrap{
+  width:100%;
+  max-width:520px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.sentence-game-difficulty-toggle{
+  width:100%;
+  border-radius:14px;
+  padding:11px 14px;
+  font-size:14px;
+  font-weight:800;
+  color:#fef6d7;
+  border:1px solid rgba(255,219,136,.66);
+  background:linear-gradient(145deg, rgba(14,92,84,.92), rgba(14,66,57,.95) 58%, rgba(102,74,28,.92));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.24), 0 10px 20px rgba(0,0,0,.26), 0 0 14px rgba(255,205,108,.2);
+}
+
+.sentence-game-difficulty-toggle:hover{
+  filter:brightness(1.05);
+}
+
+.sentence-game-difficulty-panel{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  border-radius:12px;
+  padding:8px;
+  border:1px solid rgba(138,255,233,.18);
+  background:rgba(6,26,31,.58);
+}
+
+.sentence-game-difficulty-btn{
+  flex:1 1 calc(33.333% - 6px);
+  min-width:130px;
+  border-radius:10px;
+  font-weight:700;
+  border:1px solid rgba(255,225,156,.45);
+  background:linear-gradient(145deg, rgba(19,76,71,.85), rgba(53,49,23,.82));
+  color:#fff3cf;
+}
+
+.sentence-game-difficulty-btn.active{
+  border-color:#ffd86d;
+  box-shadow:0 0 0 1px rgba(255,216,109,.7), 0 0 18px rgba(255,208,105,.45), inset 0 0 12px rgba(134,255,230,.18);
+  filter:brightness(1.08);
 }
 
 .sentence-game-reward-row{
@@ -1780,6 +1832,11 @@ body{
     height:44px;
   }
 
+  .sentence-game-difficulty-btn{
+    flex:1 1 calc(50% - 8px);
+    min-width:unset;
+  }
+
   .install-hint{
     width:min(96vw, 620px);
     padding:10px;
@@ -1876,7 +1933,9 @@ body{
   .sentence-game-title-actions .sound-toggle-btn,
   .sentence-game-title-actions .sentence-game-tip-toggle,
   .sentence-game-tip-actions .secondary,
-  .sentence-game-tip-close-row .secondary{
+  .sentence-game-tip-close-row .secondary,
+  .sentence-game-difficulty-btn,
+  .sentence-game-difficulty-toggle{
     width:100%;
     min-height:44px;
     white-space:normal;
