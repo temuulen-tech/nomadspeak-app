@@ -982,8 +982,8 @@ body{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:18px;
-  margin-bottom:8px;
+  gap:16px;
+  margin-bottom:6px;
   flex-wrap:nowrap;
 }
 
@@ -1098,29 +1098,42 @@ body{
   animation:sentenceGameRewardBannerOut .28s ease forwards;
 }
 
+.sentence-game-reward-middle{
+  flex:1;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-width:0;
+}
+
 .sentence-game-reward-row{
   display:flex;
   align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-bottom:4px;
+  justify-content:center;
+  gap:clamp(8px, 1.2vw, 12px);
+  margin:0;
+  padding:0;
+  flex-wrap:nowrap;
 }
 
 .sentence-game-reward-image{
-  width:56px;
-  height:56px;
-  object-fit:cover;
+  height:clamp(34px, 5vw, 52px);
+  width:auto;
+  object-fit:contain;
   border-radius:12px;
-  border:2px solid rgba(255,255,255,.12);
-  box-shadow:0 4px 12px rgba(0,0,0,.2);
+  border:2px solid rgba(255,241,206,.32);
+  opacity:.92;
+  box-shadow:0 3px 10px rgba(0,0,0,.2), 0 0 8px rgba(255,207,95,.16);
   transform:scale(1);
-  transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease;
+  transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease, opacity .24s ease, filter .24s ease;
 }
 
 .sentence-game-reward-image.active{
-  border-color:#ffd15b;
-  transform:scale(1.08);
-  box-shadow:0 0 0 2px rgba(255,214,115,.38), 0 0 18px rgba(255,207,95,.78), 0 8px 18px rgba(0,0,0,.22);
+  border-color:#ffd86d;
+  opacity:1;
+  filter:brightness(1.08) saturate(1.1);
+  transform:scale(1.07);
+  box-shadow:0 0 0 2px rgba(255,214,115,.52), 0 0 20px rgba(255,207,95,.92), 0 8px 18px rgba(0,0,0,.2);
 }
 
 .sentence-game-active-time{
@@ -1333,7 +1346,6 @@ body{
 
   .sentence-game-header-row{
     gap:12px;
-    flex-wrap:wrap;
   }
 
   .sentence-game-header-card{
@@ -1342,42 +1354,10 @@ body{
     max-width:100%;
   }
 
-  .sentence-game-climb{
-    order:3;
-    width:100%;
-    min-width:0;
-    max-width:none;
-    height:116px;
-  }
-
-  .sentence-game-climber{
-    transform:translate(calc(var(--x) - 20px), calc(var(--y) - 58px));
-  }
-
-  .sentence-game-climber-image{
-    width:46px;
-  }
-
-  .sentence-game-reward-icon{
-    left:34px;
-    top:18px;
-    width:21px;
-    height:21px;
-  }
-
   .sentence-game-title-row h2{
     font-size:24px;
   }
 
-  .sentence-game-reward-image{
-    width:48px;
-    height:48px;
-  }
-
-  .sentence-game-title-actions{
-    width:100%;
-    align-items:flex-start;
-  }
 }
 
 
