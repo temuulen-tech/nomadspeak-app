@@ -163,53 +163,13 @@
             <p class="sentence-game-subtitle">Үгсийг зөв дараалалд оруулаарай</p>
           </div>
         </div>
-        <div class="sentence-game-climb" id="sentence-game-climb" aria-live="polite" aria-label="Mountain climb progress level 0 of 5">
-          <svg class="sentence-game-climb-svg" viewBox="0 0 420 130" role="img" aria-hidden="true" focusable="false">
-            <defs>
-              <linearGradient id="mountainFillPremium" x1="10%" y1="10%" x2="90%" y2="100%">
-                <stop offset="0%" stop-color="#34c8b8" />
-                <stop offset="58%" stop-color="#1f867d" />
-                <stop offset="100%" stop-color="#15584d" />
-              </linearGradient>
-              <linearGradient id="mountainStrokeGold" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#ffe8aa" />
-                <stop offset="54%" stop-color="#ffd16c" />
-                <stop offset="100%" stop-color="#b9852e" />
-              </linearGradient>
-              <filter id="mountainGlow" x="-20%" y="-40%" width="140%" height="180%">
-                <feGaussianBlur stdDeviation="3" result="blur" />
-                <feMerge>
-                  <feMergeNode in="blur" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-            <g class="sentence-game-sparkles" opacity="0.26">
-              <circle cx="26" cy="28" r="1.8" />
-              <circle cx="62" cy="18" r="1.5" />
-              <circle cx="96" cy="42" r="1.7" />
-              <circle cx="147" cy="24" r="1.4" />
-              <circle cx="182" cy="16" r="1.6" />
-              <circle cx="244" cy="30" r="1.8" />
-              <circle cx="278" cy="16" r="1.5" />
-              <circle cx="332" cy="24" r="1.7" />
-              <circle cx="372" cy="36" r="1.4" />
-              <path d="M212 18l1.7 3.4 3.7.5-2.7 2.6.6 3.7-3.3-1.8-3.3 1.8.6-3.7-2.7-2.6 3.7-.5z" />
-              <path d="M352 12l1.2 2.4 2.6.4-1.9 1.8.5 2.6-2.4-1.3-2.3 1.3.4-2.6-1.8-1.8 2.6-.4z" />
-            </g>
-            <path class="sentence-game-mountain-base" d="M14 114 L14 102 L62 88 L96 101 L138 72 L169 95 L208 57 L242 82 L286 38 L316 67 L362 20 L392 114 Z" />
-            <path class="sentence-game-mountain-path" d="M14 102 L62 88 L96 101 L138 72 L169 95 L208 57 L242 82 L286 38 L316 67 L362 20" />
-            <g class="sentence-game-peaks">
-              <circle class="sentence-game-peak" data-peak="1" cx="62" cy="88" r="5.5" />
-              <circle class="sentence-game-peak" data-peak="2" cx="138" cy="72" r="5.5" />
-              <circle class="sentence-game-peak" data-peak="3" cx="208" cy="57" r="5.5" />
-              <circle class="sentence-game-peak" data-peak="4" cx="286" cy="38" r="5.5" />
-              <circle class="sentence-game-peak" data-peak="5" cx="362" cy="20" r="6" />
-            </g>
-          </svg>
-          <div class="sentence-game-climber" id="sentence-game-climber">
-            <img class="sentence-game-climber-image" src="assets/climber.png" alt="Climber progress marker" />
-            <span class="sentence-game-reward-icon" id="sentence-game-reward-icon" aria-hidden="true"></span>
+        <div class="sentence-game-reward-middle" id="sentence-game-reward-middle">
+          <div class="sentence-game-reward-row" id="sentence-game-reward-row" aria-label="Reward unlock progress">
+            <img class="sentence-game-reward-image" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
+            <img class="sentence-game-reward-image" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
+            <img class="sentence-game-reward-image" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
+            <img class="sentence-game-reward-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
+            <img class="sentence-game-reward-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
           </div>
         </div>
         <div class="sentence-game-title-actions" aria-label="Sentence game quick actions">
@@ -218,13 +178,6 @@
         </div>
       </div>
       <div class="sentence-game-reward-banner hidden" id="sentence-game-reward-banner" role="status" aria-live="polite"></div>
-      <div class="sentence-game-reward-row" id="sentence-game-reward-row" aria-label="Reward unlock progress">
-        <img class="sentence-game-reward-image" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
-        <img class="sentence-game-reward-image" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
-        <img class="sentence-game-reward-image" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
-        <img class="sentence-game-reward-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
-        <img class="sentence-game-reward-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
-      </div>
       <p class="sentence-game-active-time" id="sentence-game-active-time">Тоглосон хугацаа: 00:00</p>
       <div class="sentence-game-tip-panel hidden" id="sentence-game-tip-panel">
         <div class="sentence-game-tip-actions">
