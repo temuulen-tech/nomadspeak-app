@@ -103,6 +103,9 @@ const sentenceGameTipCloseBtn = document.getElementById("sentence-game-tip-close
 const sentenceGameClimbEl = document.getElementById("sentence-game-climb");
 const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
 const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
+const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
+const sentenceGameRewardTimeEl = document.getElementById("sentence-game-active-time");
+const sentenceGameRewardImageEls = document.querySelectorAll(".sentence-game-reward-image");
 const completionBannerEl = document.getElementById("completion-banner");
 const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
 const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
@@ -145,6 +148,12 @@ let sentenceGameClimbLevel = 0;
 let sentenceGameLastRenderedClimbLevel = 0;
 let sentenceGamePeakPulseTimer = null;
 let sentenceGameAttemptResolved = false;
+let sentenceGameActiveSeconds = 0;
+let sentenceGameRewardLevel = 0;
+let sentenceGameLastActivityAt = 0;
+let sentenceGameLastTick = 0;
+let sentenceGameActiveTimer = null;
+let sentenceGameRewardBannerTimer = null;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
@@ -157,6 +166,18 @@ const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, �
 const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлээд байна аа, Андаа.";
 const SENTENCE_GAME_DEBUG = false;
 const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
+const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
+const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
+const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
+const SENTENCE_GAME_IDLE_TIMEOUT_SECONDS = 60;
+const SENTENCE_GAME_REWARD_THRESHOLDS = [1200, 1800, 3000, 3600, 5400];
+const SENTENCE_GAME_REWARD_BANNERS = [
+  "🏳️ Эхлэл амжилттай!",
+  "⭐ Улаан одын Эзэн",
+  "🪙 Алтан зоос Чинийх",
+  "🏆 Алтан цомын Эзэн",
+  "💎 Алмөөз эрдэнэ Чинийх",
+];
 const SENTENCE_GAME_CLIMB_POSITIONS = [
   { x: 14, y: 102 },
   { x: 62, y: 88 },
@@ -559,6 +580,8 @@ function isQuizInProgress() {
 }
 
 function showScreen(screen) {
+  const wasSentenceGameVisible = sentenceGameScreenVisible();
+
   hide(startScreen);
   hide(quizScreen);
   hide(sentencesScreen);
@@ -571,6 +594,14 @@ function showScreen(screen) {
     show(topbar);
   } else {
     hide(topbar);
+  }
+
+  if (screen === sentenceGameScreen && !wasSentenceGameVisible) {
+    beginSentenceGameSession();
+  }
+
+  if (screen !== sentenceGameScreen && wasSentenceGameVisible) {
+    endSentenceGameSession();
   }
 
   updateHeaderStatus();
@@ -836,6 +867,178 @@ function playSentenceGameLevelDownSound() {
   });
 }
 
+function sentenceGameRewardLevelFromSeconds(seconds = 0) {
+  let level = 0;
+  SENTENCE_GAME_REWARD_THRESHOLDS.forEach((threshold, index) => {
+    if (seconds >= threshold) level = index + 1;
+  });
+  return level;
+}
+
+function formatSecondsAsClock(totalSeconds = 0) {
+  const safe = Math.max(0, Math.floor(totalSeconds));
+  const mins = String(Math.floor(safe / 60)).padStart(2, "0");
+  const secs = String(safe % 60).padStart(2, "0");
+  return `${mins}:${secs}`;
+}
+
+function persistSentenceGameRewardState() {
+  try {
+    localStorage.setItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY, String(Math.max(0, Math.floor(sentenceGameActiveSeconds))));
+    localStorage.setItem(SENTENCE_GAME_REWARD_LEVEL_KEY, String(sentenceGameRewardLevel));
+    localStorage.setItem(SENTENCE_GAME_LAST_TICK_KEY, String(sentenceGameLastTick || Date.now()));
+  } catch (error) {
+    // noop
+  }
+}
+
+function loadSentenceGameRewardState() {
+  try {
+    const activeRaw = Number(localStorage.getItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY));
+    const rewardRaw = Number(localStorage.getItem(SENTENCE_GAME_REWARD_LEVEL_KEY));
+    const tickRaw = Number(localStorage.getItem(SENTENCE_GAME_LAST_TICK_KEY));
+
+    sentenceGameActiveSeconds = Number.isFinite(activeRaw) ? Math.max(0, Math.floor(activeRaw)) : 0;
+    sentenceGameRewardLevel = Number.isFinite(rewardRaw) ? Math.max(0, Math.min(5, Math.floor(rewardRaw))) : 0;
+    sentenceGameLastTick = Number.isFinite(tickRaw) ? tickRaw : Date.now();
+  } catch (error) {
+    sentenceGameActiveSeconds = 0;
+    sentenceGameRewardLevel = 0;
+    sentenceGameLastTick = Date.now();
+  }
+
+  const computedLevel = sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds);
+  sentenceGameRewardLevel = Math.max(sentenceGameRewardLevel, computedLevel);
+}
+
+function renderSentenceGameRewardState() {
+  sentenceGameRewardImageEls.forEach((imgEl) => {
+    const level = Number(imgEl.dataset.level || 0);
+    imgEl.classList.toggle("active", level > 0 && level === sentenceGameRewardLevel);
+  });
+
+  if (sentenceGameRewardTimeEl) {
+    sentenceGameRewardTimeEl.textContent = `Тоглосон хугацаа: ${formatSecondsAsClock(sentenceGameActiveSeconds)}`;
+  }
+}
+
+function playSentenceGameUnlockChime(level) {
+  if (!soundEnabled) return;
+  const patterns = {
+    1: [660, 792, 990],
+    2: [740, 932, 1175],
+    3: [784, 988, 1319],
+    4: [880, 1109, 1480],
+    5: [988, 1319, 1760],
+  };
+  (patterns[level] || patterns[1]).forEach((frequency, index) => {
+    setTimeout(() => {
+      playTone({ frequency, type: "triangle", duration: 0.09, volume: 0.12, attack: 0.005, release: 0.09 });
+    }, index * 86);
+  });
+}
+
+function showSentenceGameRewardBanner(level) {
+  if (!sentenceGameRewardBannerEl || level < 1 || level > 5) return;
+
+  if (sentenceGameRewardBannerTimer) {
+    clearTimeout(sentenceGameRewardBannerTimer);
+    sentenceGameRewardBannerTimer = null;
+  }
+
+  sentenceGameRewardBannerEl.textContent = SENTENCE_GAME_REWARD_BANNERS[level - 1];
+  sentenceGameRewardBannerEl.classList.remove("hidden", "hide", "show");
+  void sentenceGameRewardBannerEl.offsetWidth;
+  sentenceGameRewardBannerEl.classList.add("show");
+
+  sentenceGameRewardBannerTimer = setTimeout(() => {
+    sentenceGameRewardBannerEl.classList.remove("show");
+    sentenceGameRewardBannerEl.classList.add("hide");
+    setTimeout(() => {
+      sentenceGameRewardBannerEl.classList.add("hidden");
+      sentenceGameRewardBannerEl.classList.remove("hide");
+    }, 280);
+  }, 4300);
+
+  playSentenceGameUnlockChime(level);
+}
+
+function updateSentenceGameRewardLevel({ allowBanner = false } = {}) {
+  const nextLevel = sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds);
+  if (nextLevel > sentenceGameRewardLevel) {
+    sentenceGameRewardLevel = nextLevel;
+    renderSentenceGameRewardState();
+    persistSentenceGameRewardState();
+    if (allowBanner) showSentenceGameRewardBanner(nextLevel);
+    return;
+  }
+
+  if (nextLevel < sentenceGameRewardLevel) {
+    sentenceGameRewardLevel = nextLevel;
+  }
+
+  renderSentenceGameRewardState();
+}
+
+function flushSentenceGameActiveTimeTick() {
+  if (!sentenceGameLastActivityAt) return false;
+  const now = Date.now();
+  const elapsedSinceActivity = Math.floor((now - sentenceGameLastActivityAt) / 1000);
+  const activeSeconds = Math.max(0, Math.min(SENTENCE_GAME_IDLE_TIMEOUT_SECONDS, elapsedSinceActivity));
+  const tickBase = sentenceGameLastTick || sentenceGameLastActivityAt;
+  const elapsedFromTick = Math.max(0, Math.floor((now - tickBase) / 1000));
+  const addSeconds = Math.min(activeSeconds, elapsedFromTick);
+
+  if (addSeconds <= 0) return false;
+
+  sentenceGameActiveSeconds += addSeconds;
+  sentenceGameLastTick = now;
+  updateSentenceGameRewardLevel({ allowBanner: true });
+  persistSentenceGameRewardState();
+  renderSentenceGameRewardState();
+  return true;
+}
+
+function startSentenceGameActiveTimer() {
+  if (sentenceGameActiveTimer) return;
+  sentenceGameActiveTimer = setInterval(() => {
+    flushSentenceGameActiveTimeTick();
+  }, 1000);
+}
+
+function stopSentenceGameActiveTimer() {
+  if (!sentenceGameActiveTimer) return;
+  clearInterval(sentenceGameActiveTimer);
+  sentenceGameActiveTimer = null;
+}
+
+function sentenceGameScreenVisible() {
+  return sentenceGameScreen && !sentenceGameScreen.classList.contains("hidden");
+}
+
+function markSentenceGameActivity() {
+  if (!sentenceGameScreenVisible()) return;
+  flushSentenceGameActiveTimeTick();
+  sentenceGameLastActivityAt = Date.now();
+  sentenceGameLastTick = sentenceGameLastActivityAt;
+  persistSentenceGameRewardState();
+}
+
+function beginSentenceGameSession() {
+  sentenceGameLastActivityAt = Date.now();
+  sentenceGameLastTick = sentenceGameLastActivityAt;
+  renderSentenceGameRewardState();
+  startSentenceGameActiveTimer();
+  persistSentenceGameRewardState();
+}
+
+function endSentenceGameSession() {
+  flushSentenceGameActiveTimeTick();
+  stopSentenceGameActiveTimer();
+  sentenceGameLastTick = Date.now();
+  persistSentenceGameRewardState();
+}
+
 function updateSentenceGameClimbFromOutcome(outcome) {
   if (!outcome) return;
   const previousLevel = sentenceGameClimbLevel;
@@ -991,6 +1194,7 @@ function updateSentenceGameTipControls() {
 }
 
 function closeSentenceGameTipPanel() {
+  markSentenceGameActivity();
   if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
   stopSentenceGameTipSpeech();
   sentenceGameTipPanelEl.classList.add("hidden");
@@ -1005,6 +1209,7 @@ function closeSentenceGameTipPanel() {
 }
 
 function toggleSentenceGameTipPanel() {
+  markSentenceGameActivity();
   if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
   const willOpen = sentenceGameTipPanelEl.classList.contains("hidden");
   sentenceGameTipPanelEl.classList.toggle("hidden", !willOpen);
@@ -1017,6 +1222,7 @@ function toggleSentenceGameTipPanel() {
 }
 
 function showSentenceGameTipText() {
+  markSentenceGameActivity();
   if (sentenceGameTipTextEl) {
     sentenceGameTipTextEl.classList.remove("hidden");
   }
@@ -1026,6 +1232,7 @@ function showSentenceGameTipText() {
 }
 
 function speakSentenceGameTip() {
+  markSentenceGameActivity();
   if (!soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
   stopSentenceGameTipSpeech();
@@ -1554,6 +1761,7 @@ function renderSentenceGameCorrectPanel() {
 }
 
 function showSentenceGameCorrectAnswer() {
+  markSentenceGameActivity();
   const current = sentenceGameSentence();
   if (!current) return;
 
@@ -1582,6 +1790,7 @@ function showSentenceGameCorrectAnswer() {
 
 function placeSentenceGameTile(tileId) {
   if (!Number.isFinite(tileId) || sentenceGameBuilt.includes(tileId)) return;
+  markSentenceGameActivity();
   if (sentenceGameBuilt.length >= sentenceGameTiles.length) return;
   sentenceGameBuilt.push(tileId);
 
@@ -1601,6 +1810,7 @@ function placeSentenceGameTile(tileId) {
 }
 
 function removeSentenceGameTile(tileId) {
+  markSentenceGameActivity();
   const idx = sentenceGameBuilt.indexOf(tileId);
   if (idx === -1) return;
   sentenceGameBuilt.splice(idx, 1);
@@ -1612,6 +1822,7 @@ function removeSentenceGameTile(tileId) {
 
 function undoSentenceGameMove() {
   if (!sentenceGameBuilt.length) return;
+  markSentenceGameActivity();
   sentenceGameBuilt.pop();
   sentenceGameSuccessAlreadyShownForThisSentence = false;
   sentenceGameLastOutcomeForThisSentence = null;
@@ -1652,6 +1863,7 @@ function initSentenceGameRound() {
 }
 
 function nextSentenceGameRound() {
+  markSentenceGameActivity();
   const nextIndex = sentenceGameIndex + 1;
 
   if (nextIndex < sentenceGameHistory.length) {
@@ -1669,11 +1881,13 @@ function nextSentenceGameRound() {
 
 function prevSentenceGameRound() {
   if (sentenceGameIndex <= 0) return;
+  markSentenceGameActivity();
   sentenceGameIndex -= 1;
   initSentenceGameRound();
 }
 
 function retrySentenceGameRound() {
+  markSentenceGameActivity();
   hideSentenceGameToast();
   sentenceGameBuilt = [];
   sentenceGameCompleted = false;
@@ -1798,6 +2012,9 @@ updateSoundToggleState();
 ensureAudioUnlocked();
 loadSentenceGameClimbLevel();
 renderSentenceGameClimb(sentenceGameClimbLevel);
+loadSentenceGameRewardState();
+updateSentenceGameRewardLevel({ allowBanner: false });
+persistSentenceGameRewardState();
 loadProgressState();
 updateHeaderStatus();
 persistProgressState();
@@ -1912,6 +2129,21 @@ if (sentenceGamePrevBtn) {
   sentenceGamePrevBtn.addEventListener("click", prevSentenceGameRound);
 }
 sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    endSentenceGameSession();
+    return;
+  }
+
+  if (sentenceGameScreenVisible()) {
+    beginSentenceGameSession();
+  }
+});
+
+window.addEventListener("pagehide", () => {
+  endSentenceGameSession();
+});
 
 if ("speechSynthesis" in window) {
   loadVoices();
