@@ -130,6 +130,15 @@ const profileStreakDaysEl = document.getElementById("profile-streak-days");
 const profileDailyProgressEl = document.getElementById("profile-daily-progress");
 const profileRewardStageEl = document.getElementById("profile-reward-stage");
 const profilePlanStatusEl = document.getElementById("profile-plan-status");
+const statsTotalXpEl = document.getElementById("stats-total-xp");
+const statsLevelEl = document.getElementById("stats-level");
+const statsStreakEl = document.getElementById("stats-streak");
+const statsTodayProgressEl = document.getElementById("stats-today-progress");
+const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
+const weeklyChartEl = document.getElementById("weekly-chart");
+const statsRewardTierLabelEl = document.getElementById("stats-reward-tier-label");
+const statsRewardImageEls = document.querySelectorAll(".stats-reward-image");
+const statsResetBtn = document.getElementById("stats-reset-btn");
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 
@@ -233,11 +242,20 @@ let isPremium = false;
 let profileName = "";
 
 let progressState = {
-  xpTotal: 0,
+  xp: 35,
   level: 1,
-  streakDays: 0,
+  streak: 1,
   lastActiveDate: null,
+  lastStatsDate: null,
   dailyGoalXP: DEFAULT_DAILY_GOAL,
+  dailyGoalCount: 10,
+  todayCount: 2,
+  todayMinutes: 8,
+  todaySecondsRemainder: 0,
+  weeklyMinutes: [12, 18, 9, 16, 20, 11, 8],
+  rewardTierUnlocked: 1,
+  xpTotal: 35,
+  streakDays: 1,
   dailyXP: 0,
   dailyCompleted: false,
 };
@@ -322,16 +340,38 @@ function normalizeProgressState(raw = {}) {
   const configuredDailyGoal = Number.isFinite(Number(raw.dailyGoalXP)) && Number(raw.dailyGoalXP) > 0
     ? Math.floor(Number(raw.dailyGoalXP))
     : DEFAULT_DAILY_GOAL;
-
-  const xpTotal = Number.isFinite(Number(raw.xpTotal)) ? Math.max(0, Number(raw.xpTotal)) : 0;
-  const level = Math.floor(xpTotal / 100) + 1;
-
+  const xp = Number.isFinite(Number(raw.xp))
+    ? Math.max(0, Math.floor(Number(raw.xp)))
+    : (Number.isFinite(Number(raw.xpTotal)) ? Math.max(0, Math.floor(Number(raw.xpTotal))) : 35);
+  const streak = Number.isFinite(Number(raw.streak))
+    ? Math.max(0, Math.floor(Number(raw.streak)))
+    : (Number.isFinite(Number(raw.streakDays)) ? Math.max(0, Math.floor(Number(raw.streakDays))) : 1);
+  const todayCount = Number.isFinite(Number(raw.todayCount)) ? Math.max(0, Math.floor(Number(raw.todayCount))) : 2;
+  const todayMinutes = Number.isFinite(Number(raw.todayMinutes)) ? Math.max(0, Math.floor(Number(raw.todayMinutes))) : 8;
+  const todaySecondsRemainder = Number.isFinite(Number(raw.todaySecondsRemainder)) ? Math.max(0, Math.floor(Number(raw.todaySecondsRemainder))) : 0;
+  const weeklyRaw = Array.isArray(raw.weeklyMinutes) ? raw.weeklyMinutes : [];
+  const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
+    const source = weeklyRaw[index];
+    const fallback = [12, 18, 9, 16, 20, 11, todayMinutes][index];
+    return Number.isFinite(Number(source)) ? Math.max(0, Math.floor(Number(source))) : fallback;
+  });
+  const rewardTierUnlocked = Number.isFinite(Number(raw.rewardTierUnlocked)) ? Math.max(1, Math.min(5, Math.floor(Number(raw.rewardTierUnlocked)))) : 1;
+  const level = Math.floor(xp / 100) + 1;
   return {
-    xpTotal,
+    xp,
     level,
-    streakDays: Number.isFinite(Number(raw.streakDays)) ? Math.max(0, Math.floor(Number(raw.streakDays))) : 0,
+    streak,
     lastActiveDate: typeof raw.lastActiveDate === "string" ? raw.lastActiveDate : null,
+    lastStatsDate: typeof raw.lastStatsDate === "string" ? raw.lastStatsDate : null,
     dailyGoalXP: configuredDailyGoal,
+    dailyGoalCount: Number.isFinite(Number(raw.dailyGoalCount)) && Number(raw.dailyGoalCount) > 0 ? Math.floor(Number(raw.dailyGoalCount)) : 10,
+    todayCount,
+    todayMinutes,
+    todaySecondsRemainder,
+    weeklyMinutes,
+    rewardTierUnlocked,
+    xpTotal: xp,
+    streakDays: streak,
     dailyXP: Number.isFinite(Number(raw.dailyXP)) ? Math.max(0, Number(raw.dailyXP)) : 0,
     dailyCompleted: Boolean(raw.dailyCompleted),
   };
@@ -339,20 +379,33 @@ function normalizeProgressState(raw = {}) {
 
 function syncProgressForToday() {
   const today = getTodayKey();
-  const lastActive = progressState.lastActiveDate;
-  if (!lastActive || lastActive === today) return;
-
+  const lastStatsDate = progressState.lastStatsDate || progressState.lastActiveDate;
+  if (!lastStatsDate || lastStatsDate === today) return;
   const yesterday = previousDayKey(today);
-  if (lastActive !== yesterday) {
+  if (progressState.lastActiveDate !== yesterday) {
+    progressState.streak = 0;
     progressState.streakDays = 0;
   }
-
+  const weekly = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice(-7) : [0, 0, 0, 0, 0, 0, 0];
+  while (weekly.length < 7) weekly.unshift(0);
+  weekly.shift();
+  weekly.push(Math.max(0, Math.floor(progressState.todayMinutes || 0)));
+  progressState.weeklyMinutes = weekly;
+  progressState.todayCount = 0;
+  progressState.todayMinutes = 0;
+  progressState.todaySecondsRemainder = 0;
   progressState.dailyXP = 0;
   progressState.dailyCompleted = false;
+  progressState.lastStatsDate = today;
 }
 
 function persistProgressState() {
-  progressState.level = Math.floor(progressState.xpTotal / 100) + 1;
+  progressState.xpTotal = progressState.xp;
+  progressState.streakDays = progressState.streak;
+  progressState.level = Math.floor(progressState.xp / 100) + 1;
+  if (Array.isArray(progressState.weeklyMinutes) && progressState.weeklyMinutes.length) {
+    progressState.weeklyMinutes[progressState.weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
+  }
   localStorage.setItem(PROGRESS_SETTINGS_KEY, JSON.stringify(progressState));
 }
 
@@ -426,11 +479,11 @@ function updateProfileUI() {
   syncProgressForToday();
   if (profileNameInput) profileNameInput.value = profileName;
   if (profileNameSaved) profileNameSaved.textContent = `Хадгалагдсан нэр: ${profileName || "—"}`;
-  if (profileTotalXpEl) profileTotalXpEl.textContent = String(progressState.xpTotal);
+  if (profileTotalXpEl) profileTotalXpEl.textContent = String(progressState.xp);
   if (profileLevelEl) profileLevelEl.textContent = String(progressState.level);
-  if (profileStreakDaysEl) profileStreakDaysEl.textContent = `${progressState.streakDays} өдөр`;
-  if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.dailyXP}/${progressState.dailyGoalXP} XP`;
-  if (profileRewardStageEl) profileRewardStageEl.textContent = rewardForStreak(progressState.streakDays);
+  if (profileStreakDaysEl) profileStreakDaysEl.textContent = `${progressState.streak} өдөр`;
+  if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
+  if (profileRewardStageEl) profileRewardStageEl.textContent = `Tier ${progressState.rewardTierUnlocked}`;
   if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${isPremium ? "Premium" : "Free"}`;
 }
 
@@ -459,9 +512,10 @@ function awardXP(amount, reason = "") {
   const yesterday = previousDayKey(today);
   const firstActivityToday = progressState.lastActiveDate !== today;
 
-  progressState.xpTotal += earned;
+  progressState.xp += earned;
+  progressState.xpTotal = progressState.xp;
   progressState.dailyXP += earned;
-  progressState.level = Math.floor(progressState.xpTotal / 100) + 1;
+  progressState.level = Math.floor(progressState.xp / 100) + 1;
 
   const wasDailyCompleted = progressState.dailyCompleted;
   if (progressState.dailyXP >= progressState.dailyGoalXP) {
@@ -470,28 +524,97 @@ function awardXP(amount, reason = "") {
   }
 
   if (firstActivityToday) {
-    progressState.streakDays = progressState.lastActiveDate === yesterday
-      ? progressState.streakDays + 1
+    progressState.streak = progressState.lastActiveDate === yesterday
+      ? progressState.streak + 1
       : 1;
+    progressState.streakDays = progressState.streak;
+  }
+
+  if (reason === "sentence_game_success") {
+    progressState.todayCount += 1;
+  }
+
+  if (reason.startsWith("sentence_game")) {
+    const rewardFromTime = sentenceGameRewardLevelFromSeconds((progressState.todayMinutes || 0) * 60);
+    progressState.rewardTierUnlocked = Math.max(progressState.rewardTierUnlocked || 1, rewardFromTime || 1);
   }
 
   progressState.lastActiveDate = today;
+  progressState.lastStatsDate = today;
   persistProgressState();
   updateHeaderStatus();
+  updateStatsUI();
 
   if (SENTENCE_GAME_DEBUG) {
     console.log("[Progress] awardXP", { amount: earned, reason, ...progressState });
   }
 }
 
+function formatLast7DayLabels() {
+  const names = ["Ня", "Да", "Мя", "Лх", "Пү", "Ба", "Бя"];
+  return Array.from({ length: 7 }, (_, index) => {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - (6 - index));
+    return names[dt.getDay()];
+  });
+}
+
+function updateStatsUI() {
+  loadProgressState();
+  syncProgressForToday();
+
+  if (statsTotalXpEl) statsTotalXpEl.textContent = String(progressState.xp);
+  if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
+  if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
+  if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
+  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = `${progressState.todayMinutes} минут`;
+  if (statsRewardTierLabelEl) statsRewardTierLabelEl.textContent = `Одоогийн түвшин: ${progressState.rewardTierUnlocked}`;
+
+  statsRewardImageEls.forEach((imgEl) => {
+    const tier = Number(imgEl.dataset.tier || 0);
+    imgEl.classList.toggle("active", tier === progressState.rewardTierUnlocked);
+  });
+
+  if (weeklyChartEl) {
+    const labels = formatLast7DayLabels();
+    const values = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice(-7) : [0, 0, 0, 0, 0, 0, 0];
+    const max = Math.max(1, ...values);
+    weeklyChartEl.innerHTML = values.map((value, index) => {
+      const height = Math.max(8, Math.round((value / max) * 100));
+      return `<div class="weekly-bar-wrap"><div class="weekly-bar" style="height:${height}%"></div><span class="weekly-value">${value}</span><span class="weekly-label">${labels[index]}</span></div>`;
+    }).join("");
+  }
+
+  persistProgressState();
+}
+
+function resetStatistics() {
+  progressState = normalizeProgressState({
+    xp: 0,
+    streak: 0,
+    todayCount: 0,
+    todayMinutes: 0,
+    weeklyMinutes: [0, 0, 0, 0, 0, 0, 0],
+    rewardTierUnlocked: 1,
+    dailyGoalCount: 10,
+    dailyGoalXP: DEFAULT_DAILY_GOAL,
+    dailyXP: 0,
+    lastActiveDate: null,
+    lastStatsDate: getTodayKey(),
+  });
+  persistProgressState();
+  updateHeaderStatus();
+  updateProfileUI();
+  updateStatsUI();
+}
+
 function updateHeaderStatus() {
   loadProgressState();
   syncProgressForToday();
-  statusXpEl.textContent = `⭐ XP: ${progressState.xpTotal}`;
-  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streakDays} өдөр`;
-  const todayLimit = isPremium ? progressState.dailyGoalXP : FREE_DAILY_XP_LIMIT;
-  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.dailyXP}/${todayLimit}`;
-  statusRewardEl.textContent = `Lv.${progressState.level} • ${rewardForStreak(progressState.streakDays)}`;
+  statusXpEl.textContent = `⭐ XP: ${progressState.xp}`;
+  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streak} өдөр`;
+  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayCount}/${progressState.dailyGoalCount}`;
+  statusRewardEl.textContent = `Lv.${progressState.level} • Tier ${progressState.rewardTierUnlocked}`;
 }
 
 function clearBannerEffects() {
@@ -768,6 +891,7 @@ function navigateTo(destination) {
   if (destination === "stats") {
     stopSpeaking();
     showScreen(statsScreen);
+    updateStatsUI();
   }
 
   if (destination === "profile") {
@@ -1147,9 +1271,24 @@ function flushSentenceGameActiveTimeTick() {
 
   sentenceGameActiveSeconds += addSeconds;
   sentenceGameLastTick = now;
+
+  loadProgressState();
+  syncProgressForToday();
+  progressState.todaySecondsRemainder = (progressState.todaySecondsRemainder || 0) + addSeconds;
+  if (progressState.todaySecondsRemainder >= 60) {
+    const gainedMinutes = Math.floor(progressState.todaySecondsRemainder / 60);
+    progressState.todayMinutes += gainedMinutes;
+    progressState.todaySecondsRemainder = progressState.todaySecondsRemainder % 60;
+  }
+  progressState.rewardTierUnlocked = Math.max(progressState.rewardTierUnlocked || 1, sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds) || 1);
+  progressState.lastStatsDate = getTodayKey();
+  persistProgressState();
+
   updateSentenceGameRewardLevel({ allowBanner: true });
   persistSentenceGameRewardState();
   renderSentenceGameRewardState();
+  updateHeaderStatus();
+  if (!statsScreen.classList.contains("hidden")) updateStatsUI();
   return true;
 }
 
@@ -2175,6 +2314,7 @@ loadProfileName();
 loadProgressState();
 updateHeaderStatus();
 updateProfileUI();
+updateStatsUI();
 persistPremiumStatus();
 persistProgressState();
 
@@ -2331,6 +2471,10 @@ if (upgradePremiumBtn) {
   upgradePremiumBtn.addEventListener("click", () => {
     openPremiumModal("Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)");
   });
+}
+
+if (statsResetBtn) {
+  statsResetBtn.addEventListener("click", resetStatistics);
 }
 
 if (premiumOkBtn) {

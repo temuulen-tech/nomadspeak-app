@@ -246,7 +246,53 @@
         <h2>Статистик</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
-      <p class="muted">Өдрийн ахиц болон үр дүн энд харагдана.</p>
+      <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
+
+      <div class="stats-grid">
+        <article class="stats-card">
+          <p class="stats-label">⭐ Нийт XP</p>
+          <p class="stats-value" id="stats-total-xp">0</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">📈 Түвшин</p>
+          <p class="stats-value" id="stats-level">Lv.1</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">🔥 Цуврал</p>
+          <p class="stats-value" id="stats-streak">0 өдөр</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">📅 Өнөөдрийн ахиц</p>
+          <p class="stats-value" id="stats-today-progress">0/10</p>
+        </article>
+        <article class="stats-card stats-card-wide">
+          <p class="stats-label">⏱️ Өнөөдөр тоглосон хугацаа</p>
+          <p class="stats-value" id="stats-today-minutes">0 минут</p>
+        </article>
+      </div>
+
+      <article class="stats-panel">
+        <div class="stats-panel-header">
+          <h3>7 хоногийн идэвх (мин)</h3>
+        </div>
+        <div class="weekly-chart" id="weekly-chart" aria-label="Last 7 days activity chart"></div>
+      </article>
+
+      <article class="stats-panel">
+        <div class="stats-panel-header">
+          <h3>Sentence Game шагналын түвшин</h3>
+          <p class="muted" id="stats-reward-tier-label">Одоогийн түвшин: 1</p>
+        </div>
+        <div class="stats-reward-row" id="stats-reward-row" aria-label="Reward tiers">
+          <img class="stats-reward-image" data-tier="1" src="assets/rewards/1-flag.png" alt="Tier 1 reward flag" />
+          <img class="stats-reward-image" data-tier="2" src="assets/rewards/2-star.png" alt="Tier 2 reward star" />
+          <img class="stats-reward-image" data-tier="3" src="assets/rewards/3-coin.png" alt="Tier 3 reward coin" />
+          <img class="stats-reward-image" data-tier="4" src="assets/rewards/4-trophy.png" alt="Tier 4 reward trophy" />
+          <img class="stats-reward-image" data-tier="5" src="assets/rewards/5-diamond.png" alt="Tier 5 reward diamond" />
+        </div>
+      </article>
+
+      <button class="secondary" id="stats-reset-btn" type="button">Reset статистик</button>
     </section>
 
     <!-- PROFILE SCREEN -->
