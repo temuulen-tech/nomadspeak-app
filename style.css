@@ -592,6 +592,7 @@ body{
   display:inline-block;
   align-self:flex-start;
   flex-shrink:0;
+  width:220px;
 }
 
 #start-btn{
@@ -649,7 +650,7 @@ body{
 
 .question-header-row{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   gap:12px;
   margin:6px 0 16px;
 }
@@ -657,7 +658,19 @@ body{
 .question-text-wrap{
   flex:1;
   text-align:center;
-  margin-left:18px;
+  margin:0;
+}
+
+.question-header-spacer{
+  width:220px;
+  flex:0 0 220px;
+}
+
+.lesson-time-meta{
+  margin-top:8px;
+  display:flex;
+  flex-direction:column;
+  gap:2px;
 }
 
 .question{
@@ -1554,6 +1567,12 @@ body{
   transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease, opacity .24s ease, filter .24s ease;
 }
 
+
+#quiz-screen .sentence-game-reward-row .reward-img,
+#quiz-screen .sentence-game-reward-row .sentence-game-reward-image{
+  width:clamp(102px, 11.8vw, 148px);
+  height:clamp(102px, 11.8vw, 148px);
+}
 .reward-label{
   position:absolute;
   top:0;
@@ -1907,11 +1926,16 @@ body{
   #sentence-game-screen .sentence-game-reward-row .reward-img,
   #sentence-game-screen .sentence-game-reward-row .sentence-game-reward-image,
   #qa-game-screen .sentence-game-reward-row .reward-img,
-  #qa-game-screen .sentence-game-reward-row .sentence-game-reward-image,
-  #quiz-screen .sentence-game-reward-row .reward-img,
-  #quiz-screen .sentence-game-reward-row .sentence-game-reward-image{
+  #qa-game-screen .sentence-game-reward-row .sentence-game-reward-image{
     width:clamp(76px, 6.8vw, 96px);
     height:clamp(76px, 6.8vw, 96px);
+    object-fit:contain;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-img,
+  #quiz-screen .sentence-game-reward-row .sentence-game-reward-image{
+    width:clamp(88px, 7.6vw, 112px);
+    height:clamp(88px, 7.6vw, 112px);
     object-fit:contain;
   }
 }
@@ -2089,7 +2113,11 @@ body{
 
   .question-text-wrap{
     width:100%;
-    margin-left:0;
+    margin:0;
+  }
+
+  .question-header-spacer{
+    display:none;
   }
 
   .start-level-picker{
@@ -2359,7 +2387,7 @@ body{
   align-items:center;
 }
 .qa-timer,.qa-next-reward{margin:4px 0; font-weight:600;}
-.lesson-timer,.lesson-next-reward{font-size:14px;}
+.lesson-time-meta .lesson-timer,.lesson-time-meta .lesson-next-reward{font-size:14px; margin:0;}
 
 .qa-level-picker{margin:12px 0;}
 .qa-level-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
