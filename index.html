@@ -59,6 +59,7 @@
 
           <div class="header-nav" aria-label="Үндсэн навигаци">
             <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
+            <button class="secondary nav-btn" id="nav-lesson-btn" type="button">Хичээл</button>
             <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
             <button class="secondary nav-btn" id="nav-sentence-game-btn" type="button">Өгүүлбэрийн тоглоом</button>
             <button class="secondary nav-btn" id="nav-qa-game-btn" type="button">АСУУЛТ, ХАРИУЛТ БҮТЭЭХ ТОГЛООМ</button>
@@ -98,10 +99,22 @@
         </div>
       </div>
 
-      <div class="start-main-actions">
+      <div class="start-intro-panel hidden" id="intro-panel">
+        <div class="start-intro-panel-head">
+          <strong>Танилцуулга</strong>
+          <button class="secondary" id="intro-close-btn" type="button">Хаах</button>
+        </div>
+        <p class="muted">Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
+      </div>
+    </section>
+
+    <!-- QUIZ SCREEN -->
+    <section class="card hidden" id="quiz-screen">
+      <div class="panel-header">
+        <h2>Хичээл</h2>
         <div class="start-level-picker">
           <button
-            class="primary"
+            class="secondary"
             id="start-btn"
             type="button"
             aria-haspopup="true"
@@ -114,26 +127,9 @@
             <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
           </div>
         </div>
-      </div>
-
-      <div class="start-intro-panel hidden" id="intro-panel">
-        <div class="start-intro-panel-head">
-          <strong>Танилцуулга</strong>
-          <button class="secondary" id="intro-close-btn" type="button">Хаах</button>
-        </div>
-        <p class="muted">Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
-      </div>
-
-      <div id="start-lesson-area" class="hidden"></div>
-    </section>
-
-    <!-- QUIZ SCREEN -->
-    <section class="card hidden" id="quiz-screen">
-      <div class="panel-header">
-        <h2>Асуулт хариулт</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
-      <h2 class="question" id="question">Асуулт</h2>
+      <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
 
       <div class="options" id="options"></div>
 

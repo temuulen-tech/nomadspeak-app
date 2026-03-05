@@ -64,8 +64,10 @@ const introCloseBtn = document.getElementById("intro-close-btn");
 const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const backBtn = document.getElementById("back-btn");
+const finalTextEl = document.getElementById("final-text");
 
 const navHomeBtn = document.getElementById("nav-home-btn");
+const navLessonBtn = document.getElementById("nav-lesson-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
 const navQaGameBtn = document.getElementById("nav-qa-game-btn");
@@ -77,7 +79,6 @@ const confirmYesBtn = document.getElementById("confirm-yes-btn");
 const confirmNoBtn = document.getElementById("confirm-no-btn");
 
 const startLevelDropdown = document.getElementById("start-level-dropdown");
-const startLessonArea = document.getElementById("start-lesson-area");
 const startLevelPicker = document.querySelector(".start-level-picker");
 const startLevelOptions = document.querySelectorAll(".start-level-option");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
@@ -918,7 +919,7 @@ function getAllAnswersExcept(correct) {
 }
 
 function isQuizInProgress() {
-  return !quizScreen.classList.contains("hidden");
+  return !quizScreen.classList.contains("hidden") && questions.length > 0 && currentIndex < questions.length;
 }
 
 function showScreen(screen) {
@@ -936,22 +937,10 @@ function showScreen(screen) {
   hide(endScreen);
   show(screen);
 
-  if (screen === startScreen && questions.length) {
-    show(topbar);
-  } else if (screen === quizScreen) {
+  if (screen === quizScreen && questions.length) {
     show(topbar);
   } else {
     hide(topbar);
-  }
-
-  if (screen === startScreen) {
-    if (questions.length) {
-      restoreStartLessonState();
-    } else {
-      setStartLessonVisible(false);
-    }
-  } else {
-    setStartLessonVisible(false);
   }
 
   if (screen === profileScreen) {
@@ -992,6 +981,18 @@ function navigateTo(destination) {
     stopSpeaking();
     hideStartIntroPanel();
     showScreen(startScreen);
+  }
+
+  if (destination === "lesson") {
+    stopSpeaking();
+    hideStartIntroPanel();
+    setStartLevelMenuOpen(false);
+    showScreen(quizScreen);
+    if (!questions.length) {
+      questionEl.textContent = "Түвшин сонгоод хичээлээ эхлүүлнэ үү.";
+      optionsEl.innerHTML = "";
+      hide(resultEl);
+    }
   }
 
   if (destination === "sentences") {
@@ -1062,48 +1063,6 @@ function toggleStartIntroPanel() {
   const willOpen = introPanel.classList.contains("hidden");
   introPanel.classList.toggle("hidden", !willOpen);
   introToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
-}
-
-function ensureStartLessonLayout() {
-  if (!startLessonArea) return;
-  if (!startLessonArea.querySelector(".start-lesson-card")) {
-    startLessonArea.innerHTML = `
-      <section class="card start-lesson-card">
-        <h2 class="question" id="start-question">Асуулт</h2>
-        <div class="options" id="start-options"></div>
-        <div class="result hidden" id="start-result"></div>
-        <div class="actions">
-          <button class="secondary hidden" id="start-next-btn" type="button">Дараагийн асуулт</button>
-        </div>
-      </section>
-    `;
-  }
-
-  questionEl = document.getElementById("start-question");
-  optionsEl = document.getElementById("start-options");
-  resultEl = document.getElementById("start-result");
-  const startNextBtn = document.getElementById("start-next-btn");
-  if (startNextBtn && !startNextBtn.dataset.bound) {
-    startNextBtn.addEventListener("click", nextQuestion);
-    startNextBtn.dataset.bound = "true";
-  }
-}
-
-function setStartLessonVisible(isVisible) {
-  if (!startLessonArea || !startScreen) return;
-  startLessonArea.classList.toggle("hidden", !isVisible);
-  startScreen.classList.toggle("start-lesson-active", isVisible);
-}
-
-function restoreStartLessonState() {
-  if (!questions.length || !startLessonArea) return;
-  ensureStartLessonLayout();
-  setStartLessonVisible(true);
-  if (currentIndex < questions.length) {
-    renderQuestion();
-    return;
-  }
-  endQuiz();
 }
 
 function loadSoundSettings() {
@@ -2487,9 +2446,7 @@ function startQuiz() {
   persistProgressState();
 
   stopSpeaking();
-  showScreen(startScreen);
-  ensureStartLessonLayout();
-  setStartLessonVisible(true);
+  showScreen(quizScreen);
   renderQuestion();
 }
 
@@ -2497,8 +2454,7 @@ function renderQuestion() {
   locked = false;
   resultEl.textContent = "";
   resultEl.className = "result hidden";
-  const startNextBtn = document.getElementById("start-next-btn");
-  if (startNextBtn) hide(startNextBtn);
+  if (nextBtn) hide(nextBtn);
 
   const item = questions[currentIndex];
   questionEl.textContent = item.q;
@@ -2546,8 +2502,7 @@ function pickAnswer(buttonEl, selected) {
   }
 
   show(resultEl);
-  const startNextBtn = document.getElementById("start-next-btn");
-  if (startNextBtn) show(startNextBtn);
+  if (nextBtn) show(nextBtn);
   updateTopbar();
   updateHeaderStatus();
 }
@@ -2563,38 +2518,10 @@ function nextQuestion() {
 }
 
 function endQuiz() {
-  ensureStartLessonLayout();
-  setStartLessonVisible(true);
-  if (startLessonArea) {
-    startLessonArea.innerHTML = `
-      <section class="card start-lesson-card">
-        <div class="panel-header">
-          <h2>Дууслаа 🎉</h2>
-          <button class="secondary sound-toggle-btn" type="button" aria-pressed="${soundEnabled ? "true" : "false"}">${soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF"}</button>
-        </div>
-        <p class="muted" id="start-final-text">Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}</p>
-        <div class="end-actions">
-          <button class="primary" id="start-restart-btn" type="button">Дахин эхлэх</button>
-          <button class="secondary" id="start-back-btn" type="button">Буцаад түвшин сонгох</button>
-        </div>
-      </section>
-    `;
-
-    const startRestartBtn = document.getElementById("start-restart-btn");
-    const startBackBtn = document.getElementById("start-back-btn");
-    const inlineSoundBtn = startLessonArea.querySelector(".sound-toggle-btn");
-
-    if (startRestartBtn) startRestartBtn.addEventListener("click", startQuiz);
-    if (startBackBtn) startBackBtn.addEventListener("click", backToStart);
-    if (inlineSoundBtn) {
-      inlineSoundBtn.addEventListener("click", () => {
-        soundEnabled = !soundEnabled;
-        if (!soundEnabled) stopSpeaking();
-        updateSoundToggleState();
-        persistSoundSettings();
-      });
-    }
+  if (finalTextEl) {
+    finalTextEl.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
   }
+  showScreen(endScreen);
 
   loadProgressState();
   showCompletionBanner(progressState.dailyCompleted);
@@ -2626,7 +2553,6 @@ function backToStart() {
   setStartLevelMenuOpen(false);
   questions = [];
   currentIndex = 0;
-  setStartLessonVisible(false);
   showScreen(startScreen);
 }
 
@@ -3077,6 +3003,7 @@ soundToggleButtons.forEach(toggleBtn => {
 });
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
+if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
