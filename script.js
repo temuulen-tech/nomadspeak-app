@@ -53,9 +53,9 @@ const levelLabel = document.getElementById("level-label");
 const scoreEl = document.getElementById("score");
 const progressEl = document.getElementById("progress");
 
-const questionEl = document.getElementById("question");
-const optionsEl = document.getElementById("options");
-const resultEl = document.getElementById("result");
+let questionEl = document.getElementById("question");
+let optionsEl = document.getElementById("options");
+let resultEl = document.getElementById("result");
 
 const startBtn = document.getElementById("start-btn");
 const introToggleBtn = document.getElementById("intro-toggle-btn");
@@ -77,6 +77,7 @@ const confirmYesBtn = document.getElementById("confirm-yes-btn");
 const confirmNoBtn = document.getElementById("confirm-no-btn");
 
 const startLevelDropdown = document.getElementById("start-level-dropdown");
+const startLessonArea = document.getElementById("start-lesson-area");
 const startLevelPicker = document.querySelector(".start-level-picker");
 const startLevelOptions = document.querySelectorAll(".start-level-option");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
@@ -935,10 +936,22 @@ function showScreen(screen) {
   hide(endScreen);
   show(screen);
 
-  if (screen === quizScreen) {
+  if (screen === startScreen && questions.length) {
+    show(topbar);
+  } else if (screen === quizScreen) {
     show(topbar);
   } else {
     hide(topbar);
+  }
+
+  if (screen === startScreen) {
+    if (questions.length) {
+      restoreStartLessonState();
+    } else {
+      setStartLessonVisible(false);
+    }
+  } else {
+    setStartLessonVisible(false);
   }
 
   if (screen === profileScreen) {
@@ -1051,6 +1064,47 @@ function toggleStartIntroPanel() {
   introToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
 }
 
+function ensureStartLessonLayout() {
+  if (!startLessonArea) return;
+  if (!startLessonArea.querySelector(".start-lesson-card")) {
+    startLessonArea.innerHTML = `
+      <section class="card start-lesson-card">
+        <h2 class="question" id="start-question">Асуулт</h2>
+        <div class="options" id="start-options"></div>
+        <div class="result hidden" id="start-result"></div>
+        <div class="actions">
+          <button class="secondary hidden" id="start-next-btn" type="button">Дараагийн асуулт</button>
+        </div>
+      </section>
+    `;
+  }
+
+  questionEl = document.getElementById("start-question");
+  optionsEl = document.getElementById("start-options");
+  resultEl = document.getElementById("start-result");
+  const startNextBtn = document.getElementById("start-next-btn");
+  if (startNextBtn && !startNextBtn.dataset.bound) {
+    startNextBtn.addEventListener("click", nextQuestion);
+    startNextBtn.dataset.bound = "true";
+  }
+}
+
+function setStartLessonVisible(isVisible) {
+  if (!startLessonArea || !startScreen) return;
+  startLessonArea.classList.toggle("hidden", !isVisible);
+  startScreen.classList.toggle("start-lesson-active", isVisible);
+}
+
+function restoreStartLessonState() {
+  if (!questions.length || !startLessonArea) return;
+  ensureStartLessonLayout();
+  setStartLessonVisible(true);
+  if (currentIndex < questions.length) {
+    renderQuestion();
+    return;
+  }
+  endQuiz();
+}
 
 function loadSoundSettings() {
   try {
@@ -2433,7 +2487,9 @@ function startQuiz() {
   persistProgressState();
 
   stopSpeaking();
-  showScreen(quizScreen);
+  showScreen(startScreen);
+  ensureStartLessonLayout();
+  setStartLessonVisible(true);
   renderQuestion();
 }
 
@@ -2441,7 +2497,8 @@ function renderQuestion() {
   locked = false;
   resultEl.textContent = "";
   resultEl.className = "result hidden";
-  hide(nextBtn);
+  const startNextBtn = document.getElementById("start-next-btn");
+  if (startNextBtn) hide(startNextBtn);
 
   const item = questions[currentIndex];
   questionEl.textContent = item.q;
@@ -2468,7 +2525,7 @@ function pickAnswer(buttonEl, selected) {
   const correct = questions[currentIndex].a;
 
   // бүх товчийг disable болгох + өнгө
-  const buttons = [...document.querySelectorAll(".option")];
+  const buttons = optionsEl ? [...optionsEl.querySelectorAll(".option")] : [];
   buttons.forEach(b => {
     b.disabled = true;
     if (b.textContent === correct) b.classList.add("correct");
@@ -2489,7 +2546,8 @@ function pickAnswer(buttonEl, selected) {
   }
 
   show(resultEl);
-  show(nextBtn);
+  const startNextBtn = document.getElementById("start-next-btn");
+  if (startNextBtn) show(startNextBtn);
   updateTopbar();
   updateHeaderStatus();
 }
@@ -2505,10 +2563,38 @@ function nextQuestion() {
 }
 
 function endQuiz() {
-  showScreen(endScreen);
+  ensureStartLessonLayout();
+  setStartLessonVisible(true);
+  if (startLessonArea) {
+    startLessonArea.innerHTML = `
+      <section class="card start-lesson-card">
+        <div class="panel-header">
+          <h2>Дууслаа 🎉</h2>
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="${soundEnabled ? "true" : "false"}">${soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF"}</button>
+        </div>
+        <p class="muted" id="start-final-text">Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}</p>
+        <div class="end-actions">
+          <button class="primary" id="start-restart-btn" type="button">Дахин эхлэх</button>
+          <button class="secondary" id="start-back-btn" type="button">Буцаад түвшин сонгох</button>
+        </div>
+      </section>
+    `;
 
-  const finalText = document.getElementById("final-text");
-  finalText.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+    const startRestartBtn = document.getElementById("start-restart-btn");
+    const startBackBtn = document.getElementById("start-back-btn");
+    const inlineSoundBtn = startLessonArea.querySelector(".sound-toggle-btn");
+
+    if (startRestartBtn) startRestartBtn.addEventListener("click", startQuiz);
+    if (startBackBtn) startBackBtn.addEventListener("click", backToStart);
+    if (inlineSoundBtn) {
+      inlineSoundBtn.addEventListener("click", () => {
+        soundEnabled = !soundEnabled;
+        if (!soundEnabled) stopSpeaking();
+        updateSoundToggleState();
+        persistSoundSettings();
+      });
+    }
+  }
 
   loadProgressState();
   showCompletionBanner(progressState.dailyCompleted);
@@ -2538,6 +2624,9 @@ function backToStart() {
   stopSpeaking();
   hideStartIntroPanel();
   setStartLevelMenuOpen(false);
+  questions = [];
+  currentIndex = 0;
+  setStartLessonVisible(false);
   showScreen(startScreen);
 }
 

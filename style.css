@@ -515,6 +515,22 @@ body{
   gap:10px;
 }
 
+#start-lesson-area{
+  margin-top:14px;
+  width:100%;
+}
+
+#start-lesson-area .start-lesson-card{
+  margin:0;
+  background:rgba(4,18,27,.56);
+  border:1px solid rgba(255,255,255,.14);
+}
+
+#start-screen.start-lesson-active .start-hero,
+#start-screen.start-lesson-active #intro-panel{
+  display:none;
+}
+
 .start-intro-cta{
   display:flex;
   flex-direction:column;
