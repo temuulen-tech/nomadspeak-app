@@ -44,6 +44,7 @@ const quizScreen = document.getElementById("quiz-screen");
 const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
+const qaGameScreen = document.getElementById("qa-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
 
@@ -67,6 +68,7 @@ const backBtn = document.getElementById("back-btn");
 const navHomeBtn = document.getElementById("nav-home-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
+const navQaGameBtn = document.getElementById("nav-qa-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 const navProfileBtn = document.getElementById("nav-profile-btn");
 
@@ -138,6 +140,36 @@ const statsLevelEl = document.getElementById("stats-level");
 const statsStreakEl = document.getElementById("stats-streak");
 const statsTodayProgressEl = document.getElementById("stats-today-progress");
 const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
+
+const qaGameBackBtn = document.getElementById("qa-game-back-btn");
+const qaRewardBarEl = document.getElementById("qa-reward-bar");
+const qaTimerEl = document.getElementById("qa-timer");
+const qaNextRewardEl = document.getElementById("qa-next-reward");
+const qaToastEl = document.getElementById("qa-toast");
+const qaLevelSelectBtn = document.getElementById("qa-level-select-btn");
+const qaLevelOptionsEl = document.getElementById("qa-level-options");
+const qaLevelButtons = document.querySelectorAll("[data-qa-level]");
+const qaRoundPanelEl = document.getElementById("qa-round-panel");
+const qaToggleQuestionBtn = document.getElementById("qa-toggle-question-btn");
+const qaToggleAnswerBtn = document.getElementById("qa-toggle-answer-btn");
+const qaMnQuestionEl = document.getElementById("qa-mn-question");
+const qaMnAnswerEl = document.getElementById("qa-mn-answer");
+const qaEnQuestionWrap = document.getElementById("qa-en-question-wrap");
+const qaEnAnswerWrap = document.getElementById("qa-en-answer-wrap");
+const qaEnQuestionEl = document.getElementById("qa-en-question");
+const qaEnAnswerEl = document.getElementById("qa-en-answer");
+const qaQuestionLineEl = document.getElementById("qa-question-line");
+const qaAnswerLineEl = document.getElementById("qa-answer-line");
+const qaWordBankEl = document.getElementById("qa-word-bank");
+const qaCheckBtn = document.getElementById("qa-check-btn");
+const qaFeedbackEl = document.getElementById("qa-feedback");
+const qaShowSentencesBtn = document.getElementById("qa-show-sentences-btn");
+const qaShowHelpBtn = document.getElementById("qa-show-help-btn");
+const qaModalEl = document.getElementById("qa-modal");
+const qaModalTitleEl = document.getElementById("qa-modal-title");
+const qaModalBodyEl = document.getElementById("qa-modal-body");
+const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
+
 const weeklyChartEl = document.getElementById("weekly-chart");
 const statsRewardTierLabelEl = document.getElementById("stats-reward-tier-label");
 const statsRewardImageEls = document.querySelectorAll(".stats-reward-image");
@@ -229,6 +261,33 @@ const SENTENCE_GAME_CLIMB_POSITIONS = [
 ];
 
 const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
+
+const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
+const QA_REWARD_STEPS = [
+  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60 },
+  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60 },
+  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60 },
+  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60 },
+  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60 },
+];
+const QA_WORD_BANK_BASE = ["I","China","from","?","arrived","Where","to","yesterday","did","you","are","come","Mongolia","from","I","When","in","you","am","China","?"];
+const QA_ROUNDS = [
+  { id: "A", mnQuestion: "Чи хаанаас ирсэн бэ ?", mnAnswer: "Би Монголоос ирсэн.", enQuestion: "Where are you from ?", enAnswer: "I am from Mongolia ." },
+  { id: "B", mnQuestion: "Чи хэзээ ирсэн бэ ?", mnAnswer: "Би өчигдөр Хятадад ирсэн.", enQuestion: "When did you come to China ?", enAnswer: "I arrived in China yesterday ." },
+];
+
+let qaGameLevel = null;
+let qaRoundPool = [];
+let qaRoundIndex = 0;
+let qaBank = [];
+let qaQuestionBuilt = [];
+let qaAnswerBuilt = [];
+let qaQuestionSolved = false;
+let qaElapsedSeconds = 0;
+let qaUnlockedRewards = 0;
+let qaTimerInterval = null;
+let qaTimerStarted = false;
+let qaToastTimer = null;
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const LEGACY_TTS_RATE_KEY = "ttsRate";
@@ -850,11 +909,13 @@ function isQuizInProgress() {
 
 function showScreen(screen) {
   const wasSentenceGameVisible = sentenceGameScreenVisible();
+  const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
 
   hide(startScreen);
   hide(quizScreen);
   hide(sentencesScreen);
   hide(sentenceGameScreen);
+  hide(qaGameScreen);
   hide(statsScreen);
   hide(profileScreen);
   hide(endScreen);
@@ -876,6 +937,10 @@ function showScreen(screen) {
 
   if (screen !== sentenceGameScreen && wasSentenceGameVisible) {
     endSentenceGameSession();
+  }
+
+  if (screen !== qaGameScreen && wasQaGameVisible) {
+    stopQaTimer();
   }
 
   updateHeaderStatus();
@@ -904,6 +969,12 @@ function navigateTo(destination) {
     showScreen(sentenceGameScreen);
     initSentenceGameRound();
     enforceFreeXpGate();
+  }
+
+  if (destination === "qa-game") {
+    stopSpeaking();
+    showScreen(qaGameScreen);
+    resetQaGameScreen();
   }
 
   if (destination === "stats") {
@@ -2418,6 +2489,233 @@ function backToStart() {
   showScreen(startScreen);
 }
 
+function formatQaBuiltLine(tokens) {
+  return tokens.join(" ").replace(/\s+([?.])/g, "$1");
+}
+
+function formatQaHMS(seconds) {
+  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
+  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
+  const s = String(seconds % 60).padStart(2, "0");
+  return `${h}:${m}:${s}`;
+}
+
+function qaShuffle(array) {
+  const cloned = [...array];
+  for (let i = cloned.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
+  }
+  return cloned;
+}
+
+function getQaCurrentRound() {
+  return qaRoundPool[qaRoundIndex % qaRoundPool.length];
+}
+
+function renderQaRewards() {
+  if (!qaRewardBarEl) return;
+  qaRewardBarEl.innerHTML = QA_REWARD_STEPS.map((reward, index) => `
+    <span class="qa-reward-item ${index < qaUnlockedRewards ? "active" : ""}">${reward.icon} ${reward.label}</span>
+  `).join("");
+}
+
+function showQaToast(message) {
+  if (!qaToastEl) return;
+  qaToastEl.textContent = message;
+  qaToastEl.classList.remove("hidden");
+  qaToastEl.classList.add("show");
+  clearTimeout(qaToastTimer);
+  qaToastTimer = setTimeout(() => {
+    qaToastEl.classList.remove("show");
+    qaToastEl.classList.add("hidden");
+  }, 2200);
+}
+
+function updateQaTimerUI() {
+  if (qaTimerEl) qaTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(qaElapsedSeconds)}`;
+  const nextReward = QA_REWARD_STEPS[qaUnlockedRewards];
+  if (qaNextRewardEl) {
+    qaNextRewardEl.textContent = nextReward
+      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - qaElapsedSeconds, 0))}`
+      : "Бүх шагналыг авсан байна 🎉";
+  }
+  while (qaUnlockedRewards < QA_REWARD_STEPS.length && qaElapsedSeconds >= QA_REWARD_STEPS[qaUnlockedRewards].seconds) {
+    showQaToast(`🎉 Шагнал авлаа: ${QA_REWARD_STEPS[qaUnlockedRewards].label}`);
+    qaUnlockedRewards += 1;
+    renderQaRewards();
+  }
+}
+
+function stopQaTimer() {
+  if (qaTimerInterval) {
+    clearInterval(qaTimerInterval);
+    qaTimerInterval = null;
+  }
+}
+
+function startQaTimer() {
+  if (qaTimerStarted) return;
+  qaTimerStarted = true;
+  stopQaTimer();
+  qaTimerInterval = setInterval(() => {
+    qaElapsedSeconds += 1;
+    updateQaTimerUI();
+  }, 1000);
+}
+
+function renderQaBuilder() {
+  if (!qaQuestionLineEl || !qaAnswerLineEl || !qaWordBankEl) return;
+  const activeLine = qaQuestionSolved ? "answer" : "question";
+
+  qaQuestionLineEl.innerHTML = qaQuestionBuilt.length
+    ? qaQuestionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
+    : '<span class="qa-placeholder">Question энд үгсээ байрлуулна.</span>';
+
+  qaAnswerLineEl.innerHTML = qaAnswerBuilt.length
+    ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
+    : '<span class="qa-placeholder">Answer энд үгсээ байрлуулна.</span>';
+
+  qaAnswerLineEl.classList.toggle("locked", !qaQuestionSolved);
+
+  qaWordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
+
+  qaWordBankEl.querySelectorAll(".qa-chip").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const chipIndex = qaBank.findIndex((chip) => chip.id === btn.dataset.chipId);
+      if (chipIndex < 0) return;
+      const [chip] = qaBank.splice(chipIndex, 1);
+      if (activeLine === "question") qaQuestionBuilt.push(chip);
+      else qaAnswerBuilt.push(chip);
+      renderQaBuilder();
+      updateQaBuiltTextPreview();
+    });
+  });
+
+  [qaQuestionLineEl, qaAnswerLineEl].forEach((lineEl) => {
+    lineEl.querySelectorAll(".qa-chip.placed").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const source = btn.dataset.source;
+        const lineRef = source === "question" ? qaQuestionBuilt : qaAnswerBuilt;
+        const idx = lineRef.findIndex((chip) => chip.id === btn.dataset.chipId);
+        if (idx < 0) return;
+        const [chip] = lineRef.splice(idx, 1);
+        qaBank.push(chip);
+        renderQaBuilder();
+        updateQaBuiltTextPreview();
+      });
+    });
+  });
+}
+
+function updateQaBuiltTextPreview() {
+  if (!qaFeedbackEl) return;
+  const questionText = formatQaBuiltLine(qaQuestionBuilt.map((chip) => chip.token));
+  const answerText = formatQaBuiltLine(qaAnswerBuilt.map((chip) => chip.token));
+  qaFeedbackEl.textContent = `Q: ${questionText || "..."} | A: ${answerText || "..."}`;
+}
+
+function setupQaRound() {
+  const round = getQaCurrentRound();
+  qaQuestionSolved = false;
+  qaQuestionBuilt = [];
+  qaAnswerBuilt = [];
+  qaBank = qaShuffle(QA_WORD_BANK_BASE).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token }));
+
+  qaMnQuestionEl.textContent = round.mnQuestion;
+  qaMnAnswerEl.textContent = round.mnAnswer;
+  qaEnQuestionEl.textContent = round.enQuestion;
+  qaEnAnswerEl.textContent = round.enAnswer;
+  qaEnQuestionWrap.classList.add("hidden");
+  qaEnAnswerWrap.classList.add("hidden");
+  if (qaToggleQuestionBtn) qaToggleQuestionBtn.textContent = "Асуултыг харах";
+  if (qaToggleAnswerBtn) qaToggleAnswerBtn.textContent = "Хариултыг харах";
+
+  renderQaBuilder();
+  updateQaBuiltTextPreview();
+}
+
+function checkQaAnswer() {
+  const round = getQaCurrentRound();
+  const targetQuestion = round.enQuestion.split(" ");
+  const targetAnswer = round.enAnswer.split(" ");
+  const questionTokens = qaQuestionBuilt.map((chip) => chip.token);
+  const answerTokens = qaAnswerBuilt.map((chip) => chip.token);
+
+  if (!qaQuestionSolved) {
+    if (questionTokens.length !== targetQuestion.length) {
+      qaFeedbackEl.textContent = "Асуултын үгийн тоо дутуу/илүү байна.";
+      return;
+    }
+    const isQuestionCorrect = questionTokens.every((token, idx) => token === targetQuestion[idx]);
+    if (!isQuestionCorrect) {
+      qaFeedbackEl.textContent = "Асуулт буруу байна. Дахин оролдоорой.";
+      return;
+    }
+    qaQuestionSolved = true;
+    qaFeedbackEl.textContent = "✅ Асуулт зөв! Одоо хариултаа бүтээнэ үү.";
+    renderQaBuilder();
+    return;
+  }
+
+  if (answerTokens.length !== targetAnswer.length) {
+    qaFeedbackEl.textContent = "Хариултын үгийн тоо дутуу/илүү байна.";
+    return;
+  }
+  const isAnswerCorrect = answerTokens.every((token, idx) => token === targetAnswer[idx]);
+  if (!isAnswerCorrect) {
+    qaFeedbackEl.textContent = "Хариулт буруу байна. Дахин оролдоорой.";
+    return;
+  }
+
+  qaFeedbackEl.textContent = "🎉 Баяр хүргэе! Дараагийн тойрог...";
+  qaRoundIndex = (qaRoundIndex + 1) % qaRoundPool.length;
+  setupQaRound();
+}
+
+function openQaModal(title, htmlBody) {
+  if (!qaModalEl || !qaModalTitleEl || !qaModalBodyEl) return;
+  qaModalTitleEl.textContent = title;
+  qaModalBodyEl.innerHTML = htmlBody;
+  qaModalEl.classList.remove("hidden");
+}
+
+function closeQaModal() {
+  if (!qaModalEl) return;
+  qaModalEl.classList.add("hidden");
+}
+
+function selectQaLevel(levelKey) {
+  qaGameLevel = levelKey;
+  qaRoundPool = levelKey === "beginner" ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
+  qaRoundIndex = 0;
+  qaRoundPanelEl.classList.remove("hidden");
+  qaLevelOptionsEl.classList.add("hidden");
+  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${levelKey === "beginner" ? "Анхан" : levelKey === "intermediate" ? "Дунд" : "Дээд"}`;
+  setupQaRound();
+  startQaTimer();
+}
+
+function resetQaGameScreen() {
+  qaGameLevel = null;
+  qaRoundPool = [];
+  qaRoundIndex = 0;
+  qaBank = [];
+  qaQuestionBuilt = [];
+  qaAnswerBuilt = [];
+  qaQuestionSolved = false;
+  qaElapsedSeconds = 0;
+  qaUnlockedRewards = 0;
+  qaTimerStarted = false;
+  stopQaTimer();
+  updateQaTimerUI();
+  renderQaRewards();
+  qaRoundPanelEl.classList.add("hidden");
+  qaLevelOptionsEl.classList.add("hidden");
+  qaLevelSelectBtn.textContent = "Тоглох ангилалаа сонгоорой";
+  qaFeedbackEl.textContent = "";
+}
+
 // ---- Events ----
 loadTtsSettings();
 updateTtsControlState();
@@ -2476,6 +2774,43 @@ sentenceGameDifficultyButtons.forEach((btn) => {
 });
 
 updateSentenceGameTipControls();
+resetQaGameScreen();
+
+if (qaLevelSelectBtn) {
+  qaLevelSelectBtn.addEventListener("click", () => {
+    qaLevelOptionsEl.classList.toggle("hidden");
+  });
+}
+
+qaLevelButtons.forEach((btn) => {
+  btn.addEventListener("click", () => selectQaLevel(btn.dataset.qaLevel));
+});
+
+if (qaCheckBtn) qaCheckBtn.addEventListener("click", checkQaAnswer);
+if (qaToggleQuestionBtn) {
+  qaToggleQuestionBtn.addEventListener("click", () => {
+    const willShow = qaEnQuestionWrap.classList.contains("hidden");
+    qaEnQuestionWrap.classList.toggle("hidden", !willShow);
+    qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
+  });
+}
+if (qaToggleAnswerBtn) {
+  qaToggleAnswerBtn.addEventListener("click", () => {
+    const willShow = qaEnAnswerWrap.classList.contains("hidden");
+    qaEnAnswerWrap.classList.toggle("hidden", !willShow);
+    qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
+  });
+}
+if (qaGameBackBtn) qaGameBackBtn.addEventListener("click", () => requestNavigation("home"));
+if (qaShowSentencesBtn) {
+  qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", `<p>Where are you from ? - I am from Mongolia</p><p>Чи хэзээ ирсэн бэ ? - Би Монголоос ирсэн.</p><p>When did you come to China ? - I arrived in China yesterday.</p><p>Чи хэзээ ирсэн бэ ?  - Би өчигдөр Хятадад ирсэн.</p>`));
+}
+if (qaShowHelpBtn) {
+  qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
+}
+if (qaModalCloseBtn) qaModalCloseBtn.addEventListener("click", closeQaModal);
+if (qaModalEl) qaModalEl.addEventListener("click", (event) => { if (event.target === qaModalEl) closeQaModal(); });
+
 loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
 updateSentenceFilterActiveState();
@@ -2536,6 +2871,7 @@ soundToggleButtons.forEach(toggleBtn => {
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
+if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
 
