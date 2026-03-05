@@ -76,7 +76,8 @@ const confirmOverlay = document.getElementById("confirm-overlay");
 const confirmYesBtn = document.getElementById("confirm-yes-btn");
 const confirmNoBtn = document.getElementById("confirm-no-btn");
 
-const levelButtons = document.querySelectorAll(".level-btn");
+const startLevelMenu = document.getElementById("start-level-menu");
+const startLevelOptions = document.querySelectorAll(".start-level-option");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
@@ -2513,9 +2514,16 @@ function endQuiz() {
   updateHeaderStatus();
 }
 
+function setStartLevelMenuOpen(isOpen) {
+  if (!startLevelMenu || !startBtn) return;
+  startLevelMenu.classList.toggle("hidden", !isOpen);
+  startBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}
+
 function backToStart() {
   stopSpeaking();
   hideStartIntroPanel();
+  setStartLevelMenuOpen(false);
   showScreen(startScreen);
 }
 
@@ -2905,13 +2913,16 @@ if (qaModalEl) qaModalEl.addEventListener("click", (event) => { if (event.target
 loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
 updateSentenceFilterActiveState();
+setStartLevelMenuOpen(false);
 
-levelButtons.forEach(btn => {
+startLevelOptions.forEach((btn) => {
   btn.addEventListener("click", () => {
-    levelButtons.forEach(b => b.classList.remove("active"));
+    startLevelOptions.forEach((option) => option.classList.remove("active"));
     btn.classList.add("active");
     level = btn.dataset.level;
+    setStartLevelMenuOpen(false);
     updateHeaderStatus();
+    startQuiz();
   });
 });
 
@@ -2988,7 +2999,21 @@ if (introCloseBtn) {
   introCloseBtn.addEventListener("click", hideStartIntroPanel);
 }
 
-startBtn.addEventListener("click", startQuiz);
+if (startBtn) {
+  startBtn.addEventListener("click", () => {
+    if (!startLevelMenu) return;
+    const willOpen = startLevelMenu.classList.contains("hidden");
+    setStartLevelMenuOpen(willOpen);
+  });
+}
+
+document.addEventListener("click", (event) => {
+  if (!startLevelMenu || !startBtn) return;
+  if (startLevelMenu.classList.contains("hidden")) return;
+  if (startLevelMenu.contains(event.target) || startBtn.contains(event.target)) return;
+  setStartLevelMenuOpen(false);
+});
+
 nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
 backBtn.addEventListener("click", backToStart);
