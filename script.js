@@ -145,6 +145,9 @@ const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
 const qaTimerEl = document.getElementById("qa-timer");
 const qaNextRewardEl = document.getElementById("qa-next-reward");
+const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
+const sentencesTimerEl = document.getElementById("sentences-timer");
+const sentencesNextRewardEl = document.getElementById("sentences-next-reward");
 const qaToastEl = document.getElementById("qa-toast");
 const qaLevelSelectBtn = document.getElementById("qa-level-select-btn");
 const qaLevelOptionsEl = document.getElementById("qa-level-options");
@@ -270,6 +273,8 @@ const QA_REWARD_STEPS = [
   { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/4-trophy.png", alt: "Q&A reward trophy" },
   { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/5-diamond.png", alt: "Q&A reward diamond" },
 ];
+const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
+
 const QA_WORD_BANK_BASE = ["I","China","from","?","arrived","Where","to","yesterday","did","you","are","come","Mongolia","from","I","When","in","you","am","China","?"];
 const QA_ROUNDS = [
   { id: "A", mnQuestion: "Чи хаанаас ирсэн бэ ?", mnAnswer: "Би Монголоос ирсэн.", enQuestion: "Where are you from ?", enAnswer: "I am from Mongolia ." },
@@ -288,6 +293,10 @@ let qaUnlockedRewards = 0;
 let qaTimerInterval = null;
 let qaTimerStarted = false;
 let qaToastTimer = null;
+let sentencesElapsedSeconds = 0;
+let sentencesUnlockedRewards = 0;
+let sentencesTimerInterval = null;
+
 
 const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const LEGACY_TTS_RATE_KEY = "ttsRate";
@@ -910,6 +919,7 @@ function isQuizInProgress() {
 function showScreen(screen) {
   const wasSentenceGameVisible = sentenceGameScreenVisible();
   const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
+  const wasSentencesVisible = sentencesScreen && !sentencesScreen.classList.contains("hidden");
 
   hide(startScreen);
   hide(quizScreen);
@@ -941,6 +951,14 @@ function showScreen(screen) {
 
   if (screen !== qaGameScreen && wasQaGameVisible) {
     stopQaTimer();
+  }
+
+  if (screen === sentencesScreen && !wasSentencesVisible) {
+    startSentencesTimer();
+  }
+
+  if (screen !== sentencesScreen && wasSentencesVisible) {
+    stopSentencesTimer();
   }
 
   updateHeaderStatus();
@@ -2500,6 +2518,48 @@ function formatQaHMS(seconds) {
   return `${h}:${m}:${s}`;
 }
 
+function renderSentencesRewards() {
+  if (!sentencesRewardStripEl) return;
+  sentencesRewardStripEl.innerHTML = SENTENCES_REWARD_STEPS.map((reward, index) => {
+    const unlocked = index < sentencesUnlockedRewards;
+    return `
+      <article class="qna-reward-tile ${unlocked ? "is-unlocked" : ""}" data-reward-index="${index}">
+        <p class="qna-reward-label">${reward.icon} ${reward.label}</p>
+        <img class="qna-reward-image" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
+      </article>
+    `;
+  }).join("");
+}
+
+function updateSentencesTimerUI() {
+  if (sentencesTimerEl) sentencesTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(sentencesElapsedSeconds)}`;
+  const nextReward = SENTENCES_REWARD_STEPS[sentencesUnlockedRewards];
+  if (sentencesNextRewardEl) {
+    sentencesNextRewardEl.textContent = nextReward
+      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - sentencesElapsedSeconds, 0))}`
+      : "Бүх шагналыг авсан байна 🎉";
+  }
+  while (sentencesUnlockedRewards < SENTENCES_REWARD_STEPS.length && sentencesElapsedSeconds >= SENTENCES_REWARD_STEPS[sentencesUnlockedRewards].seconds) {
+    sentencesUnlockedRewards += 1;
+    renderSentencesRewards();
+  }
+}
+
+function stopSentencesTimer() {
+  if (sentencesTimerInterval) {
+    clearInterval(sentencesTimerInterval);
+    sentencesTimerInterval = null;
+  }
+}
+
+function startSentencesTimer() {
+  stopSentencesTimer();
+  sentencesTimerInterval = setInterval(() => {
+    sentencesElapsedSeconds += 1;
+    updateSentencesTimerUI();
+  }, 1000);
+}
+
 function qaShuffle(array) {
   const cloned = [...array];
   for (let i = cloned.length - 1; i > 0; i -= 1) {
@@ -2741,6 +2801,9 @@ updateProfileUI();
 updateStatsUI();
 persistPremiumStatus();
 persistProgressState();
+
+renderSentencesRewards();
+updateSentencesTimerUI();
 
 if (sentenceGameTipTextEl) {
   sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
