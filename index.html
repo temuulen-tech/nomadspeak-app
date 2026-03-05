@@ -261,11 +261,19 @@
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden" id="qa-game-screen">
       <div class="panel-header">
-        <h2>Q&amp;A Sentence Builder Game</h2>
+        <h2>Асуулт Хариулт тоглоом</h2>
         <button class="secondary" id="qa-game-back-btn" type="button">← Буцах</button>
       </div>
 
-      <div class="qa-reward-bar qna-reward-row" id="qa-reward-bar" aria-label="Q&A reward unlock progress"></div>
+      <div class="sentence-game-reward-middle">
+        <div class="sentence-game-reward-row" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
+          <img class="sentence-game-reward-image" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
+          <img class="sentence-game-reward-image" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
+          <img class="sentence-game-reward-image" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
+          <img class="sentence-game-reward-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
+          <img class="sentence-game-reward-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
+        </div>
+      </div>
       <p class="qa-timer" id="qa-timer">Тоглосон хугацаа: 00:00:00</p>
       <p class="qa-next-reward" id="qa-next-reward">Next reward in --:--:--</p>
       <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>

@@ -143,6 +143,7 @@ const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
 
 const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
+const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
 const qaTimerEl = document.getElementById("qa-timer");
 const qaNextRewardEl = document.getElementById("qa-next-reward");
 const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
@@ -2575,15 +2576,16 @@ function getQaCurrentRound() {
 
 function renderQaRewards() {
   if (!qaRewardBarEl) return;
-  qaRewardBarEl.innerHTML = QA_REWARD_STEPS.map((reward, index) => {
-    const unlocked = index < qaUnlockedRewards;
-    return `
-      <article class="qna-reward-tile ${unlocked ? "is-unlocked" : ""}" data-reward-index="${index}">
-        <p class="qna-reward-label">${reward.icon} ${reward.label}</p>
-        <img class="qna-reward-image" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
-      </article>
-    `;
-  }).join("");
+  const activeLevel = Math.min(qaUnlockedRewards + 1, QA_REWARD_STEPS.length);
+  qaRewardImageEls().forEach((imgEl) => {
+    const level = Number(imgEl.dataset.level || 0);
+    const unlocked = level > 0 && level <= qaUnlockedRewards;
+    const active = level > 0 && level === activeLevel;
+    imgEl.classList.toggle("is-unlocked", unlocked);
+    imgEl.classList.toggle("is-locked", !unlocked);
+    imgEl.classList.toggle("active", active);
+    imgEl.classList.toggle("is-active", active);
+  });
 }
 
 function showQaToast(message) {

@@ -2103,6 +2103,29 @@ body{
   .stats-grid{grid-template-columns:1fr;}
 }
 
+
+#qa-game-screen .sentence-game-reward-middle{
+  margin:10px 0;
+}
+
+#qa-game-screen .sentence-game-reward-image.is-locked{
+  opacity:.58;
+  filter:saturate(.72) brightness(.82);
+}
+
+#qa-game-screen .sentence-game-reward-image.is-unlocked{
+  opacity:1;
+  filter:none;
+}
+
+#qa-game-screen .sentence-game-reward-image.is-active{
+  border-color:#ffd86d;
+  opacity:1;
+  filter:brightness(1.08) saturate(1.1);
+  transform:scale(1.07);
+  box-shadow:0 0 0 2px rgba(255,214,115,.52), 0 0 20px rgba(255,207,95,.92), 0 8px 18px rgba(0,0,0,.2);
+}
+
 /* Q&A sentence builder game */
 #qa-game-screen .panel-header{
   align-items:center;
