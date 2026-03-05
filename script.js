@@ -297,12 +297,12 @@ let qaQuestionSolved = false;
 let qaElapsedSeconds = 0;
 let qaUnlockedRewards = 0;
 let qaTimerInterval = null;
-let qaTimerStarted = false;
+let qaTimerStartedAt = null;
 let qaToastTimer = null;
 let lessonElapsedSeconds = 0;
 let lessonUnlockedRewards = 0;
 let lessonTimerInterval = null;
-let lessonTimerStarted = false;
+let lessonTimerStartedAt = null;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
@@ -926,6 +926,7 @@ function showScreen(screen) {
   const wasSentenceGameVisible = sentenceGameScreenVisible();
   const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
   const wasSentencesVisible = sentencesScreen && !sentencesScreen.classList.contains("hidden");
+  const wasLessonVisible = quizScreen && !quizScreen.classList.contains("hidden");
 
   hide(startScreen);
   hide(quizScreen);
@@ -955,16 +956,20 @@ function showScreen(screen) {
     endSentenceGameSession();
   }
 
-  if (screen !== qaGameScreen && wasQaGameVisible) {
-    stopQaTimer();
-  }
-
-  if (screen === quizScreen && !questions.length) {
+  if (screen === quizScreen && !wasLessonVisible) {
     startLessonTimer();
   }
 
-  if (screen !== quizScreen) {
+  if (screen !== quizScreen && wasLessonVisible) {
     stopLessonTimer();
+  }
+
+  if (screen === qaGameScreen && !wasQaGameVisible && qaGameLevel) {
+    startQaTimer();
+  }
+
+  if (screen !== qaGameScreen && wasQaGameVisible) {
+    stopQaTimer();
   }
 
   if (screen === sentencesScreen && !wasSentencesVisible) {
@@ -1028,7 +1033,7 @@ function resetLessonProgress() {
   locked = false;
   lessonElapsedSeconds = 0;
   lessonUnlockedRewards = 0;
-  lessonTimerStarted = false;
+  lessonTimerStartedAt = null;
   stopLessonTimer();
   updateLessonTimerUI();
   renderLessonRewards();
@@ -2669,7 +2674,14 @@ function renderLessonRewards() {
   });
 }
 
+function syncLessonElapsedSeconds() {
+  if (!lessonTimerStartedAt) return;
+  const runningSeconds = Math.floor((Date.now() - lessonTimerStartedAt) / 1000);
+  lessonElapsedSeconds = Math.max(lessonElapsedSeconds, runningSeconds);
+}
+
 function updateLessonTimerUI() {
+  syncLessonElapsedSeconds();
   if (lessonTimerEl) lessonTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(lessonElapsedSeconds)}`;
   const nextReward = QA_REWARD_STEPS[lessonUnlockedRewards];
   if (lessonNextRewardEl) {
@@ -2677,25 +2689,30 @@ function updateLessonTimerUI() {
       ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - lessonElapsedSeconds, 0))}`
       : "Бүх шагналыг авсан байна 🎉";
   }
+
+  let unlockedChanged = false;
   while (lessonUnlockedRewards < QA_REWARD_STEPS.length && lessonElapsedSeconds >= QA_REWARD_STEPS[lessonUnlockedRewards].seconds) {
     lessonUnlockedRewards += 1;
-    renderLessonRewards();
+    unlockedChanged = true;
   }
+
+  if (unlockedChanged) renderLessonRewards();
 }
 
 function stopLessonTimer() {
+  syncLessonElapsedSeconds();
   if (lessonTimerInterval) {
     clearInterval(lessonTimerInterval);
     lessonTimerInterval = null;
   }
+  lessonTimerStartedAt = null;
 }
 
 function startLessonTimer() {
-  if (lessonTimerStarted) return;
-  lessonTimerStarted = true;
-  stopLessonTimer();
+  if (lessonTimerInterval) return;
+  lessonTimerStartedAt = Date.now() - (lessonElapsedSeconds * 1000);
+  updateLessonTimerUI();
   lessonTimerInterval = setInterval(() => {
-    lessonElapsedSeconds += 1;
     updateLessonTimerUI();
   }, 1000);
 }
@@ -2712,7 +2729,14 @@ function showQaToast(message) {
   }, 2200);
 }
 
+function syncQaElapsedSeconds() {
+  if (!qaTimerStartedAt) return;
+  const runningSeconds = Math.floor((Date.now() - qaTimerStartedAt) / 1000);
+  qaElapsedSeconds = Math.max(qaElapsedSeconds, runningSeconds);
+}
+
 function updateQaTimerUI() {
+  syncQaElapsedSeconds();
   if (qaTimerEl) qaTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(qaElapsedSeconds)}`;
   const nextReward = QA_REWARD_STEPS[qaUnlockedRewards];
   if (qaNextRewardEl) {
@@ -2720,26 +2744,31 @@ function updateQaTimerUI() {
       ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - qaElapsedSeconds, 0))}`
       : "Бүх шагналыг авсан байна 🎉";
   }
+
+  let unlockedChanged = false;
   while (qaUnlockedRewards < QA_REWARD_STEPS.length && qaElapsedSeconds >= QA_REWARD_STEPS[qaUnlockedRewards].seconds) {
     showQaToast(`🎉 Шагнал авлаа: ${QA_REWARD_STEPS[qaUnlockedRewards].label}`);
     qaUnlockedRewards += 1;
-    renderQaRewards();
+    unlockedChanged = true;
   }
+
+  if (unlockedChanged) renderQaRewards();
 }
 
 function stopQaTimer() {
+  syncQaElapsedSeconds();
   if (qaTimerInterval) {
     clearInterval(qaTimerInterval);
     qaTimerInterval = null;
   }
+  qaTimerStartedAt = null;
 }
 
 function startQaTimer() {
-  if (qaTimerStarted) return;
-  qaTimerStarted = true;
-  stopQaTimer();
+  if (qaTimerInterval) return;
+  qaTimerStartedAt = Date.now() - (qaElapsedSeconds * 1000);
+  updateQaTimerUI();
   qaTimerInterval = setInterval(() => {
-    qaElapsedSeconds += 1;
     updateQaTimerUI();
   }, 1000);
 }
@@ -2886,7 +2915,7 @@ function resetQaGameScreen() {
   qaQuestionSolved = false;
   qaElapsedSeconds = 0;
   qaUnlockedRewards = 0;
-  qaTimerStarted = false;
+  qaTimerStartedAt = null;
   stopQaTimer();
   updateQaTimerUI();
   renderQaRewards();
