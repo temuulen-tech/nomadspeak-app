@@ -1897,7 +1897,7 @@ function selectSentenceGameDifficulty(difficulty, { collapsePanel = true } = {})
   sentenceGameIndex = -1;
   initSentenceGameRound();
 
-  if (collapsePanel && window.matchMedia("(max-width: 700px)").matches) {
+  if (collapsePanel) {
     setSentenceGameDifficultyPanelOpen(false);
   }
 }
