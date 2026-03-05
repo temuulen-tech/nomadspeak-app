@@ -76,7 +76,8 @@ const confirmOverlay = document.getElementById("confirm-overlay");
 const confirmYesBtn = document.getElementById("confirm-yes-btn");
 const confirmNoBtn = document.getElementById("confirm-no-btn");
 
-const startLevelMenu = document.getElementById("start-level-menu");
+const startLevelDropdown = document.getElementById("start-level-dropdown");
+const startLevelPicker = document.querySelector(".start-level-picker");
 const startLevelOptions = document.querySelectorAll(".start-level-option");
 const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
 const sentencesListEl = document.getElementById("sentences-list");
@@ -2514,9 +2515,22 @@ function endQuiz() {
   updateHeaderStatus();
 }
 
+function startLevelLabel(levelKey) {
+  return levelKey === "beginner" ? "Анхан" : levelKey === "intermediate" ? "Дунд" : "Дээд";
+}
+
+let hasExplicitStartLevelSelection = false;
+
+function updateStartButtonLabel() {
+  if (!startBtn) return;
+  startBtn.textContent = hasExplicitStartLevelSelection
+    ? `Зөв хариулт сонгох: ${startLevelLabel(level)}`
+    : "Зөв хариулт сонгох";
+}
+
 function setStartLevelMenuOpen(isOpen) {
-  if (!startLevelMenu || !startBtn) return;
-  startLevelMenu.classList.toggle("hidden", !isOpen);
+  if (!startLevelDropdown || !startBtn) return;
+  startLevelDropdown.classList.toggle("hidden", !isOpen);
   startBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
 }
 
@@ -2914,12 +2928,15 @@ loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
 updateSentenceFilterActiveState();
 setStartLevelMenuOpen(false);
+updateStartButtonLabel();
 
 startLevelOptions.forEach((btn) => {
   btn.addEventListener("click", () => {
     startLevelOptions.forEach((option) => option.classList.remove("active"));
     btn.classList.add("active");
     level = btn.dataset.level;
+    hasExplicitStartLevelSelection = true;
+    updateStartButtonLabel();
     setStartLevelMenuOpen(false);
     updateHeaderStatus();
     startQuiz();
@@ -3001,16 +3018,16 @@ if (introCloseBtn) {
 
 if (startBtn) {
   startBtn.addEventListener("click", () => {
-    if (!startLevelMenu) return;
-    const willOpen = startLevelMenu.classList.contains("hidden");
+    if (!startLevelDropdown) return;
+    const willOpen = startLevelDropdown.classList.contains("hidden");
     setStartLevelMenuOpen(willOpen);
   });
 }
 
 document.addEventListener("click", (event) => {
-  if (!startLevelMenu || !startBtn) return;
-  if (startLevelMenu.classList.contains("hidden")) return;
-  if (startLevelMenu.contains(event.target) || startBtn.contains(event.target)) return;
+  if (!startLevelDropdown || !startBtn || !startLevelPicker) return;
+  if (startLevelDropdown.classList.contains("hidden")) return;
+  if (startLevelPicker.contains(event.target)) return;
   setStartLevelMenuOpen(false);
 });
 
