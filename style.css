@@ -957,6 +957,16 @@ body{
   font-weight:600;
 }
 
+
+.sentences-reward-strip .qna-reward-tile{
+  width:auto;
+  min-width:0;
+}
+
+.sentences-reward-strip .qna-reward-image{
+  height:clamp(44px, 5vw, 64px);
+}
+
 .sentences-timer,
 .sentences-next-reward{
   margin:0;
