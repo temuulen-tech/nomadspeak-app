@@ -84,7 +84,10 @@
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
       <div class="panel-header">
-        <h2>Эхлэхээс өмнө</h2>
+        <div class="start-intro-cta start-intro-cta-header">
+          <button class="premium-intro-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">Апплекшины танилцуулга</button>
+          <p class="intro-note">(та танилцуулгыг заавал уншаарай)</p>
+        </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
 
@@ -96,18 +99,21 @@
       </div>
 
       <div class="start-main-actions">
-        <div class="level-row" id="level-row">
-          <button class="level-btn active" data-level="beginner">Анхан</button>
-          <button class="level-btn" data-level="intermediate">Дунд</button>
-          <button class="level-btn" data-level="advanced">Дээд</button>
+        <div class="start-select-row">
+          <button
+            class="primary"
+            id="start-btn"
+            type="button"
+            aria-haspopup="true"
+            aria-expanded="false"
+            aria-controls="start-level-menu"
+          >Зөв хариулт сонгох</button>
+          <div class="start-level-menu hidden" id="start-level-menu" role="menu" aria-label="Түвшин сонгох">
+            <button class="start-level-option active" type="button" data-level="beginner" role="menuitem">Анхан</button>
+            <button class="start-level-option" type="button" data-level="intermediate" role="menuitem">Дунд</button>
+            <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
+          </div>
         </div>
-
-        <button class="primary" id="start-btn">Хичээл эхлэх</button>
-      </div>
-
-      <div class="start-intro-cta">
-        <button class="premium-intro-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">Апплекшины танилцуулга</button>
-        <p class="intro-note">(та танилцуулгыг заавал уншаарай)</p>
       </div>
 
       <div class="start-intro-panel hidden" id="intro-panel">
