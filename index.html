@@ -116,6 +116,32 @@
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
         </div>
       </div>
+      <div class="sentence-game-reward-middle">
+        <div class="sentence-game-reward-row reward-row" id="lesson-reward-bar" aria-label="Lesson reward unlock progress">
+          <article class="reward-tile" data-level="1">
+            <p class="reward-label">🏳️ Эхлэл амжилттай!</p>
+            <img class="sentence-game-reward-image reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Lesson reward flag" />
+          </article>
+          <article class="reward-tile" data-level="2">
+            <p class="reward-label">⭐ Улаан одын Эзэн</p>
+            <img class="sentence-game-reward-image reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Lesson reward star" />
+          </article>
+          <article class="reward-tile" data-level="3">
+            <p class="reward-label">🪙 Алтан зоос Чинийх</p>
+            <img class="sentence-game-reward-image reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Lesson reward coin" />
+          </article>
+          <article class="reward-tile" data-level="4">
+            <p class="reward-label">🏆 Алтан цомын Эзэн</p>
+            <img class="sentence-game-reward-image reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Lesson reward trophy" />
+          </article>
+          <article class="reward-tile" data-level="5">
+            <p class="reward-label">💎 Алмөөз эрдэнэ Чинийх</p>
+            <img class="sentence-game-reward-image reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Lesson reward diamond" />
+          </article>
+        </div>
+      </div>
+      <p class="qa-timer lesson-timer" id="lesson-timer">Тоглосон хугацаа: 00:00:00</p>
+      <p class="qa-next-reward lesson-next-reward" id="lesson-next-reward">Next reward in 00:20:00</p>
       <div class="question-header-row">
         <div class="start-level-picker">
           <button
@@ -132,7 +158,9 @@
             <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
           </div>
         </div>
-        <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
+        <div class="question-text-wrap">
+          <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
+        </div>
       </div>
 
       <div class="options" id="options"></div>

@@ -649,16 +649,21 @@ body{
 
 .question-header-row{
   display:flex;
-  align-items:baseline;
+  align-items:center;
   gap:12px;
   margin:6px 0 16px;
-  flex-wrap:wrap;
+}
+
+.question-text-wrap{
+  flex:1;
+  text-align:center;
+  margin-left:18px;
 }
 
 .question{
   font-size:26px;
   margin:0;
-  text-align:left;
+  text-align:center;
 }
 
 .options{
@@ -1886,21 +1891,25 @@ body{
 
 @media (min-width:900px){
   #sentence-game-screen .sentence-game-reward-row,
-  #qa-game-screen .sentence-game-reward-row{
+  #qa-game-screen .sentence-game-reward-row,
+  #quiz-screen .sentence-game-reward-row{
     flex-wrap:nowrap;
     gap:8px;
     justify-content:center;
   }
 
   #sentence-game-screen .sentence-game-reward-row .reward-tile,
-  #qa-game-screen .sentence-game-reward-row .reward-tile{
+  #qa-game-screen .sentence-game-reward-row .reward-tile,
+  #quiz-screen .sentence-game-reward-row .reward-tile{
     flex:0 1 clamp(104px, 8.2vw, 122px);
   }
 
   #sentence-game-screen .sentence-game-reward-row .reward-img,
   #sentence-game-screen .sentence-game-reward-row .sentence-game-reward-image,
   #qa-game-screen .sentence-game-reward-row .reward-img,
-  #qa-game-screen .sentence-game-reward-row .sentence-game-reward-image{
+  #qa-game-screen .sentence-game-reward-row .sentence-game-reward-image,
+  #quiz-screen .sentence-game-reward-row .reward-img,
+  #quiz-screen .sentence-game-reward-row .sentence-game-reward-image{
     width:clamp(76px, 6.8vw, 96px);
     height:clamp(76px, 6.8vw, 96px);
     object-fit:contain;
@@ -2076,6 +2085,11 @@ body{
     align-items:flex-start;
     flex-direction:column;
     gap:10px;
+  }
+
+  .question-text-wrap{
+    width:100%;
+    margin-left:0;
   }
 
   .start-level-picker{
@@ -2344,7 +2358,8 @@ body{
 #qa-game-screen .panel-header{
   align-items:center;
 }
-.qa-timer,.qa-next-reward{margin:6px 0; font-weight:600;}
+.qa-timer,.qa-next-reward{margin:4px 0; font-weight:600;}
+.lesson-timer,.lesson-next-reward{font-size:14px;}
 
 .qa-level-picker{margin:12px 0;}
 .qa-level-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}

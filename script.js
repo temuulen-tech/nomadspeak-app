@@ -148,6 +148,10 @@ const qaRewardBarEl = document.getElementById("qa-reward-bar");
 const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
 const qaTimerEl = document.getElementById("qa-timer");
 const qaNextRewardEl = document.getElementById("qa-next-reward");
+const lessonRewardBarEl = document.getElementById("lesson-reward-bar");
+const lessonRewardImageEls = () => lessonRewardBarEl ? lessonRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
+const lessonTimerEl = document.getElementById("lesson-timer");
+const lessonNextRewardEl = document.getElementById("lesson-next-reward");
 const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
 const sentencesTimerEl = document.getElementById("sentences-timer");
 const sentencesNextRewardEl = document.getElementById("sentences-next-reward");
@@ -295,6 +299,10 @@ let qaUnlockedRewards = 0;
 let qaTimerInterval = null;
 let qaTimerStarted = false;
 let qaToastTimer = null;
+let lessonElapsedSeconds = 0;
+let lessonUnlockedRewards = 0;
+let lessonTimerInterval = null;
+let lessonTimerStarted = false;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
@@ -951,6 +959,14 @@ function showScreen(screen) {
     stopQaTimer();
   }
 
+  if (screen === quizScreen && !questions.length) {
+    startLessonTimer();
+  }
+
+  if (screen !== quizScreen) {
+    stopLessonTimer();
+  }
+
   if (screen === sentencesScreen && !wasSentencesVisible) {
     startSentencesTimer();
   }
@@ -1015,6 +1031,12 @@ function resetLessonProgress() {
   questions = [];
   currentIndex = 0;
   locked = false;
+  lessonElapsedSeconds = 0;
+  lessonUnlockedRewards = 0;
+  lessonTimerStarted = false;
+  stopLessonTimer();
+  updateLessonTimerUI();
+  renderLessonRewards();
 }
 
 function requestNavigation(destination) {
@@ -2634,6 +2656,57 @@ function renderQaRewards() {
   });
 }
 
+function renderLessonRewards() {
+  if (!lessonRewardBarEl) return;
+  const activeLevel = Math.min(lessonUnlockedRewards + 1, QA_REWARD_STEPS.length);
+  lessonRewardImageEls().forEach((imgEl) => {
+    const level = Number(imgEl.dataset.level || 0);
+    const unlocked = level > 0 && level <= lessonUnlockedRewards;
+    const active = level > 0 && level === activeLevel;
+    const tileEl = imgEl.closest(".reward-tile");
+    if (tileEl) {
+      tileEl.classList.toggle("is-unlocked", unlocked);
+      tileEl.classList.toggle("is-locked", !unlocked);
+      tileEl.classList.toggle("is-active", active);
+    }
+    imgEl.classList.toggle("is-unlocked", unlocked);
+    imgEl.classList.toggle("is-locked", !unlocked);
+    imgEl.classList.toggle("active", active);
+    imgEl.classList.toggle("is-active", active);
+  });
+}
+
+function updateLessonTimerUI() {
+  if (lessonTimerEl) lessonTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(lessonElapsedSeconds)}`;
+  const nextReward = QA_REWARD_STEPS[lessonUnlockedRewards];
+  if (lessonNextRewardEl) {
+    lessonNextRewardEl.textContent = nextReward
+      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - lessonElapsedSeconds, 0))}`
+      : "Бүх шагналыг авсан байна 🎉";
+  }
+  while (lessonUnlockedRewards < QA_REWARD_STEPS.length && lessonElapsedSeconds >= QA_REWARD_STEPS[lessonUnlockedRewards].seconds) {
+    lessonUnlockedRewards += 1;
+    renderLessonRewards();
+  }
+}
+
+function stopLessonTimer() {
+  if (lessonTimerInterval) {
+    clearInterval(lessonTimerInterval);
+    lessonTimerInterval = null;
+  }
+}
+
+function startLessonTimer() {
+  if (lessonTimerStarted) return;
+  lessonTimerStarted = true;
+  stopLessonTimer();
+  lessonTimerInterval = setInterval(() => {
+    lessonElapsedSeconds += 1;
+    updateLessonTimerUI();
+  }, 1000);
+}
+
 function showQaToast(message) {
   if (!qaToastEl) return;
   qaToastEl.textContent = message;
@@ -2852,6 +2925,8 @@ persistProgressState();
 
 renderSentencesRewards();
 updateSentencesTimerUI();
+renderLessonRewards();
+updateLessonTimerUI();
 
 if (sentenceGameTipTextEl) {
   sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
