@@ -460,7 +460,7 @@ body{
 
 .panel-header{
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:space-between;
   gap:10px;
   flex-wrap:wrap;
@@ -482,10 +482,11 @@ body{
   flex-direction:column;
   align-items:flex-end;
   gap:10px;
+  margin-left:auto;
 }
 
 #quiz-screen .sound-toggle-btn{
-  margin-top:4px;
+  margin-top:0;
 }
 
 .muted{
@@ -590,6 +591,7 @@ body{
   position:relative;
   display:inline-block;
   align-self:flex-start;
+  flex-shrink:0;
 }
 
 #start-btn{
@@ -645,11 +647,18 @@ body{
   color:#f8fffb;
 }
 
+.question-header-row{
+  display:flex;
+  align-items:baseline;
+  gap:12px;
+  margin:6px 0 16px;
+  flex-wrap:wrap;
+}
+
 .question{
   font-size:26px;
-  margin-top:6px;
-  margin-bottom:16px;
-  text-align:center;
+  margin:0;
+  text-align:left;
 }
 
 .options{
@@ -1800,9 +1809,6 @@ body{
 }
 
 @media (max-width:700px){
-  .panel-header{
-    align-items:flex-start;
-  }
 
   .sentence-game-header-row{
     gap:12px;
@@ -2053,9 +2059,6 @@ body{
 }
 
 @media (max-width:700px){
-  .panel-header{
-    align-items:flex-start;
-  }
 
   .start-intro-cta{
     align-items:stretch;
@@ -2067,6 +2070,12 @@ body{
 
   .intro-note{
     text-align:left;
+  }
+
+  .question-header-row{
+    align-items:flex-start;
+    flex-direction:column;
+    gap:10px;
   }
 
   .start-level-picker{
