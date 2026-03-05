@@ -61,6 +61,7 @@
             <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
             <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
             <button class="secondary nav-btn" id="nav-sentence-game-btn" type="button">Өгүүлбэрийн тоглоом</button>
+            <button class="secondary nav-btn" id="nav-qa-game-btn" type="button">АСУУЛТ, ХАРИУЛТ БҮТЭЭХ ТОГЛООМ</button>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
           </div>
         </div>
@@ -248,6 +249,64 @@
       </div>
     </section>
 
+
+
+    <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
+    <section class="card hidden" id="qa-game-screen">
+      <div class="panel-header">
+        <h2>Q&amp;A Sentence Builder Game</h2>
+        <button class="secondary" id="qa-game-back-btn" type="button">← Буцах</button>
+      </div>
+
+      <div class="qa-reward-bar" id="qa-reward-bar"></div>
+      <p class="qa-timer" id="qa-timer">Тоглосон хугацаа: 00:00:00</p>
+      <p class="qa-next-reward" id="qa-next-reward">Next reward in --:--:--</p>
+      <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
+
+      <div class="qa-level-picker">
+        <button class="primary" id="qa-level-select-btn" type="button">Тоглох ангилалаа сонгоорой</button>
+        <div class="qa-level-options hidden" id="qa-level-options">
+          <button class="secondary" type="button" data-qa-level="beginner">Анхан</button>
+          <button class="secondary" type="button" data-qa-level="intermediate">Дунд</button>
+          <button class="secondary" type="button" data-qa-level="advanced">Дээд</button>
+        </div>
+      </div>
+
+      <div class="qa-round-panel" id="qa-round-panel">
+        <div class="qa-toggle-row">
+          <button class="secondary" id="qa-toggle-question-btn" type="button">Асуултыг харах</button>
+          <button class="secondary" id="qa-toggle-answer-btn" type="button">Хариултыг харах</button>
+        </div>
+
+        <p><strong>MN Асуулт:</strong> <span id="qa-mn-question"></span></p>
+        <p class="hidden" id="qa-en-question-wrap"><strong>EN Question:</strong> <span id="qa-en-question"></span></p>
+        <p><strong>MN Хариулт:</strong> <span id="qa-mn-answer"></span></p>
+        <p class="hidden" id="qa-en-answer-wrap"><strong>EN Answer:</strong> <span id="qa-en-answer"></span></p>
+
+        <div class="qa-builder-lines">
+          <div>
+            <p class="qa-line-label">Question builder</p>
+            <div class="qa-build-line" id="qa-question-line"></div>
+          </div>
+          <div>
+            <p class="qa-line-label">Answer builder</p>
+            <div class="qa-build-line" id="qa-answer-line"></div>
+          </div>
+        </div>
+
+        <div class="qa-bank" id="qa-word-bank"></div>
+        <div class="qa-actions">
+          <button class="primary" id="qa-check-btn" type="button">Check</button>
+        </div>
+        <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
+      </div>
+
+      <div class="qa-bottom-actions">
+        <button class="secondary" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
+        <button class="secondary" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
+      </div>
+    </section>
+
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
       <div class="panel-header">
@@ -386,6 +445,18 @@
       <p class="muted" id="premium-message">Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)</p>
       <div class="confirm-actions">
         <button class="primary" id="premium-ok-btn" type="button">Ойлголоо</button>
+      </div>
+    </div>
+  </div>
+
+
+
+  <div class="confirm-overlay hidden" id="qa-modal" role="dialog" aria-modal="true" aria-labelledby="qa-modal-title">
+    <div class="confirm-card qa-modal-card">
+      <h2 id="qa-modal-title">Мэдээлэл</h2>
+      <div class="muted" id="qa-modal-body"></div>
+      <div class="confirm-actions">
+        <button class="primary" id="qa-modal-close-btn" type="button">Хаах</button>
       </div>
     </div>
   </div>
