@@ -107,6 +107,16 @@
     <section class="card hidden" id="quiz-screen">
       <div class="panel-header">
         <h2 class="lesson-title">Зөв хариулт сонгох</h2>
+        <div class="quiz-header-audio-group">
+          <div class="topbar hidden" id="topbar">
+            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
+            <div class="pill">Оноо: <span id="score">0</span></div>
+            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+          </div>
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        </div>
+      </div>
+      <div class="question-header-row">
         <div class="start-level-picker">
           <button
             class="secondary"
@@ -122,16 +132,8 @@
             <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
           </div>
         </div>
-        <div class="quiz-header-audio-group">
-          <div class="topbar hidden" id="topbar">
-            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
-            <div class="pill">Оноо: <span id="score">0</span></div>
-            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
-          </div>
-          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-        </div>
+        <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
       </div>
-      <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
 
       <div class="options" id="options"></div>
 
