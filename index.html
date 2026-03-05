@@ -143,26 +143,26 @@
         <h2>Өгүүлбэрүүд</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
-      <div class="sentences-reward-strip" id="sentences-reward-strip" aria-label="Sentences reward progress">
-        <article class="qna-reward-tile" data-reward-index="0">
-          <p class="qna-reward-label">🏳️ Эхлэл амжилттай!</p>
-          <img class="qna-reward-image" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
+      <div class="sentences-reward-strip reward-row" id="sentences-reward-strip" aria-label="Sentences reward progress">
+        <article class="reward-tile" data-reward-index="0" data-level="1">
+          <p class="reward-label">🏳️ Эхлэл амжилттай!</p>
+          <img class="reward-img" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
         </article>
-        <article class="qna-reward-tile" data-reward-index="1">
-          <p class="qna-reward-label">⭐ Улаан одын Эзэн</p>
-          <img class="qna-reward-image" src="assets/rewards/2-star.png" alt="Sentences reward star" loading="lazy" />
+        <article class="reward-tile" data-reward-index="1" data-level="2">
+          <p class="reward-label">⭐ Улаан одын Эзэн</p>
+          <img class="reward-img" src="assets/rewards/2-star.png" alt="Sentences reward star" loading="lazy" />
         </article>
-        <article class="qna-reward-tile" data-reward-index="2">
-          <p class="qna-reward-label">🪙 Алтан зоос Чинийх</p>
-          <img class="qna-reward-image" src="assets/rewards/3-coin.png" alt="Sentences reward coin" loading="lazy" />
+        <article class="reward-tile" data-reward-index="2" data-level="3">
+          <p class="reward-label">🪙 Алтан зоос Чинийх</p>
+          <img class="reward-img" src="assets/rewards/3-coin.png" alt="Sentences reward coin" loading="lazy" />
         </article>
-        <article class="qna-reward-tile" data-reward-index="3">
-          <p class="qna-reward-label">🏆 Алтан цомын Эзэн</p>
-          <img class="qna-reward-image" src="assets/rewards/4-trophy.png" alt="Sentences reward cup" loading="lazy" />
+        <article class="reward-tile" data-reward-index="3" data-level="4">
+          <p class="reward-label">🏆 Алтан цомын Эзэн</p>
+          <img class="reward-img" src="assets/rewards/4-trophy.png" alt="Sentences reward cup" loading="lazy" />
         </article>
-        <article class="qna-reward-tile" data-reward-index="4">
-          <p class="qna-reward-label">💎 Алмөөз эрдэнэ Чинийх</p>
-          <img class="qna-reward-image" src="assets/rewards/5-diamond.png" alt="Sentences reward diamond" loading="lazy" />
+        <article class="reward-tile" data-reward-index="4" data-level="5">
+          <p class="reward-label">💎 Алмөөз эрдэнэ Чинийх</p>
+          <img class="reward-img" src="assets/rewards/5-diamond.png" alt="Sentences reward diamond" loading="lazy" />
         </article>
       </div>
       <div class="sentences-time-meta" aria-live="polite">
@@ -224,12 +224,27 @@
           </div>
         </div>
         <div class="sentence-game-reward-middle" id="sentence-game-reward-middle">
-          <div class="sentence-game-reward-row" id="sentence-game-reward-row" aria-label="Reward unlock progress">
-            <img class="sentence-game-reward-image" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
-            <img class="sentence-game-reward-image" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
-            <img class="sentence-game-reward-image" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
-            <img class="sentence-game-reward-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
-            <img class="sentence-game-reward-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
+          <div class="sentence-game-reward-row reward-row" id="sentence-game-reward-row" aria-label="Reward unlock progress">
+            <article class="reward-tile" data-level="1">
+              <p class="reward-label">🏳️ Эхлэл амжилттай!</p>
+              <img class="sentence-game-reward-image reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
+            </article>
+            <article class="reward-tile" data-level="2">
+              <p class="reward-label">⭐ Улаан одын Эзэн</p>
+              <img class="sentence-game-reward-image reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
+            </article>
+            <article class="reward-tile" data-level="3">
+              <p class="reward-label">🪙 Алтан зоос Чинийх</p>
+              <img class="sentence-game-reward-image reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
+            </article>
+            <article class="reward-tile" data-level="4">
+              <p class="reward-label">🏆 Алтан цомын Эзэн</p>
+              <img class="sentence-game-reward-image reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
+            </article>
+            <article class="reward-tile" data-level="5">
+              <p class="reward-label">💎 Алмөөз эрдэнэ Чинийх</p>
+              <img class="sentence-game-reward-image reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
+            </article>
           </div>
           <div class="sentence-game-difficulty-wrap">
             <button class="sentence-game-difficulty-toggle" id="sentence-game-difficulty-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-difficulty-panel">Тоглох түвшинээ сонгоно уу?</button>
@@ -287,12 +302,27 @@
       </div>
 
       <div class="sentence-game-reward-middle">
-        <div class="sentence-game-reward-row" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
-          <img class="sentence-game-reward-image" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
-          <img class="sentence-game-reward-image" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
-          <img class="sentence-game-reward-image" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
-          <img class="sentence-game-reward-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
-          <img class="sentence-game-reward-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
+        <div class="sentence-game-reward-row reward-row" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
+          <article class="reward-tile" data-level="1">
+            <p class="reward-label">🏳️ Эхлэл амжилттай!</p>
+            <img class="sentence-game-reward-image reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
+          </article>
+          <article class="reward-tile" data-level="2">
+            <p class="reward-label">⭐ Улаан одын Эзэн</p>
+            <img class="sentence-game-reward-image reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
+          </article>
+          <article class="reward-tile" data-level="3">
+            <p class="reward-label">🪙 Алтан зоос Чинийх</p>
+            <img class="sentence-game-reward-image reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
+          </article>
+          <article class="reward-tile" data-level="4">
+            <p class="reward-label">🏆 Алтан цомын Эзэн</p>
+            <img class="sentence-game-reward-image reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
+          </article>
+          <article class="reward-tile" data-level="5">
+            <p class="reward-label">💎 Алмөөз эрдэнэ Чинийх</p>
+            <img class="sentence-game-reward-image reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
+          </article>
         </div>
       </div>
       <p class="qa-timer" id="qa-timer">Тоглосон хугацаа: 00:00:00</p>

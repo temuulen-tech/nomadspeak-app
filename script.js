@@ -112,7 +112,8 @@ const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
 const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
 const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
 const sentenceGameRewardTimeEl = document.getElementById("sentence-game-active-time");
-const sentenceGameRewardImageEls = document.querySelectorAll(".sentence-game-reward-image");
+const sentenceGameRewardRowEl = document.getElementById("sentence-game-reward-row");
+const sentenceGameRewardImageEls = sentenceGameRewardRowEl ? sentenceGameRewardRowEl.querySelectorAll(".sentence-game-reward-image") : [];
 const sentenceGameDifficultyToggleBtn = document.getElementById("sentence-game-difficulty-toggle-btn");
 const sentenceGameDifficultyPanelEl = document.getElementById("sentence-game-difficulty-panel");
 const sentenceGameDifficultyButtons = document.querySelectorAll(".sentence-game-difficulty-btn");
@@ -1300,7 +1301,17 @@ function loadSentenceGameRewardState() {
 function renderSentenceGameRewardState() {
   sentenceGameRewardImageEls.forEach((imgEl) => {
     const level = Number(imgEl.dataset.level || 0);
-    imgEl.classList.toggle("active", level > 0 && level === sentenceGameRewardLevel);
+    const active = level > 0 && level === sentenceGameRewardLevel;
+    const tileEl = imgEl.closest(".reward-tile");
+    if (tileEl) {
+      tileEl.classList.toggle("is-active", active);
+      tileEl.classList.toggle("is-unlocked", level > 0 && level <= sentenceGameRewardLevel);
+      tileEl.classList.toggle("is-locked", !(level > 0 && level <= sentenceGameRewardLevel));
+    }
+    imgEl.classList.toggle("active", active);
+    imgEl.classList.toggle("is-active", active);
+    imgEl.classList.toggle("is-unlocked", level > 0 && level <= sentenceGameRewardLevel);
+    imgEl.classList.toggle("is-locked", !(level > 0 && level <= sentenceGameRewardLevel));
   });
 
   if (sentenceGameRewardTimeEl) {
@@ -2521,12 +2532,15 @@ function formatQaHMS(seconds) {
 
 function renderSentencesRewards() {
   if (!sentencesRewardStripEl) return;
+  const activeLevel = Math.min(sentencesUnlockedRewards + 1, SENTENCES_REWARD_STEPS.length);
   sentencesRewardStripEl.innerHTML = SENTENCES_REWARD_STEPS.map((reward, index) => {
-    const unlocked = index < sentencesUnlockedRewards;
+    const level = index + 1;
+    const unlocked = level <= sentencesUnlockedRewards;
+    const active = level === activeLevel;
     return `
-      <article class="qna-reward-tile ${unlocked ? "is-unlocked" : ""}" data-reward-index="${index}">
-        <p class="qna-reward-label">${reward.icon} ${reward.label}</p>
-        <img class="qna-reward-image" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
+      <article class="reward-tile ${unlocked ? "is-unlocked" : "is-locked"} ${active ? "is-active" : ""}" data-reward-index="${index}" data-level="${level}">
+        <p class="reward-label">${reward.icon} ${reward.label}</p>
+        <img class="reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
       </article>
     `;
   }).join("");
@@ -2581,6 +2595,12 @@ function renderQaRewards() {
     const level = Number(imgEl.dataset.level || 0);
     const unlocked = level > 0 && level <= qaUnlockedRewards;
     const active = level > 0 && level === activeLevel;
+    const tileEl = imgEl.closest(".reward-tile");
+    if (tileEl) {
+      tileEl.classList.toggle("is-unlocked", unlocked);
+      tileEl.classList.toggle("is-locked", !unlocked);
+      tileEl.classList.toggle("is-active", active);
+    }
     imgEl.classList.toggle("is-unlocked", unlocked);
     imgEl.classList.toggle("is-locked", !unlocked);
     imgEl.classList.toggle("active", active);
