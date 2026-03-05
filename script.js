@@ -914,10 +914,6 @@ function getAllAnswersExcept(correct) {
   return all.filter(a => a !== correct);
 }
 
-function isQuizInProgress() {
-  return !quizScreen.classList.contains("hidden") && questions.length > 0 && currentIndex < questions.length;
-}
-
 function showScreen(screen) {
   const wasSentenceGameVisible = sentenceGameScreenVisible();
   const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
@@ -933,7 +929,7 @@ function showScreen(screen) {
   hide(endScreen);
   show(screen);
 
-  if (screen === quizScreen && questions.length) {
+  if (screen === quizScreen) {
     show(topbar);
   } else {
     hide(topbar);
@@ -1022,9 +1018,7 @@ function resetLessonProgress() {
 }
 
 function requestNavigation(destination) {
-  if (destination !== "lesson" && isQuizInProgress()) {
-    resetLessonProgress();
-  }
+  if (destination !== "lesson") resetLessonProgress();
 
   navigateTo(destination);
 }
@@ -2532,8 +2526,8 @@ let hasExplicitStartLevelSelection = false;
 function updateStartButtonLabel() {
   if (!startBtn) return;
   startBtn.textContent = hasExplicitStartLevelSelection
-    ? `Зөв хариулт сонгох: ${startLevelLabel(level)}`
-    : "Зөв хариулт сонгох";
+    ? `Түвшин сонгох: ${startLevelLabel(level)}`
+    : "Түвшин сонгох";
 }
 
 function setStartLevelMenuOpen(isOpen) {

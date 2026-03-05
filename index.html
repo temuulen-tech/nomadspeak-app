@@ -68,11 +68,6 @@
         </div>
       </div>
 
-      <div class="topbar hidden" id="topbar">
-        <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
-        <div class="pill">Оноо: <span id="score">0</span></div>
-        <div class="pill">Асуулт: <span id="progress">0/0</span></div>
-      </div>
     </header>
 
     <div class="completion-banner hidden" id="completion-banner" role="status" aria-live="polite">
@@ -111,7 +106,7 @@
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
       <div class="panel-header">
-        <h2>Хичээл</h2>
+        <h2 class="lesson-title">Зөв хариулт сонгох</h2>
         <div class="start-level-picker">
           <button
             class="secondary"
@@ -120,14 +115,21 @@
             aria-haspopup="true"
             aria-expanded="false"
             aria-controls="start-level-dropdown"
-          >Зөв хариулт сонгох</button>
+          >Түвшин сонгох</button>
           <div class="start-level-dropdown hidden" id="start-level-dropdown" role="menu" aria-label="Түвшин сонгох">
             <button class="start-level-option active" type="button" data-level="beginner" role="menuitem">Анхан</button>
             <button class="start-level-option" type="button" data-level="intermediate" role="menuitem">Дунд</button>
             <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
           </div>
         </div>
-        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        <div class="quiz-header-audio-group">
+          <div class="topbar hidden" id="topbar">
+            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
+            <div class="pill">Оноо: <span id="score">0</span></div>
+            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+          </div>
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        </div>
       </div>
       <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
 
