@@ -264,11 +264,11 @@ const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох 
 
 const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
 const QA_REWARD_STEPS = [
-  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60 },
-  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60 },
-  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60 },
-  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60 },
-  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60 },
+  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: "assets/rewards/1-flag.png", alt: "Q&A reward flag" },
+  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: "assets/rewards/2-star.png", alt: "Q&A reward star" },
+  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: "assets/rewards/3-coin.png", alt: "Q&A reward coin" },
+  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/4-trophy.png", alt: "Q&A reward trophy" },
+  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/5-diamond.png", alt: "Q&A reward diamond" },
 ];
 const QA_WORD_BANK_BASE = ["I","China","from","?","arrived","Where","to","yesterday","did","you","are","come","Mongolia","from","I","When","in","you","am","China","?"];
 const QA_ROUNDS = [
@@ -2515,9 +2515,15 @@ function getQaCurrentRound() {
 
 function renderQaRewards() {
   if (!qaRewardBarEl) return;
-  qaRewardBarEl.innerHTML = QA_REWARD_STEPS.map((reward, index) => `
-    <span class="qa-reward-item ${index < qaUnlockedRewards ? "active" : ""}">${reward.icon} ${reward.label}</span>
-  `).join("");
+  qaRewardBarEl.innerHTML = QA_REWARD_STEPS.map((reward, index) => {
+    const unlocked = index < qaUnlockedRewards;
+    return `
+      <article class="qna-reward-tile ${unlocked ? "is-unlocked" : ""}" data-reward-index="${index}">
+        <p class="qna-reward-label">${reward.icon} ${reward.label}</p>
+        <img class="qna-reward-image" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
+      </article>
+    `;
+  }).join("");
 }
 
 function showQaToast(message) {
