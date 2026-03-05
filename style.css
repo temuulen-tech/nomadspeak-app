@@ -1382,7 +1382,8 @@ body{
   justify-content:center;
   align-items:center;
   min-width:0;
-  gap:10px;
+  gap:14px;
+  margin-top:8px;
 }
 
 .sentence-game-difficulty-wrap{
@@ -1440,10 +1441,10 @@ body{
   display:flex;
   align-items:flex-start;
   justify-content:center;
-  gap:clamp(10px, 1.2vw, 14px);
+  gap:clamp(10px, 1vw, 16px);
   margin:0;
   padding:0;
-  flex-wrap:wrap;
+  flex-wrap:nowrap;
 }
 
 .reward-tile{
@@ -1452,6 +1453,7 @@ body{
   flex-direction:column;
   align-items:center;
   justify-content:flex-start;
+  flex:0 1 clamp(140px, 18vw, 170px);
   padding:24px 8px 8px;
   border-radius:14px;
   min-width:0;
@@ -1462,9 +1464,8 @@ body{
 
 .reward-img,
 .sentence-game-reward-image{
-  height:clamp(54px, 7vw, 82px);
-  width:auto;
-  max-width:100%;
+  width:clamp(92px, 10.5vw, 128px);
+  height:clamp(92px, 10.5vw, 128px);
   object-fit:contain;
   border-radius:12px;
   border:2px solid rgba(255,241,206,.32);
@@ -1794,6 +1795,18 @@ body{
 @media (min-width:761px) and (max-width:1020px){
 }
 
+@media (max-width:1200px){
+  .sentence-game-reward-row{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .reward-tile{
+    flex:0 1 calc(33.333% - 12px);
+    max-width:180px;
+  }
+}
+
 @media (max-width:900px){
   body{
     padding:16px;
@@ -1822,7 +1835,7 @@ body{
 
   .sentence-game-header-row{
     flex-wrap:wrap;
-    align-items:flex-start;
+    align-items:center;
   }
 
   .sentence-game-header-card{
@@ -1834,6 +1847,7 @@ body{
     order:2;
     flex:1 1 100%;
     justify-content:center;
+    margin-top:2px;
   }
 
   .sentence-game-title-actions{
@@ -1921,8 +1935,13 @@ body{
     gap:8px;
   }
 
+  .reward-tile{
+    flex:0 1 calc(50% - 10px);
+  }
+
   .sentence-game-reward-image{
-    height:44px;
+    width:72px;
+    height:72px;
   }
 
   .sentence-game-difficulty-btn{
@@ -2009,8 +2028,13 @@ body{
     flex-wrap:wrap;
   }
 
+  .reward-tile{
+    flex:0 1 calc(50% - 8px);
+  }
+
   .sentence-game-reward-image{
-    height:38px;
+    width:64px;
+    height:64px;
   }
 
   .sentence-game-title-actions{
