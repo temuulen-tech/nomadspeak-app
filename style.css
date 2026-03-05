@@ -1257,7 +1257,7 @@ body{
 
 .sentence-game-header-row{
   display:flex;
-  align-items:center;
+  align-items:flex-end;
   justify-content:space-between;
   gap:14px;
   margin-bottom:6px;
@@ -1383,7 +1383,7 @@ body{
   align-items:center;
   min-width:0;
   gap:14px;
-  margin-top:8px;
+  margin-top:0;
 }
 
 .sentence-game-difficulty-wrap{
@@ -1795,7 +1795,7 @@ body{
 @media (min-width:761px) and (max-width:1020px){
 }
 
-@media (max-width:1200px){
+@media (max-width:899px){
   .sentence-game-reward-row{
     flex-wrap:wrap;
     justify-content:center;
@@ -1804,6 +1804,29 @@ body{
   .reward-tile{
     flex:0 1 calc(33.333% - 12px);
     max-width:180px;
+  }
+}
+
+@media (min-width:900px){
+  #sentence-game-screen .sentence-game-reward-row,
+  #qa-game-screen .sentence-game-reward-row{
+    flex-wrap:nowrap;
+    gap:8px;
+    justify-content:center;
+  }
+
+  #sentence-game-screen .sentence-game-reward-row .reward-tile,
+  #qa-game-screen .sentence-game-reward-row .reward-tile{
+    flex:0 1 clamp(104px, 8.2vw, 122px);
+  }
+
+  #sentence-game-screen .sentence-game-reward-row .reward-img,
+  #sentence-game-screen .sentence-game-reward-row .sentence-game-reward-image,
+  #qa-game-screen .sentence-game-reward-row .reward-img,
+  #qa-game-screen .sentence-game-reward-row .sentence-game-reward-image{
+    width:clamp(76px, 6.8vw, 96px);
+    height:clamp(76px, 6.8vw, 96px);
+    object-fit:contain;
   }
 }
 
