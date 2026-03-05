@@ -2532,16 +2532,16 @@ function renderSentencesRewards() {
 }
 
 function updateSentencesTimerUI() {
+  while (sentencesUnlockedRewards < SENTENCES_REWARD_STEPS.length && sentencesElapsedSeconds >= SENTENCES_REWARD_STEPS[sentencesUnlockedRewards].seconds) {
+    sentencesUnlockedRewards += 1;
+    renderSentencesRewards();
+  }
   if (sentencesTimerEl) sentencesTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(sentencesElapsedSeconds)}`;
   const nextReward = SENTENCES_REWARD_STEPS[sentencesUnlockedRewards];
   if (sentencesNextRewardEl) {
     sentencesNextRewardEl.textContent = nextReward
       ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - sentencesElapsedSeconds, 0))}`
       : "Бүх шагналыг авсан байна 🎉";
-  }
-  while (sentencesUnlockedRewards < SENTENCES_REWARD_STEPS.length && sentencesElapsedSeconds >= SENTENCES_REWARD_STEPS[sentencesUnlockedRewards].seconds) {
-    sentencesUnlockedRewards += 1;
-    renderSentencesRewards();
   }
 }
 
