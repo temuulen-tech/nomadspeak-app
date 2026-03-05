@@ -989,12 +989,7 @@ function navigateTo(destination) {
     stopSpeaking();
     hideStartIntroPanel();
     setStartLevelMenuOpen(false);
-    showScreen(quizScreen);
-    if (!questions.length) {
-      questionEl.textContent = "Түвшин сонгоод хичээлээ эхлүүлнэ үү.";
-      optionsEl.innerHTML = "";
-      hide(resultEl);
-    }
+    startQuiz();
   }
 
   if (destination === "sentences") {
@@ -2547,9 +2542,7 @@ let hasExplicitStartLevelSelection = false;
 
 function updateStartButtonLabel() {
   if (!startBtn) return;
-  startBtn.textContent = hasExplicitStartLevelSelection
-    ? `Түвшин сонгох: ${startLevelLabel(level)}`
-    : "Түвшин сонгох";
+  startBtn.textContent = `Түвшин сонгох: ${startLevelLabel(level)}`;
 }
 
 function setStartLevelMenuOpen(isOpen) {
