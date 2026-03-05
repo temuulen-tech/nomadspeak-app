@@ -74,9 +74,6 @@ const navQaGameBtn = document.getElementById("nav-qa-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 const navProfileBtn = document.getElementById("nav-profile-btn");
 
-const confirmOverlay = document.getElementById("confirm-overlay");
-const confirmYesBtn = document.getElementById("confirm-yes-btn");
-const confirmNoBtn = document.getElementById("confirm-no-btn");
 
 const startLevelDropdown = document.getElementById("start-level-dropdown");
 const startLevelPicker = document.querySelector(".start-level-picker");
@@ -192,7 +189,6 @@ let questions = [];
 let currentIndex = 0;
 let score = 0;
 let locked = false;
-let pendingNavigation = null;
 
 let sentenceItems = [];
 let sentenceFilter = "all";
@@ -970,12 +966,6 @@ function showScreen(screen) {
   updateHeaderStatus();
 }
 
-function confirmNavigation(destination) {
-  pendingNavigation = destination;
-  show(confirmOverlay);
-  confirmNoBtn.focus();
-}
-
 function navigateTo(destination) {
   if (destination === "home") {
     stopSpeaking();
@@ -1025,10 +1015,15 @@ function navigateTo(destination) {
   }
 }
 
+function resetLessonProgress() {
+  questions = [];
+  currentIndex = 0;
+  locked = false;
+}
+
 function requestNavigation(destination) {
-  if (isQuizInProgress()) {
-    confirmNavigation(destination);
-    return;
+  if (destination !== "lesson" && isQuizInProgress()) {
+    resetLessonProgress();
   }
 
   navigateTo(destination);
@@ -3009,20 +3004,6 @@ navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-g
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
-
-confirmNoBtn.addEventListener("click", () => {
-  pendingNavigation = null;
-  hide(confirmOverlay);
-});
-
-confirmYesBtn.addEventListener("click", () => {
-  hide(confirmOverlay);
-
-  if (pendingNavigation) {
-    navigateTo(pendingNavigation);
-    pendingNavigation = null;
-  }
-});
 
 if (introToggleBtn) {
   introToggleBtn.addEventListener("click", toggleStartIntroPanel);
