@@ -143,42 +143,49 @@
         <h2>Өгүүлбэрүүд</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
+      <div class="sentences-reward-strip" id="sentences-reward-strip" aria-label="Sentences reward progress"></div>
+      <div class="sentences-time-meta" aria-live="polite">
+        <p class="sentences-timer" id="sentences-timer">Тоглосон хугацаа: 00:00:00</p>
+        <p class="sentences-next-reward" id="sentences-next-reward">Next reward in 00:20:00</p>
+      </div>
       <div class="sentences-top-controls">
-        <div class="sentences-filters-column">
-          <div class="tts-controls" aria-label="Дуудлагын тохиргоо">
-            <div class="tts-group" role="group" aria-label="Дуу хоолой">
-              <span class="tts-label">Дуу хоолой:</span>
-              <button class="tts-option-btn active" type="button" data-voice="auto">Авто</button>
-              <button class="tts-option-btn" type="button" data-voice="male">Эр</button>
-              <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
+        <div class="sentences-controls-grid">
+          <div class="sentences-filters-column">
+            <div class="tts-controls" aria-label="Дуудлагын тохиргоо">
+              <div class="tts-group" role="group" aria-label="Дуу хоолой">
+                <span class="tts-label">Дуу хоолой:</span>
+                <button class="tts-option-btn active" type="button" data-voice="auto">Авто</button>
+                <button class="tts-option-btn" type="button" data-voice="male">Эр</button>
+                <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
+              </div>
+            </div>
+            <div class="sentences-controls" role="group" aria-label="Түвшин шүүлтүүр">
+              <button class="filter-btn active" type="button" data-filter="all">Бүгд</button>
+              <button class="filter-btn level-filter-btn" type="button" data-filter="beginner">Анхан</button>
+              <button class="filter-btn level-filter-btn" type="button" data-filter="intermediate">Дунд</button>
+              <button class="filter-btn level-filter-btn" type="button" data-filter="advanced">Дээд</button>
             </div>
           </div>
-          <div class="sentences-controls" role="group" aria-label="Түвшин шүүлтүүр">
-            <button class="filter-btn active" type="button" data-filter="all">Бүгд</button>
-            <button class="filter-btn level-filter-btn" type="button" data-filter="beginner">Анхан</button>
-            <button class="filter-btn level-filter-btn" type="button" data-filter="intermediate">Дунд</button>
-            <button class="filter-btn level-filter-btn" type="button" data-filter="advanced">Дээд</button>
-          </div>
-        </div>
-        <div class="tts-group tts-rate-group tts-rate-compact sentences-speed-block" aria-label="Хурд">
-          <div class="tts-rate-header">
-            <label class="tts-label tts-rate-pill" for="tts-rate-slider">Дууны хурд</label>
-            <span class="tts-rate-value" id="tts-rate-value">0.85x</span>
-          </div>
-          <input
-            id="tts-rate-slider"
-            class="tts-rate-slider"
-            type="range"
-            min="0.45"
-            max="1.4"
-            step="0.05"
-            value="0.85"
-            aria-label="Унших хурд"
-          />
-          <div class="tts-rate-hints" aria-hidden="true">
-            <span class="speed-hint-pill">👂 Маш удаан</span>
-            <span class="speed-hint-pill">Хэвийн</span>
-            <span class="speed-hint-pill">Хурдан</span>
+          <div class="tts-group tts-rate-group tts-rate-compact sentences-speed-block" aria-label="Хурд">
+            <div class="tts-rate-header">
+              <label class="tts-label tts-rate-pill" for="tts-rate-slider">Дууны хурд</label>
+              <span class="tts-rate-value" id="tts-rate-value">0.85x</span>
+            </div>
+            <input
+              id="tts-rate-slider"
+              class="tts-rate-slider"
+              type="range"
+              min="0.45"
+              max="1.4"
+              step="0.05"
+              value="0.85"
+              aria-label="Унших хурд"
+            />
+            <div class="tts-rate-hints" aria-hidden="true">
+              <span class="speed-hint-pill">👂 Маш удаан</span>
+              <span class="speed-hint-pill">Хэвийн</span>
+              <span class="speed-hint-pill">Хурдан</span>
+            </div>
           </div>
         </div>
       </div>
