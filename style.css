@@ -2535,10 +2535,15 @@ body{
   }
 }
 
+
+.sentence-row.is-repeat-target{
+  outline:2px solid #fff3a6;
+  box-shadow:0 0 0 3px rgba(255,243,166,.25);
+}
 .vault-motivation{
   display:block;
   margin:6px 0 8px;
-  font-size:16px;
+  font-size:19px;
   font-weight:700;
   line-height:1.25;
   color:#fff;

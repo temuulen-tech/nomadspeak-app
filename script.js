@@ -508,9 +508,9 @@ const VAULT_ITEM_RENDERERS = {
       <div class="vault-options-list">${optionsHtml}</div>
     `;
   },
-  qna: (item) => `<p><strong>MN:</strong> ${item.mnQuestion || ""} — ${item.mnAnswer || ""}</p><p><strong>EN:</strong> ${item.enQuestion || ""} — ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
-  sentenceGame: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
-  sentences: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p>${item.voiceSetting ? `<p><strong>Voice:</strong> ${item.voiceSetting}</p>` : ""}`,
+  qna: (item) => `<p><strong>Монгол Асуулт:</strong> ${item.mnQuestion || ""}</p><p><strong>Монгол Хариулт:</strong> ${item.mnAnswer || ""}</p><p><strong>Англи Асуулт:</strong> ${item.enQuestion || ""}</p><p><strong>Англи Хариулт:</strong> ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
+  sentenceGame: (item) => `<p><strong>Англи:</strong> ${item.enSentence || ""}</p><p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
+  sentences: (item) => `<p><strong>Англи:</strong> ${item.enSentence || ""}</p><p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p>${item.voiceSetting ? `<p><strong>Дуу хоолой:</strong> ${item.voiceSetting}</p>` : ""}`,
 };
 
 function vaultKeyForScreen(screenId) {
@@ -570,6 +570,115 @@ function showVaultToast(message) {
   showQaToast(message);
 }
 
+function findVaultItem(sectionKey, itemId) {
+  if (!sectionKey || !itemId) return null;
+  const key = vaultKeyForScreen(sectionKey);
+  return loadVault(key).find((entry) => entry.id === itemId) || null;
+}
+
+function focusSentenceFromVault(savedItem) {
+  if (!savedItem || !sentencesListEl) return;
+  const targetSentence = String(savedItem.enSentence || "").trim().toLowerCase();
+  if (!targetSentence) return;
+
+  const rows = [...sentencesListEl.querySelectorAll(".sentence-row")];
+  const targetRow = rows.find((row) => {
+    const enEl = row.querySelector(".sentence-en");
+    return String(enEl?.textContent || "").trim().toLowerCase() === targetSentence;
+  });
+
+  if (!targetRow) {
+    openQaModal(
+      "Өгүүлбэр давтах",
+      `<p><strong>Англи:</strong> ${escapeHtml(savedItem.enSentence || "")}</p><p><strong>Монгол:</strong> ${escapeHtml(savedItem.mnTranslation || "-")}</p>`
+    );
+    return;
+  }
+
+  sentencesListEl.querySelectorAll(".sentence-row.is-repeat-target").forEach((row) => row.classList.remove("is-repeat-target"));
+  targetRow.classList.add("is-repeat-target");
+  targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
+  targetRow.querySelector(".speak-btn")?.focus();
+
+  if (soundEnabled) {
+    const sourceItem = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === targetSentence)
+      || { id: Number(targetRow.querySelector(".speak-btn")?.dataset.id || 0), en: savedItem.enSentence };
+    setTimeout(() => speakSentence(sourceItem), 120);
+  }
+}
+
+function loadSentenceGameFromVault(savedItem) {
+  if (!savedItem || !savedItem.enSentence) return;
+  const normalized = String(savedItem.enSentence).trim().toLowerCase();
+  const matched = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === normalized)
+    || { en: savedItem.enSentence, mn: savedItem.mnTranslation || "", level: (savedItem.level || "beginner").toLowerCase() };
+
+  sentenceGameHistory = [matched];
+  sentenceGameIndex = 0;
+  initSentenceGameRound();
+}
+
+function loadQaRoundFromVault(savedItem) {
+  if (!savedItem) return;
+  const round = {
+    id: savedItem.id || `vault-${Date.now()}`,
+    mnQuestion: savedItem.mnQuestion || "",
+    mnAnswer: savedItem.mnAnswer || "",
+    enQuestion: savedItem.enQuestion || "",
+    enAnswer: savedItem.enAnswer || "",
+  };
+
+  qaGameLevel = "intermediate";
+  qaRoundPool = [round];
+  qaRoundIndex = 0;
+  qaRoundPanelEl.classList.remove("hidden");
+  qaLevelOptionsEl.classList.add("hidden");
+  qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
+
+  const questionTokens = round.enQuestion.split(" ").filter(Boolean);
+  const answerTokens = round.enAnswer.split(" ").filter(Boolean);
+  const combinedTokens = [...questionTokens, ...answerTokens];
+  setupQaRound({ round, wordBankTokens: combinedTokens });
+  startQaTimer();
+}
+
+function repeatFromVault(sectionKey, itemId) {
+  const savedItem = findVaultItem(sectionKey, itemId);
+  if (!savedItem) {
+    showVaultToast("Хадгалсан өгөгдөл олдсонгүй.");
+    return;
+  }
+
+  if (vaultModalEl) vaultModalEl.classList.add("hidden");
+
+  if (sectionKey === "lesson") {
+    startLessonFromSaved(itemId);
+    return;
+  }
+
+  if (sectionKey === "sentences") {
+    stopSpeaking();
+    showScreen(sentencesScreen);
+    renderSentences();
+    focusSentenceFromVault(savedItem);
+    return;
+  }
+
+  if (sectionKey === "sentenceGame") {
+    stopSpeaking();
+    showScreen(sentenceGameScreen);
+    loadSentenceGameFromVault(savedItem);
+    enforceFreeXpGate();
+    return;
+  }
+
+  if (sectionKey === "qna") {
+    stopSpeaking();
+    showScreen(qaGameScreen);
+    loadQaRoundFromVault(savedItem);
+  }
+}
+
 function renderVaultModal(key) {
   if (!vaultModalEl || !vaultModalBodyEl || !vaultModalTitleEl) return;
   const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
@@ -586,7 +695,7 @@ function renderVaultModal(key) {
   };
 
   if (vaultReplayBtn) {
-    vaultReplayBtn.disabled = screenId !== "lesson" || !list.length;
+    vaultReplayBtn.disabled = !list.length;
   }
   if (vaultDeleteBtn) {
     vaultDeleteBtn.disabled = !list.length;
@@ -620,8 +729,8 @@ function renderVaultModal(key) {
 
   if (vaultReplayBtn) {
     vaultReplayBtn.onclick = () => {
-      if (screenId !== "lesson" || !selectedId) return;
-      startLessonFromSaved(selectedId);
+      if (!screenId || !selectedId) return;
+      repeatFromVault(screenId, selectedId);
     };
   }
 
@@ -3174,12 +3283,16 @@ function updateQaBuiltTextPreview() {
   qaFeedbackEl.textContent = `Q: ${questionText || "..."} | A: ${answerText || "..."}`;
 }
 
-function setupQaRound() {
-  const round = getQaCurrentRound();
+function setupQaRound(options = {}) {
+  const round = options.round || getQaCurrentRound();
+  const sourceTokens = Array.isArray(options.wordBankTokens) && options.wordBankTokens.length
+    ? options.wordBankTokens
+    : QA_WORD_BANK_BASE;
+
   qaQuestionSolved = false;
   qaQuestionBuilt = [];
   qaAnswerBuilt = [];
-  qaBank = qaShuffle(QA_WORD_BANK_BASE).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token }));
+  qaBank = qaShuffle(sourceTokens).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token }));
 
   qaMnQuestionEl.textContent = round.mnQuestion;
   qaMnAnswerEl.textContent = round.mnAnswer;
