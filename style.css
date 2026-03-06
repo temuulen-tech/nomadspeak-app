@@ -2452,7 +2452,7 @@ body{
   flex:1 1 auto;
   min-height:0;
   overflow-y:auto;
-  padding:10px 14px calc(var(--vault-footer-h, 140px) + 16px);
+  padding:10px 14px calc(var(--vault-footer-h, 90px) + 12px);
 }
 
 .vault-list{
@@ -2486,19 +2486,20 @@ body{
 }
 
 .vault-footer{
-  --vault-footer-h:140px;
+  --vault-footer-h:90px;
   position:sticky;
   bottom:0;
   z-index:2;
   flex:0 0 auto;
-  height:var(--vault-footer-h, 140px);
-  padding:8px 14px 10px;
+  height:auto;
+  min-height:var(--vault-footer-h, 90px);
+  padding:8px 14px;
   background:var(--card);
   border-top:1px solid rgba(20,35,64,.14);
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:10px;
+  gap:8px;
 }
 
 .vault-actions,
@@ -2511,11 +2512,15 @@ body{
 
 .vault-footer-buttons button{
   flex:1;
+  font-size:14px;
+  padding:10px 12px;
+  min-height:42px;
+  border-radius:14px;
 }
 
 #vault-modal-close-btn{
-  font-size:17px;
-  padding:12px 22px;
+  font-size:14px;
+  padding:10px 12px;
 }
 
 
@@ -2532,10 +2537,10 @@ body{
 
 .vault-motivation{
   display:block;
-  margin:6px 0 8px;
-  font-size:17px;
+  margin:2px 0 4px;
+  font-size:15px;
   font-weight:700;
-  line-height:1.4;
+  line-height:1.25;
   color:#10223a;
   text-align:center;
   opacity:1;
