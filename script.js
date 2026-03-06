@@ -210,6 +210,7 @@ let questions = [];
 let currentIndex = 0;
 let score = 0;
 let locked = false;
+let lessonReviewMode = false;
 
 let sentenceItems = [];
 let sentenceFilter = "all";
@@ -435,9 +436,9 @@ const VAULT_SCREEN_META = {
 const VAULT_ITEM_RENDERERS = {
   lesson: (item) => {
     const options = Array.isArray(item.options) && item.options.length
-      ? `<details><summary>Сонголтууд</summary><p>${item.options.join(" / ")}</p></details>`
+      ? `<details><summary>Сонголтууд:</summary><p>${item.options.join(" / ")}</p></details>`
       : "";
-    return `<p><strong>Question:</strong> ${item.questionText || ""}</p><p><strong>Correct answer:</strong> ${item.correctAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>${options}`;
+    return `<p><strong>Асуулт:</strong> ${item.questionText || ""}</p><p><strong>Зөв хариулт:</strong> ${item.correctAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>${options}<p class="vault-entry-hint">Дахин давтах</p>`;
   },
   qna: (item) => `<p><strong>MN:</strong> ${item.mnQuestion || ""} — ${item.mnAnswer || ""}</p><p><strong>EN:</strong> ${item.enQuestion || ""} — ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
   sentenceGame: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
@@ -506,21 +507,32 @@ function renderVaultModal(key) {
     <article class="vault-entry" data-id="${item.id}">
       ${renderItem(item)}
       <div class="vault-entry-actions">
-        <button class="secondary vault-remove-btn" type="button" data-action="delete" data-id="${item.id}">Устгах</button>
-        <button class="secondary vault-remove-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
+        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="delete" data-id="${item.id}">Устгах</button>
+        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
       </div>
     </article>
   `).join("");
   vaultModalEl.classList.remove("hidden");
 
   vaultModalBodyEl.querySelectorAll(".vault-remove-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
       removeFromVault(key, btn.dataset.id);
       updateVaultBadge(key);
       showVaultToast("Устгалаа 🗑️");
       renderVaultModal(key);
     });
   });
+
+  if (screenId === "lesson") {
+    vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
+      entry.addEventListener("click", () => {
+        const itemId = entry.dataset.id;
+        if (!itemId) return;
+        startLessonFromSaved(itemId);
+      });
+    });
+  }
 }
 
 function saveCurrentLessonItem() {
@@ -538,6 +550,26 @@ function saveCurrentLessonItem() {
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function startLessonFromSaved(itemId) {
+  const key = vaultKeyForScreen("lesson");
+  const savedItem = loadVault(key).find((entry) => entry.id === itemId);
+  if (!savedItem) return;
+
+  lessonReviewMode = true;
+  questions = [{
+    q: savedItem.questionText || "",
+    a: savedItem.correctAnswer || "",
+    replayOptions: Array.isArray(savedItem.options) ? savedItem.options.slice() : [],
+  }];
+  currentIndex = 0;
+  locked = false;
+
+  if (vaultModalEl) vaultModalEl.classList.add("hidden");
+  stopSpeaking();
+  showScreen(quizScreen);
+  renderQuestion();
 }
 
 function saveCurrentQaRound() {
@@ -1218,6 +1250,7 @@ function navigateTo(destination) {
 function resetLessonProgress() {
   questions = [];
   currentIndex = 0;
+  lessonReviewMode = false;
   locked = false;
   lessonElapsedSeconds = 0;
   lessonUnlockedRewards = 0;
@@ -2653,6 +2686,7 @@ function startQuiz() {
   currentIndex = 0;
   score = 0;
   locked = false;
+  lessonReviewMode = false;
   loadProgressState();
   syncProgressForToday();
   persistProgressState();
@@ -2671,7 +2705,9 @@ function renderQuestion() {
   const item = questions[currentIndex];
   questionEl.textContent = item.q;
 
-  const options = buildOptions(item.a);
+  const options = Array.isArray(item.replayOptions) && item.replayOptions.length
+    ? item.replayOptions.slice()
+    : buildOptions(item.a);
   optionsEl.innerHTML = "";
 
   options.forEach(opt => {
@@ -2700,8 +2736,10 @@ function pickAnswer(buttonEl, selected) {
   });
 
   if (selected === correct) {
-    score += 1;
-    awardXP(1, "quiz_correct_answer");
+    if (!lessonReviewMode) {
+      score += 1;
+      awardXP(1, "quiz_correct_answer");
+    }
     buttonEl.classList.add("correct");
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
@@ -2763,6 +2801,7 @@ function backToStart() {
   setStartLevelMenuOpen(false);
   questions = [];
   currentIndex = 0;
+  lessonReviewMode = false;
   showScreen(startScreen);
 }
 
