@@ -2422,10 +2422,11 @@ body{
 .qa-toast.show{opacity:1;transform:translateY(0);}
 .qa-modal-card #qa-modal-body p{margin:0 0 8px;}
 
-#vault-modal .qa-modal-card{
+#vault-modal .vault-modal{
   display:flex;
   flex-direction:column;
-  max-height:80vh;
+  max-height:85vh;
+  width:clamp(320px, 92vw, 760px);
   overflow:hidden;
   border:1.5px solid rgba(255,214,115,.8);
   border-radius:18px;
@@ -2436,26 +2437,20 @@ body{
     0 0 14px rgba(80,255,215,.18);
 }
 
+.vault-header{
+  padding:16px;
+  border-bottom:1px solid rgba(20,35,64,.14);
+}
+
 #vault-modal-title{
-  position:sticky;
-  top:0;
-  z-index:1;
-  background:var(--card);
-  padding-bottom:8px;
+  margin:0;
 }
 
-#vault-modal-body-wrap{
+.vault-body{
   flex:1 1 auto;
-  min-height:0;
-  overflow:hidden;
-}
-
-#vault-modal-body{
-  flex:1 1 auto;
-  min-height:0;
   overflow-y:auto;
-  padding-right:4px;
-  padding-bottom:120px;
+  padding:12px 16px;
+  min-height:0;
 }
 
 .vault-list{
@@ -2472,6 +2467,7 @@ body{
 .vault-entry{position:relative;border:0;border-radius:14px;padding:14px;margin-bottom:12px;background:linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 8px 18px rgba(2,34,28,.38),0 0 18px rgba(41,210,158,.24),0 0 14px rgba(255,215,110,.2);cursor:pointer;transition:transform .12s ease, box-shadow .2s ease;}
 .vault-entry::before{content:"";position:absolute;inset:0;padding:1.5px;border-radius:inherit;background:linear-gradient(120deg, #fff0b3 0%, #d8a93f 25%, #fff4c6 47%, #b37b21 70%, #ffe8a1 100%);-webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.95;}
 .vault-entry:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.28),0 12px 24px rgba(2,34,28,.45),0 0 22px rgba(80,255,215,.34),0 0 18px rgba(255,214,120,.34);}
+.vault-entry.is-selected{outline:2px solid rgba(255,245,168,.95);outline-offset:2px;}
 .vault-entry p{margin:0 0 8px;color:#f2fff8;font-weight:560;line-height:1.45;}
 .vault-entry strong{color:#fff7c2;}
 .vault-options-list{display:grid;gap:8px;margin-top:6px;}
@@ -2486,24 +2482,32 @@ body{
   border-radius:12px;
   padding:10px 12px;
 }
-.vault-entry-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
-.vault-entry-actions .vault-action-btn{flex:1 1 120px;min-width:120px;text-align:center;}
+
+.vault-footer{
+  flex:0 0 auto;
+  padding:12px 16px;
+  background:var(--card);
+  border-top:1px solid rgba(20,35,64,.14);
+}
+
+.vault-footer-buttons{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.vault-footer-buttons button{
+  flex:1 1 140px;
+}
 
 #vault-modal-close-btn{
   font-size:17px;
   padding:12px 22px;
 }
 
-#vault-modal-footer{
-  flex:0 0 auto;
-  z-index:2;
-  padding-top:10px;
-  border-top:1px solid rgba(20,35,64,.14);
-  background:var(--card);
-}
-
 #vault-modal-footer .confirm-actions{
-  margin-top:8px;
+  margin-top:10px;
 }
 
 .vault-motivation{
@@ -2512,14 +2516,5 @@ body{
   font-weight:700;
   line-height:1.4;
   color:#10223a;
-  text-align:center;
-}
-
-.vault-footer-help{
-  margin:6px 0 0;
-  font-size:13px;
-  font-weight:500;
-  line-height:1.45;
-  color:#243b65;
   text-align:center;
 }

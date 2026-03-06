@@ -217,6 +217,9 @@ const vaultModalEl = document.getElementById("vault-modal");
 const vaultModalTitleEl = document.getElementById("vault-modal-title");
 const vaultModalBodyEl = document.getElementById("vault-modal-body");
 const vaultModalCloseBtn = document.getElementById("vault-modal-close-btn");
+const vaultReplayBtn = document.getElementById("vault-replay-btn");
+const vaultDeleteBtn = document.getElementById("vault-delete-btn");
+const vaultLearnedBtn = document.getElementById("vault-learned-btn");
 
 // ---- State ----
 let level = "beginner";
@@ -574,6 +577,24 @@ function renderVaultModal(key) {
   const meta = VAULT_SCREEN_META[screenId] || { title: "Дахин давтах / Дараа харах" };
   vaultModalTitleEl.textContent = meta.title;
 
+  let selectedId = list.length ? list[0].id : "";
+  const setSelectedEntry = (entryId) => {
+    selectedId = entryId || "";
+    vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
+      entry.classList.toggle("is-selected", entry.dataset.id === selectedId);
+    });
+  };
+
+  if (vaultReplayBtn) {
+    vaultReplayBtn.disabled = screenId !== "lesson" || !list.length;
+  }
+  if (vaultDeleteBtn) {
+    vaultDeleteBtn.disabled = !list.length;
+  }
+  if (vaultLearnedBtn) {
+    vaultLearnedBtn.disabled = !list.length;
+  }
+
   if (!list.length) {
     vaultModalBodyEl.innerHTML = '<div class="vault-list"><p>Одоогоор хадгалсан зүйл алга.</p></div>';
     vaultModalEl.classList.remove("hidden");
@@ -584,38 +605,36 @@ function renderVaultModal(key) {
   vaultModalBodyEl.innerHTML = `<div class="vault-list">${list.map((item) => `
     <article class="vault-entry" data-id="${item.id}">
       ${renderItem(item)}
-      <div class="vault-entry-actions">
-        ${screenId === "lesson" ? `<button class="secondary vault-action-btn" type="button" data-action="replay" data-id="${item.id}">Дахин давтах</button>` : ""}
-        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="delete" data-id="${item.id}" title="Зөвхөн хадгалсан жагсаалтаас хасна">Хадгалсанаас устгах</button>
-        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
-      </div>
     </article>
   `).join("")}</div>`;
   vaultModalEl.classList.remove("hidden");
+  setSelectedEntry(selectedId);
 
-  vaultModalBodyEl.querySelectorAll(".vault-action-btn").forEach((btn) => {
-    btn.addEventListener("click", (event) => {
-      event.stopPropagation();
-      if (btn.dataset.action === "replay" && screenId === "lesson") {
-        startLessonFromSaved(btn.dataset.id);
-        return;
-      }
-      removeFromVault(key, btn.dataset.id);
-      updateVaultBadge(key);
-      showVaultToast("Хадгалсанаас устгалаа 🗑️");
-      renderVaultModal(key);
+  vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
+    entry.addEventListener("click", () => {
+      const itemId = entry.dataset.id;
+      if (!itemId) return;
+      setSelectedEntry(itemId);
     });
   });
 
-  if (screenId === "lesson") {
-    vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
-      entry.addEventListener("click", () => {
-        const itemId = entry.dataset.id;
-        if (!itemId) return;
-        startLessonFromSaved(itemId);
-      });
-    });
+  if (vaultReplayBtn) {
+    vaultReplayBtn.onclick = () => {
+      if (screenId !== "lesson" || !selectedId) return;
+      startLessonFromSaved(selectedId);
+    };
   }
+
+  const removeSelected = () => {
+    if (!selectedId) return;
+    removeFromVault(key, selectedId);
+    updateVaultBadge(key);
+    showVaultToast("Хадгалсанаас устгалаа 🗑️");
+    renderVaultModal(key);
+  };
+
+  if (vaultDeleteBtn) vaultDeleteBtn.onclick = removeSelected;
+  if (vaultLearnedBtn) vaultLearnedBtn.onclick = removeSelected;
 }
 
 function saveCurrentLessonItem() {
