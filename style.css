@@ -2438,7 +2438,7 @@ body{
 }
 
 .vault-header{
-  padding:16px;
+  padding:10px 14px 8px;
   border-bottom:1px solid rgba(20,35,64,.14);
 }
 
@@ -2485,16 +2485,16 @@ body{
 
 .vault-footer{
   flex:0 0 auto;
-  padding:12px 16px;
+  padding:8px 14px 10px;
   background:var(--card);
   border-top:1px solid rgba(20,35,64,.14);
 }
 
 .vault-footer-buttons{
   display:flex;
-  gap:8px;
+  gap:6px;
   flex-wrap:wrap;
-  margin-top:10px;
+  margin-top:8px;
 }
 
 .vault-footer-buttons button{
@@ -2507,7 +2507,7 @@ body{
 }
 
 #vault-modal-footer .confirm-actions{
-  margin-top:10px;
+  margin-top:8px;
 }
 
 .vault-motivation{
