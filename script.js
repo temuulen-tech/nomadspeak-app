@@ -418,6 +418,34 @@ function levelName(lv) {
   return "Дээд";
 }
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+function renderVaultEnMnLine(enText, mnText) {
+  const safeEn = escapeHtml(enText || "");
+  const safeMn = escapeHtml(mnText || "(Орчуулга алга)");
+  return `<span class="vault-entry-en">${safeEn}</span><span class="vault-entry-mn">${safeMn}</span>`;
+}
+
+function lessonMnTranslation(value) {
+  if (!value) return "";
+  const knownTranslations = {
+    "What is your name?": "Чиний нэр хэн бэ?",
+    "Where are you from?": "Чи хаанаас ирсэн бэ?",
+    "Are you hungry?": "Чи өлсөж байна уу?",
+    "Yes, I'm a little hungry.": "Тийм ээ, би бага зэрэг өлсөж байна.",
+    "Where are you going?": "Чи хаашаа явж байна вэ?",
+    "I am going to Shanghai.": "Би Шанхай руу явж байна.",
+  };
+  return knownTranslations[value] || "";
+}
+
 
 const VAULT_KEY_BY_SCREEN = {
   lesson: "repeatVault_lesson",
@@ -435,10 +463,21 @@ const VAULT_SCREEN_META = {
 
 const VAULT_ITEM_RENDERERS = {
   lesson: (item) => {
-    const options = Array.isArray(item.options) && item.options.length
-      ? `<details><summary>Сонголтууд:</summary><p>${item.options.join(" / ")}</p></details>`
-      : "";
-    return `<p><strong>Асуулт:</strong> ${item.questionText || ""}</p><p><strong>Зөв хариулт:</strong> ${item.correctAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>${options}<p class="vault-entry-hint">Дахин давтах</p>`;
+    const options = Array.isArray(item.options) ? item.options : [];
+    const optionMnMap = (item.optionMnMap && typeof item.optionMnMap === "object") ? item.optionMnMap : {};
+    const optionsHtml = options.map((option, index) => {
+      const mnText = optionMnMap[option] || lessonMnTranslation(option);
+      const correctBadge = option === item.correctAnswer ? " <span class=\"vault-option-badge\">(Зөв)</span>" : "";
+      return `<div class="vault-option-line">${index + 1}. ${renderVaultEnMnLine(option, mnText)}${correctBadge}</div>`;
+    }).join("");
+
+    return `
+      <p><strong>Түвшин:</strong> ${escapeHtml(item.level || "")}</p>
+      <p><strong>Асуулт:</strong> ${renderVaultEnMnLine(item.questionText, item.questionMn || lessonMnTranslation(item.questionText))}</p>
+      <p><strong>Зөв хариулт:</strong> ${renderVaultEnMnLine(item.correctAnswer, item.correctAnswerMn || lessonMnTranslation(item.correctAnswer))}</p>
+      <div class="vault-options-list">${optionsHtml}</div>
+      <p class="vault-motivation">Чиний дэлхийг тойрох урт холын аялалд Амжилт хүсье. Найзаа</p>
+    `;
   },
   qna: (item) => `<p><strong>MN:</strong> ${item.mnQuestion || ""} — ${item.mnAnswer || ""}</p><p><strong>EN:</strong> ${item.enQuestion || ""} — ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
   sentenceGame: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
@@ -507,6 +546,7 @@ function renderVaultModal(key) {
     <article class="vault-entry" data-id="${item.id}">
       ${renderItem(item)}
       <div class="vault-entry-actions">
+        ${screenId === "lesson" ? `<button class="secondary vault-action-btn" type="button" data-action="replay" data-id="${item.id}">Дахин давтах</button>` : ""}
         <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="delete" data-id="${item.id}">Устгах</button>
         <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
       </div>
@@ -514,9 +554,13 @@ function renderVaultModal(key) {
   `).join("");
   vaultModalEl.classList.remove("hidden");
 
-  vaultModalBodyEl.querySelectorAll(".vault-remove-btn").forEach((btn) => {
+  vaultModalBodyEl.querySelectorAll(".vault-action-btn").forEach((btn) => {
     btn.addEventListener("click", (event) => {
       event.stopPropagation();
+      if (btn.dataset.action === "replay" && screenId === "lesson") {
+        startLessonFromSaved(btn.dataset.id);
+        return;
+      }
       removeFromVault(key, btn.dataset.id);
       updateVaultBadge(key);
       showVaultToast("Устгалаа 🗑️");
@@ -538,11 +582,20 @@ function renderVaultModal(key) {
 function saveCurrentLessonItem() {
   const item = questions[currentIndex];
   if (!item) return;
+  const options = buildOptions(item.a);
+  const optionMnMap = options.reduce((acc, option) => {
+    const mn = lessonMnTranslation(option);
+    if (mn) acc[option] = mn;
+    return acc;
+  }, {});
   const payload = {
     id: `lesson:${item.q.toLowerCase().trim()}`,
     questionText: item.q,
+    questionMn: item.qMn || lessonMnTranslation(item.q),
     correctAnswer: item.a,
-    options: buildOptions(item.a),
+    correctAnswerMn: item.aMn || lessonMnTranslation(item.a),
+    options,
+    optionMnMap,
     level: levelName(level),
     timestamp: Date.now(),
   };
