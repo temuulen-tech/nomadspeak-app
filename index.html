@@ -141,35 +141,35 @@
           </article>
         </div>
       </div>
-      <div class="question-header-row">
-        <div class="start-level-picker">
-          <button
-            class="secondary"
-            id="start-btn"
-            type="button"
-            aria-haspopup="true"
-            aria-expanded="false"
-            aria-controls="start-level-dropdown"
-          >Түвшин сонгох</button>
-          <div class="start-level-dropdown hidden" id="start-level-dropdown" role="menu" aria-label="Түвшин сонгох">
-            <button class="start-level-option active" type="button" data-level="beginner" role="menuitem">Анхан</button>
-            <button class="start-level-option" type="button" data-level="intermediate" role="menuitem">Дунд</button>
-            <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
-          </div>
-          <div class="lesson-time-meta" aria-live="polite">
-            <p class="qa-timer lesson-timer" id="lesson-timer">Тоглосон хугацаа: 00:00:00</p>
-            <p class="qa-next-reward lesson-next-reward" id="lesson-next-reward">Next reward in 00:20:00</p>
-          </div>
-        </div>
-        <div class="question-text-wrap">
-          <div class="lesson-question-controls">
-            <button class="secondary vault-save-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+      <div class="question-text-wrap">
+        <div class="lesson-question-row">
+          <div class="start-level-picker lesson-left-cluster">
+            <button
+              class="secondary"
+              id="start-btn"
+              type="button"
+              aria-haspopup="true"
+              aria-expanded="false"
+              aria-controls="start-level-dropdown"
+            >Түвшин сонгох</button>
+            <div class="start-level-dropdown hidden" id="start-level-dropdown" role="menu" aria-label="Түвшин сонгох">
+              <button class="start-level-option active" type="button" data-level="beginner" role="menuitem">Анхан</button>
+              <button class="start-level-option" type="button" data-level="intermediate" role="menuitem">Дунд</button>
+              <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
+            </div>
+            <div class="lesson-time-meta" aria-live="polite">
+              <p class="qa-timer lesson-timer" id="lesson-timer">Тоглосон хугацаа: 00:00:00</p>
+              <p class="qa-next-reward lesson-next-reward" id="lesson-next-reward">Next reward in 00:20:00</p>
+            </div>
           </div>
           <div class="question-row">
             <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
           </div>
-          <div class="options" id="options"></div>
+          <div class="lesson-question-controls">
+            <button class="secondary vault-save-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+          </div>
         </div>
+        <div class="options lesson-answers-grid" id="options"></div>
       </div>
 
       <div class="result hidden" id="result"></div>
