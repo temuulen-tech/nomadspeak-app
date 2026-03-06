@@ -187,6 +187,23 @@ const statsResetBtn = document.getElementById("stats-reset-btn");
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 
+
+const lessonVaultBtn = document.getElementById("lesson-vault-btn");
+const lessonVaultBadge = document.getElementById("lesson-vault-badge");
+const lessonSaveBtn = document.getElementById("lesson-save-btn");
+const sentencesVaultBtn = document.getElementById("sentences-vault-btn");
+const sentencesVaultBadge = document.getElementById("sentences-vault-badge");
+const sentenceGameVaultBtn = document.getElementById("sentence-game-vault-btn");
+const sentenceGameVaultBadge = document.getElementById("sentence-game-vault-badge");
+const sentenceGameSaveBtn = document.getElementById("sentence-game-save-btn");
+const qaVaultBtn = document.getElementById("qa-vault-btn");
+const qaVaultBadge = document.getElementById("qa-vault-badge");
+const qaSaveBtn = document.getElementById("qa-save-btn");
+const vaultModalEl = document.getElementById("vault-modal");
+const vaultModalTitleEl = document.getElementById("vault-modal-title");
+const vaultModalBodyEl = document.getElementById("vault-modal-body");
+const vaultModalCloseBtn = document.getElementById("vault-modal-close-btn");
+
 // ---- State ----
 let level = "beginner";
 let questions = [];
@@ -398,6 +415,177 @@ function levelName(lv) {
   if (lv === "beginner") return "Анхан";
   if (lv === "intermediate") return "Дунд";
   return "Дээд";
+}
+
+
+const VAULT_KEY_BY_SCREEN = {
+  lesson: "repeatVault_lesson",
+  qna: "repeatVault_qna",
+  sentenceGame: "repeatVault_sentenceGame",
+  sentences: "repeatVault_sentences",
+};
+
+const VAULT_SCREEN_META = {
+  lesson: { badgeEl: lessonVaultBadge, title: "Хичээлийн хадгалсан асуултууд" },
+  qna: { badgeEl: qaVaultBadge, title: "Q&A тоглоомын хадгалсан зүйлс" },
+  sentenceGame: { badgeEl: sentenceGameVaultBadge, title: "Өгүүлбэрийн тоглоомын хадгалсан зүйлс" },
+  sentences: { badgeEl: sentencesVaultBadge, title: "Өгүүлбэрүүдийн хадгалсан зүйлс" },
+};
+
+const VAULT_ITEM_RENDERERS = {
+  lesson: (item) => {
+    const options = Array.isArray(item.options) && item.options.length
+      ? `<details><summary>Сонголтууд</summary><p>${item.options.join(" / ")}</p></details>`
+      : "";
+    return `<p><strong>Question:</strong> ${item.questionText || ""}</p><p><strong>Correct answer:</strong> ${item.correctAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>${options}`;
+  },
+  qna: (item) => `<p><strong>MN:</strong> ${item.mnQuestion || ""} — ${item.mnAnswer || ""}</p><p><strong>EN:</strong> ${item.enQuestion || ""} — ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
+  sentenceGame: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
+  sentences: (item) => `<p><strong>EN:</strong> ${item.enSentence || ""}</p><p><strong>MN:</strong> ${item.mnTranslation || "-"}</p>${item.voiceSetting ? `<p><strong>Voice:</strong> ${item.voiceSetting}</p>` : ""}`,
+};
+
+function vaultKeyForScreen(screenId) {
+  return VAULT_KEY_BY_SCREEN[screenId] || `repeatVault_${screenId}`;
+}
+
+function loadVault(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (error) {
+    return [];
+  }
+}
+
+function saveToVault(key, item) {
+  if (!item || !item.id) return { ok: false, reason: "invalid" };
+  const list = loadVault(key);
+  const exists = list.some((entry) => entry.id === item.id);
+  if (exists) return { ok: false, reason: "duplicate" };
+  list.unshift(item);
+  localStorage.setItem(key, JSON.stringify(list));
+  return { ok: true, reason: "saved", count: list.length };
+}
+
+function removeFromVault(key, id) {
+  const list = loadVault(key);
+  const next = list.filter((entry) => entry.id !== id);
+  localStorage.setItem(key, JSON.stringify(next));
+  return next;
+}
+
+function updateVaultBadge(key) {
+  const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
+  if (!screenId) return;
+  const meta = VAULT_SCREEN_META[screenId];
+  if (!meta || !meta.badgeEl) return;
+  meta.badgeEl.textContent = String(loadVault(key).length);
+}
+
+function showVaultToast(message) {
+  showQaToast(message);
+}
+
+function renderVaultModal(key) {
+  if (!vaultModalEl || !vaultModalBodyEl || !vaultModalTitleEl) return;
+  const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
+  const list = loadVault(key);
+  const meta = VAULT_SCREEN_META[screenId] || { title: "Дахин давтах / Дараа харах" };
+  vaultModalTitleEl.textContent = meta.title;
+
+  if (!list.length) {
+    vaultModalBodyEl.innerHTML = '<p>Одоогоор хадгалсан зүйл алга.</p>';
+    vaultModalEl.classList.remove("hidden");
+    return;
+  }
+
+  const renderItem = VAULT_ITEM_RENDERERS[screenId] || ((item) => `<p>${item.id}</p>`);
+  vaultModalBodyEl.innerHTML = list.map((item) => `
+    <article class="vault-entry" data-id="${item.id}">
+      ${renderItem(item)}
+      <div class="vault-entry-actions">
+        <button class="secondary vault-remove-btn" type="button" data-action="delete" data-id="${item.id}">Устгах</button>
+        <button class="secondary vault-remove-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
+      </div>
+    </article>
+  `).join("");
+  vaultModalEl.classList.remove("hidden");
+
+  vaultModalBodyEl.querySelectorAll(".vault-remove-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      removeFromVault(key, btn.dataset.id);
+      updateVaultBadge(key);
+      showVaultToast("Устгалаа 🗑️");
+      renderVaultModal(key);
+    });
+  });
+}
+
+function saveCurrentLessonItem() {
+  const item = questions[currentIndex];
+  if (!item) return;
+  const payload = {
+    id: `lesson:${item.q.toLowerCase().trim()}`,
+    questionText: item.q,
+    correctAnswer: item.a,
+    options: buildOptions(item.a),
+    level: levelName(level),
+    timestamp: Date.now(),
+  };
+  const key = vaultKeyForScreen("lesson");
+  const result = saveToVault(key, payload);
+  updateVaultBadge(key);
+  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function saveCurrentQaRound() {
+  const round = getQaCurrentRound();
+  if (!round) return;
+  const payload = {
+    id: `qna:${round.id}`,
+    mnQuestion: round.mnQuestion,
+    mnAnswer: round.mnAnswer,
+    enQuestion: round.enQuestion,
+    enAnswer: round.enAnswer,
+    level: levelName(qaGameLevel || "beginner"),
+    timestamp: Date.now(),
+  };
+  const key = vaultKeyForScreen("qna");
+  const result = saveToVault(key, payload);
+  updateVaultBadge(key);
+  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function saveCurrentSentenceGameItem() {
+  const item = sentenceGameSentence();
+  if (!item) return;
+  const payload = {
+    id: `sentenceGame:${String(item.en || "").toLowerCase().trim()}`,
+    enSentence: item.en,
+    mnTranslation: item.mn || "",
+    level: levelName(sentenceGameDifficulty),
+    timestamp: Date.now(),
+  };
+  const key = vaultKeyForScreen("sentenceGame");
+  const result = saveToVault(key, payload);
+  updateVaultBadge(key);
+  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function saveSentenceListItem(item) {
+  const payload = {
+    id: `sentences:${String(item.en || "").toLowerCase().trim()}`,
+    enSentence: item.en,
+    mnTranslation: item.mn || "",
+    voiceSetting: ttsSettings.voice,
+    timestamp: Date.now(),
+  };
+  const key = vaultKeyForScreen("sentences");
+  const result = saveToVault(key, payload);
+  updateVaultBadge(key);
+  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
 }
 
 function getTodayKey() {
@@ -1784,6 +1972,16 @@ function renderSentences() {
     textWrap.appendChild(en);
     textWrap.appendChild(mn);
 
+    const rowActions = document.createElement("div");
+    rowActions.className = "sentence-row-actions";
+
+    const saveBtn = document.createElement("button");
+    saveBtn.type = "button";
+    saveBtn.className = "secondary sentence-save-btn";
+    saveBtn.textContent = "⭐";
+    saveBtn.setAttribute("aria-label", "Өгүүлбэр хадгалах");
+    saveBtn.addEventListener("click", () => saveSentenceListItem(item));
+
     const speakBtn = document.createElement("button");
     speakBtn.type = "button";
     speakBtn.className = "speak-btn";
@@ -1792,8 +1990,11 @@ function renderSentences() {
     speakBtn.textContent = "🔊";
     speakBtn.addEventListener("click", () => speakSentence(item));
 
+    rowActions.appendChild(saveBtn);
+    rowActions.appendChild(speakBtn);
+
     row.appendChild(textWrap);
-    row.appendChild(speakBtn);
+    row.appendChild(rowActions);
     sentencesListEl.appendChild(row);
   });
 
@@ -2989,6 +3190,19 @@ sentenceGameDifficultyButtons.forEach((btn) => {
 
 updateSentenceGameTipControls();
 resetQaGameScreen();
+
+if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
+if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
+if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
+
+if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("lesson")));
+if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
+if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
+if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentences")));
+if (vaultModalCloseBtn) vaultModalCloseBtn.addEventListener("click", () => vaultModalEl && vaultModalEl.classList.add("hidden"));
+if (vaultModalEl) vaultModalEl.addEventListener("click", (event) => { if (event.target === vaultModalEl) vaultModalEl.classList.add("hidden"); });
+
+Object.keys(VAULT_KEY_BY_SCREEN).forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
 
 if (qaLevelSelectBtn) {
   qaLevelSelectBtn.addEventListener("click", () => {

@@ -2406,3 +2406,12 @@ body{
 .qa-toast{position:fixed;right:18px;bottom:24px;background:#12324f;color:#fff;padding:10px 14px;border-radius:10px;z-index:40;opacity:0;transform:translateY(8px);transition:.2s ease;}
 .qa-toast.show{opacity:1;transform:translateY(0);}
 .qa-modal-card #qa-modal-body p{margin:0 0 8px;}
+
+.vault-open-btn{display:inline-flex;align-items:center;gap:8px;}
+.vault-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#1f8f5f;color:#fff;font-size:12px;font-weight:700;}
+.vault-save-btn{margin-top:8px;}
+.sentence-row-actions{display:flex;gap:8px;align-items:center;}
+.sentence-save-btn{min-width:42px;padding:6px 10px;}
+.vault-entry{border:1px solid #d8e2f5;border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;}
+.vault-entry p{margin:0 0 6px;}
+.vault-entry-actions{display:flex;gap:8px;flex-wrap:wrap;}
