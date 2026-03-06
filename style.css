@@ -506,6 +506,17 @@ body{
   margin-top:0;
 }
 
+
+.lesson-audio-controls{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+#quiz-screen .lesson-audio-controls .vault-save-btn{
+  margin-top:0;
+}
+
 .muted{
   color:var(--muted);
 }
