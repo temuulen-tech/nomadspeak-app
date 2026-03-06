@@ -698,20 +698,24 @@ body{
   margin:0;
   text-align:center;
   width:100%;
+  max-width:none;
   line-height:1.25;
   text-wrap:balance;
+  word-break:normal;
+  overflow-wrap:anywhere;
 }
 
 .lesson-answers-grid{
   width:100%;
-  max-width:700px;
+  max-width:none;
   display:grid;
-  grid-template-columns: repeat(2, minmax(240px, 1fr));
+  grid-template-columns: 1fr 1fr;
   gap:14px;
   margin:0;
 }
 
 .lesson-answers-grid .option{
+  width:100%;
   min-height:56px;
 }
 
