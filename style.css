@@ -2537,11 +2537,13 @@ body{
 
 .vault-motivation{
   display:block;
-  margin:1px 0 2px;
+  margin:6px 0 8px;
   font-size:14px;
   font-weight:700;
   line-height:1.2;
-  color:#10223a;
+  color:#fff;
   text-align:center;
   opacity:1;
+  position:relative;
+  z-index:1;
 }
