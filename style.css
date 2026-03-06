@@ -2486,20 +2486,20 @@ body{
 }
 
 .vault-footer{
-  --vault-footer-h:90px;
+  --vault-footer-h:86px;
   position:sticky;
   bottom:0;
   z-index:2;
   flex:0 0 auto;
   height:auto;
   min-height:var(--vault-footer-h, 90px);
-  padding:8px 14px;
+  padding:8px 14px 7px;
   background:var(--card);
   border-top:1px solid rgba(20,35,64,.14);
   display:flex;
   flex-direction:column;
   justify-content:center;
-  gap:8px;
+  gap:6px;
 }
 
 .vault-actions,
@@ -2537,10 +2537,10 @@ body{
 
 .vault-motivation{
   display:block;
-  margin:2px 0 4px;
-  font-size:15px;
+  margin:1px 0 2px;
+  font-size:14px;
   font-weight:700;
-  line-height:1.25;
+  line-height:1.2;
   color:#10223a;
   text-align:center;
   opacity:1;
