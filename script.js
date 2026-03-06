@@ -503,7 +503,6 @@ const VAULT_ITEM_RENDERERS = {
       <p><strong>Асуулт:</strong> ${renderVaultEnMnLine(item.questionText, item.questionMn || lessonMnTranslation(item.questionText))}</p>
       <p class="vault-correct-answer"><strong>Зөв хариулт:</strong> ${renderVaultEnMnLine(item.correctAnswer, item.correctAnswerMn || lessonMnTranslation(item.correctAnswer))}</p>
       <div class="vault-options-list">${optionsHtml}</div>
-      <p class="vault-motivation">Чиний дэлхийг тойрох урт холын аялалд Амжилт хүсье. Найзаа</p>
     `;
   },
   qna: (item) => `<p><strong>MN:</strong> ${item.mnQuestion || ""} — ${item.mnAnswer || ""}</p><p><strong>EN:</strong> ${item.enQuestion || ""} — ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
@@ -587,7 +586,7 @@ function renderVaultModal(key) {
       ${renderItem(item)}
       <div class="vault-entry-actions">
         ${screenId === "lesson" ? `<button class="secondary vault-action-btn" type="button" data-action="replay" data-id="${item.id}">Дахин давтах</button>` : ""}
-        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="delete" data-id="${item.id}">Устгах</button>
+        <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="delete" data-id="${item.id}" title="Зөвхөн хадгалсан жагсаалтаас хасна">Хадгалсанаас устгах</button>
         <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
       </div>
     </article>
@@ -603,7 +602,7 @@ function renderVaultModal(key) {
       }
       removeFromVault(key, btn.dataset.id);
       updateVaultBadge(key);
-      showVaultToast("Устгалаа 🗑️");
+      showVaultToast("Хадгалсанаас устгалаа 🗑️");
       renderVaultModal(key);
     });
   });
