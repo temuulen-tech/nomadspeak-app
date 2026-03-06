@@ -2953,7 +2953,6 @@ function renderQuestion() {
   locked = false;
   resultEl.textContent = "";
   resultEl.className = "result hidden";
-  if (nextBtn) hide(nextBtn);
 
   const item = questions[currentIndex];
   questionEl.textContent = item.q;
@@ -3005,7 +3004,6 @@ function pickAnswer(buttonEl, selected) {
   }
 
   show(resultEl);
-  if (nextBtn) show(nextBtn);
   updateTopbar();
   updateHeaderStatus();
 }
