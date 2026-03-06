@@ -510,7 +510,11 @@ const VAULT_ITEM_RENDERERS = {
   },
   qna: (item) => `<p><strong>Монгол Асуулт:</strong> ${item.mnQuestion || ""}</p><p><strong>Монгол Хариулт:</strong> ${item.mnAnswer || ""}</p><p><strong>Англи Асуулт:</strong> ${item.enQuestion || ""}</p><p><strong>Англи Хариулт:</strong> ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
   sentenceGame: (item) => `<p><strong>Англи:</strong> ${item.enSentence || ""}</p><p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
-  sentences: (item) => `<p><strong>Англи:</strong> ${item.enSentence || ""}</p><p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p>${item.voiceSetting ? `<p><strong>Дуу хоолой:</strong> ${item.voiceSetting}</p>` : ""}`,
+  sentences: (item) => `
+    <p><strong>Англи:</strong> ${item.enSentence || ""}</p>
+    <p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p>
+    <button type="button" class="vault-sentence-speak-btn" data-id="${item.id}" aria-pressed="false">▶ Дараад сонс</button>
+  `,
 };
 
 function vaultKeyForScreen(screenId) {
@@ -726,6 +730,27 @@ function renderVaultModal(key) {
       setSelectedEntry(itemId);
     });
   });
+
+  if (screenId === "sentences") {
+    vaultModalBodyEl.querySelectorAll(".vault-sentence-speak-btn").forEach((btn) => {
+      btn.addEventListener("click", (event) => {
+        event.stopPropagation();
+        const itemId = String(btn.dataset.id || "");
+        if (!itemId) return;
+        setSelectedEntry(itemId);
+
+        const sentenceText = list.find((entry) => String(entry.id) === itemId)?.enSentence || "";
+        if (!sentenceText) return;
+
+        if (String(speakingSentenceId || "") === itemId) {
+          stopSpeaking();
+          return;
+        }
+
+        speakSentence({ id: itemId, en: sentenceText });
+      });
+    });
+  }
 
   if (vaultReplayBtn) {
     vaultReplayBtn.onclick = () => {
@@ -2193,6 +2218,15 @@ function updateSpeakingState() {
     btn.classList.toggle("playing", isPlaying);
     btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
     btn.setAttribute("aria-label", isPlaying ? "Уншиж байна" : "Дуу сонсох");
+  });
+
+  if (!vaultModalBodyEl) return;
+  const vaultButtons = vaultModalBodyEl.querySelectorAll(".vault-sentence-speak-btn");
+  vaultButtons.forEach((btn) => {
+    const isPlaying = String(btn.dataset.id || "") === String(speakingSentenceId || "");
+    btn.classList.toggle("playing", isPlaying);
+    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    btn.textContent = isPlaying ? "⏸ Зогсоох" : "▶ Дараад сонс";
   });
 }
 
