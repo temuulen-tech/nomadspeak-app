@@ -657,8 +657,14 @@ body{
 
 .question-text-wrap{
   flex:1;
-  text-align:center;
   margin:0;
+}
+
+.question-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:12px;
 }
 
 .question-header-spacer{
@@ -677,6 +683,7 @@ body{
   font-size:26px;
   margin:0;
   text-align:center;
+  flex:1;
 }
 
 .options{
@@ -687,6 +694,14 @@ body{
 }
 
 @media (max-width:700px){
+  .question-row{
+    flex-direction:column;
+    align-items:stretch;
+  }
+  #lesson-save-btn{
+    width:100%;
+    text-align:center;
+  }
   .logo{font-size:36px;}
   .header{
     padding-right:52px;
@@ -2410,8 +2425,13 @@ body{
 .vault-open-btn{display:inline-flex;align-items:center;gap:8px;}
 .vault-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#1f8f5f;color:#fff;font-size:12px;font-weight:700;}
 .vault-save-btn{margin-top:8px;}
+#lesson-save-btn{margin-top:0;white-space:normal;text-align:left;}
 .sentence-row-actions{display:flex;gap:8px;align-items:center;}
 .sentence-save-btn{min-width:42px;padding:6px 10px;}
-.vault-entry{border:1px solid #d8e2f5;border-radius:12px;padding:10px;margin-bottom:10px;background:#fff;}
-.vault-entry p{margin:0 0 6px;}
-.vault-entry-actions{display:flex;gap:8px;flex-wrap:wrap;}
+.vault-entry{border:1px solid #c6d5f3;border-radius:14px;padding:14px;margin-bottom:12px;background:#fff;box-shadow:0 6px 16px rgba(23,41,78,.08);cursor:pointer;transition:transform .12s ease, box-shadow .2s ease;}
+.vault-entry:hover{transform:translateY(-1px);box-shadow:0 10px 22px rgba(23,41,78,.12);}
+.vault-entry p{margin:0 0 8px;color:#15233d;font-weight:560;line-height:1.45;}
+.vault-entry details{margin:6px 0 10px;color:#15233d;}
+.vault-entry summary{font-weight:700;cursor:pointer;}
+.vault-entry-hint{margin-top:8px;font-size:12px;color:#415a83;font-weight:700;}
+.vault-entry-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
