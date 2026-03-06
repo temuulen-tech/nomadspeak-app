@@ -2452,7 +2452,7 @@ body{
   flex:1 1 auto;
   min-height:0;
   overflow-y:auto;
-  padding:10px 14px;
+  padding:10px 14px calc(var(--vault-footer-h, 140px) + 16px);
 }
 
 .vault-list{
@@ -2486,22 +2486,31 @@ body{
 }
 
 .vault-footer{
+  --vault-footer-h:140px;
+  position:sticky;
+  bottom:0;
+  z-index:2;
   flex:0 0 auto;
+  height:var(--vault-footer-h, 140px);
   padding:8px 14px 10px;
   background:var(--card);
   border-top:1px solid rgba(20,35,64,.14);
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:10px;
 }
 
 .vault-actions,
 .vault-footer-buttons{
   display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+  gap:12px;
+  flex-wrap:nowrap;
   margin:0;
 }
 
 .vault-footer-buttons button{
-  flex:1 1 140px;
+  flex:1;
 }
 
 #vault-modal-close-btn{
@@ -2509,9 +2518,16 @@ body{
   padding:12px 22px;
 }
 
-.vault-close-row,
-#vault-modal-footer .confirm-actions{
-  margin-top:8px;
+
+@media (max-width: 720px){
+  .vault-footer{
+    height:auto;
+  }
+
+  .vault-actions,
+  .vault-footer-buttons{
+    flex-wrap:wrap;
+  }
 }
 
 .vault-motivation{
