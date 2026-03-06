@@ -108,6 +108,7 @@
       <div class="panel-header">
         <h2 class="lesson-title">Зөв хариулт сонгох</h2>
         <div class="quiz-header-audio-group">
+          <button class="secondary vault-open-btn" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
           <div class="topbar hidden" id="topbar">
             <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
             <div class="pill">Оноо: <span id="score">0</span></div>
@@ -162,6 +163,7 @@
         </div>
         <div class="question-text-wrap">
           <h2 class="question" id="question">Түвшин сонгоод хичээлээ эхлүүлнэ үү.</h2>
+          <button class="secondary vault-save-btn" id="lesson-save-btn" type="button">⭐ Хадгалах</button>
         </div>
         <div class="question-header-spacer" aria-hidden="true"></div>
       </div>
@@ -180,6 +182,7 @@
     <section class="card hidden" id="sentences-screen">
       <div class="panel-header sentences-panel-header">
         <h2>Өгүүлбэрүүд</h2>
+        <button class="secondary vault-open-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
       <div class="sentences-reward-strip reward-row" id="sentences-reward-strip" aria-label="Sentences reward progress">
@@ -295,6 +298,8 @@
           </div>
         </div>
         <div class="sentence-game-title-actions" aria-label="Sentence game quick actions">
+          <button class="secondary vault-open-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
+          <button class="secondary vault-save-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар унших</button>
         </div>
@@ -337,6 +342,8 @@
     <section class="card hidden" id="qa-game-screen">
       <div class="panel-header">
         <h2>Асуулт Хариулт тоглоом</h2>
+        <button class="secondary vault-open-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
+        <button class="secondary vault-save-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
         <button class="secondary" id="qa-game-back-btn" type="button">← Буцах</button>
       </div>
 
@@ -552,6 +559,16 @@
       <div class="muted" id="qa-modal-body"></div>
       <div class="confirm-actions">
         <button class="primary" id="qa-modal-close-btn" type="button">Хаах</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="confirm-overlay hidden" id="vault-modal" role="dialog" aria-modal="true" aria-labelledby="vault-modal-title">
+    <div class="confirm-card qa-modal-card">
+      <h2 id="vault-modal-title">Дахин давтах / Дараа харах</h2>
+      <div class="muted" id="vault-modal-body"></div>
+      <div class="confirm-actions">
+        <button class="primary" id="vault-modal-close-btn" type="button">Хаах</button>
       </div>
     </div>
   </div>
