@@ -6,37 +6,51 @@
 // ---- Question bank (эхний багц). Дараа нь бид үүнийг олон болгоно. ----
 const BANK = {
   beginner: [
-    { q: "What month is it now?", a: "It is September now." },
-    { q: "What day is it today?", a: "Today is Monday" },
-    { q: "What is your name?", a: "My name is Nasaa" },
-    { q: "Where do you live?", a: "I live in Ulaanbaatar city" },
-    { q: "Where are you from?", a: "I from Mongolia" },
-    { q: "Where are you going?", a: "I am going to Shanghai." },
-    { q: "Are you hungry?", a: "Yes, I'm a little hungry." },
-    { q: "Have you eaten dinner?", a: "I ate dinner." },
-    { q: "What is your hobby?", a: "My hobby is roller skating." },
-    { q: "What is your favourite fruit?", a: "I like to eat apples." },
+    { q: "What month is it now?", qMn: "Одоо хэдэн сар вэ?", a: "It is September now.", aMn: "Одоо есдүгээр сар байна." },
+    { q: "What day is it today?", qMn: "Өнөөдөр ямар гараг вэ?", a: "Today is Monday", aMn: "Өнөөдөр Даваа гараг." },
+    { q: "What is your name?", qMn: "Таны нэрийг хэн гэдэг вэ?", a: "My name is Nasaa", aMn: "Миний нэрийг Насаа гэдэг." },
+    { q: "Where do you live?", qMn: "Та хаана амьдардаг вэ?", a: "I live in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод амьдардаг." },
+    { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I from Mongolia", aMn: "Би Монголоос ирсэн." },
+    { q: "Where are you going?", qMn: "Та хаашаа явж байна вэ?", a: "I am going to Shanghai.", aMn: "Би Шанхай руу явж байна." },
+    { q: "Are you hungry?", qMn: "Та өлсөж байна уу?", a: "Yes, I'm a little hungry.", aMn: "Тийм ээ, би бага зэрэг өлсөж байна." },
+    { q: "Have you eaten dinner?", qMn: "Та оройн хоолоо идсэн үү?", a: "I ate dinner.", aMn: "Би оройн хоолоо идсэн." },
+    { q: "What is your hobby?", qMn: "Таны хобби юу вэ?", a: "My hobby is roller skating.", aMn: "Миний хобби бол дугуйт тэшүүр." },
+    { q: "What is your favourite fruit?", qMn: "Таны дуртай жимс юу вэ?", a: "I like to eat apples.", aMn: "Би алим идэх дуртай." },
   ],
   intermediate: [
-    { q: "When were you born?", a: "I was born on September 8" },
-    { q: "Where were you born?", a: "I was born in Ulaanbaatar city" },
-    { q: "What do you do in your free time?", a: "I read books in my free time." },
-    { q: "What is your dream?", a: "I will be a great businessman." },
-    { q: "What color do you like?", a: "I like the color red." },
-    { q: "When did you wake up?", a: "I woke up at 8 in the morning." },
-    { q: "When did you go to sleep?", a: "I went to bed at 10 o'clock yesterday." },
-    { q: "How old are you?", a: "I am thirty years old." },
+    { q: "When were you born?", qMn: "Та хэзээ төрсөн бэ?", a: "I was born on September 8", aMn: "Би есдүгээр сарын 8-нд төрсөн." },
+    { q: "Where were you born?", qMn: "Та хаана төрсөн бэ?", a: "I was born in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод төрсөн." },
+    { q: "What do you do in your free time?", qMn: "Та чөлөөт цагаараа юу хийдэг вэ?", a: "I read books in my free time.", aMn: "Би чөлөөт цагаараа ном уншдаг." },
+    { q: "What is your dream?", qMn: "Таны мөрөөдөл юу вэ?", a: "I will be a great businessman.", aMn: "Би агуу бизнесмен болно." },
+    { q: "What color do you like?", qMn: "Та ямар өнгөнд дуртай вэ?", a: "I like the color red.", aMn: "Би улаан өнгөнд дуртай." },
+    { q: "When did you wake up?", qMn: "Та хэзээ сэрсэн бэ?", a: "I woke up at 8 in the morning.", aMn: "Би өглөө 8 цагт сэрсэн." },
+    { q: "When did you go to sleep?", qMn: "Та хэзээ унтсан бэ?", a: "I went to bed at 10 o'clock yesterday.", aMn: "Би өчигдөр 10 цагт унтсан." },
+    { q: "How old are you?", qMn: "Та хэдэн настай вэ?", a: "I am thirty years old.", aMn: "Би гучин настай." },
   ],
   advanced: [
-    { q: "Where was his/her father born?", a: "His father was born in America." },
-    { q: "Where was his/her mother born?", a: "Her mother was born in France" },
-    { q: "How often do you meet him?", a: "I meet him 3 times a week." },
-    { q: "How many books does he have?", a: "He has 1000 books." },
-    { q: "How long will we travel?", a: "Both will travel for 3 months." },
-    { q: "Where is their home?", a: "Their home is in Berlin." },
-    { q: "Do you remember her?", a: "I miss her very much." },
+    { q: "Where was his/her father born?", qMn: "Түүний аав хаана төрсөн бэ?", a: "His father was born in America.", aMn: "Түүний аав Америкт төрсөн." },
+    { q: "Where was his/her mother born?", qMn: "Түүний ээж хаана төрсөн бэ?", a: "Her mother was born in France", aMn: "Түүний ээж Францад төрсөн." },
+    { q: "How often do you meet him?", qMn: "Та түүнтэй хэр олон уулздаг вэ?", a: "I meet him 3 times a week.", aMn: "Би түүнтэй долоо хоногт 3 удаа уулздаг." },
+    { q: "How many books does he have?", qMn: "Түүнд хэдэн ном байдаг вэ?", a: "He has 1000 books.", aMn: "Түүнд 1000 ном бий." },
+    { q: "How long will we travel?", qMn: "Бид хэр удаан аялах вэ?", a: "Both will travel for 3 months.", aMn: "Хоёул 3 сарын турш аялна." },
+    { q: "Where is their home?", qMn: "Тэдний гэр хаана байдаг вэ?", a: "Their home is in Berlin.", aMn: "Тэдний гэр Берлинд байдаг." },
+    { q: "Do you remember her?", qMn: "Та түүнийг санаж байна уу?", a: "I miss her very much.", aMn: "Би түүнийг маш их санаж байна." },
   ],
 };
+
+function buildLessonTranslationMaps() {
+  const questionMnByEn = {};
+  const answerMnByEn = {};
+  Object.values(BANK).forEach((bucket) => {
+    (bucket || []).forEach((entry) => {
+      if (entry.q) questionMnByEn[entry.q] = entry.qMn || "";
+      if (entry.a) answerMnByEn[entry.a] = entry.aMn || "";
+    });
+  });
+  return { questionMnByEn, answerMnByEn };
+}
+
+const LESSON_TRANSLATIONS = buildLessonTranslationMaps();
 
 // ---- DOM ----
 const startScreen = document.getElementById("start-screen");
@@ -429,21 +443,34 @@ function escapeHtml(value) {
 
 function renderVaultEnMnLine(enText, mnText) {
   const safeEn = escapeHtml(enText || "");
-  const safeMn = escapeHtml(mnText || "(Орчуулга алга)");
+  const safeMn = escapeHtml(mnText || "");
   return `<span class="vault-entry-en">${safeEn}</span><span class="vault-entry-mn">${safeMn}</span>`;
 }
 
 function lessonMnTranslation(value) {
   if (!value) return "";
-  const knownTranslations = {
-    "What is your name?": "Чиний нэр хэн бэ?",
-    "Where are you from?": "Чи хаанаас ирсэн бэ?",
-    "Are you hungry?": "Чи өлсөж байна уу?",
-    "Yes, I'm a little hungry.": "Тийм ээ, би бага зэрэг өлсөж байна.",
-    "Where are you going?": "Чи хаашаа явж байна вэ?",
-    "I am going to Shanghai.": "Би Шанхай руу явж байна.",
-  };
-  return knownTranslations[value] || "";
+  return LESSON_TRANSLATIONS.questionMnByEn[value]
+    || LESSON_TRANSLATIONS.answerMnByEn[value]
+    || "";
+}
+
+function enrichLessonVaultItemWithMn(item) {
+  if (!item || typeof item !== "object") return item;
+  const next = { ...item };
+  const questionMn = next.questionMn || lessonMnTranslation(next.questionText);
+  const correctAnswerMn = next.correctAnswerMn || lessonMnTranslation(next.correctAnswer);
+  next.questionMn = questionMn;
+  next.correctAnswerMn = correctAnswerMn;
+
+  const options = Array.isArray(next.options) ? next.options.slice() : [];
+  const optionMnMap = (next.optionMnMap && typeof next.optionMnMap === "object") ? { ...next.optionMnMap } : {};
+  options.forEach((option) => {
+    if (!optionMnMap[option]) {
+      optionMnMap[option] = lessonMnTranslation(option);
+    }
+  });
+  next.optionMnMap = optionMnMap;
+  return next;
 }
 
 
@@ -474,7 +501,7 @@ const VAULT_ITEM_RENDERERS = {
     return `
       <p><strong>Түвшин:</strong> ${escapeHtml(item.level || "")}</p>
       <p><strong>Асуулт:</strong> ${renderVaultEnMnLine(item.questionText, item.questionMn || lessonMnTranslation(item.questionText))}</p>
-      <p><strong>Зөв хариулт:</strong> ${renderVaultEnMnLine(item.correctAnswer, item.correctAnswerMn || lessonMnTranslation(item.correctAnswer))}</p>
+      <p class="vault-correct-answer"><strong>Зөв хариулт:</strong> ${renderVaultEnMnLine(item.correctAnswer, item.correctAnswerMn || lessonMnTranslation(item.correctAnswer))}</p>
       <div class="vault-options-list">${optionsHtml}</div>
       <p class="vault-motivation">Чиний дэлхийг тойрох урт холын аялалд Амжилт хүсье. Найзаа</p>
     `;
@@ -493,7 +520,20 @@ function loadVault(key) {
     const raw = localStorage.getItem(key);
     if (!raw) return [];
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) return [];
+    if (key !== vaultKeyForScreen("lesson")) return parsed;
+
+    let changed = false;
+    const normalized = parsed.map((item) => {
+      const enriched = enrichLessonVaultItemWithMn(item);
+      if (JSON.stringify(enriched) !== JSON.stringify(item)) changed = true;
+      return enriched;
+    });
+
+    if (changed) {
+      localStorage.setItem(key, JSON.stringify(normalized));
+    }
+    return normalized;
   } catch (error) {
     return [];
   }
@@ -536,13 +576,13 @@ function renderVaultModal(key) {
   vaultModalTitleEl.textContent = meta.title;
 
   if (!list.length) {
-    vaultModalBodyEl.innerHTML = '<p>Одоогоор хадгалсан зүйл алга.</p>';
+    vaultModalBodyEl.innerHTML = '<div class="vault-list"><p>Одоогоор хадгалсан зүйл алга.</p></div>';
     vaultModalEl.classList.remove("hidden");
     return;
   }
 
   const renderItem = VAULT_ITEM_RENDERERS[screenId] || ((item) => `<p>${item.id}</p>`);
-  vaultModalBodyEl.innerHTML = list.map((item) => `
+  vaultModalBodyEl.innerHTML = `<div class="vault-list">${list.map((item) => `
     <article class="vault-entry" data-id="${item.id}">
       ${renderItem(item)}
       <div class="vault-entry-actions">
@@ -551,7 +591,7 @@ function renderVaultModal(key) {
         <button class="secondary vault-remove-btn vault-action-btn" type="button" data-action="learned" data-id="${item.id}">Сурсан</button>
       </div>
     </article>
-  `).join("");
+  `).join("")}</div>`;
   vaultModalEl.classList.remove("hidden");
 
   vaultModalBodyEl.querySelectorAll(".vault-action-btn").forEach((btn) => {
@@ -584,11 +624,10 @@ function saveCurrentLessonItem() {
   if (!item) return;
   const options = buildOptions(item.a);
   const optionMnMap = options.reduce((acc, option) => {
-    const mn = lessonMnTranslation(option);
-    if (mn) acc[option] = mn;
+    acc[option] = lessonMnTranslation(option);
     return acc;
   }, {});
-  const payload = {
+  const payload = enrichLessonVaultItemWithMn({
     id: `lesson:${item.q.toLowerCase().trim()}`,
     questionText: item.q,
     questionMn: item.qMn || lessonMnTranslation(item.q),
@@ -598,7 +637,7 @@ function saveCurrentLessonItem() {
     optionMnMap,
     level: levelName(level),
     timestamp: Date.now(),
-  };
+  });
   const key = vaultKeyForScreen("lesson");
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
