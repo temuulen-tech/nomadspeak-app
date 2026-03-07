@@ -3449,7 +3449,7 @@ function updateQaTimerUI() {
   syncQaElapsedSeconds();
   let unlockedChanged = false;
   while (qaUnlockedRewards < QA_REWARD_STEPS.length && qaElapsedSeconds >= QA_REWARD_STEPS[qaUnlockedRewards].seconds) {
-    showQaToast(`🎉 Шагнал авлаа: ${QA_REWARD_STEPS[qaUnlockedRewards].label}`);
+    showQaToast(`Шагнал авлаа: ${QA_REWARD_STEPS[qaUnlockedRewards].label}`);
     qaUnlockedRewards += 1;
     unlockedChanged = true;
   }

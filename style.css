@@ -1736,18 +1736,21 @@ body{
 }
 
 .reward-img,
-.sentence-game-reward-image{
+.sentence-game-reward-image,
+.stats-reward-image{
   width:clamp(92px, 10.5vw, 128px);
   height:clamp(92px, 10.5vw, 128px);
   object-fit:contain;
-  border-radius:12px;
-  border:1.5px solid rgba(216,169,63,.9);
-  opacity:.92;
+  border-radius:14px;
+  border:1px solid rgba(255,218,126,.72);
+  opacity:.96;
+  background:transparent;
+  padding:0;
+  filter:brightness(1.08) contrast(1.15) saturate(1.08);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.2),
-    0 3px 10px rgba(0,0,0,.2),
-    0 0 10px rgba(255,207,95,.28),
-    0 0 14px rgba(255,214,120,.2);
+    0 0 0 1px rgba(255,239,185,.16) inset,
+    0 0 16px rgba(255,203,92,.22),
+    0 6px 12px rgba(0,0,0,.2);
   transform:scale(1);
   transition:transform .24s ease, box-shadow .24s ease, border-color .24s ease, opacity .24s ease, filter .24s ease;
 }
@@ -1766,9 +1769,12 @@ body{
   left:50%;
   transform:translate(-50%, -20%);
   margin:0;
-  padding:4px 10px;
-  border-radius:999px;
-  border:1px solid transparent;
+  padding:6px 12px;
+  border-radius:14px;
+  border:1px solid rgba(255,221,135,.96);
+  background:linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
+  color:#291404;
+  box-shadow:0 0 0 1px rgba(255,255,255,.24) inset, 0 10px 20px rgba(29,16,2,.35), 0 0 24px rgba(255,200,96,.35);
   font-size:12px;
   font-weight:700;
   line-height:1.15;
@@ -1799,11 +1805,7 @@ body{
 .reward-tile.is-active .reward-label-chip{
   opacity:1;
   visibility:visible;
-  color:#291404;
-  border-color:rgba(255,221,135,.96);
-  background:linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
   text-shadow:none;
-  box-shadow:0 0 0 1px rgba(255,255,255,.24) inset, 0 7px 14px rgba(29,16,2,.28), 0 0 12px rgba(255,200,96,.32);
 }
 
 .reward-tile.is-active .reward-img,
@@ -1812,12 +1814,12 @@ body{
 .sentence-game-reward-image.is-active{
   border-color:#ffd86d;
   opacity:1;
-  filter:brightness(1.08) saturate(1.1);
+  filter:brightness(1.12) contrast(1.18) saturate(1.12);
   transform:scale(1.07);
   box-shadow:
-    inset 0 1px 0 rgba(255,255,255,.24),
+    0 0 0 1px rgba(255,239,185,.24) inset,
     0 0 0 1px rgba(255,214,115,.45),
-    0 0 18px rgba(255,207,95,.65),
+    0 0 20px rgba(255,207,95,.72),
     0 8px 18px rgba(0,0,0,.2);
 }
 
@@ -2555,18 +2557,15 @@ body{
 .stats-reward-row{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin-top:10px;}
 .stats-reward-image{
   width:100%;
-  border-radius:12px;
-  border:1px solid rgba(255,221,149,.62);
-  padding:5px;
-  background:linear-gradient(145deg, rgba(255,224,145,.11), rgba(255,184,72,.06));
-  filter:grayscale(1) brightness(.7);
+  height:auto;
+  filter:brightness(1.08) contrast(1.15) saturate(1.08);
   opacity:.7;
   transition:all .2s ease;
 }
 .stats-reward-image.active{
   border-color:#ffd86d;
-  box-shadow:0 0 0 2px rgba(247,201,68,.18),0 0 20px rgba(247,201,68,.45);
-  filter:none;
+  box-shadow:0 0 0 1px rgba(255,214,115,.45),0 0 20px rgba(247,201,68,.55),0 8px 18px rgba(0,0,0,.2);
+  filter:brightness(1.14) contrast(1.2) saturate(1.14);
   opacity:1;
   transform:translateY(-2px);
 }
@@ -2590,9 +2589,9 @@ body{
 #qa-game-screen .sentence-game-reward-image.is-active{
   border-color:#ffd86d;
   opacity:1;
-  filter:brightness(1.08) saturate(1.1);
+  filter:brightness(1.12) contrast(1.18) saturate(1.12);
   transform:scale(1.07);
-  box-shadow:0 0 0 2px rgba(255,214,115,.52), 0 0 20px rgba(255,207,95,.92), 0 8px 18px rgba(0,0,0,.2);
+  box-shadow:0 0 0 1px rgba(255,214,115,.52), 0 0 20px rgba(255,207,95,.92), 0 8px 18px rgba(0,0,0,.2);
 }
 
 /* Q&A sentence builder game */
