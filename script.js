@@ -126,7 +126,6 @@ const sentenceGameClimbEl = document.getElementById("sentence-game-climb");
 const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
 const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
 const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
-const sentenceGameRewardTimeEl = document.getElementById("sentence-game-active-time");
 const sentenceGameRewardRowEl = document.getElementById("sentence-game-reward-row");
 const sentenceGameRewardImageEls = sentenceGameRewardRowEl ? sentenceGameRewardRowEl.querySelectorAll(".sentence-game-reward-image") : [];
 const sentenceGameDifficultyToggleBtn = document.getElementById("sentence-game-difficulty-toggle-btn");
@@ -175,15 +174,9 @@ const timeDetailsLastMonthEl = document.getElementById("time-details-last-month"
 const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
 const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
-const qaTimerEl = document.getElementById("qa-timer");
-const qaNextRewardEl = document.getElementById("qa-next-reward");
 const lessonRewardBarEl = document.getElementById("lesson-reward-bar");
 const lessonRewardImageEls = () => lessonRewardBarEl ? lessonRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
-const lessonTimerEl = document.getElementById("lesson-timer");
-const lessonNextRewardEl = document.getElementById("lesson-next-reward");
 const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
-const sentencesTimerEl = document.getElementById("sentences-timer");
-const sentencesNextRewardEl = document.getElementById("sentences-next-reward");
 const qaToastEl = document.getElementById("qa-toast");
 const qaLevelSelectBtn = document.getElementById("qa-level-select-btn");
 const qaLevelOptionsEl = document.getElementById("qa-level-options");
@@ -999,6 +992,14 @@ function startSession(screenId) {
 
 function ensureStoppedIfHidden() {
   if (document.hidden) stopSession();
+}
+
+function persistAllActiveTime() {
+  endSentenceGameSession();
+  stopLessonTimer();
+  stopQaTimer();
+  stopSentencesTimer();
+  stopSession();
 }
 
 function secondsBetween(a, b) {
@@ -1995,13 +1996,6 @@ function sentenceGameRewardLevelFromSeconds(seconds = 0) {
   return level;
 }
 
-function formatSecondsAsClock(totalSeconds = 0) {
-  const safe = Math.max(0, Math.floor(totalSeconds));
-  const mins = String(Math.floor(safe / 60)).padStart(2, "0");
-  const secs = String(safe % 60).padStart(2, "0");
-  return `${mins}:${secs}`;
-}
-
 function persistSentenceGameRewardState() {
   try {
     localStorage.setItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY, String(Math.max(0, Math.floor(sentenceGameActiveSeconds))));
@@ -2047,9 +2041,6 @@ function renderSentenceGameRewardState() {
     imgEl.classList.toggle("is-locked", !(level > 0 && level <= sentenceGameRewardLevel));
   });
 
-  if (sentenceGameRewardTimeEl) {
-    sentenceGameRewardTimeEl.textContent = `Тоглосон хугацаа: ${formatSecondsAsClock(sentenceGameActiveSeconds)}`;
-  }
 }
 
 function playSentenceGameUnlockChime(level) {
@@ -3302,13 +3293,6 @@ function formatQaBuiltLine(tokens) {
   return tokens.join(" ").replace(/\s+([?.])/g, "$1");
 }
 
-function formatQaHMS(seconds) {
-  const h = String(Math.floor(seconds / 3600)).padStart(2, "0");
-  const m = String(Math.floor((seconds % 3600) / 60)).padStart(2, "0");
-  const s = String(seconds % 60).padStart(2, "0");
-  return `${h}:${m}:${s}`;
-}
-
 function renderSentencesRewards() {
   if (!sentencesRewardStripEl) return;
   const activeLevel = Math.min(sentencesUnlockedRewards + 1, SENTENCES_REWARD_STEPS.length);
@@ -3329,13 +3313,6 @@ function updateSentencesTimerUI() {
   while (sentencesUnlockedRewards < SENTENCES_REWARD_STEPS.length && sentencesElapsedSeconds >= SENTENCES_REWARD_STEPS[sentencesUnlockedRewards].seconds) {
     sentencesUnlockedRewards += 1;
     renderSentencesRewards();
-  }
-  if (sentencesTimerEl) sentencesTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(sentencesElapsedSeconds)}`;
-  const nextReward = SENTENCES_REWARD_STEPS[sentencesUnlockedRewards];
-  if (sentencesNextRewardEl) {
-    sentencesNextRewardEl.textContent = nextReward
-      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - sentencesElapsedSeconds, 0))}`
-      : "Бүх шагналыг авсан байна 🎉";
   }
 }
 
@@ -3415,13 +3392,6 @@ function syncLessonElapsedSeconds() {
 
 function updateLessonTimerUI() {
   syncLessonElapsedSeconds();
-  if (lessonTimerEl) lessonTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(lessonElapsedSeconds)}`;
-  const nextReward = QA_REWARD_STEPS[lessonUnlockedRewards];
-  if (lessonNextRewardEl) {
-    lessonNextRewardEl.textContent = nextReward
-      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - lessonElapsedSeconds, 0))}`
-      : "Бүх шагналыг авсан байна 🎉";
-  }
 
   let unlockedChanged = false;
   while (lessonUnlockedRewards < QA_REWARD_STEPS.length && lessonElapsedSeconds >= QA_REWARD_STEPS[lessonUnlockedRewards].seconds) {
@@ -3470,14 +3440,6 @@ function syncQaElapsedSeconds() {
 
 function updateQaTimerUI() {
   syncQaElapsedSeconds();
-  if (qaTimerEl) qaTimerEl.textContent = `Тоглосон хугацаа: ${formatQaHMS(qaElapsedSeconds)}`;
-  const nextReward = QA_REWARD_STEPS[qaUnlockedRewards];
-  if (qaNextRewardEl) {
-    qaNextRewardEl.textContent = nextReward
-      ? `Next reward in ${formatQaHMS(Math.max(nextReward.seconds - qaElapsedSeconds, 0))}`
-      : "Бүх шагналыг авсан байна 🎉";
-  }
-
   let unlockedChanged = false;
   while (qaUnlockedRewards < QA_REWARD_STEPS.length && qaElapsedSeconds >= QA_REWARD_STEPS[qaUnlockedRewards].seconds) {
     showQaToast(`🎉 Шагнал авлаа: ${QA_REWARD_STEPS[qaUnlockedRewards].label}`);
@@ -3902,7 +3864,7 @@ sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
 
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
-    endSentenceGameSession();
+    persistAllActiveTime();
     ensureStoppedIfHidden();
     stopTimeUiUpdater();
     return;
@@ -3922,13 +3884,13 @@ document.addEventListener("visibilitychange", () => {
 });
 
 window.addEventListener("pagehide", () => {
-  endSentenceGameSession();
-  stopSession();
+  persistAllActiveTime();
   stopTimeUiUpdater();
 });
 
 window.addEventListener("beforeunload", () => {
-  stopSession();
+  persistAllActiveTime();
+  stopTimeUiUpdater();
 });
 
 if ("speechSynthesis" in window) {
