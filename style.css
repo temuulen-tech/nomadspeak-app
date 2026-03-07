@@ -471,20 +471,29 @@ body{
   margin:0;
 }
 
-.lesson-title{
+.screen-title-chip{
   display:inline-flex;
   align-items:center;
   justify-content:center;
   width:fit-content;
-  font-size:34px;
   font-weight:800;
-  letter-spacing:.01em;
   padding:14px 20px;
   border-radius:14px;
   border:1px solid rgba(255,221,135,.96);
   background:linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
   color:#291404;
   box-shadow:0 0 0 1px rgba(255,255,255,.24) inset, 0 10px 20px rgba(29,16,2,.35), 0 0 24px rgba(255,200,96,.35);
+}
+
+.lesson-title{
+  font-size:34px;
+  letter-spacing:.01em;
+}
+
+.control-panel-gold-outline{
+  border:1px solid rgba(255,218,126,.72);
+  border-radius:14px;
+  box-shadow:0 0 0 1px rgba(255,239,185,.16) inset, 0 0 16px rgba(255,203,92,.22);
 }
 
 #quiz-screen .time-widget{
@@ -1146,6 +1155,7 @@ body{
 
 .sentences-top-controls{
   margin:8px 0 14px;
+  padding:10px;
 }
 
 .sentences-controls-grid{
@@ -1535,6 +1545,10 @@ body{
   text-rendering:geometricPrecision;
 }
 
+
+.sentence-game-title-row .screen-title-chip{
+  color:#291404;
+}
 .sentence-game-subtitle{
   margin:0;
   font-size:12px;
@@ -1575,6 +1589,7 @@ body{
   min-width:0;
   gap:14px;
   margin-top:0;
+  padding:10px;
 }
 
 .sentence-game-difficulty-wrap{
@@ -1737,6 +1752,7 @@ body{
   z-index:1;
   flex:0 0 auto;
   min-width:182px;
+  padding:10px;
 }
 
 .sentence-game-climb{
@@ -2502,7 +2518,7 @@ body{
 }
 .qa-level-picker{margin:12px 0;}
 .qa-level-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
-.qa-round-panel{margin-top:8px;padding-top:10px;border-top:1px solid #e8ecf8;}
+.qa-round-panel{margin-top:8px;padding:10px;}
 .qa-toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 .qa-builder-lines{display:grid;gap:10px;margin:12px 0;}
 .qa-line-label{font-weight:700;margin:0 0 6px;}
@@ -2710,4 +2726,10 @@ body{
   padding:8px 10px;
   border-radius:10px;
   background:rgba(255,255,255,0.06);
+}
+
+
+.control-panel-gold-outline{
+  border-color:rgba(255,218,126,.72);
+  box-shadow:0 0 0 1px rgba(255,239,185,.16) inset, 0 0 16px rgba(255,203,92,.22);
 }
