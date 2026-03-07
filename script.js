@@ -156,6 +156,21 @@ const statsLevelEl = document.getElementById("stats-level");
 const statsStreakEl = document.getElementById("stats-streak");
 const statsTodayProgressEl = document.getElementById("stats-today-progress");
 const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
+const statsYesterdayTimeEl = document.getElementById("stats-yesterday-time");
+const statsThisWeekTimeEl = document.getElementById("stats-this-week-time");
+const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
+const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
+const statsLastMonthTimeEl = document.getElementById("stats-last-month-time");
+const statsLast7DaysEl = document.getElementById("stats-last-7-days");
+const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
+const timeDetailsButtons = document.querySelectorAll(".time-details-btn");
+const timeDetailsModalEl = document.getElementById("time-details-modal");
+const timeDetailsCloseBtn = document.getElementById("time-details-close-btn");
+const timeDetailsYesterdayEl = document.getElementById("time-details-yesterday");
+const timeDetailsThisWeekEl = document.getElementById("time-details-this-week");
+const timeDetailsLastWeekEl = document.getElementById("time-details-last-week");
+const timeDetailsThisMonthEl = document.getElementById("time-details-this-month");
+const timeDetailsLastMonthEl = document.getElementById("time-details-last-month");
 
 const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
@@ -347,6 +362,8 @@ const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
 const LEGACY_TTS_RATE_KEY = "ttsRate";
 const SOUND_SETTINGS_KEY = "soundEnabled";
 const PROGRESS_SETTINGS_KEY = "nomadProgress";
+const APP_TIME_DAILY_TOTALS_KEY = "appTimeDailyTotals";
+const APP_TIME_ACTIVE_SESSION_KEY = "appTimeActiveSession";
 const PROFILE_NAME_STORAGE_KEY = "nomadProfileName";
 const PREMIUM_STORAGE_KEY = "isPremium";
 const FREE_DAILY_XP_LIMIT = 10;
@@ -385,6 +402,18 @@ let progressState = {
 
 
 let deferredInstallPrompt = null;
+let appTimeUiInterval = null;
+
+const SCREEN_IDS = {
+  [startScreen.id]: "start",
+  [quizScreen.id]: "lesson",
+  [sentencesScreen.id]: "sentences",
+  [sentenceGameScreen.id]: "sentence-game",
+  [qaGameScreen.id]: "qa-game",
+  [statsScreen.id]: "stats",
+  [profileScreen.id]: "profile",
+  [endScreen.id]: "end",
+};
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
@@ -877,12 +906,149 @@ function saveSentenceListItem(item) {
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
 }
 
-function getTodayKey() {
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = String(now.getMonth() + 1).padStart(2, "0");
-  const day = String(now.getDate()).padStart(2, "0");
+function getLocalDateKey(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
   return `${year}-${month}-${day}`;
+}
+
+function getTodayKey() {
+  return getLocalDateKey(new Date());
+}
+
+function getAppTimeDailyTotals() {
+  try {
+    const raw = localStorage.getItem(APP_TIME_DAILY_TOTALS_KEY);
+    const parsed = raw ? JSON.parse(raw) : {};
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch (error) {
+    return {};
+  }
+}
+
+function setAppTimeDailyTotals(totals) {
+  localStorage.setItem(APP_TIME_DAILY_TOTALS_KEY, JSON.stringify(totals));
+}
+
+function addSecondsToDate(dateKey, seconds) {
+  const safeSeconds = Math.max(0, Math.floor(seconds));
+  if (!dateKey || safeSeconds <= 0) return;
+  const totals = getAppTimeDailyTotals();
+  totals[dateKey] = Math.max(0, Math.floor(Number(totals[dateKey]) || 0)) + safeSeconds;
+  setAppTimeDailyTotals(totals);
+}
+
+function splitAcrossMidnight(startMs, endMs) {
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return;
+  if (endMs <= startMs) return;
+
+  let cursor = startMs;
+  while (cursor < endMs) {
+    const current = new Date(cursor);
+    const dayStart = new Date(current.getFullYear(), current.getMonth(), current.getDate());
+    const nextMidnight = dayStart.getTime() + (24 * 60 * 60 * 1000);
+    const segmentEnd = Math.min(endMs, nextMidnight);
+    const seconds = Math.floor((segmentEnd - cursor) / 1000);
+    if (seconds > 0) {
+      addSecondsToDate(getLocalDateKey(current), seconds);
+    }
+    cursor = segmentEnd;
+  }
+}
+
+function readActiveSession() {
+  try {
+    const raw = localStorage.getItem(APP_TIME_ACTIVE_SESSION_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed || typeof parsed !== "object") return null;
+    if (!parsed.screenId || !Number.isFinite(Number(parsed.startedAtEpochMs))) return null;
+    return {
+      screenId: parsed.screenId,
+      startedAtEpochMs: Number(parsed.startedAtEpochMs),
+    };
+  } catch (error) {
+    return null;
+  }
+}
+
+function writeActiveSession(session) {
+  if (!session) {
+    localStorage.removeItem(APP_TIME_ACTIVE_SESSION_KEY);
+    return;
+  }
+  localStorage.setItem(APP_TIME_ACTIVE_SESSION_KEY, JSON.stringify(session));
+}
+
+function stopSession() {
+  const active = readActiveSession();
+  if (!active) return;
+  splitAcrossMidnight(active.startedAtEpochMs, Date.now());
+  writeActiveSession(null);
+}
+
+function startSession(screenId) {
+  stopSession();
+  if (!screenId) return;
+  writeActiveSession({
+    screenId,
+    startedAtEpochMs: Date.now(),
+  });
+}
+
+function ensureStoppedIfHidden() {
+  if (document.hidden) stopSession();
+}
+
+function secondsBetween(a, b) {
+  return Math.max(0, Math.floor((b - a) / 1000));
+}
+
+function getAggregates(now = new Date()) {
+  const todayKey = getLocalDateKey(now);
+  const yesterdayKey = previousDayKey(todayKey);
+
+  const weekday = now.getDay();
+  const mondayOffset = (weekday + 6) % 7;
+  const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
+  const startOfNextWeek = new Date(startOfThisWeek.getFullYear(), startOfThisWeek.getMonth(), startOfThisWeek.getDate() + 7);
+  const startOfLastWeek = new Date(startOfThisWeek.getFullYear(), startOfThisWeek.getMonth(), startOfThisWeek.getDate() - 7);
+
+  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+
+  const active = readActiveSession();
+  if (active) {
+    splitAcrossMidnight(active.startedAtEpochMs, Date.now());
+    writeActiveSession({ screenId: active.screenId, startedAtEpochMs: Date.now() });
+  }
+
+  const totals = getAppTimeDailyTotals();
+
+  const parseKeyDate = (key) => new Date(`${key}T00:00:00`);
+  const sumRange = (start, end) => Object.entries(totals).reduce((sum, [key, value]) => {
+    const date = parseKeyDate(key);
+    if (date >= start && date < end) return sum + Math.max(0, Math.floor(Number(value) || 0));
+    return sum;
+  }, 0);
+
+  return {
+    today: Math.max(0, Math.floor(Number(totals[todayKey]) || 0)),
+    yesterday: Math.max(0, Math.floor(Number(totals[yesterdayKey]) || 0)),
+    thisWeek: sumRange(startOfThisWeek, startOfNextWeek),
+    lastWeek: sumRange(startOfLastWeek, startOfThisWeek),
+    thisMonth: sumRange(startOfThisMonth, startOfNextMonth),
+    lastMonth: sumRange(startOfLastMonth, startOfThisMonth),
+  };
+}
+
+function formatHHMM(totalSeconds) {
+  const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  const hours = String(Math.floor(safe / 3600)).padStart(2, "0");
+  const minutes = String(Math.floor((safe % 3600) / 60)).padStart(2, "0");
+  return `${hours}:${minutes}`;
 }
 
 function previousDayKey(dayKey) {
@@ -944,6 +1110,15 @@ function normalizeProgressState(raw = {}) {
 
 function syncProgressForToday() {
   const today = getTodayKey();
+  const aggregates = getAggregates(new Date());
+  progressState.todayMinutes = Math.floor(aggregates.today / 60);
+  const dailyTotals = getAppTimeDailyTotals();
+  progressState.weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - (6 - index));
+    const key = getLocalDateKey(dt);
+    return Math.floor((Number(dailyTotals[key]) || 0) / 60);
+  });
   const lastStatsDate = progressState.lastStatsDate || progressState.lastActiveDate;
   if (!lastStatsDate || lastStatsDate === today) return;
   const yesterday = previousDayKey(today);
@@ -1132,6 +1307,54 @@ function formatStudyMinutes(totalMinutes) {
   return `${hours} цаг ${minutes} мин`;
 }
 
+function buildLast7DaysTimeRows() {
+  const totals = getAppTimeDailyTotals();
+  return Array.from({ length: 7 }, (_, index) => {
+    const dt = new Date();
+    dt.setDate(dt.getDate() - index);
+    const key = getLocalDateKey(dt);
+    const label = dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" });
+    return `<li><span>${label}</span><strong>${formatHHMM(totals[key] || 0)}</strong></li>`;
+  }).reverse().join("");
+}
+
+function refreshTimeSummaryUI() {
+  const aggregates = getAggregates(new Date());
+  const todayFormatted = formatHHMM(aggregates.today);
+  todayTimeEls.forEach((el) => {
+    el.textContent = todayFormatted;
+  });
+
+  if (timeDetailsYesterdayEl) timeDetailsYesterdayEl.textContent = formatHHMM(aggregates.yesterday);
+  if (timeDetailsThisWeekEl) timeDetailsThisWeekEl.textContent = formatHHMM(aggregates.thisWeek);
+  if (timeDetailsLastWeekEl) timeDetailsLastWeekEl.textContent = formatHHMM(aggregates.lastWeek);
+  if (timeDetailsThisMonthEl) timeDetailsThisMonthEl.textContent = formatHHMM(aggregates.thisMonth);
+  if (timeDetailsLastMonthEl) timeDetailsLastMonthEl.textContent = formatHHMM(aggregates.lastMonth);
+
+  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatHHMM(aggregates.today);
+  if (statsYesterdayTimeEl) statsYesterdayTimeEl.textContent = formatHHMM(aggregates.yesterday);
+  if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMM(aggregates.thisWeek);
+  if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMM(aggregates.lastWeek);
+  if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMM(aggregates.thisMonth);
+  if (statsLastMonthTimeEl) statsLastMonthTimeEl.textContent = formatHHMM(aggregates.lastMonth);
+  if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
+}
+
+function startTimeUiUpdater() {
+  if (appTimeUiInterval) return;
+  appTimeUiInterval = setInterval(() => {
+    if (readActiveSession()) {
+      refreshTimeSummaryUI();
+    }
+  }, 1000);
+}
+
+function stopTimeUiUpdater() {
+  if (!appTimeUiInterval) return;
+  clearInterval(appTimeUiInterval);
+  appTimeUiInterval = null;
+}
+
 function updateStatsUI() {
   loadProgressState();
   syncProgressForToday();
@@ -1140,7 +1363,6 @@ function updateStatsUI() {
   if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
   if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
   if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
-  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatStudyMinutes(progressState.todayMinutes);
   if (statsRewardTierLabelEl) statsRewardTierLabelEl.textContent = `Одоогийн түвшин: ${progressState.rewardTierUnlocked}`;
 
   statsRewardImageEls.forEach((imgEl) => {
@@ -1157,6 +1379,8 @@ function updateStatsUI() {
       return `<div class="weekly-bar-wrap"><div class="weekly-bar" style="height:${height}%"></div><span class="weekly-value">${value}</span><span class="weekly-label">${labels[index]}</span></div>`;
     }).join("");
   }
+
+  refreshTimeSummaryUI();
 
   persistProgressState();
 }
@@ -1456,6 +1680,11 @@ function showScreen(screen) {
   if (screen !== sentencesScreen && wasSentencesVisible) {
     stopSentencesTimer();
   }
+
+  const screenId = screen && screen.id ? SCREEN_IDS[screen.id] || screen.id : null;
+  startSession(screenId);
+  startTimeUiUpdater();
+  refreshTimeSummaryUI();
 
   updateHeaderStatus();
 }
@@ -3450,6 +3679,7 @@ loadProgressState();
 updateHeaderStatus();
 updateProfileUI();
 updateStatsUI();
+refreshTimeSummaryUI();
 persistPremiumStatus();
 persistProgressState();
 
@@ -3545,6 +3775,25 @@ if (qaShowHelpBtn) {
 }
 if (qaModalCloseBtn) qaModalCloseBtn.addEventListener("click", closeQaModal);
 if (qaModalEl) qaModalEl.addEventListener("click", (event) => { if (event.target === qaModalEl) closeQaModal(); });
+
+timeDetailsButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    refreshTimeSummaryUI();
+    if (timeDetailsModalEl) timeDetailsModalEl.classList.remove("hidden");
+  });
+});
+
+if (timeDetailsCloseBtn) {
+  timeDetailsCloseBtn.addEventListener("click", () => {
+    if (timeDetailsModalEl) timeDetailsModalEl.classList.add("hidden");
+  });
+}
+
+if (timeDetailsModalEl) {
+  timeDetailsModalEl.addEventListener("click", (event) => {
+    if (event.target === timeDetailsModalEl) timeDetailsModalEl.classList.add("hidden");
+  });
+}
 
 loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
@@ -3654,16 +3903,32 @@ sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
 document.addEventListener("visibilitychange", () => {
   if (document.hidden) {
     endSentenceGameSession();
+    ensureStoppedIfHidden();
+    stopTimeUiUpdater();
     return;
   }
 
   if (sentenceGameScreenVisible()) {
     beginSentenceGameSession();
   }
+
+  const visibleScreen = document.querySelector(".card:not(.hidden)");
+  if (visibleScreen) {
+    const screenId = SCREEN_IDS[visibleScreen.id] || visibleScreen.id;
+    startSession(screenId);
+    startTimeUiUpdater();
+    refreshTimeSummaryUI();
+  }
 });
 
 window.addEventListener("pagehide", () => {
   endSentenceGameSession();
+  stopSession();
+  stopTimeUiUpdater();
+});
+
+window.addEventListener("beforeunload", () => {
+  stopSession();
 });
 
 if ("speechSynthesis" in window) {
@@ -3725,5 +3990,12 @@ if (installBtn) {
 }
 
 updateInstallHintVisibility();
+
+const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
+if (initialVisibleScreen) {
+  const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
+  startSession(initialScreenId);
+  startTimeUiUpdater();
+}
 
 loadSentences();
