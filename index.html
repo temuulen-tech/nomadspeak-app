@@ -79,6 +79,10 @@
 
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-start">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <div class="start-intro-cta start-intro-cta-header">
           <button class="premium-intro-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">Апплекшны танилцуулга</button>
@@ -105,6 +109,10 @@
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <h2 class="lesson-title">Зөв хариулт сонгох</h2>
         <div class="quiz-header-audio-group">
@@ -186,6 +194,10 @@
 
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header sentences-panel-header">
         <h2>Өгүүлбэрүүд</h2>
         <button class="secondary vault-open-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
@@ -263,6 +275,10 @@
 
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden" id="sentence-game-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-header-row">
         <div class="sentence-game-header-card">
@@ -346,6 +362,10 @@
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden" id="qa-game-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <h2>Асуулт Хариулт тоглоом</h2>
         <button class="secondary vault-open-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
@@ -427,6 +447,10 @@
 
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-stats">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <h2>Миний ахиц &amp; Амжилт</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
@@ -454,7 +478,34 @@
           <p class="stats-label">⏱️ Өдрийн хичээллэсэн цаг</p>
           <p class="stats-value" id="stats-today-minutes">0 мин</p>
         </article>
+        <article class="stats-card">
+          <p class="stats-label">Өчигдөр</p>
+          <p class="stats-value" id="stats-yesterday-time">00:00</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">Энэ долоо хоног</p>
+          <p class="stats-value" id="stats-this-week-time">00:00</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">Өнгөрсөн долоо хоног</p>
+          <p class="stats-value" id="stats-last-week-time">00:00</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">Энэ сар</p>
+          <p class="stats-value" id="stats-this-month-time">00:00</p>
+        </article>
+        <article class="stats-card">
+          <p class="stats-label">Өнгөрсөн сар</p>
+          <p class="stats-value" id="stats-last-month-time">00:00</p>
+        </article>
       </div>
+
+      <article class="stats-panel">
+        <div class="stats-panel-header">
+          <h3>Сүүлийн 7 өдөр (HH:MM)</h3>
+        </div>
+        <ul class="stats-time-list" id="stats-last-7-days"></ul>
+      </article>
 
       <article class="stats-panel">
         <div class="stats-panel-header">
@@ -482,6 +533,10 @@
 
     <!-- PROFILE SCREEN -->
     <section class="card hidden" id="profile-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-profile">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <h2>👤 Профайл</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
@@ -530,6 +585,10 @@
 
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
+      <div class="time-widget">
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00</span></div>
+        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+      </div>
       <div class="panel-header">
         <h2>Дууслаа 🎉</h2>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
@@ -584,6 +643,22 @@
           <button class="primary" id="vault-modal-close-btn" type="button">Хаах</button>
         </div>
       </footer>
+    </div>
+  </div>
+
+  <div class="confirm-overlay hidden" id="time-details-modal" role="dialog" aria-modal="true" aria-labelledby="time-details-title">
+    <div class="confirm-card qa-modal-card time-details-modal-card">
+      <h2 id="time-details-title">Бүх хугацааны мэдээлэл</h2>
+      <div class="time-details-list" id="time-details-list">
+        <p>Өчигдөрийн хугацаа: <strong id="time-details-yesterday">00:00</strong></p>
+        <p>Энэ долоо хоногийн хугацаа: <strong id="time-details-this-week">00:00</strong></p>
+        <p>Өнгөрсөн долоо хоногийн хугацаа: <strong id="time-details-last-week">00:00</strong></p>
+        <p>Энэ сарын хугацаа: <strong id="time-details-this-month">00:00</strong></p>
+        <p>Өнгөрсөн сарын хугацаа: <strong id="time-details-last-month">00:00</strong></p>
+      </div>
+      <div class="confirm-actions">
+        <button class="primary" id="time-details-close-btn" type="button">Хаах</button>
+      </div>
     </div>
   </div>
 

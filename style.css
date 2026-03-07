@@ -2662,3 +2662,49 @@ body{
   position:relative;
   z-index:1;
 }
+
+.time-widget{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+  padding:10px 12px;
+  border-radius:12px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.14);
+}
+
+.today-time{
+  font-weight:700;
+  color:#ffe8a6;
+}
+
+.time-details-btn{
+  font-weight:700;
+  white-space:nowrap;
+}
+
+.time-details-list p{
+  margin:0 0 10px;
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+}
+
+.stats-time-list{
+  list-style:none;
+  margin:0;
+  padding:0;
+  display:grid;
+  gap:8px;
+}
+
+.stats-time-list li{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 10px;
+  border-radius:10px;
+  background:rgba(255,255,255,0.06);
+}
