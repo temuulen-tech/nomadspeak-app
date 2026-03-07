@@ -459,11 +459,11 @@ body{
 
 
 .panel-header{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:10px;
-  flex-wrap:wrap;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  column-gap:12px;
+  row-gap:10px;
   margin-bottom:10px;
 }
 
@@ -472,24 +472,57 @@ body{
 }
 
 .lesson-title{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:fit-content;
   font-size:34px;
   font-weight:800;
   letter-spacing:.01em;
+  padding:14px 20px;
+  border-radius:14px;
+  border:1px solid rgba(255,221,135,.96);
+  background:linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
+  color:#291404;
+  box-shadow:0 0 0 1px rgba(255,255,255,.24) inset, 0 10px 20px rgba(29,16,2,.35), 0 0 24px rgba(255,200,96,.35);
 }
 
-.quiz-header-audio-group{
+#quiz-screen .time-widget{
+  grid-column:1;
+  grid-row:2;
+}
+
+.lesson-controls-panel{
+  grid-column:2;
+  grid-row:1 / span 2;
+  justify-self:end;
   display:flex;
   flex-direction:column;
   align-items:flex-end;
-  gap:10px;
-  margin-left:auto;
+  gap:8px;
+  padding:10px;
+  border-radius:14px;
+  border:1px solid rgba(255,255,255,.14);
+  background:rgba(4,18,27,.56);
 }
 
-.lesson-top-controls{
+.lesson-controls-row,
+.lesson-top-controls,
+.lesson-audio-controls{
   display:flex;
   align-items:center;
+  justify-content:flex-end;
   gap:8px;
-  flex-wrap:nowrap;
+  flex-wrap:wrap;
+}
+
+#quiz-screen .lesson-controls-panel .topbar{
+  justify-content:flex-end;
+}
+
+#quiz-screen .lesson-controls-panel .pill{
+  font-size:13px;
+  padding:6px 10px;
 }
 
 #quiz-screen .lesson-top-controls .start-level-picker{
@@ -502,18 +535,8 @@ body{
   white-space:nowrap;
 }
 
+#quiz-screen .lesson-audio-controls .vault-save-btn,
 #quiz-screen .sound-toggle-btn{
-  margin-top:0;
-}
-
-
-.lesson-audio-controls{
-  display:flex;
-  align-items:center;
-  gap:8px;
-}
-
-#quiz-screen .lesson-audio-controls .vault-save-btn{
   margin-top:0;
 }
 
@@ -1983,14 +2006,22 @@ body{
   #qa-game-screen .sentence-game-reward-row,
   #quiz-screen .sentence-game-reward-row{
     flex-wrap:nowrap;
-    gap:8px;
+    gap:12px;
     justify-content:center;
+  }
+
+  #quiz-screen .sentence-game-reward-row{
+    gap:18px;
   }
 
   #sentence-game-screen .sentence-game-reward-row .reward-tile,
   #qa-game-screen .sentence-game-reward-row .reward-tile,
   #quiz-screen .sentence-game-reward-row .reward-tile{
-    flex:0 1 clamp(104px, 8.2vw, 122px);
+    flex:0 1 clamp(112px, 8.8vw, 132px);
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-tile{
+    margin:0 2px;
   }
 
   #sentence-game-screen .sentence-game-reward-row .reward-img,
@@ -2203,28 +2234,34 @@ body{
     font-size:28px;
   }
 
-  .quiz-header-audio-group{
+  .panel-header{
+    grid-template-columns:1fr;
+  }
+
+  #quiz-screen .time-widget,
+  .lesson-controls-panel{
+    grid-column:1;
+    grid-row:auto;
+  }
+
+  .lesson-controls-panel{
     width:100%;
     align-items:stretch;
   }
 
-  .lesson-top-controls{
-    flex-wrap:wrap;
+  .lesson-controls-row,
+  .lesson-top-controls,
+  .lesson-audio-controls,
+  #quiz-screen .lesson-controls-panel .topbar{
+    justify-content:flex-start;
   }
 
   #quiz-screen .lesson-top-controls .start-level-picker,
   #quiz-screen .lesson-top-controls #start-btn,
-  #quiz-screen .lesson-top-controls #lesson-vault-btn{
+  #quiz-screen .lesson-top-controls #lesson-vault-btn,
+  #quiz-screen .lesson-audio-controls #lesson-save-btn,
+  #quiz-screen .lesson-audio-controls .sound-toggle-btn{
     width:100%;
-  }
-
-  #quiz-screen .topbar{
-    justify-content:flex-end;
-  }
-
-  #quiz-screen .sound-toggle-btn{
-    margin-top:6px;
-    align-self:flex-start;
   }
 }
 
