@@ -130,7 +130,7 @@ const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
 const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
 const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
 const sentenceGameRewardRowEl = document.getElementById("sentence-game-reward-row");
-const sentenceGameRewardImageEls = sentenceGameRewardRowEl ? sentenceGameRewardRowEl.querySelectorAll(".sentence-game-reward-image") : [];
+const sentenceGameRewardImageEls = sentenceGameRewardRowEl ? sentenceGameRewardRowEl.querySelectorAll(".reward-img") : [];
 const sentenceGameDifficultyToggleBtn = document.getElementById("sentence-game-difficulty-toggle-btn");
 const sentenceGameDifficultyPanelEl = document.getElementById("sentence-game-difficulty-panel");
 const sentenceGameDifficultyButtons = document.querySelectorAll(".sentence-game-difficulty-btn");
@@ -176,9 +176,9 @@ const timeDetailsLastMonthEl = document.getElementById("time-details-last-month"
 
 const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
-const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
+const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".reward-img") : [];
 const lessonRewardBarEl = document.getElementById("lesson-reward-bar");
-const lessonRewardImageEls = () => lessonRewardBarEl ? lessonRewardBarEl.querySelectorAll(".sentence-game-reward-image") : [];
+const lessonRewardImageEls = () => lessonRewardBarEl ? lessonRewardBarEl.querySelectorAll(".reward-img") : [];
 const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
 const qaToastEl = document.getElementById("qa-toast");
 const qaLevelSelectBtn = document.getElementById("qa-level-select-btn");
@@ -207,7 +207,7 @@ const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
 
 const weeklyChartEl = document.getElementById("weekly-chart");
 const statsRewardTierLabelEl = document.getElementById("stats-reward-tier-label");
-const statsRewardImageEls = document.querySelectorAll(".stats-reward-image");
+const statsRewardImageEls = document.querySelectorAll("#stats-reward-row .reward-img");
 const statsResetBtn = document.getElementById("stats-reset-btn");
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
@@ -1376,7 +1376,18 @@ function updateStatsUI() {
 
   statsRewardImageEls.forEach((imgEl) => {
     const tier = Number(imgEl.dataset.tier || 0);
-    imgEl.classList.toggle("active", tier === progressState.rewardTierUnlocked);
+    const unlocked = tier > 0 && tier <= progressState.rewardTierUnlocked;
+    const active = tier === progressState.rewardTierUnlocked;
+    const tileEl = imgEl.closest(".reward-tile");
+    if (tileEl) {
+      tileEl.classList.toggle("is-unlocked", unlocked);
+      tileEl.classList.toggle("is-locked", !unlocked);
+      tileEl.classList.toggle("is-active", active);
+    }
+    imgEl.classList.toggle("is-unlocked", unlocked);
+    imgEl.classList.toggle("is-locked", !unlocked);
+    imgEl.classList.toggle("active", active);
+    imgEl.classList.toggle("is-active", active);
   });
 
   if (weeklyChartEl) {
@@ -3309,7 +3320,7 @@ function renderSentencesRewards() {
     const active = level === activeLevel;
     return `
       <article class="reward-tile ${unlocked ? "is-unlocked" : "is-locked"} ${active ? "is-active" : ""}" data-reward-index="${index}" data-level="${level}">
-        <p class="reward-label reward-label-chip">${reward.label}</p>
+        <p class="reward-label-chip">${reward.label}</p>
         <img class="reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
       </article>
     `;
