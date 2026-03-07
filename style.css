@@ -1176,6 +1176,13 @@ body{
 .sentences-speed-block{
   margin-left:auto;
   align-self:flex-end;
+  justify-self:end;
+  text-align:right;
+}
+
+.sentences-speed-block .tts-rate-header,
+.sentences-speed-block .tts-rate-hints{
+  justify-content:flex-end;
 }
 
 .tts-rate-compact{
@@ -1249,34 +1256,57 @@ body{
   }
 }
 
-.sentences-controls{
-  display:flex;
-  gap:10px;
-  flex-wrap:wrap;
+.sentences-level-picker{
+  position:relative;
+  display:inline-flex;
+  flex-direction:column;
+  gap:8px;
   margin:14px 0;
 }
 
-.filter-btn{
+.filter-btn,
+.sentences-level-option{
   color:#f8fffb;
   padding:9px 12px;
   border-radius:12px;
 }
 
-.filter-btn.active{
-  box-shadow:
-    0 0 0 1px rgba(244,255,249,.4) inset,
-    0 0 0 1.2px rgba(150,255,102,.72),
-    0 0 18px rgba(83,255,210,.4);
+.sentences-level-picker-btn{
+  min-width:220px;
+  text-align:left;
 }
 
-.level-filter-btn.active{
-  border-color:rgba(108, 233, 255, .96);
-  background:linear-gradient(145deg, #34c089 0%, #18a994 52%, #0f7ba6 100%);
+.sentences-level-options{
+  position:absolute;
+  top:calc(100% + 6px);
+  left:0;
+  z-index:40;
+  min-width:220px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(6,24,36,.96);
+  box-shadow:0 14px 30px rgba(0,0,0,.32);
+}
+
+.sentences-level-option{
+  border:1px solid transparent;
+  background:rgba(255,255,255,.04);
+  cursor:pointer;
+  text-align:left;
+  font-size:14px;
+  line-height:1.2;
+}
+
+.sentences-level-option.active{
   box-shadow:
-    0 0 0 1px rgba(242, 252, 255, .58) inset,
-    0 0 0 2px rgba(96, 233, 255, .92),
-    0 0 20px rgba(124, 255, 242, .7),
-    0 0 34px rgba(91, 206, 255, .62);
+    0 0 0 1px rgba(244,255,249,.42) inset,
+    0 0 0 1.4px rgba(150,255,102,.72),
+    0 0 20px rgba(83,255,210,.48),
+    0 0 26px rgba(70,200,255,.28);
 }
 
 .sentences-list{
@@ -1687,6 +1717,11 @@ body{
   width:clamp(138px, 15.8vw, 202px);
   height:clamp(138px, 15.8vw, 202px);
 }
+
+#sentences-screen .sentences-reward-strip .reward-img{
+  border:2.5px solid rgba(255,220,118,.98);
+  box-shadow:0 0 0 1px rgba(255,239,185,.42) inset, 0 0 18px rgba(255,208,102,.4);
+}
 .reward-label{
   position:absolute;
   top:0;
@@ -1997,6 +2032,11 @@ body{
   .tts-rate-compact{
     width:100%;
     margin-left:0;
+    text-align:left;
+  }
+
+  .sentences-vault-compact-btn{
+    width:100%;
   }
 }
 
@@ -2573,6 +2613,7 @@ body{
 }
 
 .vault-open-btn{display:inline-flex;align-items:center;gap:8px;}
+.sentences-vault-compact-btn{width:clamp(180px, 26vw, 260px);justify-content:center;}
 .vault-badge{display:inline-flex;align-items:center;justify-content:center;min-width:22px;height:22px;padding:0 6px;border-radius:999px;background:#1f8f5f;color:#fff;font-size:12px;font-weight:700;}
 .vault-save-btn{margin-top:8px;}
 #lesson-save-btn{margin-top:0;margin-left:0;white-space:normal;text-align:left;}

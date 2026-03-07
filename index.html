@@ -59,8 +59,8 @@
 
           <div class="header-nav" aria-label="Үндсэн навигаци">
             <button class="secondary nav-btn" id="nav-home-btn" type="button">Эхлэл</button>
-            <button class="secondary nav-btn" id="nav-lesson-btn" type="button">Хичээл</button>
-            <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Өгүүлбэрүүд</button>
+            <button class="secondary nav-btn" id="nav-lesson-btn" type="button">Зөв хариулт сонгоорой</button>
+            <button class="secondary nav-btn" id="nav-sentences-btn" type="button">Асуугаад &amp; Хариулаарай</button>
             <button class="secondary nav-btn" id="nav-sentence-game-btn" type="button">Өгүүлбэрийн тоглоом</button>
             <button class="secondary nav-btn" id="nav-qa-game-btn" type="button">АСУУЛТ, ХАРИУЛТ БҮТЭЭХ ТОГЛООМ</button>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
@@ -196,7 +196,7 @@
           <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
           <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
-        <button class="secondary vault-open-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
+        <button class="secondary vault-open-btn sentences-vault-compact-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
       <div class="sentences-reward-strip reward-row" id="sentences-reward-strip" aria-label="Sentences reward progress">
@@ -232,11 +232,13 @@
                 <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
               </div>
             </div>
-            <div class="sentences-controls" role="group" aria-label="Түвшин шүүлтүүр">
-              <button class="filter-btn active" type="button" data-filter="all">Бүгд</button>
-              <button class="filter-btn level-filter-btn" type="button" data-filter="beginner">Анхан</button>
-              <button class="filter-btn level-filter-btn" type="button" data-filter="intermediate">Дунд</button>
-              <button class="filter-btn level-filter-btn" type="button" data-filter="advanced">Дээд</button>
+            <div class="sentences-level-picker" id="sentences-level-picker">
+              <button class="filter-btn sentences-level-picker-btn" id="sentences-level-picker-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sentences-level-options">Түвшин сонгох: Анхан</button>
+              <div class="sentences-level-options hidden" id="sentences-level-options" role="menu" aria-label="Түвшин сонголт">
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="true" data-filter="beginner">Анхан</button>
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="intermediate">Дунд</button>
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="advanced">Дээд</button>
+              </div>
             </div>
           </div>
           <div class="tts-group tts-rate-group tts-rate-compact sentences-speed-block" aria-label="Хурд">
