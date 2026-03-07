@@ -191,13 +191,17 @@
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
       <div class="panel-header sentences-panel-header">
-        <h2 class="screen-title-chip">Өгүүлбэрүүд</h2>
-        <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
-          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        <div class="sentences-title-stack">
+          <h2 class="screen-title-chip">Асуугаад &amp; Хариулаарай</h2>
+          <div class="time-widget">
+            <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+            <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+          </div>
         </div>
-        <button class="secondary vault-open-btn sentences-vault-compact-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
-        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        <div class="sentences-header-actions">
+          <button class="secondary vault-open-btn sentences-vault-compact-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
+          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        </div>
       </div>
       <div class="sentences-reward-strip reward-row" id="sentences-reward-strip" aria-label="Sentences reward progress">
         <article class="reward-tile" data-reward-index="0" data-level="1">
