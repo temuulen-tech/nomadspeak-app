@@ -1709,12 +1709,11 @@ body{
 }
 
 .rewards-group{
-  border:2px solid rgba(255,218,126,.82);
+  border:none;
   border-radius:18px;
   padding:12px 14px;
-  box-shadow:
-    0 0 0 1px rgba(255,244,203,.24) inset,
-    0 0 18px rgba(255,208,96,.22);
+  box-shadow:none;
+  background:transparent;
 }
 
 .reward-tile{
@@ -1742,7 +1741,7 @@ body{
   opacity:.96;
   background:transparent;
   padding:0;
-  filter:brightness(1.10) contrast(1.18) saturate(1.10);
+  filter:brightness(1.12) contrast(1.20) saturate(1.12);
   transform:scale(1);
   transition:transform .24s ease, opacity .24s ease, filter .24s ease;
 }
