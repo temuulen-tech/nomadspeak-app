@@ -92,7 +92,10 @@ const navProfileBtn = document.getElementById("nav-profile-btn");
 const startLevelDropdown = document.getElementById("start-level-dropdown");
 const startLevelPicker = document.querySelector(".start-level-picker");
 const startLevelOptions = document.querySelectorAll(".start-level-option");
-const sentenceFilterButtons = document.querySelectorAll(".filter-btn");
+const sentencesLevelPickerEl = document.getElementById("sentences-level-picker");
+const sentencesLevelPickerBtn = document.getElementById("sentences-level-picker-btn");
+const sentencesLevelOptionsEl = document.getElementById("sentences-level-options");
+const sentencesLevelOptionButtons = document.querySelectorAll(".sentences-level-option");
 const sentencesListEl = document.getElementById("sentences-list");
 const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
 const ttsRateSlider = document.getElementById("tts-rate-slider");
@@ -238,7 +241,7 @@ let locked = false;
 let lessonReviewMode = false;
 
 let sentenceItems = [];
-let sentenceFilter = "all";
+let sentenceFilter = "beginner";
 let speakingSentenceId = null;
 let availableVoices = [];
 
@@ -2445,7 +2448,6 @@ function speakSentence(item) {
 }
 
 function filteredSentences() {
-  if (sentenceFilter === "all") return sentenceItems;
   return sentenceItems.filter(item => item.level === sentenceFilter);
 }
 
@@ -3765,6 +3767,7 @@ if (timeDetailsModalEl) {
 loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
 updateSentenceFilterActiveState();
+setSentencesLevelPickerOpen(false);
 setStartLevelMenuOpen(false);
 updateStartButtonLabel();
 
@@ -3781,21 +3784,51 @@ startLevelOptions.forEach((btn) => {
   });
 });
 
+function sentenceLevelFilterLabel(filterKey) {
+  return filterKey === "intermediate" ? "Дунд" : filterKey === "advanced" ? "Дээд" : "Анхан";
+}
+
+function setSentencesLevelPickerOpen(isOpen) {
+  if (!sentencesLevelOptionsEl || !sentencesLevelPickerBtn) return;
+  sentencesLevelOptionsEl.classList.toggle("hidden", !isOpen);
+  sentencesLevelPickerBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+}
+
 function updateSentenceFilterActiveState() {
-  sentenceFilterButtons.forEach((btn) => {
+  if (sentencesLevelPickerBtn) {
+    sentencesLevelPickerBtn.textContent = `Түвшин сонгох: ${sentenceLevelFilterLabel(sentenceFilter)}`;
+  }
+
+  sentencesLevelOptionButtons.forEach((btn) => {
     const isActive = btn.dataset.filter === sentenceFilter;
     btn.classList.toggle("active", isActive);
+    btn.setAttribute("aria-checked", isActive ? "true" : "false");
   });
 }
 
-sentenceFilterButtons.forEach(btn => {
+if (sentencesLevelPickerBtn) {
+  sentencesLevelPickerBtn.addEventListener("click", () => {
+    const nextOpen = sentencesLevelOptionsEl ? sentencesLevelOptionsEl.classList.contains("hidden") : false;
+    setSentencesLevelPickerOpen(nextOpen);
+  });
+}
+
+sentencesLevelOptionButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    sentenceFilter = btn.dataset.filter;
+    sentenceFilter = btn.dataset.filter || "beginner";
     updateSentenceFilterActiveState();
+    setSentencesLevelPickerOpen(false);
     stopSpeaking();
     renderSentences();
     updateHeaderStatus();
   });
+});
+
+document.addEventListener("click", (event) => {
+  if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || sentencesLevelOptionsEl.classList.contains("hidden")) return;
+  if (!sentencesLevelPickerEl.contains(event.target)) {
+    setSentencesLevelPickerOpen(false);
+  }
 });
 
 voiceOptionButtons.forEach(btn => {
