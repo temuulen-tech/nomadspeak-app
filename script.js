@@ -300,11 +300,11 @@ const SENTENCE_GAME_DIFFICULTY_LABELS = {
 };
 const SENTENCE_GAME_REWARD_THRESHOLDS = [1200, 1800, 3000, 3600, 5400];
 const SENTENCE_GAME_REWARD_BANNERS = [
-  "🏳️ Эхлэл амжилттай!",
-  "⭐ Улаан одын Эзэн",
-  "🪙 Алтан зоос Чинийх",
-  "🏆 Алтан цомын Эзэн",
-  "💎 Алмөөз эрдэнэ Чинийх",
+  "Эхлэл амжилттай!",
+  "Улаан одын Эзэн",
+  "Алтан зоос Чинийх",
+  "Алтан цомын Эзэн",
+  "Алмөөз эрдэнэ Чинийх",
 ];
 const SENTENCE_GAME_CLIMB_POSITIONS = [
   { x: 14, y: 102 },
@@ -3309,7 +3309,7 @@ function renderSentencesRewards() {
     const active = level === activeLevel;
     return `
       <article class="reward-tile ${unlocked ? "is-unlocked" : "is-locked"} ${active ? "is-active" : ""}" data-reward-index="${index}" data-level="${level}">
-        <p class="reward-label">${reward.icon} ${reward.label}</p>
+        <p class="reward-label reward-label-chip">${reward.label}</p>
         <img class="reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
       </article>
     `;
