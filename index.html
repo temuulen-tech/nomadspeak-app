@@ -274,18 +274,23 @@
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden" id="sentence-game-screen">
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
-      <div class="sentence-game-header-row">
-        <div class="sentence-game-header-card">
-          <div class="sentence-game-title-row">
+      <div class="sentence-game-top">
+        <div class="sentence-game-top-header">
+          <div class="sentence-game-top-left">
             <h2 class="screen-title-chip">Өгүүлбэрийн тоглоом</h2>
             <div class="time-widget">
               <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
               <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
             </div>
-            <p class="sentence-game-subtitle">Үгсийг зөв дараалалд оруулаарай</p>
+          </div>
+          <div class="sentence-game-control-panel control-panel-gold-outline" aria-label="Sentence game quick actions">
+            <button class="secondary vault-open-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
+            <button class="secondary vault-save-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
+            <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+            <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
           </div>
         </div>
-        <div class="sentence-game-reward-middle control-panel-gold-outline" id="sentence-game-reward-middle">
+        <div class="sentence-game-rewards-block control-panel-gold-outline" id="sentence-game-reward-middle">
           <div class="sentence-game-reward-row reward-row rewards-group" id="sentence-game-reward-row" aria-label="Reward unlock progress">
             <article class="reward-tile" data-level="1">
               <p class="reward-label-chip">Эхлэл амжилттай!</p>
@@ -317,12 +322,6 @@
             </div>
           </div>
         </div>
-        <div class="sentence-game-title-actions control-panel-gold-outline" aria-label="Sentence game quick actions">
-          <button class="secondary vault-open-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
-          <button class="secondary vault-save-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
-          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-          <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбар унших</button>
-        </div>
       </div>
       <div class="sentence-game-reward-banner hidden" id="sentence-game-reward-banner" role="status" aria-live="polite"></div>
       <div class="sentence-game-tip-panel hidden" id="sentence-game-tip-panel">
@@ -341,7 +340,7 @@
       <div class="sentence-game-pool" id="sentence-game-pool"></div>
 
       <div class="sentence-game-actions">
-        <button class="secondary" id="sentence-game-undo-btn" type="button">Буцаах</button>
+        <button class="secondary" id="sentence-game-undo-btn" type="button">Буцах</button>
         <button class="secondary" id="sentence-game-show-correct-btn" type="button">Зөвийг харах</button>
         <button class="secondary" id="sentence-game-retry-btn" type="button">Дахин оролдох</button>
         <button class="secondary" id="sentence-game-prev-btn" type="button">Өмнөх өгүүлбэр</button>
