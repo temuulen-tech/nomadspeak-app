@@ -2625,9 +2625,9 @@ body{
 
 .time-widget{
   display:flex;
-  flex-wrap:wrap;
-  align-items:center;
-  gap:8px 12px;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
   margin:2px 0 10px;
   padding:0;
   border:0;
@@ -2640,11 +2640,14 @@ body{
 
 .today-time{
   font-weight:700;
+  font-size:0.92rem;
   color:#ffe8a6;
 }
 
 .time-details-btn{
   font-weight:700;
+  font-size:0.82rem;
+  padding:5px 10px;
   white-space:nowrap;
   margin-top:0;
 }
