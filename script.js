@@ -3611,20 +3611,36 @@ function closeQaModal() {
   qaModalEl.classList.add("hidden");
 }
 
+function buildQaSentencesModalHtml() {
+  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || "beginner");
+  return rounds
+    .map((round) => `<p>${round.enQuestion} - ${round.enAnswer}</p><p>${round.mnQuestion} - ${round.mnAnswer}</p>`)
+    .join("");
+}
+
+function qaLevelLabel(levelKey) {
+  return levelKey === "intermediate" ? "Дунд" : levelKey === "advanced" ? "Дээд" : "Анхан";
+}
+
+function qaRoundPoolForLevel(levelKey) {
+  return levelKey === "beginner" ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
+}
+
 function selectQaLevel(levelKey) {
   qaGameLevel = levelKey;
-  qaRoundPool = levelKey === "beginner" ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
+  qaRoundPool = qaRoundPoolForLevel(levelKey);
   qaRoundIndex = 0;
   qaRoundPanelEl.classList.remove("hidden");
   qaLevelOptionsEl.classList.add("hidden");
-  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${levelKey === "beginner" ? "Анхан" : levelKey === "intermediate" ? "Дунд" : "Дээд"}`;
+  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
   setupQaRound();
   startQaTimer();
 }
 
 function resetQaGameScreen() {
-  qaGameLevel = null;
-  qaRoundPool = [];
+  const initialLevel = qaGameLevel || "beginner";
+  qaGameLevel = initialLevel;
+  qaRoundPool = qaRoundPoolForLevel(initialLevel);
   qaRoundIndex = 0;
   qaBank = [];
   qaQuestionBuilt = [];
@@ -3636,10 +3652,12 @@ function resetQaGameScreen() {
   stopQaTimer();
   updateQaTimerUI();
   renderQaRewards();
-  qaRoundPanelEl.classList.add("hidden");
+  qaRoundPanelEl.classList.remove("hidden");
   qaLevelOptionsEl.classList.add("hidden");
-  qaLevelSelectBtn.textContent = "Тоглох ангилалаа сонгоорой";
+  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
   qaFeedbackEl.textContent = "";
+  setupQaRound();
+  startQaTimer();
 }
 
 // ---- Events ----
@@ -3748,7 +3766,7 @@ if (qaToggleAnswerBtn) {
 }
 if (qaGameBackBtn) qaGameBackBtn.addEventListener("click", () => requestNavigation("home"));
 if (qaShowSentencesBtn) {
-  qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", `<p>Where are you from ? - I am from Mongolia</p><p>Чи хэзээ ирсэн бэ ? - Би Монголоос ирсэн.</p><p>When did you come to China ? - I arrived in China yesterday.</p><p>Чи хэзээ ирсэн бэ ?  - Би өчигдөр Хятадад ирсэн.</p>`));
+  qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
 }
 if (qaShowHelpBtn) {
   qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
