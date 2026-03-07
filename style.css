@@ -1183,7 +1183,7 @@ body{
 
 .sentences-controls-grid{
   display:grid;
-  grid-template-columns:minmax(0,1fr) auto minmax(220px,340px);
+  grid-template-columns:minmax(0,1fr) minmax(220px,340px);
   align-items:center;
   gap:14px;
 }
@@ -1200,6 +1200,7 @@ body{
   margin-left:auto;
   align-self:center;
   justify-self:end;
+  width:min(340px, 100%);
   text-align:right;
 }
 
@@ -1743,13 +1744,20 @@ body{
 }
 
 #sentences-screen .sentences-reward-strip .reward-img{
-  border:2.5px solid rgba(255,220,118,.98);
-  box-shadow:0 0 0 1px rgba(255,239,185,.42) inset, 0 0 18px rgba(255,208,102,.4);
+  border:none;
+  box-shadow:0 3px 10px rgba(0,0,0,.2), 0 0 8px rgba(255,207,95,.12);
 }
 
 #sentences-screen .sentences-reward-strip .reward-tile{
-  border:1.5px solid rgba(255,220,118,.82);
-  box-shadow:0 0 0 1px rgba(255,239,185,.18) inset, 0 0 14px rgba(255,205,92,.2);
+  border:none;
+  box-shadow:none;
+}
+
+#sentences-screen .sentences-reward-strip{
+  border:2px solid gold;
+  border-radius:18px;
+  padding:10px 14px;
+  box-shadow:0 0 0 1px rgba(255,244,203,.24) inset, 0 0 18px rgba(255,208,96,.25);
 }
 .reward-label{
   position:absolute;
