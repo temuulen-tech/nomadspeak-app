@@ -722,13 +722,6 @@ body{
   justify-content:center;
 }
 
-.lesson-time-meta{
-  margin-top:8px;
-  display:flex;
-  flex-direction:column;
-  gap:2px;
-}
-
 .question{
   font-size:30px;
   margin:0;
@@ -1126,24 +1119,6 @@ body{
 
 .sentences-reward-strip{
   justify-content:flex-start;
-}
-
-.sentences-time-meta{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:4px;
-  font-weight:600;
-  text-align:center;
-  justify-self:center;
-}
-
-
-.sentences-timer,
-.sentences-next-reward{
-  margin:0;
-  white-space:nowrap;
 }
 
 .sentences-top-controls{
@@ -1728,12 +1703,6 @@ body{
   filter:brightness(1.08) saturate(1.1);
   transform:scale(1.07);
   box-shadow:0 0 0 2px rgba(255,214,115,.52), 0 0 20px rgba(255,207,95,.92), 0 8px 18px rgba(0,0,0,.2);
-}
-
-.sentence-game-active-time{
-  margin:0 0 10px;
-  color:rgba(240,248,255,.82);
-  font-size:13px;
 }
 
 .sentence-game-title-actions{
@@ -2353,12 +2322,6 @@ body{
     justify-content:center;
   }
 
-  .sentence-game-active-time{
-    margin:0 0 8px;
-    text-align:center;
-    font-size:11px;
-  }
-
   .sentence-game-dropzone,
   .sentence-game-pool{
     padding:8px;
@@ -2500,9 +2463,6 @@ body{
 #qa-game-screen .panel-header{
   align-items:center;
 }
-.qa-timer,.qa-next-reward{margin:4px 0; font-weight:600;}
-.lesson-time-meta .lesson-timer,.lesson-time-meta .lesson-next-reward{font-size:14px; margin:0;}
-
 .qa-level-picker{margin:12px 0;}
 .qa-level-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
 .qa-round-panel{margin-top:8px;padding-top:10px;border-top:1px solid #e8ecf8;}
@@ -2665,12 +2625,11 @@ body{
 
 .time-widget{
   display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:6px;
   margin-bottom:12px;
-  padding:10px 12px;
+  padding:8px 10px;
   border-radius:12px;
   background:rgba(255,255,255,0.06);
   border:1px solid rgba(255,255,255,0.14);
