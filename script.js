@@ -388,6 +388,19 @@ let deferredInstallPrompt = null;
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
+
+  const isLocalhost = location.hostname === 'localhost' || location.hostname === '127.0.0.1';
+  if (isLocalhost) {
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      registrations.forEach((registration) => {
+        registration.unregister();
+      });
+    }).catch(() => {
+      // silent fail in unsupported/private contexts
+    });
+    return;
+  }
+
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('./service-worker.js').catch(() => {
       // silent fail in unsupported/private contexts
