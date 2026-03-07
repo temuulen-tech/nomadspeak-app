@@ -80,7 +80,7 @@
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
       <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-start">00:00</span></div>
+        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-start">00:00:00</span></div>
         <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
       </div>
       <div class="panel-header">
@@ -109,12 +109,12 @@
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header">
         <h2 class="lesson-title">Зөв хариулт сонгох</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <div class="quiz-header-audio-group">
           <div class="topbar hidden" id="topbar">
             <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
@@ -190,12 +190,12 @@
 
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header sentences-panel-header">
         <h2>Өгүүлбэрүүд</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <button class="secondary vault-open-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
@@ -267,15 +267,15 @@
 
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden" id="sentence-game-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-header-row">
         <div class="sentence-game-header-card">
           <div class="sentence-game-title-row">
             <h2>Өгүүлбэрийн тоглоом</h2>
+            <div class="time-widget">
+              <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+              <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+            </div>
             <p class="sentence-game-subtitle">Үгсийг зөв дараалалд оруулаарай</p>
           </div>
         </div>
@@ -353,12 +353,12 @@
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden" id="qa-game-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header">
         <h2>Асуулт Хариулт тоглоом</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <button class="secondary vault-open-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
         <button class="secondary vault-save-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
         <button class="secondary" id="qa-game-back-btn" type="button">← Буцах</button>
@@ -436,12 +436,12 @@
 
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-stats">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header">
         <h2>Миний ахиц &amp; Амжилт</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-stats">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
       <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
@@ -465,33 +465,33 @@
         </article>
         <article class="stats-card stats-card-wide">
           <p class="stats-label">⏱️ Өдрийн хичээллэсэн цаг</p>
-          <p class="stats-value" id="stats-today-minutes">0 мин</p>
+          <p class="stats-value" id="stats-today-minutes">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label">Өчигдөр</p>
-          <p class="stats-value" id="stats-yesterday-time">00:00</p>
+          <p class="stats-value" id="stats-yesterday-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label">Энэ долоо хоног</p>
-          <p class="stats-value" id="stats-this-week-time">00:00</p>
+          <p class="stats-value" id="stats-this-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label">Өнгөрсөн долоо хоног</p>
-          <p class="stats-value" id="stats-last-week-time">00:00</p>
+          <p class="stats-value" id="stats-last-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label">Энэ сар</p>
-          <p class="stats-value" id="stats-this-month-time">00:00</p>
+          <p class="stats-value" id="stats-this-month-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label">Өнгөрсөн сар</p>
-          <p class="stats-value" id="stats-last-month-time">00:00</p>
+          <p class="stats-value" id="stats-last-month-time">00:00:00</p>
         </article>
       </div>
 
       <article class="stats-panel">
         <div class="stats-panel-header">
-          <h3>Сүүлийн 7 өдөр (HH:MM)</h3>
+          <h3>Сүүлийн 7 өдөр (HH:MM:SS)</h3>
         </div>
         <ul class="stats-time-list" id="stats-last-7-days"></ul>
       </article>
@@ -522,12 +522,12 @@
 
     <!-- PROFILE SCREEN -->
     <section class="card hidden" id="profile-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-profile">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header">
         <h2>👤 Профайл</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-profile">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
 
@@ -574,12 +574,12 @@
 
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
-      <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00</span></div>
-        <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-      </div>
       <div class="panel-header">
         <h2>Дууслаа 🎉</h2>
+        <div class="time-widget">
+          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00:00</span></div>
+          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+        </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
       <p class="muted" id="final-text">Таны оноо: 0</p>
@@ -639,11 +639,11 @@
     <div class="confirm-card qa-modal-card time-details-modal-card">
       <h2 id="time-details-title">Бүх хугацааны мэдээлэл</h2>
       <div class="time-details-list" id="time-details-list">
-        <p>Өчигдөрийн хугацаа: <strong id="time-details-yesterday">00:00</strong></p>
-        <p>Энэ долоо хоногийн хугацаа: <strong id="time-details-this-week">00:00</strong></p>
-        <p>Өнгөрсөн долоо хоногийн хугацаа: <strong id="time-details-last-week">00:00</strong></p>
-        <p>Энэ сарын хугацаа: <strong id="time-details-this-month">00:00</strong></p>
-        <p>Өнгөрсөн сарын хугацаа: <strong id="time-details-last-month">00:00</strong></p>
+        <p>Өчигдөрийн хугацаа: <strong id="time-details-yesterday">00:00:00</strong></p>
+        <p>Энэ долоо хоногийн хугацаа: <strong id="time-details-this-week">00:00:00</strong></p>
+        <p>Өнгөрсөн долоо хоногийн хугацаа: <strong id="time-details-last-week">00:00:00</strong></p>
+        <p>Энэ сарын хугацаа: <strong id="time-details-this-month">00:00:00</strong></p>
+        <p>Өнгөрсөн сарын хугацаа: <strong id="time-details-last-month">00:00:00</strong></p>
       </div>
       <div class="confirm-actions">
         <button class="primary" id="time-details-close-btn" type="button">Хаах</button>
