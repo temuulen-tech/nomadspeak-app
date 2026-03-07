@@ -1045,11 +1045,12 @@ function getAggregates(now = new Date()) {
   };
 }
 
-function formatHHMM(totalSeconds) {
+function formatHHMMSS(totalSeconds) {
   const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
   const hours = String(Math.floor(safe / 3600)).padStart(2, "0");
   const minutes = String(Math.floor((safe % 3600) / 60)).padStart(2, "0");
-  return `${hours}:${minutes}`;
+  const seconds = String(safe % 60).padStart(2, "0");
+  return `${hours}:${minutes}:${seconds}`;
 }
 
 function previousDayKey(dayKey) {
@@ -1315,34 +1316,38 @@ function buildLast7DaysTimeRows() {
     dt.setDate(dt.getDate() - index);
     const key = getLocalDateKey(dt);
     const label = dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" });
-    return `<li><span>${label}</span><strong>${formatHHMM(totals[key] || 0)}</strong></li>`;
+    return `<li><span>${label}</span><strong>${formatHHMMSS(totals[key] || 0)}</strong></li>`;
   }).reverse().join("");
 }
 
 function refreshTimeSummaryUI() {
   const aggregates = getAggregates(new Date());
-  const todayFormatted = formatHHMM(aggregates.today);
+  const todayFormatted = formatHHMMSS(aggregates.today);
   todayTimeEls.forEach((el) => {
     el.textContent = todayFormatted;
   });
 
-  if (timeDetailsYesterdayEl) timeDetailsYesterdayEl.textContent = formatHHMM(aggregates.yesterday);
-  if (timeDetailsThisWeekEl) timeDetailsThisWeekEl.textContent = formatHHMM(aggregates.thisWeek);
-  if (timeDetailsLastWeekEl) timeDetailsLastWeekEl.textContent = formatHHMM(aggregates.lastWeek);
-  if (timeDetailsThisMonthEl) timeDetailsThisMonthEl.textContent = formatHHMM(aggregates.thisMonth);
-  if (timeDetailsLastMonthEl) timeDetailsLastMonthEl.textContent = formatHHMM(aggregates.lastMonth);
+  if (timeDetailsYesterdayEl) timeDetailsYesterdayEl.textContent = formatHHMMSS(aggregates.yesterday);
+  if (timeDetailsThisWeekEl) timeDetailsThisWeekEl.textContent = formatHHMMSS(aggregates.thisWeek);
+  if (timeDetailsLastWeekEl) timeDetailsLastWeekEl.textContent = formatHHMMSS(aggregates.lastWeek);
+  if (timeDetailsThisMonthEl) timeDetailsThisMonthEl.textContent = formatHHMMSS(aggregates.thisMonth);
+  if (timeDetailsLastMonthEl) timeDetailsLastMonthEl.textContent = formatHHMMSS(aggregates.lastMonth);
 
-  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatHHMM(aggregates.today);
-  if (statsYesterdayTimeEl) statsYesterdayTimeEl.textContent = formatHHMM(aggregates.yesterday);
-  if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMM(aggregates.thisWeek);
-  if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMM(aggregates.lastWeek);
-  if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMM(aggregates.thisMonth);
-  if (statsLastMonthTimeEl) statsLastMonthTimeEl.textContent = formatHHMM(aggregates.lastMonth);
+  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatHHMMSS(aggregates.today);
+  if (statsYesterdayTimeEl) statsYesterdayTimeEl.textContent = formatHHMMSS(aggregates.yesterday);
+  if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
+  if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
+  if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
+  if (statsLastMonthTimeEl) statsLastMonthTimeEl.textContent = formatHHMMSS(aggregates.lastMonth);
   if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
 }
 
 function startTimeUiUpdater() {
-  if (appTimeUiInterval) return;
+  if (appTimeUiInterval) {
+    clearInterval(appTimeUiInterval);
+    appTimeUiInterval = null;
+  }
+
   appTimeUiInterval = setInterval(() => {
     if (readActiveSession()) {
       refreshTimeSummaryUI();
