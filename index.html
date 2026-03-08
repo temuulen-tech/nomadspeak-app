@@ -525,12 +525,15 @@
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
           <h3 class="screen-title-chip chip-title stats-section-chip">Авсан шагналууд</h3>
-          <div class="stats-week-toggle" id="stats-week-toggle" role="group" aria-label="Шагналын 7 хоног сонголт">
-            <button class="secondary stats-week-btn active" type="button" data-week="this">Энэ долоо хоног</button>
-            <button class="secondary stats-week-btn" type="button" data-week="last">Өнгөрсөн долоо хоног</button>
-          </div>
         </div>
-        <div class="stats-weekly-rewards" id="stats-weekly-rewards" aria-label="7 хоногийн шагналын тайлан"></div>
+        <div class="stats-reward-tabs" id="stats-reward-tabs" role="tablist" aria-label="Шагналын төрлүүд">
+          <button class="stats-reward-tab active" type="button" role="tab" aria-selected="true" data-reward-tab="days">Өдрүүд</button>
+          <button class="stats-reward-tab" type="button" role="tab" aria-selected="false" data-reward-tab="weeks">7 хоногууд</button>
+          <button class="stats-reward-tab" type="button" role="tab" aria-selected="false" data-reward-tab="months">Сарууд</button>
+          <button class="stats-reward-tab" type="button" role="tab" aria-selected="false" data-reward-tab="years">Жилүүд</button>
+        </div>
+        <div class="stats-reward-controls" id="stats-reward-controls"></div>
+        <div class="stats-reward-cards" id="stats-reward-cards" aria-live="polite"></div>
       </article>
 
       <button class="secondary" id="stats-close-btn" type="button">Хаах</button>
