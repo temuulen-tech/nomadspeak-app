@@ -1364,6 +1364,10 @@ function rewardTierByPercent(percent) {
   return getGaugeTierByPercent(percent).index + 1;
 }
 
+function getPercentRatingLabel(percent) {
+  return getGaugeTierByPercent(percent).label;
+}
+
 function parseDateKey(dateKey) {
   const [year, month, day] = String(dateKey).split("-").map((n) => Number(n));
   if (!year || !month || !day) return null;
@@ -1424,13 +1428,15 @@ function getDailyRatingLabel(seconds) {
   return "Муу";
 }
 
-function buildRewardCard({ title, subtitle, tier, thresholdText, tierLabel, range, ratingLabel }) {
+function buildRewardCard({ title, subtitle, tier, thresholdText, tierLabel, range, ratingLabel, cardClass = "", imageClass = "" }) {
   const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
   const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
   const tierMarkup = tierLabel ? `<p class="stats-reward-tier chip-label">${tierLabel}</p>` : "";
   const thresholdMarkup = thresholdText ? `<p class="stats-reward-threshold chip-label">${thresholdText}</p>` : "";
   const ratingMarkup = ratingLabel ? `<p class="stats-reward-rating chip-label">${ratingLabel}</p>` : "";
-  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
+  const cardClasses = ["stats-reward-card", cardClass].filter(Boolean).join(" ");
+  const imageClasses = ["stats-reward-img", imageClass].filter(Boolean).join(" ");
+  return `<article class="${cardClasses}"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${thresholdMarkup}<img class="${imageClasses}" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
 }
 
 function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals()) {
@@ -1521,6 +1527,7 @@ function renderRewardsTab() {
         title: new Date(statsRewardYearCursor, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
         tier,
         thresholdText: `${percent.toFixed(1)}%`,
+        ratingLabel: getPercentRatingLabel(percent),
       });
     });
     statsRewardCardsEl.innerHTML = cards.join("");
@@ -1533,9 +1540,11 @@ function renderRewardsTab() {
   const tier = rewardTierByPercent(percent);
   statsRewardCardsEl.innerHTML = buildRewardCard({
     title: `${statsRewardYearCursor}`,
-    subtitle: "он",
     tier,
     thresholdText: `${percent.toFixed(1)}%`,
+    ratingLabel: getPercentRatingLabel(percent),
+    cardClass: "stats-reward-card-year",
+    imageClass: "stats-reward-img-year",
   });
 }
 
