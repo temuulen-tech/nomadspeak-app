@@ -1422,12 +1422,22 @@ function getRewardYears() {
   return years;
 }
 
-function buildRewardCard({ title, subtitle, seconds, tier, thresholdText, tierLabel, range }) {
+function getDailyRatingLabel(seconds) {
+  if (seconds >= 120 * 60) return "Онц сайн";
+  if (seconds >= 60 * 60) return "Сайн";
+  if (seconds >= 30 * 60) return "Хэвийн";
+  if (seconds >= 20 * 60) return "Дунд";
+  return "Муу";
+}
+
+function buildRewardCard({ title, subtitle, seconds, tier, thresholdText, tierLabel, range, ratingLabel, hideTimeWhenZero = false }) {
   const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
   const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
   const tierMarkup = tierLabel ? `<p class="stats-reward-tier chip-label">${tierLabel}</p>` : "";
   const thresholdMarkup = thresholdText ? `<p class="stats-reward-threshold chip-label">${thresholdText}</p>` : "";
-  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}<p class="stats-reward-time chip-time">${formatHHMMSS(seconds)}</p>${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${tierMarkup}</article>`;
+  const timeMarkup = hideTimeWhenZero && seconds <= 0 ? "" : `<p class="stats-reward-time chip-time">${formatHHMMSS(seconds)}</p>`;
+  const ratingMarkup = ratingLabel ? `<p class="stats-reward-rating chip-label">${ratingLabel}</p>` : "";
+  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${timeMarkup}${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
 }
 
 function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals()) {
@@ -1454,11 +1464,12 @@ function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals
 function renderStatsRewardControls() {
   if (!statsRewardControlsEl) return;
   const years = getRewardYears();
+  const yearsMarkup = `<div class="stats-reward-years" role="group" aria-label="Жилийн сонголт">${years.map((year) => `<button class="stats-reward-year-btn${year === statsRewardYearCursor ? " active" : ""}" type="button" data-reward-year="${year}">${year}</button>`).join("")}</div>`;
 
   if (statsRewardTab === "days" || statsRewardTab === "weeks") {
-    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>`;
+    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>${yearsMarkup}`;
   } else if (statsRewardTab === "months" || statsRewardTab === "years") {
-    statsRewardControlsEl.innerHTML = `<div class="stats-reward-years" role="group" aria-label="Жилийн сонголт">${years.map((year) => `<button class="stats-reward-year-btn${year === statsRewardYearCursor ? " active" : ""}" type="button" data-reward-year="${year}">${year}</button>`).join("")}</div>`;
+    statsRewardControlsEl.innerHTML = yearsMarkup;
   } else {
     statsRewardControlsEl.innerHTML = "";
   }
@@ -1503,6 +1514,8 @@ function renderRewardsTab() {
         seconds,
         tier: Math.max(1, tier),
         thresholdText: reward.threshold,
+        ratingLabel: getDailyRatingLabel(seconds),
+        hideTimeWhenZero: true,
       });
     }).join("");
     return;
