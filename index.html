@@ -80,7 +80,7 @@
     <!-- START SCREEN -->
     <section class="card" id="start-screen">
       <div class="time-widget">
-        <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-start">00:00:00</span></div>
+        <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-start">00:00:00</span></div>
         <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
       </div>
       <div class="panel-header">
@@ -100,7 +100,7 @@
 
       <div class="start-intro-panel hidden" id="intro-panel">
         <div class="start-intro-panel-head">
-          <strong>Танилцуулга</strong>
+          <strong class="chip-label">Танилцуулга</strong>
           <button class="secondary" id="intro-close-btn" type="button">Хаах</button>
         </div>
         <p class="muted">Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
@@ -110,9 +110,9 @@
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
       <div class="panel-header">
-        <h2 class="lesson-title screen-title-chip">Зөв хариулт сонгоорой</h2>
+        <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
         <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
           <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
         <div class="lesson-controls-panel control-panel-gold-outline">
@@ -148,23 +148,23 @@
       <div class="sentence-game-reward-middle control-panel-gold-outline">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Lesson reward unlock progress">
           <article class="reward-tile" data-level="1">
-            <p class="reward-label-chip">Эхлэл амжилттай!</p>
+            <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
             <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Lesson reward flag" />
           </article>
           <article class="reward-tile" data-level="2">
-            <p class="reward-label-chip">Улаан одын Эзэн</p>
+            <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
             <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Lesson reward star" />
           </article>
           <article class="reward-tile" data-level="3">
-            <p class="reward-label-chip">Алтан зоос Чинийх</p>
+            <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
             <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Lesson reward coin" />
           </article>
           <article class="reward-tile" data-level="4">
-            <p class="reward-label-chip">Алтан цомын Эзэн</p>
+            <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
             <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Lesson reward trophy" />
           </article>
           <article class="reward-tile" data-level="5">
-            <p class="reward-label-chip">Алмөөз эрдэнэ Чинийх</p>
+            <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
             <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Lesson reward diamond" />
           </article>
         </div>
@@ -192,9 +192,9 @@
     <section class="card hidden" id="sentences-screen">
       <div class="panel-header sentences-panel-header">
         <div class="sentences-title-stack">
-          <h2 class="screen-title-chip">Асуугаад &amp; Хариулаарай</h2>
+          <h2 class="screen-title-chip chip-title">Асуугаад &amp; Хариулаарай</h2>
           <div class="time-widget">
-            <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
             <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
         </div>
@@ -205,23 +205,23 @@
       </div>
       <div class="sentences-reward-strip reward-row rewards-group" id="sentences-reward-strip" aria-label="Sentences reward progress">
         <article class="reward-tile" data-reward-index="0" data-level="1">
-          <p class="reward-label-chip">Эхлэл амжилттай!</p>
+          <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
           <img class="reward-img" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
         </article>
         <article class="reward-tile" data-reward-index="1" data-level="2">
-          <p class="reward-label-chip">Улаан одын Эзэн</p>
+          <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
           <img class="reward-img" src="assets/rewards/2-star.png" alt="Sentences reward star" loading="lazy" />
         </article>
         <article class="reward-tile" data-reward-index="2" data-level="3">
-          <p class="reward-label-chip">Алтан зоос Чинийх</p>
+          <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
           <img class="reward-img" src="assets/rewards/3-coin.png" alt="Sentences reward coin" loading="lazy" />
         </article>
         <article class="reward-tile" data-reward-index="3" data-level="4">
-          <p class="reward-label-chip">Алтан цомын Эзэн</p>
+          <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
           <img class="reward-img" src="assets/rewards/4-trophy.png" alt="Sentences reward cup" loading="lazy" />
         </article>
         <article class="reward-tile" data-reward-index="4" data-level="5">
-          <p class="reward-label-chip">Алмөөз эрдэнэ Чинийх</p>
+          <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
           <img class="reward-img" src="assets/rewards/5-diamond.png" alt="Sentences reward diamond" loading="lazy" />
         </article>
       </div>
@@ -230,7 +230,7 @@
           <div class="sentences-filters-column">
             <div class="tts-controls" aria-label="Дуудлагын тохиргоо">
               <div class="tts-group" role="group" aria-label="Дуу хоолой">
-                <span class="tts-label">Дуу хоолой:</span>
+                <span class="tts-label chip-label">Дуу хоолой:</span>
                 <button class="tts-option-btn active" type="button" data-voice="auto">Авто</button>
                 <button class="tts-option-btn" type="button" data-voice="male">Эр</button>
                 <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
@@ -247,7 +247,7 @@
           </div>
           <div class="tts-group tts-rate-group tts-rate-compact sentences-speed-block" aria-label="Хурд">
             <div class="tts-rate-header">
-              <label class="tts-label tts-rate-pill" for="tts-rate-slider">Дууны хурд</label>
+              <label class="tts-label tts-rate-pill chip-label" for="tts-rate-slider">Дууны хурд</label>
               <span class="tts-rate-value" id="tts-rate-value">0.85x</span>
             </div>
             <input
@@ -277,9 +277,9 @@
       <div class="sentence-game-top">
         <div class="sentence-game-top-header">
           <div class="sentence-game-top-left">
-            <h2 class="screen-title-chip">Өгүүлбэрийн тоглоом</h2>
+            <h2 class="screen-title-chip chip-title">Өгүүлбэрийн тоглоом</h2>
             <div class="time-widget">
-              <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+              <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
               <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
             </div>
           </div>
@@ -293,23 +293,23 @@
         <div class="sentence-game-rewards-block control-panel-gold-outline" id="sentence-game-reward-middle">
           <div class="sentence-game-reward-row reward-row rewards-group" id="sentence-game-reward-row" aria-label="Reward unlock progress">
             <article class="reward-tile" data-level="1">
-              <p class="reward-label-chip">Эхлэл амжилттай!</p>
+              <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
               <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
             </article>
             <article class="reward-tile" data-level="2">
-              <p class="reward-label-chip">Улаан одын Эзэн</p>
+              <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
               <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
             </article>
             <article class="reward-tile" data-level="3">
-              <p class="reward-label-chip">Алтан зоос Чинийх</p>
+              <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
               <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
             </article>
             <article class="reward-tile" data-level="4">
-              <p class="reward-label-chip">Алтан цомын Эзэн</p>
+              <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
               <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
             </article>
             <article class="reward-tile" data-level="5">
-              <p class="reward-label-chip">Алмөөз эрдэнэ Чинийх</p>
+              <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
               <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
             </article>
           </div>
@@ -359,9 +359,9 @@
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden" id="qa-game-screen">
       <div class="panel-header">
-        <h2 class="screen-title-chip">Асуулт Хариулт тоглоом</h2>
+        <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
         <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
           <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
         <button class="secondary" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
@@ -374,23 +374,23 @@
       <div class="sentence-game-reward-middle control-panel-gold-outline">
         <div class="sentence-game-reward-row reward-row rewards-group" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
           <article class="reward-tile" data-level="1">
-            <p class="reward-label-chip">Эхлэл амжилттай!</p>
+            <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
             <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
           </article>
           <article class="reward-tile" data-level="2">
-            <p class="reward-label-chip">Улаан одын Эзэн</p>
+            <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
             <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
           </article>
           <article class="reward-tile" data-level="3">
-            <p class="reward-label-chip">Алтан зоос Чинийх</p>
+            <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
             <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
           </article>
           <article class="reward-tile" data-level="4">
-            <p class="reward-label-chip">Алтан цомын Эзэн</p>
+            <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
             <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
           </article>
           <article class="reward-tile" data-level="5">
-            <p class="reward-label-chip">Алмөөз эрдэнэ Чинийх</p>
+            <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
             <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
           </article>
         </div>
@@ -419,11 +419,11 @@
 
         <div class="qa-builder-lines">
           <div>
-            <p class="qa-line-label">Question builder</p>
+            <p class="qa-line-label chip-label">Question builder</p>
             <div class="qa-build-line" id="qa-question-line"></div>
           </div>
           <div>
-            <p class="qa-line-label">Answer builder</p>
+            <p class="qa-line-label chip-label">Answer builder</p>
             <div class="qa-build-line" id="qa-answer-line"></div>
           </div>
         </div>
@@ -440,48 +440,48 @@
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
       <div class="panel-header">
-        <h2 class="screen-title-chip">Миний ахиц &amp; Амжилт</h2>
+        <h2 class="screen-title-chip chip-title">Миний ахиц &amp; Амжилт</h2>
       </div>
       <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
 
       <div class="stats-grid">
         <article class="stats-card">
-          <p class="stats-label">⭐ Оноо</p>
+          <p class="stats-label chip-label">⭐ Оноо</p>
           <p class="stats-value" id="stats-total-xp">0</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">📈 Миний түвшин</p>
+          <p class="stats-label chip-label">📈 Миний түвшин</p>
           <p class="stats-value" id="stats-level">Lv.1</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">🔥 Дарааллаж хичээлсэн өдөр</p>
+          <p class="stats-label chip-label">🔥 Дарааллаж хичээлсэн өдөр</p>
           <p class="stats-value" id="stats-streak">0 өдөр</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">📅 Өнөөдрийн ахиц</p>
+          <p class="stats-label chip-label">📅 Өнөөдрийн ахиц</p>
           <p class="stats-value" id="stats-today-progress">0/10</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">Энэ долоо хоног</p>
+          <p class="stats-label chip-label">Энэ долоо хоног</p>
           <p class="stats-value" id="stats-this-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">Өнгөрсөн долоо хоног</p>
+          <p class="stats-label chip-label">Өнгөрсөн долоо хоног</p>
           <p class="stats-value" id="stats-last-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">Энэ сар</p>
+          <p class="stats-label chip-label">Энэ сар</p>
           <p class="stats-value" id="stats-this-month-time">00:00:00</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">Өнөөдөр</p>
+          <p class="stats-label chip-label">Өнөөдөр</p>
           <p class="stats-value" id="stats-today-minutes">00:00:00</p>
         </article>
       </div>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3 class="screen-title-chip stats-section-chip">Нийт хичээллэсэн цагууд</h3>
+          <h3 class="screen-title-chip chip-title stats-section-chip">Нийт хичээллэсэн цагууд</h3>
         </div>
         <div class="stats-gauge-layout">
           <div class="stats-gauge-main">
@@ -492,14 +492,14 @@
               <button class="secondary stats-period-btn" type="button" data-period="year">Жил</button>
             </div>
             <div class="stats-kpi-block" aria-live="polite">
-              <p class="stats-kpi-label" id="stats-kpi-label">Өнөөдөр</p>
+              <p class="stats-kpi-label chip-label" id="stats-kpi-label">Өнөөдөр</p>
               <p class="stats-kpi-value" id="stats-kpi-value">00:00:00</p>
               <p class="stats-kpi-meta">Норм: <strong id="stats-kpi-norm">00:00:00</strong></p>
               <p class="stats-kpi-meta">Биелэлт: <strong id="stats-kpi-percent">0%</strong></p>
             </div>
           </div>
           <div class="stats-thermometer-wrap" aria-live="polite">
-            <p class="stats-thermometer-tier" id="stats-thermometer-tier">Түвшин: Муу</p>
+            <p class="stats-thermometer-tier chip-label" id="stats-thermometer-tier">Түвшин: Муу</p>
             <div class="stats-thermometer-labels">
               <span>Онц сайн</span>
               <span>Сайн</span>
@@ -517,14 +517,14 @@
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3 class="screen-title-chip stats-section-chip">Сүүлийн 7 хоног</h3>
+          <h3 class="screen-title-chip chip-title stats-section-chip">Сүүлийн 7 хоног</h3>
         </div>
         <ul class="stats-time-list" id="stats-last-7-days"></ul>
       </article>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3 class="screen-title-chip stats-section-chip">Авсан шагналууд</h3>
+          <h3 class="screen-title-chip chip-title stats-section-chip">Авсан шагналууд</h3>
           <div class="stats-week-toggle" id="stats-week-toggle" role="group" aria-label="Шагналын 7 хоног сонголт">
             <button class="secondary stats-week-btn active" type="button" data-week="this">Энэ долоо хоног</button>
             <button class="secondary stats-week-btn" type="button" data-week="last">Өнгөрсөн долоо хоног</button>
@@ -539,9 +539,9 @@
     <!-- PROFILE SCREEN -->
     <section class="card hidden" id="profile-screen">
       <div class="panel-header">
-        <h2 class="screen-title-chip">👤 Профайл</h2>
+        <h2 class="screen-title-chip chip-title">👤 Профайл</h2>
         <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-profile">00:00:00</span></div>
+          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-profile">00:00:00</span></div>
           <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
@@ -549,8 +549,8 @@
 
       <div class="profile-grid">
         <article class="profile-card">
-          <h3>Ахиц</h3>
-          <label class="profile-label" for="profile-name-input">Nickname</label>
+          <h3 class="chip-label">Ахиц</h3>
+          <label class="profile-label chip-label" for="profile-name-input">Nickname</label>
           <input class="profile-input" id="profile-name-input" type="text" maxlength="24" placeholder="Нэрээ оруулна уу" />
           <p class="muted" id="profile-name-saved">Хадгалагдсан нэр: —</p>
           <ul class="profile-progress-list">
@@ -563,18 +563,18 @@
         </article>
 
         <article class="profile-card premium-card">
-          <h3>Premium</h3>
+          <h3 class="chip-label">Premium</h3>
           <p class="muted" id="profile-plan-status">Төлөв: Free</p>
           <div class="premium-features">
             <div>
-              <h4>Free</h4>
+              <h4 class="chip-label">Free</h4>
               <ul>
                 <li>Өдөрт 10 XP хүртэл (Sentence Game)</li>
                 <li>Үндсэн хичээл, статистик</li>
               </ul>
             </div>
             <div>
-              <h4>Premium</h4>
+              <h4 class="chip-label">Premium</h4>
               <ul>
                 <li>Хязгааргүй Sentence Game</li>
                 <li>Ирээдүйн premium контент</li>
@@ -591,9 +591,9 @@
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
       <div class="panel-header">
-        <h2 class="screen-title-chip">Дууслаа 🎉</h2>
+        <h2 class="screen-title-chip chip-title">Дууслаа 🎉</h2>
         <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00:00</span></div>
+          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00:00</span></div>
           <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
         <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
@@ -613,7 +613,7 @@
 
   <div class="confirm-overlay hidden" id="premium-overlay" role="dialog" aria-modal="true" aria-labelledby="premium-title">
     <div class="confirm-card">
-      <h2 id="premium-title">Premium</h2>
+      <h2 id="premium-title" class="chip-title">Premium</h2>
       <p class="muted" id="premium-message">Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)</p>
       <div class="confirm-actions">
         <button class="primary" id="premium-ok-btn" type="button">Ойлголоо</button>
@@ -625,7 +625,7 @@
 
   <div class="confirm-overlay hidden" id="qa-modal" role="dialog" aria-modal="true" aria-labelledby="qa-modal-title">
     <div class="confirm-card qa-modal-card">
-      <h2 id="qa-modal-title">Мэдээлэл</h2>
+      <h2 id="qa-modal-title" class="chip-title">Мэдээлэл</h2>
       <div class="muted" id="qa-modal-body"></div>
       <div class="confirm-actions">
         <button class="primary" id="qa-modal-close-btn" type="button">Хаах</button>
@@ -636,7 +636,7 @@
   <div class="confirm-overlay hidden" id="vault-modal" role="dialog" aria-modal="true" aria-labelledby="vault-modal-title">
     <div class="confirm-card qa-modal-card vault-modal">
       <header class="vault-header">
-        <h2 id="vault-modal-title">Хичээлийн хадгалсан асуултууд</h2>
+        <h2 id="vault-modal-title" class="chip-title">Хичээлийн хадгалсан асуултууд</h2>
       </header>
       <div class="muted vault-body" id="vault-modal-body"></div>
       <footer class="vault-footer" id="vault-modal-footer">
@@ -653,7 +653,7 @@
 
   <div class="confirm-overlay hidden" id="time-details-modal" role="dialog" aria-modal="true" aria-labelledby="time-details-title">
     <div class="confirm-card qa-modal-card time-details-modal-card">
-      <h2 id="time-details-title">Бүх хугацааны мэдээлэл</h2>
+      <h2 id="time-details-title" class="chip-title">Бүх хугацааны мэдээлэл</h2>
       <div class="time-details-list" id="time-details-list">
         <p>Өчигдөрийн хугацаа: <strong id="time-details-yesterday">00:00:00</strong></p>
         <p>Энэ долоо хоногийн хугацаа: <strong id="time-details-this-week">00:00:00</strong></p>
