@@ -1416,6 +1416,12 @@ function getYearTotalSeconds(year) {
   return getTotalsEntries().reduce((sum, item) => item.date.getFullYear() === year ? sum + item.seconds : sum, 0);
 }
 
+function getRewardYears() {
+  const years = [...new Set(getTotalsEntries().map((item) => item.date.getFullYear()))].sort((a, b) => b - a);
+  if (!years.length) return [new Date().getFullYear()];
+  return years;
+}
+
 function buildRewardCard({ title, subtitle, seconds, tier, thresholdText, tierLabel, range }) {
   const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
   const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
@@ -1447,10 +1453,12 @@ function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals
 
 function renderStatsRewardControls() {
   if (!statsRewardControlsEl) return;
+  const years = getRewardYears();
+
   if (statsRewardTab === "days" || statsRewardTab === "weeks") {
     statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>`;
-  } else if (statsRewardTab === "months") {
-    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev-year">◀</button><p class="chip-label stats-reward-period">${statsRewardYearCursor} он</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next-year">▶</button>`;
+  } else if (statsRewardTab === "months" || statsRewardTab === "years") {
+    statsRewardControlsEl.innerHTML = `<div class="stats-reward-years" role="group" aria-label="Жилийн сонголт">${years.map((year) => `<button class="stats-reward-year-btn${year === statsRewardYearCursor ? " active" : ""}" type="button" data-reward-year="${year}">${year}</button>`).join("")}</div>`;
   } else {
     statsRewardControlsEl.innerHTML = "";
   }
@@ -1460,8 +1468,16 @@ function renderStatsRewardControls() {
       const nav = btn.dataset.nav;
       if (nav === "prev") statsRewardMonthCursor -= 1;
       if (nav === "next") statsRewardMonthCursor += 1;
-      if (nav === "prev-year") statsRewardYearCursor -= 1;
-      if (nav === "next-year") statsRewardYearCursor += 1;
+      clampRewardCursor();
+      renderRewardsTab();
+    });
+  });
+
+  statsRewardControlsEl.querySelectorAll(".stats-reward-year-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const year = Number(btn.dataset.rewardYear);
+      if (!Number.isFinite(year)) return;
+      statsRewardYearCursor = year;
       clampRewardCursor();
       renderRewardsTab();
     });
@@ -1528,21 +1544,17 @@ function renderRewardsTab() {
     return;
   }
 
-  const entries = getTotalsEntries();
-  const years = [...new Set(entries.map((item) => item.date.getFullYear()))].sort((a, b) => b - a);
   const yearlyNorm = 90 * 60 * 365;
-  statsRewardCardsEl.innerHTML = years.map((year) => {
-    const seconds = getYearTotalSeconds(year);
-    const percent = yearlyNorm > 0 ? (seconds / yearlyNorm) * 100 : 0;
-    const tier = rewardTierByPercent(percent);
-    return buildRewardCard({
-      title: `${year}`,
-      subtitle: "он",
-      seconds,
-      tier,
-      thresholdText: `${percent.toFixed(1)}%`,
-    });
-  }).join("") || `<p class="chip-label">Одоогоор бичигдсэн жил алга.</p>`;
+  const seconds = getYearTotalSeconds(statsRewardYearCursor);
+  const percent = yearlyNorm > 0 ? (seconds / yearlyNorm) * 100 : 0;
+  const tier = rewardTierByPercent(percent);
+  statsRewardCardsEl.innerHTML = buildRewardCard({
+    title: `${statsRewardYearCursor}`,
+    subtitle: "он",
+    seconds,
+    tier,
+    thresholdText: `${percent.toFixed(1)}%`,
+  });
 }
 
 function updateGaugeUI(aggregates, now = new Date()) {
