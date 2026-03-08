@@ -1416,12 +1416,6 @@ function getYearTotalSeconds(year) {
   return getTotalsEntries().reduce((sum, item) => item.date.getFullYear() === year ? sum + item.seconds : sum, 0);
 }
 
-function getRewardYears() {
-  const years = [...new Set(getTotalsEntries().map((item) => item.date.getFullYear()))].sort((a, b) => b - a);
-  if (!years.length) return [new Date().getFullYear()];
-  return years;
-}
-
 function getDailyRatingLabel(seconds) {
   if (seconds >= 120 * 60) return "Онц сайн";
   if (seconds >= 60 * 60) return "Сайн";
@@ -1430,14 +1424,13 @@ function getDailyRatingLabel(seconds) {
   return "Муу";
 }
 
-function buildRewardCard({ title, subtitle, seconds, tier, thresholdText, tierLabel, range, ratingLabel, hideTimeWhenZero = false }) {
+function buildRewardCard({ title, subtitle, tier, thresholdText, tierLabel, range, ratingLabel }) {
   const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
   const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
   const tierMarkup = tierLabel ? `<p class="stats-reward-tier chip-label">${tierLabel}</p>` : "";
   const thresholdMarkup = thresholdText ? `<p class="stats-reward-threshold chip-label">${thresholdText}</p>` : "";
-  const timeMarkup = hideTimeWhenZero && seconds <= 0 ? "" : `<p class="stats-reward-time chip-time">${formatHHMMSS(seconds)}</p>`;
   const ratingMarkup = ratingLabel ? `<p class="stats-reward-rating chip-label">${ratingLabel}</p>` : "";
-  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${timeMarkup}${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
+  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
 }
 
 function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals()) {
@@ -1463,32 +1456,13 @@ function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals
 
 function renderStatsRewardControls() {
   if (!statsRewardControlsEl) return;
-  const years = getRewardYears();
-  const yearsMarkup = `<div class="stats-reward-years" role="group" aria-label="Жилийн сонголт">${years.map((year) => `<button class="stats-reward-year-btn${year === statsRewardYearCursor ? " active" : ""}" type="button" data-reward-year="${year}">${year}</button>`).join("")}</div>`;
-
-  if (statsRewardTab === "days" || statsRewardTab === "weeks") {
-    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>${yearsMarkup}`;
-  } else if (statsRewardTab === "months" || statsRewardTab === "years") {
-    statsRewardControlsEl.innerHTML = yearsMarkup;
-  } else {
-    statsRewardControlsEl.innerHTML = "";
-  }
+  statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>`;
 
   statsRewardControlsEl.querySelectorAll(".stats-reward-nav-btn").forEach((btn) => {
     btn.addEventListener("click", () => {
       const nav = btn.dataset.nav;
       if (nav === "prev") statsRewardMonthCursor -= 1;
       if (nav === "next") statsRewardMonthCursor += 1;
-      clampRewardCursor();
-      renderRewardsTab();
-    });
-  });
-
-  statsRewardControlsEl.querySelectorAll(".stats-reward-year-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const year = Number(btn.dataset.rewardYear);
-      if (!Number.isFinite(year)) return;
-      statsRewardYearCursor = year;
       clampRewardCursor();
       renderRewardsTab();
     });
@@ -1511,11 +1485,9 @@ function renderRewardsTab() {
       const reward = tier > 0 ? statsRewardDefs[tier - 1] : statsRewardDefs[0];
       return buildRewardCard({
         title: dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" }),
-        seconds,
         tier: Math.max(1, tier),
         thresholdText: reward.threshold,
         ratingLabel: getDailyRatingLabel(seconds),
-        hideTimeWhenZero: true,
       });
     }).join("");
     return;
@@ -1530,7 +1502,6 @@ function renderRewardsTab() {
       return buildRewardCard({
         title: `${week.index}-р 7 хоног`,
         range: week.range,
-        seconds: week.seconds,
         tier,
         thresholdText: `${percent.toFixed(1)}%`,
         tierLabel: reward.label,
@@ -1548,7 +1519,6 @@ function renderRewardsTab() {
       const tier = rewardTierByPercent(percent);
       return buildRewardCard({
         title: new Date(statsRewardYearCursor, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
-        seconds,
         tier,
         thresholdText: `${percent.toFixed(1)}%`,
       });
@@ -1564,7 +1534,6 @@ function renderRewardsTab() {
   statsRewardCardsEl.innerHTML = buildRewardCard({
     title: `${statsRewardYearCursor}`,
     subtitle: "он",
-    seconds,
     tier,
     thresholdText: `${percent.toFixed(1)}%`,
   });
