@@ -2436,16 +2436,11 @@ body{
 .stats-reward-controls{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-height:34px;flex-wrap:nowrap;margin-left:auto;}
 .stats-reward-nav-btn{padding:5px 10px;min-width:40px;}
 .stats-reward-period{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);border-radius:999px;padding:6px 14px;font-weight:800;}
-.stats-reward-years{display:flex;align-items:center;gap:8px;justify-content:flex-end;flex-wrap:nowrap;overflow-x:auto;max-width:100%;padding-bottom:2px;}
-.stats-reward-year-btn{min-height:34px;padding:5px 12px;border-radius:999px;white-space:nowrap;background:rgba(14,49,53,.88);border:1px solid rgba(112,221,210,.55);color:#def8ff;font-weight:800;box-shadow:none;}
-.stats-reward-year-btn::before{display:none;}
-.stats-reward-year-btn.active{background:linear-gradient(145deg,#20ab74 0%,#11987b 52%,#0d6f77 100%);border-color:rgba(132,255,206,.95);color:#f8fffb;box-shadow:0 0 0 1px rgba(176,255,220,.68),0 0 14px rgba(80,255,215,.25);}
-.stats-reward-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;max-height:420px;overflow:auto;padding-right:2px;}
-.stats-reward-card{padding:12px 10px;border-radius:12px;background:rgba(255,255,255,.06);display:grid;justify-items:center;gap:8px;text-align:center;border:1px solid rgba(255,230,160,.18);}
+.stats-reward-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;max-height:420px;overflow:auto;padding-right:2px;}
+.stats-reward-card{padding:10px 8px 12px;border-radius:14px;background:rgba(255,255,255,.06);display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;border:1px solid rgba(255,230,160,.18);}
 .stats-reward-title,.stats-reward-subtitle,.stats-reward-range,.stats-reward-tier,.stats-reward-threshold{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);padding:3px 9px;border-radius:999px;font-weight:800;font-size:.72rem;}
-.stats-reward-time{margin:0;font-size:.79rem;padding:4px 10px;}
 .stats-reward-rating{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);padding:4px 10px;border-radius:999px;font-weight:800;font-size:.72rem;}
-.stats-reward-img{width:92px;height:92px;object-fit:contain;filter:none;}
+.stats-reward-img{width:min(136px,100%);aspect-ratio:1 / 1;height:auto;object-fit:contain;filter:none;}
 #stats-close-btn{margin-top:6px;width:100%;}
 
 @media (max-width:900px){
@@ -2466,7 +2461,6 @@ body{
   .stats-reward-header-controls{align-items:center;flex-wrap:wrap;}
   .stats-reward-tabs{justify-content:flex-start;}
   .stats-reward-controls{justify-content:flex-end;}
-  .stats-reward-years{justify-content:flex-start;}
   .stats-reward-cards{grid-template-columns:1fr;}
 }
 
