@@ -170,8 +170,9 @@ const statsKpiPercentEl = document.getElementById("stats-kpi-percent");
 const statsThermometerFillEl = document.getElementById("stats-thermometer-fill");
 const statsThermometerMarkerEl = document.getElementById("stats-thermometer-marker");
 const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
-const statsWeekButtons = document.querySelectorAll(".stats-week-btn");
-const statsWeeklyRewardsEl = document.getElementById("stats-weekly-rewards");
+const statsRewardTabButtons = document.querySelectorAll(".stats-reward-tab");
+const statsRewardControlsEl = document.getElementById("stats-reward-controls");
+const statsRewardCardsEl = document.getElementById("stats-reward-cards");
 const statsCloseBtn = document.getElementById("stats-close-btn");
 const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
 const timeDetailsButtons = document.querySelectorAll(".time-details-btn");
@@ -215,7 +216,9 @@ const qaModalBodyEl = document.getElementById("qa-modal-body");
 const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
 
 let statsSelectedPeriod = "day";
-let statsSelectedWeekScope = "this";
+let statsRewardTab = "days";
+let statsRewardMonthCursor = new Date().getMonth();
+let statsRewardYearCursor = new Date().getFullYear();
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 
@@ -1349,30 +1352,197 @@ function rewardTierForDailySeconds(totalSeconds) {
   return 0;
 }
 
-function renderWeeklyRewards() {
-  if (!statsWeeklyRewardsEl) return;
-  const totals = getAppTimeDailyTotals();
-  const dayNames = ["Ня", "Да", "Мя", "Лх", "Пү", "Ба", "Бя"];
-  const now = new Date();
-  const mondayOffset = (now.getDay() + 6) % 7;
-  const thisMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
-  const startOffset = statsSelectedWeekScope === "last" ? -7 : 0;
-  const days = getRangeDays(thisMonday, startOffset);
-  const rewardDefs = [
-    { tier: 1, icon: "assets/rewards/1-flag.png", threshold: "20:00+", alt: "Flag reward" },
-    { tier: 2, icon: "assets/rewards/2-star.png", threshold: "30:00+", alt: "Star reward" },
-    { tier: 3, icon: "assets/rewards/3-coin.png", threshold: "60:00+", alt: "Coin reward" },
-    { tier: 4, icon: "assets/rewards/4-trophy.png", threshold: "90:00+", alt: "Trophy reward" },
-    { tier: 5, icon: "assets/rewards/5-diamond.png", threshold: "120:00+", alt: "Diamond reward" },
-  ];
+const statsRewardDefs = [
+  { tier: 1, image: "assets/rewards/1-flag.png", threshold: "20:00+", label: "Муу", alt: "Flag reward" },
+  { tier: 2, image: "assets/rewards/2-star.png", threshold: "30:00+", label: "Дунд", alt: "Star reward" },
+  { tier: 3, image: "assets/rewards/3-coin.png", threshold: "60:00+", label: "Хэвийн", alt: "Coin reward" },
+  { tier: 4, image: "assets/rewards/4-trophy.png", threshold: "90:00+", label: "Сайн", alt: "Trophy reward" },
+  { tier: 5, image: "assets/rewards/5-diamond.png", threshold: "120:00+", label: "Онц сайн", alt: "Diamond reward" },
+];
 
-  statsWeeklyRewardsEl.innerHTML = days.map((dt) => {
-    const key = getLocalDateKey(dt);
-    const seconds = Math.max(0, Math.floor(Number(totals[key]) || 0));
-    const earnedTier = rewardTierForDailySeconds(seconds);
-    const dayLabel = dayNames[dt.getDay()];
-    return `<article class="stats-day-reward-card"><p class="stats-day-label chip-label">${dayLabel}</p><p class="stats-day-time chip-time">${formatHHMMSS(seconds)}</p><div class="stats-day-reward-icons">${rewardDefs.map((reward) => `<div class="stats-day-reward-item ${earnedTier === reward.tier ? "active" : "dim"}"><span class="stats-day-threshold chip-label">${reward.threshold}</span><img src="${reward.icon}" alt="${reward.alt}" loading="lazy" /></div>`).join("")}</div><p class="stats-day-earned chip-label">${earnedTier === 0 ? "—" : rewardDefs[earnedTier - 1].threshold}</p></article>`;
-  }).join("");
+function rewardTierByPercent(percent) {
+  return getGaugeTierByPercent(percent).index + 1;
+}
+
+function parseDateKey(dateKey) {
+  const [year, month, day] = String(dateKey).split("-").map((n) => Number(n));
+  if (!year || !month || !day) return null;
+  return new Date(year, month - 1, day);
+}
+
+function getTotalsEntries() {
+  const totals = getAppTimeDailyTotals();
+  return Object.entries(totals).map(([key, value]) => ({
+    key,
+    date: parseDateKey(key),
+    seconds: Math.max(0, Math.floor(Number(value) || 0)),
+  })).filter((item) => item.date instanceof Date && !Number.isNaN(item.date.getTime()));
+}
+
+function getMonthYearLabel(monthIndex, year) {
+  return new Date(year, monthIndex, 1).toLocaleDateString("mn-MN", { month: "long", year: "numeric" });
+}
+
+function clampRewardCursor() {
+  const now = new Date();
+  const entries = getTotalsEntries();
+  if (!entries.length) {
+    statsRewardYearCursor = now.getFullYear();
+    statsRewardMonthCursor = now.getMonth();
+    return;
+  }
+  const years = entries.map((item) => item.date.getFullYear());
+  const minYear = Math.min(...years);
+  const maxYear = Math.max(...years);
+  statsRewardYearCursor = Math.max(minYear, Math.min(maxYear, statsRewardYearCursor));
+  if (statsRewardMonthCursor < 0) {
+    statsRewardMonthCursor = 11;
+    statsRewardYearCursor -= 1;
+  }
+  if (statsRewardMonthCursor > 11) {
+    statsRewardMonthCursor = 0;
+    statsRewardYearCursor += 1;
+  }
+}
+
+function getMonthTotalSeconds(monthIndex, year) {
+  return getTotalsEntries().reduce((sum, item) => {
+    if (item.date.getFullYear() === year && item.date.getMonth() === monthIndex) return sum + item.seconds;
+    return sum;
+  }, 0);
+}
+
+function getYearTotalSeconds(year) {
+  return getTotalsEntries().reduce((sum, item) => item.date.getFullYear() === year ? sum + item.seconds : sum, 0);
+}
+
+function buildRewardCard({ title, subtitle, seconds, tier, thresholdText, tierLabel, range }) {
+  const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
+  const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
+  const tierMarkup = tierLabel ? `<p class="stats-reward-tier chip-label">${tierLabel}</p>` : "";
+  const thresholdMarkup = thresholdText ? `<p class="stats-reward-threshold chip-label">${thresholdText}</p>` : "";
+  return `<article class="stats-reward-card"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}<p class="stats-reward-time chip-time">${formatHHMMSS(seconds)}</p>${thresholdMarkup}<img class="stats-reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${tierMarkup}</article>`;
+}
+
+function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals()) {
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const buckets = [];
+  for (let startDay = 1; startDay <= daysInMonth; startDay += 7) {
+    const endDay = Math.min(daysInMonth, startDay + 6);
+    const startDate = new Date(year, monthIndex, startDay);
+    const endDate = new Date(year, monthIndex, endDay);
+    let seconds = 0;
+    for (let d = startDay; d <= endDay; d += 1) {
+      const key = getLocalDateKey(new Date(year, monthIndex, d));
+      seconds += Math.max(0, Math.floor(Number(totals[key]) || 0));
+    }
+    buckets.push({
+      index: buckets.length + 1,
+      seconds,
+      range: `${startDate.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" })}–${endDate.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" })}`,
+    });
+  }
+  return buckets;
+}
+
+function renderStatsRewardControls() {
+  if (!statsRewardControlsEl) return;
+  if (statsRewardTab === "days" || statsRewardTab === "weeks") {
+    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>`;
+  } else if (statsRewardTab === "months") {
+    statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev-year">◀</button><p class="chip-label stats-reward-period">${statsRewardYearCursor} он</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next-year">▶</button>`;
+  } else {
+    statsRewardControlsEl.innerHTML = "";
+  }
+
+  statsRewardControlsEl.querySelectorAll(".stats-reward-nav-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const nav = btn.dataset.nav;
+      if (nav === "prev") statsRewardMonthCursor -= 1;
+      if (nav === "next") statsRewardMonthCursor += 1;
+      if (nav === "prev-year") statsRewardYearCursor -= 1;
+      if (nav === "next-year") statsRewardYearCursor += 1;
+      clampRewardCursor();
+      renderRewardsTab();
+    });
+  });
+}
+
+function renderRewardsTab() {
+  if (!statsRewardCardsEl) return;
+  clampRewardCursor();
+  renderStatsRewardControls();
+
+  if (statsRewardTab === "days") {
+    const totals = getAppTimeDailyTotals();
+    const daysInMonth = new Date(statsRewardYearCursor, statsRewardMonthCursor + 1, 0).getDate();
+    statsRewardCardsEl.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
+      const dt = new Date(statsRewardYearCursor, statsRewardMonthCursor, day);
+      const key = getLocalDateKey(dt);
+      const seconds = Math.max(0, Math.floor(Number(totals[key]) || 0));
+      const tier = rewardTierForDailySeconds(seconds);
+      const reward = tier > 0 ? statsRewardDefs[tier - 1] : statsRewardDefs[0];
+      return buildRewardCard({
+        title: dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" }),
+        seconds,
+        tier: Math.max(1, tier),
+        thresholdText: reward.threshold,
+      });
+    }).join("");
+    return;
+  }
+
+  if (statsRewardTab === "weeks") {
+    const weeklyNorm = (10 * 3600) + (30 * 60);
+    const cards = getWeekBucketsForMonth(statsRewardMonthCursor, statsRewardYearCursor, getAppTimeDailyTotals()).map((week) => {
+      const percent = weeklyNorm > 0 ? (week.seconds / weeklyNorm) * 100 : 0;
+      const tier = rewardTierByPercent(percent);
+      const reward = statsRewardDefs[tier - 1];
+      return buildRewardCard({
+        title: `${week.index}-р 7 хоног`,
+        range: week.range,
+        seconds: week.seconds,
+        tier,
+        thresholdText: `${percent.toFixed(1)}%`,
+        tierLabel: reward.label,
+      });
+    });
+    statsRewardCardsEl.innerHTML = cards.join("");
+    return;
+  }
+
+  if (statsRewardTab === "months") {
+    const cards = Array.from({ length: 12 }, (_, monthIndex) => {
+      const seconds = getMonthTotalSeconds(monthIndex, statsRewardYearCursor);
+      const norm = 90 * 60 * new Date(statsRewardYearCursor, monthIndex + 1, 0).getDate();
+      const percent = norm > 0 ? (seconds / norm) * 100 : 0;
+      const tier = rewardTierByPercent(percent);
+      return buildRewardCard({
+        title: new Date(statsRewardYearCursor, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
+        seconds,
+        tier,
+        thresholdText: `${percent.toFixed(1)}%`,
+      });
+    });
+    statsRewardCardsEl.innerHTML = cards.join("");
+    return;
+  }
+
+  const entries = getTotalsEntries();
+  const years = [...new Set(entries.map((item) => item.date.getFullYear()))].sort((a, b) => b - a);
+  const yearlyNorm = 90 * 60 * 365;
+  statsRewardCardsEl.innerHTML = years.map((year) => {
+    const seconds = getYearTotalSeconds(year);
+    const percent = yearlyNorm > 0 ? (seconds / yearlyNorm) * 100 : 0;
+    const tier = rewardTierByPercent(percent);
+    return buildRewardCard({
+      title: `${year}`,
+      subtitle: "он",
+      seconds,
+      tier,
+      thresholdText: `${percent.toFixed(1)}%`,
+    });
+  }).join("") || `<p class="chip-label">Одоогоор бичигдсэн жил алга.</p>`;
 }
 
 function updateGaugeUI(aggregates, now = new Date()) {
@@ -1436,7 +1606,7 @@ function refreshTimeSummaryUI() {
   if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
 
   updateGaugeUI(aggregates);
-  renderWeeklyRewards();
+  renderRewardsTab();
 }
 
 function startTimeUiUpdater() {
@@ -4035,11 +4205,15 @@ statsPeriodButtons.forEach((btn) => {
   });
 });
 
-statsWeekButtons.forEach((btn) => {
+statsRewardTabButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    statsSelectedWeekScope = btn.dataset.week || "this";
-    statsWeekButtons.forEach((item) => item.classList.toggle("active", item === btn));
-    renderWeeklyRewards();
+    statsRewardTab = btn.dataset.rewardTab || "days";
+    statsRewardTabButtons.forEach((item) => {
+      const active = item === btn;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    renderRewardsTab();
   });
 });
 
