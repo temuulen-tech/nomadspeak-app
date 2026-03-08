@@ -148,13 +148,14 @@ body{
   flex-direction:column;
   gap:14px;
   margin-bottom:18px;
-  padding-right:58px;
+  padding-right:64px;
+  padding-top:4px;
 }
 
 .profile-icon-btn{
   position:absolute;
-  top:0;
-  right:0;
+  top:4px;
+  right:4px;
   width:44px;
   min-height:44px;
   height:44px;
@@ -229,12 +230,15 @@ body{
 }
 
 .status-pill{
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(0,0,0,.2);
-  padding:6px 10px;
+  border:1px solid var(--chip-border);
+  background:var(--chip-bg);
+  color:var(--chip-text);
+  padding:6px 12px;
   border-radius:999px;
   font-size:13px;
+  font-weight:700;
   white-space:nowrap;
+  box-shadow:0 0 0 1px rgba(255,255,255,.18) inset, 0 6px 14px rgba(29,16,2,.24), 0 0 18px rgba(255,200,96,.2);
 }
 
 .completion-banner{
@@ -617,9 +621,7 @@ body{
 }
 
 .start-hero p{
-  margin:10px 0 0;
-  color:#eef8ff;
-  max-width:460px;
+  display:none;
 }
 
 .start-main-actions{
@@ -637,7 +639,7 @@ body{
 }
 
 .start-intro-cta-header{
-  margin-top:0;
+  margin-top:8px;
 }
 
 .premium-intro-btn{
@@ -646,20 +648,26 @@ body{
     linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
   color:#291404;
   border-radius:14px;
-  padding:14px 20px;
+  padding:12px 18px;
   font-size:16px;
   font-weight:800;
   box-shadow:
     0 0 0 1px rgba(255,255,255,.24) inset,
     0 10px 20px rgba(29,16,2,.35),
     0 0 24px rgba(255,200,96,.35);
-  text-align:center;
+  text-align:left;
+  display:inline-flex;
+  flex-direction:column;
+  align-items:flex-start;
+  gap:4px;
 }
 
-.intro-note{
-  margin:0;
-  color:#cdd9de;
-  font-size:13px;
+.intro-note-inline{
+  display:block;
+  font-size:12px;
+  font-weight:700;
+  line-height:1.25;
+  color:rgba(41,20,4,.84);
 }
 
 .start-intro-panel{
@@ -843,7 +851,7 @@ body{
   }
   .logo{font-size:36px;}
   .header{
-    padding-right:52px;
+    padding-right:56px;
   }
 
   .profile-icon-btn{
