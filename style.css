@@ -2385,6 +2385,13 @@ body{
   overflow-wrap:anywhere;
 }
 
+.stats-value.chip-time{
+  color:var(--chip-text);
+  text-shadow:none;
+  font-size:.88rem;
+  padding:5px 10px;
+}
+
 .stats-panel{
   margin:12px 0;
   border:1px solid rgba(248,215,120,.38);
@@ -2404,30 +2411,34 @@ body{
 .stats-period-btn.active,.stats-week-btn.active{border-color:#ffe28a;background:linear-gradient(180deg,#0f8b60,#0b6f4d);box-shadow:0 0 0 1px rgba(255,238,174,.35) inset;}
 .stats-kpi-block{display:grid;gap:2px;align-content:start;}
 .stats-kpi-label{margin:0;font-size:.86rem;font-weight:700;}
-.stats-kpi-value{margin:0;color:#fff6c1;font-size:1.8rem;font-weight:900;letter-spacing:.02em;text-shadow:0 0 14px rgba(255,219,110,.25);}
-.stats-kpi-meta{margin:0;color:#d2ffea;font-size:.9rem;}
+.stats-kpi-value{margin:0;font-size:1.18rem;font-weight:900;letter-spacing:.02em;text-shadow:none;padding:8px 14px;}
+.stats-kpi-meta{margin:0;font-size:.82rem;font-weight:700;padding:4px 10px;}
+.stats-kpi-meta strong{color:#111;}
 
 .stats-thermometer-wrap{display:grid;grid-template-columns:auto auto;grid-template-rows:auto 1fr;column-gap:10px;row-gap:6px;justify-items:end;align-items:end;}
 .stats-thermometer-tier{grid-column:1 / -1;margin:0;font-weight:800;font-size:.88rem;}
-.stats-thermometer-labels{display:flex;flex-direction:column;justify-content:space-between;height:180px;gap:0;font-size:.74rem;color:#d2ffea;text-align:right;align-items:flex-end;}
+.stats-thermometer-labels{display:flex;flex-direction:column;justify-content:space-between;height:180px;gap:3px;text-align:right;align-items:flex-end;}
+.stats-thermometer-labels .chip-label{font-size:.72rem;padding:2px 8px;}
 .stats-thermometer{position:relative;width:30px;height:180px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,245,177,.55);padding:4px;display:flex;align-items:flex-end;overflow:hidden;}
 .stats-thermometer-fill{width:100%;height:8%;border-radius:999px;background:linear-gradient(0deg,#f2a21f,#ffe27e 45%,#86ffd2);box-shadow:0 0 12px rgba(255,220,120,.45);transition:height .25s ease;}
 .stats-thermometer-marker{position:absolute;left:2px;right:2px;bottom:8%;height:2px;background:#fff;border-radius:999px;box-shadow:0 0 6px rgba(255,255,255,.75);pointer-events:none;transition:bottom .25s ease;}
 
 .stats-time-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:5px;}
-.stats-time-list li{display:flex;justify-content:space-between;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);}
+.stats-time-list li{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;}
+.stats-time-list li .chip-label{font-size:.72rem;padding:3px 8px;}
+.stats-time-list li .chip-time{font-size:.78rem;padding:4px 10px;}
 
 .stats-week-toggle{display:flex;gap:8px;flex-wrap:wrap;}
 .stats-weekly-rewards{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:10px;}
 .stats-day-reward-card{padding:8px;border-radius:10px;background:rgba(255,255,255,.05);text-align:center;display:grid;gap:6px;}
-.stats-day-label{margin:0;color:#c6f8db;font-weight:700;font-size:.85rem;}
-.stats-day-time{margin:0;color:#fff6c1;font-weight:700;font-size:.78rem;}
+.stats-day-label{margin:0;font-size:.78rem;padding:3px 8px;}
+.stats-day-time{margin:0;font-size:.78rem;padding:4px 10px;}
 .stats-day-reward-icons{display:grid;gap:6px;}
 .stats-day-reward-item{display:grid;gap:2px;justify-items:center;}
-.stats-day-threshold{font-size:.62rem;color:#d9fce8;}
+.stats-day-threshold{font-size:.58rem;padding:2px 6px;}
 .stats-day-reward-item img{width:28px;height:28px;object-fit:contain;filter:grayscale(1) opacity(.35);}
 .stats-day-reward-item.active img{filter:none;transform:scale(1.08);}
-.stats-day-earned{margin:0;color:#fff;font-weight:700;font-size:.72rem;min-height:14px;}
+.stats-day-earned{margin:0;font-size:.68rem;min-height:14px;padding:2px 8px;}
 #stats-close-btn{margin-top:6px;width:100%;}
 
 @media (max-width:900px){
@@ -2605,16 +2616,18 @@ body{
   box-shadow:0 0 0 3px rgba(255,243,166,.25);
 }
 .vault-motivation{
-  display:block;
-  margin:6px 0 8px;
-  font-size:19px;
+  display:inline-flex;
+  margin:6px auto 8px;
+  font-size:14px;
   font-weight:700;
-  line-height:1.25;
-  color:#fff;
+  line-height:1.35;
+  color:#111;
   text-align:center;
   opacity:1;
   position:relative;
   z-index:1;
+  max-width:100%;
+  white-space:normal;
 }
 
 .time-widget{
@@ -2654,7 +2667,13 @@ body{
   margin:0 0 10px;
   display:flex;
   justify-content:space-between;
-  gap:12px;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.time-details-list p strong{
+  color:#111;
+  font-size:.86rem;
 }
 
 

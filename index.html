@@ -463,19 +463,19 @@
         </article>
         <article class="stats-card">
           <p class="stats-label chip-label">Энэ долоо хоног</p>
-          <p class="stats-value" id="stats-this-week-time">00:00:00</p>
+          <p class="stats-value chip-time" id="stats-this-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label chip-label">Өнгөрсөн долоо хоног</p>
-          <p class="stats-value" id="stats-last-week-time">00:00:00</p>
+          <p class="stats-value chip-time" id="stats-last-week-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label chip-label">Энэ сар</p>
-          <p class="stats-value" id="stats-this-month-time">00:00:00</p>
+          <p class="stats-value chip-time" id="stats-this-month-time">00:00:00</p>
         </article>
         <article class="stats-card">
           <p class="stats-label chip-label">Өнөөдөр</p>
-          <p class="stats-value" id="stats-today-minutes">00:00:00</p>
+          <p class="stats-value chip-time" id="stats-today-minutes">00:00:00</p>
         </article>
       </div>
 
@@ -493,19 +493,19 @@
             </div>
             <div class="stats-kpi-block" aria-live="polite">
               <p class="stats-kpi-label chip-label" id="stats-kpi-label">Өнөөдөр</p>
-              <p class="stats-kpi-value" id="stats-kpi-value">00:00:00</p>
-              <p class="stats-kpi-meta">Норм: <strong id="stats-kpi-norm">00:00:00</strong></p>
-              <p class="stats-kpi-meta">Биелэлт: <strong id="stats-kpi-percent">0%</strong></p>
+              <p class="stats-kpi-value chip-time" id="stats-kpi-value">00:00:00</p>
+              <p class="stats-kpi-meta chip-label">Норм: <strong id="stats-kpi-norm">00:00:00</strong></p>
+              <p class="stats-kpi-meta chip-label">Биелэлт: <strong id="stats-kpi-percent">0%</strong></p>
             </div>
           </div>
           <div class="stats-thermometer-wrap" aria-live="polite">
             <p class="stats-thermometer-tier chip-label" id="stats-thermometer-tier">Түвшин: Муу</p>
             <div class="stats-thermometer-labels">
-              <span>Онц сайн</span>
-              <span>Сайн</span>
-              <span>Хэвийн</span>
-              <span>Дунд</span>
-              <span>Муу</span>
+              <span class="chip-label">Онц сайн</span>
+              <span class="chip-label">Сайн</span>
+              <span class="chip-label">Хэвийн</span>
+              <span class="chip-label">Дунд</span>
+              <span class="chip-label">Муу</span>
             </div>
             <div class="stats-thermometer" aria-hidden="true">
               <div class="stats-thermometer-fill" id="stats-thermometer-fill"></div>
@@ -640,7 +640,7 @@
       </header>
       <div class="muted vault-body" id="vault-modal-body"></div>
       <footer class="vault-footer" id="vault-modal-footer">
-        <p class="vault-motivation">Чиний дэлхийг тойрох урт холын аялалд Амжилт хүсье. Найзаа</p>
+        <p class="vault-motivation chip-label">Чиний дэлхийг тойрох урт холын аялалд Амжилт хүсье. Найзаа</p>
         <div class="vault-actions vault-footer-buttons">
           <button class="secondary" id="vault-replay-btn" type="button">Дахин давтах</button>
           <button class="secondary" id="vault-delete-btn" type="button" title="Зөвхөн хадгалсан жагсаалтаас хасна">Хадгалсанаас устгах</button>
@@ -655,11 +655,11 @@
     <div class="confirm-card qa-modal-card time-details-modal-card">
       <h2 id="time-details-title" class="chip-title">Бүх хугацааны мэдээлэл</h2>
       <div class="time-details-list" id="time-details-list">
-        <p>Өчигдөрийн хугацаа: <strong id="time-details-yesterday">00:00:00</strong></p>
-        <p>Энэ долоо хоногийн хугацаа: <strong id="time-details-this-week">00:00:00</strong></p>
-        <p>Өнгөрсөн долоо хоногийн хугацаа: <strong id="time-details-last-week">00:00:00</strong></p>
-        <p>Энэ сарын хугацаа: <strong id="time-details-this-month">00:00:00</strong></p>
-        <p>Өнгөрсөн сарын хугацаа: <strong id="time-details-last-month">00:00:00</strong></p>
+        <p class="chip-label">Өчигдөрийн хугацаа: <strong class="chip-time" id="time-details-yesterday">00:00:00</strong></p>
+        <p class="chip-label">Энэ долоо хоногийн хугацаа: <strong class="chip-time" id="time-details-this-week">00:00:00</strong></p>
+        <p class="chip-label">Өнгөрсөн долоо хоногийн хугацаа: <strong class="chip-time" id="time-details-last-week">00:00:00</strong></p>
+        <p class="chip-label">Энэ сарын хугацаа: <strong class="chip-time" id="time-details-this-month">00:00:00</strong></p>
+        <p class="chip-label">Өнгөрсөн сарын хугацаа: <strong class="chip-time" id="time-details-last-month">00:00:00</strong></p>
       </div>
       <div class="confirm-actions">
         <button class="primary" id="time-details-close-btn" type="button">Хаах</button>

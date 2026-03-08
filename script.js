@@ -1327,7 +1327,7 @@ function buildLast7DaysTimeRows() {
     dt.setDate(dt.getDate() - index);
     const key = getLocalDateKey(dt);
     const label = dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" });
-    return `<li><span>${label}</span><strong>${formatHHMMSS(totals[key] || 0)}</strong></li>`;
+    return `<li><span class="chip-label">${label}</span><strong class="chip-time">${formatHHMMSS(totals[key] || 0)}</strong></li>`;
   }).reverse().join("");
 }
 
@@ -1371,7 +1371,7 @@ function renderWeeklyRewards() {
     const seconds = Math.max(0, Math.floor(Number(totals[key]) || 0));
     const earnedTier = rewardTierForDailySeconds(seconds);
     const dayLabel = dayNames[dt.getDay()];
-    return `<article class="stats-day-reward-card"><p class="stats-day-label">${dayLabel}</p><p class="stats-day-time">${formatHHMMSS(seconds)}</p><div class="stats-day-reward-icons">${rewardDefs.map((reward) => `<div class="stats-day-reward-item ${earnedTier === reward.tier ? "active" : "dim"}"><span class="stats-day-threshold">${reward.threshold}</span><img src="${reward.icon}" alt="${reward.alt}" loading="lazy" /></div>`).join("")}</div><p class="stats-day-earned">${earnedTier === 0 ? "—" : rewardDefs[earnedTier - 1].threshold}</p></article>`;
+    return `<article class="stats-day-reward-card"><p class="stats-day-label chip-label">${dayLabel}</p><p class="stats-day-time chip-time">${formatHHMMSS(seconds)}</p><div class="stats-day-reward-icons">${rewardDefs.map((reward) => `<div class="stats-day-reward-item ${earnedTier === reward.tier ? "active" : "dim"}"><span class="stats-day-threshold chip-label">${reward.threshold}</span><img src="${reward.icon}" alt="${reward.alt}" loading="lazy" /></div>`).join("")}</div><p class="stats-day-earned chip-label">${earnedTier === 0 ? "—" : rewardDefs[earnedTier - 1].threshold}</p></article>`;
   }).join("");
 }
 
