@@ -163,8 +163,12 @@ const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
 const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
 const statsLast7DaysEl = document.getElementById("stats-last-7-days");
 const statsPeriodButtons = document.querySelectorAll(".stats-period-btn");
-const statsGaugeSummaryEl = document.getElementById("stats-gauge-summary");
+const statsKpiLabelEl = document.getElementById("stats-kpi-label");
+const statsKpiValueEl = document.getElementById("stats-kpi-value");
+const statsKpiNormEl = document.getElementById("stats-kpi-norm");
+const statsKpiPercentEl = document.getElementById("stats-kpi-percent");
 const statsThermometerFillEl = document.getElementById("stats-thermometer-fill");
+const statsThermometerMarkerEl = document.getElementById("stats-thermometer-marker");
 const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
 const statsWeekButtons = document.querySelectorAll(".stats-week-btn");
 const statsWeeklyRewardsEl = document.getElementById("stats-weekly-rewards");
@@ -1372,46 +1376,44 @@ function renderWeeklyRewards() {
 }
 
 function updateGaugeUI(aggregates, now = new Date()) {
-  if (!statsThermometerFillEl || !statsThermometerTierEl || !statsGaugeSummaryEl) return;
+  if (!statsThermometerFillEl || !statsThermometerTierEl || !statsKpiLabelEl || !statsKpiValueEl || !statsKpiNormEl || !statsKpiPercentEl) return;
 
   const yearDays = ((now.getFullYear() % 4 === 0 && now.getFullYear() % 100 !== 0) || (now.getFullYear() % 400 === 0)) ? 366 : 365;
   const monthDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
-  let normalized = 0;
-  let tier;
-  let summary;
+  let periodLabel = "Өнөөдөр";
+  let seconds = aggregates.today;
+  let normSeconds = 90 * 60;
 
-  if (statsSelectedPeriod === "day") {
-    const seconds = aggregates.today;
-    tier = getGaugeTierBySeconds(seconds);
-    normalized = Math.min(1, seconds / (120 * 60));
-    summary = `Өнөөдөр: ${formatHHMMSS(seconds)}`;
-  } else if (statsSelectedPeriod === "week") {
-    const norm = 90 * 60 * 7;
-    const percent = (aggregates.thisWeek / norm) * 100;
-    tier = getGaugeTierByPercent(percent);
-    normalized = Math.min(1, percent / 100);
-    summary = `7 хоног: ${percent.toFixed(1)}% (${formatHHMMSS(aggregates.thisWeek)})`;
+  if (statsSelectedPeriod === "week") {
+    periodLabel = "Энэ 7 хоног";
+    seconds = aggregates.thisWeek;
+    normSeconds = 90 * 60 * 7;
   } else if (statsSelectedPeriod === "month") {
-    const norm = 90 * 60 * monthDays;
-    const percent = (aggregates.thisMonth / norm) * 100;
-    tier = getGaugeTierByPercent(percent);
-    normalized = Math.min(1, percent / 100);
-    summary = `Сар: ${percent.toFixed(1)}% (${formatHHMMSS(aggregates.thisMonth)})`;
-  } else {
+    periodLabel = "Энэ сар";
+    seconds = aggregates.thisMonth;
+    normSeconds = 90 * 60 * monthDays;
+  } else if (statsSelectedPeriod === "year") {
+    periodLabel = "Энэ жил";
     const totals = getAppTimeDailyTotals();
     const yearPrefix = `${now.getFullYear()}-`;
-    const totalYearSeconds = Object.entries(totals).reduce((sum, [key, val]) => key.startsWith(yearPrefix) ? sum + Math.max(0, Math.floor(Number(val) || 0)) : sum, 0);
-    const norm = 90 * 60 * yearDays;
-    const percent = (totalYearSeconds / norm) * 100;
-    tier = getGaugeTierByPercent(percent);
-    normalized = Math.min(1, percent / 100);
-    summary = `Жил: ${percent.toFixed(1)}% (${formatHHMMSS(totalYearSeconds)})`;
+    seconds = Object.entries(totals).reduce((sum, [key, val]) => key.startsWith(yearPrefix) ? sum + Math.max(0, Math.floor(Number(val) || 0)) : sum, 0);
+    normSeconds = 90 * 60 * yearDays;
   }
 
-  statsThermometerFillEl.style.height = `${Math.max(8, Math.round(normalized * 100))}%`;
-  statsThermometerTierEl.textContent = tier.label;
-  statsGaugeSummaryEl.textContent = summary;
+  const percent = normSeconds > 0 ? (seconds / normSeconds) * 100 : 0;
+  const normalized = Math.min(1, Math.max(0, percent / 100));
+  const tier = statsSelectedPeriod === "day" ? getGaugeTierBySeconds(seconds) : getGaugeTierByPercent(percent);
+  const fillPercent = Math.max(8, Math.round(normalized * 100));
+
+  statsKpiLabelEl.textContent = periodLabel;
+  statsKpiValueEl.textContent = formatHHMMSS(seconds);
+  statsKpiNormEl.textContent = formatHHMMSS(normSeconds);
+  statsKpiPercentEl.textContent = `${percent.toFixed(1)}%`;
+
+  statsThermometerFillEl.style.height = `${fillPercent}%`;
+  if (statsThermometerMarkerEl) statsThermometerMarkerEl.style.bottom = `${fillPercent}%`;
+  statsThermometerTierEl.textContent = `Түвшин: ${tier.label}`;
 }
 
 function refreshTimeSummaryUI() {
