@@ -2336,20 +2336,19 @@ body{
 
 .stats-grid{
   display:grid;
-  grid-template-columns:repeat(2,minmax(0,1fr));
-  gap:12px;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:10px;
   margin:14px 0;
 }
 .stats-card{
   border:1px solid rgba(248,215,120,.45);
   border-radius:14px;
-  padding:12px;
+  padding:10px;
   background:linear-gradient(145deg,rgba(13,72,51,.72),rgba(8,42,30,.82));
   box-shadow:0 0 0 1px rgba(120,255,182,.08),0 0 14px rgba(247,201,68,.18);
 }
-.stats-card-wide{grid-column:1 / -1;}
-.stats-label{margin:0 0 6px;color:#c6f8db;font-size:.9rem;}
-.stats-value{margin:0;color:#fff6c1;font-size:1.24rem;font-weight:800;text-shadow:0 0 10px rgba(247,201,68,.35);}
+.stats-label{margin:0 0 6px;color:#c6f8db;font-size:.86rem;}
+.stats-value{margin:0;color:#fff6c1;font-size:1.15rem;font-weight:800;text-shadow:0 0 10px rgba(247,201,68,.35);}
 
 .stats-card .stats-label,
 .stats-card .stats-value{
@@ -2357,45 +2356,53 @@ body{
 }
 
 .stats-panel{
-  margin:14px 0;
+  margin:12px 0;
   border:1px solid rgba(248,215,120,.38);
   border-radius:14px;
-  padding:12px;
+  padding:10px;
   background:linear-gradient(155deg,rgba(6,36,26,.88),rgba(10,59,41,.7));
   box-shadow:inset 0 0 0 1px rgba(120,255,182,.1),0 0 16px rgba(37,201,137,.18);
 }
 .stats-panel-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .stats-panel h3{margin:0;color:#f9e08d;}
 
-.weekly-chart{
-  margin-top:12px;
-  display:grid;
-  grid-template-columns:repeat(7,minmax(0,1fr));
-  align-items:end;
-  gap:8px;
-  min-height:170px;
-}
-.weekly-bar-wrap{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:170px;}
-.weekly-bar{
-  width:100%;
-  max-width:34px;
-  border-radius:10px 10px 4px 4px;
-  background:linear-gradient(180deg,#ffe27e,#f2bc31 55%,#2ee193 100%);
-  box-shadow:0 0 12px rgba(247,201,68,.35);
-  min-height:8px;
-}
-.weekly-value{margin-top:6px;color:#d2ffea;font-size:.78rem;}
-.weekly-label{margin-top:2px;color:#8ce0b8;font-size:.72rem;}
+.stats-gauge-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;align-items:stretch;margin-top:8px;}
+.stats-period-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:start;}
+.stats-period-btn.active,.stats-week-btn.active{border-color:#ffe28a;background:linear-gradient(180deg,#0f8b60,#0b6f4d);}
 
-.stats-reward-row{margin-top:10px;}
-.stats-reward-row .reward-tile{flex:1 1 calc(20% - 8px);}
+.stats-thermometer-wrap{display:flex;align-items:flex-end;gap:10px;justify-content:flex-end;}
+.stats-thermometer-labels{display:flex;flex-direction:column-reverse;gap:12px;font-size:.78rem;color:#d2ffea;text-align:right;}
+.stats-thermometer{width:30px;height:180px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,245,177,.55);padding:4px;display:flex;align-items:flex-end;}
+.stats-thermometer-fill{width:100%;height:8%;border-radius:999px;background:linear-gradient(180deg,#86ffd2,#ffe27e 45%,#f2a21f);box-shadow:0 0 12px rgba(255,220,120,.45);}
+.stats-thermometer-tier{margin:0 0 4px;color:#fff6c1;font-weight:800;writing-mode:vertical-rl;text-orientation:mixed;}
 
-#stats-reset-btn{margin-top:8px;}
+.stats-time-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:5px;}
+.stats-time-list li{display:flex;justify-content:space-between;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);}
+
+.stats-week-toggle{display:flex;gap:8px;flex-wrap:wrap;}
+.stats-weekly-rewards{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px;margin-top:10px;}
+.stats-day-reward-card{padding:8px;border-radius:10px;background:rgba(255,255,255,.05);text-align:center;display:grid;gap:6px;}
+.stats-day-label{margin:0;color:#c6f8db;font-weight:700;font-size:.85rem;}
+.stats-day-time{margin:0;color:#fff6c1;font-weight:700;font-size:.78rem;}
+.stats-day-reward-icons{display:grid;gap:6px;}
+.stats-day-reward-item{display:grid;gap:2px;justify-items:center;}
+.stats-day-threshold{font-size:.62rem;color:#d9fce8;}
+.stats-day-reward-item img{width:28px;height:28px;object-fit:contain;filter:grayscale(1) opacity(.35);}
+.stats-day-reward-item.active img{filter:none;transform:scale(1.08);}
+.stats-day-earned{margin:0;color:#fff;font-weight:700;font-size:.72rem;min-height:14px;}
+#stats-close-btn{margin-top:6px;width:100%;}
+
+@media (max-width:900px){
+  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stats-gauge-layout{grid-template-columns:1fr;}
+  .stats-thermometer-wrap{justify-content:flex-start;}
+}
 
 @media (max-width:640px){
   .stats-grid{grid-template-columns:1fr;}
+  .stats-weekly-rewards{grid-template-columns:1fr;}
+  .stats-day-reward-icons{grid-template-columns:repeat(5,minmax(0,1fr));}
 }
-
 
 #qa-game-screen .sentence-game-reward-middle{
   margin:10px 0;
@@ -2600,22 +2607,6 @@ body{
   display:flex;
   justify-content:space-between;
   gap:12px;
-}
-
-.stats-time-list{
-  list-style:none;
-  margin:0;
-  padding:0;
-  display:grid;
-  gap:8px;
-}
-
-.stats-time-list li{
-  display:flex;
-  justify-content:space-between;
-  padding:8px 10px;
-  border-radius:10px;
-  background:rgba(255,255,255,0.06);
 }
 
 
