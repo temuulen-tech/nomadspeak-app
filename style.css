@@ -2365,18 +2365,26 @@ body{
 }
 .stats-panel-header{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
 .stats-panel h3{margin:0;color:#f9e08d;}
+.stats-section-chip{padding:8px 14px;font-size:1rem;border-radius:11px;}
 
-.stats-gauge-layout{display:grid;grid-template-columns:1.2fr .8fr;gap:12px;align-items:stretch;margin-top:8px;}
-.stats-period-selector{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;align-content:start;}
-.stats-period-btn.active,.stats-week-btn.active{border-color:#ffe28a;background:linear-gradient(180deg,#0f8b60,#0b6f4d);}
+.stats-gauge-layout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin-top:8px;}
+.stats-gauge-main{display:grid;gap:10px;min-width:0;}
+.stats-period-selector{display:flex;gap:8px;align-content:start;flex-wrap:wrap;}
+.stats-period-btn{padding:6px 12px;font-size:.84rem;line-height:1.15;border-radius:999px;}
+.stats-period-btn.active,.stats-week-btn.active{border-color:#ffe28a;background:linear-gradient(180deg,#0f8b60,#0b6f4d);box-shadow:0 0 0 1px rgba(255,238,174,.35) inset;}
+.stats-kpi-block{display:grid;gap:2px;align-content:start;}
+.stats-kpi-label{margin:0;color:#d7ffea;font-size:.86rem;font-weight:700;}
+.stats-kpi-value{margin:0;color:#fff6c1;font-size:1.8rem;font-weight:900;letter-spacing:.02em;text-shadow:0 0 14px rgba(255,219,110,.25);}
+.stats-kpi-meta{margin:0;color:#d2ffea;font-size:.9rem;}
 
-.stats-thermometer-wrap{display:flex;align-items:flex-end;gap:10px;justify-content:flex-end;}
-.stats-thermometer-labels{display:flex;flex-direction:column-reverse;gap:12px;font-size:.78rem;color:#d2ffea;text-align:right;}
-.stats-thermometer{width:30px;height:180px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,245,177,.55);padding:4px;display:flex;align-items:flex-end;}
-.stats-thermometer-fill{width:100%;height:8%;border-radius:999px;background:linear-gradient(180deg,#86ffd2,#ffe27e 45%,#f2a21f);box-shadow:0 0 12px rgba(255,220,120,.45);}
-.stats-thermometer-tier{margin:0 0 4px;color:#fff6c1;font-weight:800;writing-mode:vertical-rl;text-orientation:mixed;}
+.stats-thermometer-wrap{display:grid;grid-template-columns:auto auto;grid-template-rows:auto 1fr;column-gap:10px;row-gap:6px;justify-items:end;align-items:end;}
+.stats-thermometer-tier{grid-column:1 / -1;margin:0;color:#fff6c1;font-weight:800;font-size:.88rem;}
+.stats-thermometer-labels{display:flex;flex-direction:column;justify-content:space-between;height:180px;gap:0;font-size:.74rem;color:#d2ffea;text-align:right;align-items:flex-end;}
+.stats-thermometer{position:relative;width:30px;height:180px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,245,177,.55);padding:4px;display:flex;align-items:flex-end;overflow:hidden;}
+.stats-thermometer-fill{width:100%;height:8%;border-radius:999px;background:linear-gradient(0deg,#f2a21f,#ffe27e 45%,#86ffd2);box-shadow:0 0 12px rgba(255,220,120,.45);transition:height .25s ease;}
+.stats-thermometer-marker{position:absolute;left:2px;right:2px;bottom:8%;height:2px;background:#fff;border-radius:999px;box-shadow:0 0 6px rgba(255,255,255,.75);pointer-events:none;transition:bottom .25s ease;}
 
-.stats-time-list{list-style:none;margin:8px 0 0;padding:0;display:grid;gap:5px;}
+.stats-time-list{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:5px;}
 .stats-time-list li{display:flex;justify-content:space-between;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);}
 
 .stats-week-toggle{display:flex;gap:8px;flex-wrap:wrap;}
@@ -2395,9 +2403,15 @@ body{
 @media (max-width:900px){
   .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
   .stats-gauge-layout{grid-template-columns:1fr;}
-  .stats-thermometer-wrap{justify-content:flex-start;}
+  .stats-thermometer-wrap{justify-items:start;}
 }
 
+
+@media (max-width:640px){
+  .stats-period-btn{padding:6px 10px;font-size:.8rem;}
+  .stats-kpi-value{font-size:1.45rem;}
+  .stats-thermometer-wrap{grid-template-columns:auto auto;}
+}
 @media (max-width:640px){
   .stats-grid{grid-template-columns:1fr;}
   .stats-weekly-rewards{grid-template-columns:1fr;}

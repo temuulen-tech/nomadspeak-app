@@ -481,17 +481,25 @@
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3>Олон хугацааны үнэлгээ</h3>
+          <h3 class="screen-title-chip stats-section-chip">Нийт хичээллэсэн цагууд</h3>
         </div>
         <div class="stats-gauge-layout">
-          <div class="stats-period-selector" id="stats-period-selector" role="group" aria-label="Хугацаа сонголт">
-            <button class="secondary stats-period-btn active" type="button" data-period="day">Өдөр</button>
-            <button class="secondary stats-period-btn" type="button" data-period="week">7 хоног</button>
-            <button class="secondary stats-period-btn" type="button" data-period="month">Сар</button>
-            <button class="secondary stats-period-btn" type="button" data-period="year">Жил</button>
-            <p class="muted" id="stats-gauge-summary">Өнөөдөр: 00:00:00</p>
+          <div class="stats-gauge-main">
+            <div class="stats-period-selector" id="stats-period-selector" role="group" aria-label="Хугацаа сонголт">
+              <button class="secondary stats-period-btn active" type="button" data-period="day">Өдөр</button>
+              <button class="secondary stats-period-btn" type="button" data-period="week">7 хоног</button>
+              <button class="secondary stats-period-btn" type="button" data-period="month">Сар</button>
+              <button class="secondary stats-period-btn" type="button" data-period="year">Жил</button>
+            </div>
+            <div class="stats-kpi-block" aria-live="polite">
+              <p class="stats-kpi-label" id="stats-kpi-label">Өнөөдөр</p>
+              <p class="stats-kpi-value" id="stats-kpi-value">00:00:00</p>
+              <p class="stats-kpi-meta">Норм: <strong id="stats-kpi-norm">00:00:00</strong></p>
+              <p class="stats-kpi-meta">Биелэлт: <strong id="stats-kpi-percent">0%</strong></p>
+            </div>
           </div>
           <div class="stats-thermometer-wrap" aria-live="polite">
+            <p class="stats-thermometer-tier" id="stats-thermometer-tier">Түвшин: Муу</p>
             <div class="stats-thermometer-labels">
               <span>Онц сайн</span>
               <span>Сайн</span>
@@ -501,22 +509,22 @@
             </div>
             <div class="stats-thermometer" aria-hidden="true">
               <div class="stats-thermometer-fill" id="stats-thermometer-fill"></div>
+              <div class="stats-thermometer-marker" id="stats-thermometer-marker"></div>
             </div>
-            <p class="stats-thermometer-tier" id="stats-thermometer-tier">Муу</p>
           </div>
         </div>
       </article>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3>Сүүлийн 7 өдөр (HH:MM:SS)</h3>
+          <h3 class="screen-title-chip stats-section-chip">Сүүлийн 7 хоног</h3>
         </div>
         <ul class="stats-time-list" id="stats-last-7-days"></ul>
       </article>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3>Авсан шагналууд</h3>
+          <h3 class="screen-title-chip stats-section-chip">Авсан шагналууд</h3>
           <div class="stats-week-toggle" id="stats-week-toggle" role="group" aria-label="Шагналын 7 хоног сонголт">
             <button class="secondary stats-week-btn active" type="button" data-week="this">Энэ долоо хоног</button>
             <button class="secondary stats-week-btn" type="button" data-week="last">Өнгөрсөн долоо хоног</button>
