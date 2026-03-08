@@ -158,12 +158,17 @@ const statsLevelEl = document.getElementById("stats-level");
 const statsStreakEl = document.getElementById("stats-streak");
 const statsTodayProgressEl = document.getElementById("stats-today-progress");
 const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
-const statsYesterdayTimeEl = document.getElementById("stats-yesterday-time");
 const statsThisWeekTimeEl = document.getElementById("stats-this-week-time");
 const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
 const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
-const statsLastMonthTimeEl = document.getElementById("stats-last-month-time");
 const statsLast7DaysEl = document.getElementById("stats-last-7-days");
+const statsPeriodButtons = document.querySelectorAll(".stats-period-btn");
+const statsGaugeSummaryEl = document.getElementById("stats-gauge-summary");
+const statsThermometerFillEl = document.getElementById("stats-thermometer-fill");
+const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
+const statsWeekButtons = document.querySelectorAll(".stats-week-btn");
+const statsWeeklyRewardsEl = document.getElementById("stats-weekly-rewards");
+const statsCloseBtn = document.getElementById("stats-close-btn");
 const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
 const timeDetailsButtons = document.querySelectorAll(".time-details-btn");
 const timeDetailsModalEl = document.getElementById("time-details-modal");
@@ -205,10 +210,8 @@ const qaModalTitleEl = document.getElementById("qa-modal-title");
 const qaModalBodyEl = document.getElementById("qa-modal-body");
 const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
 
-const weeklyChartEl = document.getElementById("weekly-chart");
-const statsRewardTierLabelEl = document.getElementById("stats-reward-tier-label");
-const statsRewardImageEls = document.querySelectorAll("#stats-reward-row .reward-img");
-const statsResetBtn = document.getElementById("stats-reset-btn");
+let statsSelectedPeriod = "day";
+let statsSelectedWeekScope = "this";
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 
@@ -1295,21 +1298,22 @@ function awardXP(amount, reason = "") {
   }
 }
 
-function formatLast7DayLabels() {
-  const names = ["Ня", "Да", "Мя", "Лх", "Пү", "Ба", "Бя"];
-  return Array.from({ length: 7 }, (_, index) => {
-    const dt = new Date();
-    dt.setDate(dt.getDate() - (6 - index));
-    return names[dt.getDay()];
-  });
+function getGaugeTierBySeconds(seconds) {
+  const safeSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
+  if (safeSeconds >= 120 * 60) return { label: "Онц сайн", index: 4 };
+  if (safeSeconds >= 60 * 60) return { label: "Сайн", index: 3 };
+  if (safeSeconds >= 30 * 60) return { label: "Хэвийн", index: 2 };
+  if (safeSeconds >= 20 * 60) return { label: "Дунд", index: 1 };
+  return { label: "Муу", index: 0 };
 }
 
-function formatStudyMinutes(totalMinutes) {
-  const safeMinutes = Math.max(0, Number(totalMinutes) || 0);
-  if (safeMinutes < 60) return `${safeMinutes} мин`;
-  const hours = Math.floor(safeMinutes / 60);
-  const minutes = safeMinutes % 60;
-  return `${hours} цаг ${minutes} мин`;
+function getGaugeTierByPercent(percent) {
+  const safePercent = Math.max(0, Number(percent) || 0);
+  if (safePercent >= 100) return { label: "Онц сайн", index: 4 };
+  if (safePercent >= 75) return { label: "Сайн", index: 3 };
+  if (safePercent >= 50) return { label: "Хэвийн", index: 2 };
+  if (safePercent >= 25) return { label: "Дунд", index: 1 };
+  return { label: "Муу", index: 0 };
 }
 
 function buildLast7DaysTimeRows() {
@@ -1321,6 +1325,93 @@ function buildLast7DaysTimeRows() {
     const label = dt.toLocaleDateString("mn-MN", { month: "2-digit", day: "2-digit" });
     return `<li><span>${label}</span><strong>${formatHHMMSS(totals[key] || 0)}</strong></li>`;
   }).reverse().join("");
+}
+
+function getRangeDays(baseDate, startOffsetDays) {
+  return Array.from({ length: 7 }, (_, index) => {
+    const dt = new Date(baseDate);
+    dt.setDate(dt.getDate() + startOffsetDays + index);
+    return dt;
+  });
+}
+
+function rewardTierForDailySeconds(totalSeconds) {
+  const safeSeconds = Math.max(0, Math.floor(Number(totalSeconds) || 0));
+  if (safeSeconds >= 120 * 60) return 5;
+  if (safeSeconds >= 90 * 60) return 4;
+  if (safeSeconds >= 60 * 60) return 3;
+  if (safeSeconds >= 30 * 60) return 2;
+  if (safeSeconds >= 20 * 60) return 1;
+  return 0;
+}
+
+function renderWeeklyRewards() {
+  if (!statsWeeklyRewardsEl) return;
+  const totals = getAppTimeDailyTotals();
+  const dayNames = ["Ня", "Да", "Мя", "Лх", "Пү", "Ба", "Бя"];
+  const now = new Date();
+  const mondayOffset = (now.getDay() + 6) % 7;
+  const thisMonday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
+  const startOffset = statsSelectedWeekScope === "last" ? -7 : 0;
+  const days = getRangeDays(thisMonday, startOffset);
+  const rewardDefs = [
+    { tier: 1, icon: "assets/rewards/1-flag.png", threshold: "20:00+", alt: "Flag reward" },
+    { tier: 2, icon: "assets/rewards/2-star.png", threshold: "30:00+", alt: "Star reward" },
+    { tier: 3, icon: "assets/rewards/3-coin.png", threshold: "60:00+", alt: "Coin reward" },
+    { tier: 4, icon: "assets/rewards/4-trophy.png", threshold: "90:00+", alt: "Trophy reward" },
+    { tier: 5, icon: "assets/rewards/5-diamond.png", threshold: "120:00+", alt: "Diamond reward" },
+  ];
+
+  statsWeeklyRewardsEl.innerHTML = days.map((dt) => {
+    const key = getLocalDateKey(dt);
+    const seconds = Math.max(0, Math.floor(Number(totals[key]) || 0));
+    const earnedTier = rewardTierForDailySeconds(seconds);
+    const dayLabel = dayNames[dt.getDay()];
+    return `<article class="stats-day-reward-card"><p class="stats-day-label">${dayLabel}</p><p class="stats-day-time">${formatHHMMSS(seconds)}</p><div class="stats-day-reward-icons">${rewardDefs.map((reward) => `<div class="stats-day-reward-item ${earnedTier === reward.tier ? "active" : "dim"}"><span class="stats-day-threshold">${reward.threshold}</span><img src="${reward.icon}" alt="${reward.alt}" loading="lazy" /></div>`).join("")}</div><p class="stats-day-earned">${earnedTier === 0 ? "—" : rewardDefs[earnedTier - 1].threshold}</p></article>`;
+  }).join("");
+}
+
+function updateGaugeUI(aggregates, now = new Date()) {
+  if (!statsThermometerFillEl || !statsThermometerTierEl || !statsGaugeSummaryEl) return;
+
+  const yearDays = ((now.getFullYear() % 4 === 0 && now.getFullYear() % 100 !== 0) || (now.getFullYear() % 400 === 0)) ? 366 : 365;
+  const monthDays = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+
+  let normalized = 0;
+  let tier;
+  let summary;
+
+  if (statsSelectedPeriod === "day") {
+    const seconds = aggregates.today;
+    tier = getGaugeTierBySeconds(seconds);
+    normalized = Math.min(1, seconds / (120 * 60));
+    summary = `Өнөөдөр: ${formatHHMMSS(seconds)}`;
+  } else if (statsSelectedPeriod === "week") {
+    const norm = 90 * 60 * 7;
+    const percent = (aggregates.thisWeek / norm) * 100;
+    tier = getGaugeTierByPercent(percent);
+    normalized = Math.min(1, percent / 100);
+    summary = `7 хоног: ${percent.toFixed(1)}% (${formatHHMMSS(aggregates.thisWeek)})`;
+  } else if (statsSelectedPeriod === "month") {
+    const norm = 90 * 60 * monthDays;
+    const percent = (aggregates.thisMonth / norm) * 100;
+    tier = getGaugeTierByPercent(percent);
+    normalized = Math.min(1, percent / 100);
+    summary = `Сар: ${percent.toFixed(1)}% (${formatHHMMSS(aggregates.thisMonth)})`;
+  } else {
+    const totals = getAppTimeDailyTotals();
+    const yearPrefix = `${now.getFullYear()}-`;
+    const totalYearSeconds = Object.entries(totals).reduce((sum, [key, val]) => key.startsWith(yearPrefix) ? sum + Math.max(0, Math.floor(Number(val) || 0)) : sum, 0);
+    const norm = 90 * 60 * yearDays;
+    const percent = (totalYearSeconds / norm) * 100;
+    tier = getGaugeTierByPercent(percent);
+    normalized = Math.min(1, percent / 100);
+    summary = `Жил: ${percent.toFixed(1)}% (${formatHHMMSS(totalYearSeconds)})`;
+  }
+
+  statsThermometerFillEl.style.height = `${Math.max(8, Math.round(normalized * 100))}%`;
+  statsThermometerTierEl.textContent = tier.label;
+  statsGaugeSummaryEl.textContent = summary;
 }
 
 function refreshTimeSummaryUI() {
@@ -1337,12 +1428,13 @@ function refreshTimeSummaryUI() {
   if (timeDetailsLastMonthEl) timeDetailsLastMonthEl.textContent = formatHHMMSS(aggregates.lastMonth);
 
   if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatHHMMSS(aggregates.today);
-  if (statsYesterdayTimeEl) statsYesterdayTimeEl.textContent = formatHHMMSS(aggregates.yesterday);
   if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
   if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
   if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsLastMonthTimeEl) statsLastMonthTimeEl.textContent = formatHHMMSS(aggregates.lastMonth);
   if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
+
+  updateGaugeUI(aggregates);
+  renderWeeklyRewards();
 }
 
 function startTimeUiUpdater() {
@@ -1372,57 +1464,10 @@ function updateStatsUI() {
   if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
   if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
   if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
-  if (statsRewardTierLabelEl) statsRewardTierLabelEl.textContent = `Одоогийн түвшин: ${progressState.rewardTierUnlocked}`;
-
-  statsRewardImageEls.forEach((imgEl) => {
-    const tier = Number(imgEl.dataset.tier || 0);
-    const unlocked = tier > 0 && tier <= progressState.rewardTierUnlocked;
-    const active = tier === progressState.rewardTierUnlocked;
-    const tileEl = imgEl.closest(".reward-tile");
-    if (tileEl) {
-      tileEl.classList.toggle("is-unlocked", unlocked);
-      tileEl.classList.toggle("is-locked", !unlocked);
-      tileEl.classList.toggle("is-active", active);
-    }
-    imgEl.classList.toggle("is-unlocked", unlocked);
-    imgEl.classList.toggle("is-locked", !unlocked);
-    imgEl.classList.toggle("active", active);
-    imgEl.classList.toggle("is-active", active);
-  });
-
-  if (weeklyChartEl) {
-    const labels = formatLast7DayLabels();
-    const values = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice(-7) : [0, 0, 0, 0, 0, 0, 0];
-    const max = Math.max(1, ...values);
-    weeklyChartEl.innerHTML = values.map((value, index) => {
-      const height = Math.max(8, Math.round((value / max) * 100));
-      return `<div class="weekly-bar-wrap"><div class="weekly-bar" style="height:${height}%"></div><span class="weekly-value">${value}</span><span class="weekly-label">${labels[index]}</span></div>`;
-    }).join("");
-  }
 
   refreshTimeSummaryUI();
 
   persistProgressState();
-}
-
-function resetStatistics() {
-  progressState = normalizeProgressState({
-    xp: 0,
-    streak: 0,
-    todayCount: 0,
-    todayMinutes: 0,
-    weeklyMinutes: [0, 0, 0, 0, 0, 0, 0],
-    rewardTierUnlocked: 1,
-    dailyGoalCount: 10,
-    dailyGoalXP: DEFAULT_DAILY_GOAL,
-    dailyXP: 0,
-    lastActiveDate: null,
-    lastStatsDate: getTodayKey(),
-  });
-  persistProgressState();
-  updateHeaderStatus();
-  updateProfileUI();
-  updateStatsUI();
 }
 
 function updateHeaderStatus() {
@@ -3980,8 +4025,24 @@ if (upgradePremiumBtn) {
   });
 }
 
-if (statsResetBtn) {
-  statsResetBtn.addEventListener("click", resetStatistics);
+statsPeriodButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    statsSelectedPeriod = btn.dataset.period || "day";
+    statsPeriodButtons.forEach((item) => item.classList.toggle("active", item === btn));
+    refreshTimeSummaryUI();
+  });
+});
+
+statsWeekButtons.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    statsSelectedWeekScope = btn.dataset.week || "this";
+    statsWeekButtons.forEach((item) => item.classList.toggle("active", item === btn));
+    renderWeeklyRewards();
+  });
+});
+
+if (statsCloseBtn) {
+  statsCloseBtn.addEventListener("click", () => requestNavigation("home"));
 }
 
 if (premiumOkBtn) {

@@ -441,11 +441,6 @@
     <section class="card hidden" id="stats-screen">
       <div class="panel-header">
         <h2 class="screen-title-chip">Миний ахиц &amp; Амжилт</h2>
-        <div class="time-widget">
-          <div class="today-time">Өнөөдрийн хугацаа: <span id="today-time-stats">00:00:00</span></div>
-          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-        </div>
-        <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
       </div>
       <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
 
@@ -466,14 +461,6 @@
           <p class="stats-label">📅 Өнөөдрийн ахиц</p>
           <p class="stats-value" id="stats-today-progress">0/10</p>
         </article>
-        <article class="stats-card stats-card-wide">
-          <p class="stats-label">⏱️ Өдрийн хичээллэсэн цаг</p>
-          <p class="stats-value" id="stats-today-minutes">00:00:00</p>
-        </article>
-        <article class="stats-card">
-          <p class="stats-label">Өчигдөр</p>
-          <p class="stats-value" id="stats-yesterday-time">00:00:00</p>
-        </article>
         <article class="stats-card">
           <p class="stats-label">Энэ долоо хоног</p>
           <p class="stats-value" id="stats-this-week-time">00:00:00</p>
@@ -487,10 +474,38 @@
           <p class="stats-value" id="stats-this-month-time">00:00:00</p>
         </article>
         <article class="stats-card">
-          <p class="stats-label">Өнгөрсөн сар</p>
-          <p class="stats-value" id="stats-last-month-time">00:00:00</p>
+          <p class="stats-label">Өнөөдөр</p>
+          <p class="stats-value" id="stats-today-minutes">00:00:00</p>
         </article>
       </div>
+
+      <article class="stats-panel control-panel-gold-outline">
+        <div class="stats-panel-header">
+          <h3>Олон хугацааны үнэлгээ</h3>
+        </div>
+        <div class="stats-gauge-layout">
+          <div class="stats-period-selector" id="stats-period-selector" role="group" aria-label="Хугацаа сонголт">
+            <button class="secondary stats-period-btn active" type="button" data-period="day">Өдөр</button>
+            <button class="secondary stats-period-btn" type="button" data-period="week">7 хоног</button>
+            <button class="secondary stats-period-btn" type="button" data-period="month">Сар</button>
+            <button class="secondary stats-period-btn" type="button" data-period="year">Жил</button>
+            <p class="muted" id="stats-gauge-summary">Өнөөдөр: 00:00:00</p>
+          </div>
+          <div class="stats-thermometer-wrap" aria-live="polite">
+            <div class="stats-thermometer-labels">
+              <span>Онц сайн</span>
+              <span>Сайн</span>
+              <span>Хэвийн</span>
+              <span>Дунд</span>
+              <span>Муу</span>
+            </div>
+            <div class="stats-thermometer" aria-hidden="true">
+              <div class="stats-thermometer-fill" id="stats-thermometer-fill"></div>
+            </div>
+            <p class="stats-thermometer-tier" id="stats-thermometer-tier">Муу</p>
+          </div>
+        </div>
+      </article>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
@@ -501,41 +516,16 @@
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
-          <h3>Долоо хоногийн идэвх</h3>
-        </div>
-        <div class="weekly-chart" id="weekly-chart" aria-label="Last 7 days activity chart"></div>
-      </article>
-
-      <article class="stats-panel control-panel-gold-outline">
-        <div class="stats-panel-header">
           <h3>Авсан шагналууд</h3>
-          <p class="muted" id="stats-reward-tier-label">Одоогийн түвшин: 1</p>
+          <div class="stats-week-toggle" id="stats-week-toggle" role="group" aria-label="Шагналын 7 хоног сонголт">
+            <button class="secondary stats-week-btn active" type="button" data-week="this">Энэ долоо хоног</button>
+            <button class="secondary stats-week-btn" type="button" data-week="last">Өнгөрсөн долоо хоног</button>
+          </div>
         </div>
-        <div class="stats-reward-row reward-row rewards-group" id="stats-reward-row" aria-label="Reward tiers">
-          <article class="reward-tile" data-tier="1">
-            <p class="reward-label-chip">Эхлэл амжилттай!</p>
-            <img class="reward-img" data-tier="1" src="assets/rewards/1-flag.png" alt="Tier 1 reward flag" />
-          </article>
-          <article class="reward-tile" data-tier="2">
-            <p class="reward-label-chip">Улаан одын Эзэн</p>
-            <img class="reward-img" data-tier="2" src="assets/rewards/2-star.png" alt="Tier 2 reward star" />
-          </article>
-          <article class="reward-tile" data-tier="3">
-            <p class="reward-label-chip">Алтан зоос Чинийх</p>
-            <img class="reward-img" data-tier="3" src="assets/rewards/3-coin.png" alt="Tier 3 reward coin" />
-          </article>
-          <article class="reward-tile" data-tier="4">
-            <p class="reward-label-chip">Алтан цомын Эзэн</p>
-            <img class="reward-img" data-tier="4" src="assets/rewards/4-trophy.png" alt="Tier 4 reward trophy" />
-          </article>
-          <article class="reward-tile" data-tier="5">
-            <p class="reward-label-chip">Алмөөз эрдэнэ Чинийх</p>
-            <img class="reward-img" data-tier="5" src="assets/rewards/5-diamond.png" alt="Tier 5 reward diamond" />
-          </article>
-        </div>
+        <div class="stats-weekly-rewards" id="stats-weekly-rewards" aria-label="7 хоногийн шагналын тайлан"></div>
       </article>
 
-      <button class="secondary" id="stats-reset-btn" type="button">Reset статистик</button>
+      <button class="secondary" id="stats-close-btn" type="button">Хаах</button>
     </section>
 
     <!-- PROFILE SCREEN -->
