@@ -87,7 +87,8 @@ const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
 const navQaGameBtn = document.getElementById("nav-qa-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 const navProfileBtn = document.getElementById("nav-profile-btn");
-
+const navModesBtn = document.getElementById("nav-modes-btn");
+const homeModesPanel = document.getElementById("home-modes-panel");
 
 const startLevelDropdown = document.getElementById("start-level-dropdown");
 const startLevelPicker = document.querySelector(".start-level-picker");
@@ -101,9 +102,6 @@ const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice
 const ttsRateSlider = document.getElementById("tts-rate-slider");
 const ttsRateValueEl = document.getElementById("tts-rate-value");
 const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
-const statusXpEl = document.getElementById("status-xp");
-const statusStreakEl = document.getElementById("status-streak");
-const statusTodayEl = document.getElementById("status-today");
 const statusRewardEl = document.getElementById("status-reward");
 const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
 const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
@@ -1648,10 +1646,21 @@ function updateStatsUI() {
 function updateHeaderStatus() {
   loadProgressState();
   syncProgressForToday();
-  statusXpEl.textContent = `⭐ XP: ${progressState.xp}`;
-  statusStreakEl.textContent = `🔥 Цуврал: ${progressState.streak} өдөр`;
-  statusTodayEl.textContent = `📅 Өнөөдөр: ${progressState.todayCount}/${progressState.dailyGoalCount}`;
-  statusRewardEl.textContent = `Lv.${progressState.level} • Tier ${progressState.rewardTierUnlocked}`;
+  if (statusRewardEl) statusRewardEl.textContent = `⭐ Шагнал`;
+}
+
+
+function closeHomeModesPanel() {
+  if (!homeModesPanel) return;
+  homeModesPanel.classList.add("hidden");
+  if (navModesBtn) navModesBtn.setAttribute("aria-expanded", "false");
+}
+
+function toggleHomeModesPanel() {
+  if (!homeModesPanel || !navModesBtn) return;
+  const shouldOpen = homeModesPanel.classList.contains("hidden");
+  homeModesPanel.classList.toggle("hidden", !shouldOpen);
+  navModesBtn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
 }
 
 function clearBannerEffects() {
@@ -1987,6 +1996,7 @@ function resetLessonProgress() {
 }
 
 function requestNavigation(destination) {
+  closeHomeModesPanel();
   if (destination !== "lesson") resetLessonProgress();
 
   navigateTo(destination);
@@ -4109,11 +4119,21 @@ soundToggleButtons.forEach(toggleBtn => {
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
-navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
-navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
+if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
+if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
+if (navModesBtn) navModesBtn.addEventListener("click", toggleHomeModesPanel);
 navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
+
+document.addEventListener("click", (event) => {
+  if (!homeModesPanel || !navModesBtn) return;
+  if (homeModesPanel.classList.contains("hidden")) return;
+  const target = event.target;
+  if (homeModesPanel.contains(target) || navModesBtn.contains(target)) return;
+  closeHomeModesPanel();
+});
+
 
 if (introToggleBtn) {
   introToggleBtn.addEventListener("click", toggleStartIntroPanel);
