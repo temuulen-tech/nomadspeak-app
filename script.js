@@ -1407,13 +1407,15 @@ function getDailyRatingLabel(seconds) {
 
 function buildRewardCard({ title, subtitle, tier, thresholdText, tierLabel, range, ratingLabel, cardClass = "", imageClass = "" }) {
   const reward = statsRewardDefs[Math.max(0, Math.min(4, (tier || 1) - 1))];
+  const titleMarkup = title ? `<p class="stats-reward-title chip-label">${title}</p>` : "";
   const rangeMarkup = range ? `<p class="stats-reward-range chip-label">${range}</p>` : "";
+  const subtitleMarkup = subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : "";
   const tierMarkup = tierLabel ? `<p class="stats-reward-tier chip-label">${tierLabel}</p>` : "";
   const thresholdMarkup = thresholdText ? `<p class="stats-reward-threshold chip-label">${thresholdText}</p>` : "";
   const ratingMarkup = ratingLabel ? `<p class="stats-reward-rating chip-label">${ratingLabel}</p>` : "";
   const cardClasses = ["stats-reward-card", cardClass].filter(Boolean).join(" ");
   const imageClasses = ["stats-reward-img", imageClass].filter(Boolean).join(" ");
-  return `<article class="${cardClasses}"><p class="stats-reward-title chip-label">${title}</p>${rangeMarkup}${subtitle ? `<p class="stats-reward-subtitle chip-label">${subtitle}</p>` : ""}${thresholdMarkup}<img class="${imageClasses}" src="${reward.image}" alt="${reward.alt}" loading="lazy" />${ratingMarkup}${tierMarkup}</article>`;
+  return `<article class="${cardClasses}"><div class="stats-reward-main"><div class="stats-reward-left">${titleMarkup}${rangeMarkup}${subtitleMarkup}</div><div class="stats-reward-right">${thresholdMarkup}${ratingMarkup}${tierMarkup}</div></div><img class="${imageClasses}" src="${reward.image}" alt="${reward.alt}" loading="lazy" /></article>`;
 }
 
 function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals()) {
@@ -1487,7 +1489,8 @@ function renderRewardsTab() {
       const percent = norm > 0 ? (seconds / norm) * 100 : 0;
       const tier = rewardTierByPercent(percent);
       return buildRewardCard({
-        title: new Date(currentYear, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
+        title: "",
+        subtitle: `${monthIndex + 1}-р сар`,
         tier,
         thresholdText: `${percent.toFixed(1)}%`,
         ratingLabel: getPercentRatingLabel(percent),
