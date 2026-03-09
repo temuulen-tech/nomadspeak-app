@@ -2576,9 +2576,21 @@ body{
   .stats-period-btn{padding:6px 10px;font-size:.8rem;}
   .stats-kpi-value{font-size:1.45rem;}
 
-  .stats-grid{grid-template-columns:1fr;}
+  .stats-grid{
+    grid-template-columns:1fr !important;
+    gap:12px !important;
+  }
+
+  .stats-card{
+    width:100% !important;
+    min-height:auto !important;
+    height:auto !important;
+    max-height:none !important;
+  }
+
   .stats-card .stats-label,
   .stats-card .stats-value{
+    white-space:normal;
     overflow-wrap:normal;
     word-break:normal;
   }
