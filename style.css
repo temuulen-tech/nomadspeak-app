@@ -152,7 +152,15 @@ body{
   border:1px solid rgba(255,255,255,.24);
   box-shadow:0 28px 60px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.08) inset;
   position:relative;
+  overflow-y:auto;
   overflow-x:hidden;
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+
+.phone-preview-shell::-webkit-scrollbar{
+  width:0;
+  height:0;
 }
 
 .phone-frame{
@@ -187,7 +195,7 @@ body{
   background:rgba(3,16,22,.88);
   min-height:min(844px, calc(100vh - 64px));
   max-height:calc(100vh - 64px);
-  overflow:auto;
+  overflow-y:auto;
   overflow-x:hidden;
   overscroll-behavior:contain;
 }
@@ -2655,7 +2663,9 @@ body{
     padding-bottom:4px;
   }
   .stats-reward-controls{justify-content:space-between;margin-top:8px;}
-  .stats-reward-controls{display:none;}
+  .stats-reward-controls,
+  .stats-reward-period,
+  .stats-reward-nav-btn{display:none;}
   .stats-reward-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
   .stats-reward-img{width:min(128px,100%);}
 }
