@@ -2539,10 +2539,11 @@ body{
 .stats-time-list li .chip-time{font-size:.78rem;padding:4px 10px;}
 
 
-.stats-mobile-list{display:none;list-style:none;margin:10px 0 14px;padding:0;gap:5px;}
-.stats-mobile-list li{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;min-width:0;}
-.stats-mobile-list li .chip-label{font-size:.72rem;padding:3px 8px;max-width:70%;overflow-wrap:anywhere;}
-.stats-mobile-list li .chip-time{font-size:.78rem;padding:4px 10px;max-width:45%;text-align:right;overflow-wrap:anywhere;}
+.progress-stats-desktop{display:block;}
+.progress-stats-mobile{display:none;margin:10px 0 14px;padding:0;gap:5px;max-width:100%;overflow:hidden;}
+.progress-stats-mobile-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;min-width:0;width:100%;box-sizing:border-box;}
+.progress-stats-mobile-row .chip-label{font-size:.72rem;padding:3px 8px;max-width:70%;overflow-wrap:anywhere;}
+.progress-stats-mobile-row .chip-time{font-size:.78rem;padding:4px 10px;max-width:45%;text-align:right;overflow-wrap:anywhere;}
 
 .stats-reward-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .stats-reward-header-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;flex:1;}
@@ -2582,9 +2583,8 @@ body{
   .stats-period-btn{padding:6px 10px;font-size:.8rem;}
   .stats-kpi-value{font-size:1.45rem;}
 
-  .stats-grid{display:none !important;}
-  .stats-mobile-list{display:grid;width:100%;}
-  .stats-mobile-list li{width:100%;box-sizing:border-box;}
+  .progress-stats-desktop{display:none !important;}
+  .progress-stats-mobile{display:grid !important;width:100%;}
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
   .stats-gauge-main{gap:8px;}
