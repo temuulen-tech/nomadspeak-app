@@ -124,8 +124,14 @@ button,
 }
 
 *{box-sizing:border-box}
+
+img{
+  max-width:100%;
+  height:auto;
+}
 html,
 body{
+  max-width:100%;
   overflow-x:hidden;
 }
 
@@ -188,7 +194,7 @@ body{
 
 .app{
   width:100%;
-  max-width:390px;
+  max-width:100%;
   margin-inline:auto;
   border-radius:28px;
   padding:20px 14px 16px;
@@ -887,7 +893,7 @@ body{
   left:0;
   transform:translateY(-50%);
   width:min(260px, 100%);
-  min-width:220px;
+  min-width:0;
 }
 
 .lesson-question-controls{
@@ -923,7 +929,7 @@ body{
   width:100%;
   max-width:none;
   display:grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr;
   gap:14px;
   margin:0;
 }
@@ -1075,7 +1081,7 @@ body{
 
 .profile-grid{
   display:grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap:14px;
 }
 
@@ -1115,7 +1121,7 @@ body{
 
 .premium-features{
   display:grid;
-  grid-template-columns:repeat(2, minmax(0,1fr));
+  grid-template-columns:1fr;
   gap:12px;
   margin:10px 0;
 }
@@ -1225,8 +1231,8 @@ body{
 }
 
 .tts-rate-group{
-  flex:1 1 260px;
-  min-width:220px;
+  flex:1 1 auto;
+  min-width:0;
   display:flex;
   flex-direction:column;
   gap:6px;
@@ -1294,7 +1300,7 @@ body{
 
 
 .sentences-panel-header{
-  grid-template-columns:minmax(0,1fr) auto;
+  grid-template-columns:1fr;
   align-items:flex-start;
 }
 
@@ -1336,7 +1342,7 @@ body{
 
 .sentences-controls-grid{
   display:grid;
-  grid-template-columns:minmax(0,1fr) minmax(220px,340px);
+  grid-template-columns:1fr;
   align-items:center;
   gap:14px;
 }
@@ -1365,7 +1371,7 @@ body{
 .tts-rate-compact{
   flex:none;
   width:min(340px, 100%);
-  min-width:220px;
+  min-width:0;
   gap:4px;
 }
 
@@ -1449,7 +1455,7 @@ body{
 }
 
 .sentences-level-picker-btn{
-  min-width:220px;
+  min-width:0;
   text-align:left;
 }
 
@@ -1458,7 +1464,7 @@ body{
   top:calc(100% + 6px);
   left:0;
   z-index:40;
-  min-width:220px;
+  min-width:0;
   display:flex;
   flex-direction:column;
   gap:6px;
@@ -2509,7 +2515,7 @@ body{
 
 .stats-grid{
   display:grid;
-  grid-template-columns:repeat(4,minmax(0,1fr));
+  grid-template-columns:1fr;
   gap:10px;
   margin:14px 0;
 }
@@ -2547,7 +2553,7 @@ body{
 .stats-panel h3{margin:0;}
 .stats-section-chip{padding:8px 14px;font-size:1rem;border-radius:11px;}
 
-.stats-gauge-layout{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:14px;align-items:start;margin-top:8px;}
+.stats-gauge-layout{display:grid;grid-template-columns:1fr;gap:12px;align-items:start;margin-top:8px;}
 .stats-gauge-main{display:grid;gap:10px;min-width:0;}
 .stats-period-selector{display:flex;gap:8px;align-content:start;flex-wrap:wrap;}
 .stats-period-btn{padding:6px 12px;font-size:.84rem;line-height:1.15;border-radius:999px;}
@@ -2558,9 +2564,9 @@ body{
 .stats-kpi-meta{margin:0;font-size:.82rem;font-weight:700;padding:4px 10px;}
 .stats-kpi-meta strong{color:#111;}
 
-.stats-thermometer-wrap{display:grid;grid-template-columns:auto auto;grid-template-rows:auto 1fr;column-gap:10px;row-gap:6px;justify-items:end;align-items:end;}
+.stats-thermometer-wrap{display:grid;grid-template-columns:1fr;grid-template-rows:auto;column-gap:10px;row-gap:8px;justify-items:start;align-items:start;}
 .stats-thermometer-tier{grid-column:1 / -1;margin:0;font-weight:800;font-size:.88rem;}
-.stats-thermometer-labels{display:flex;flex-direction:column;justify-content:space-between;height:180px;gap:3px;text-align:right;align-items:flex-end;}
+.stats-thermometer-labels{display:none;}
 .stats-thermometer-labels .chip-label{font-size:.72rem;padding:2px 8px;}
 .stats-thermometer{position:relative;width:30px;height:180px;border-radius:999px;background:rgba(255,255,255,.1);border:1px solid rgba(255,245,177,.55);padding:4px;display:flex;align-items:flex-end;overflow:hidden;}
 .stats-thermometer-fill{width:100%;height:8%;border-radius:999px;background:linear-gradient(0deg,#f2a21f,#ffe27e 45%,#86ffd2);box-shadow:0 0 12px rgba(255,220,120,.45);transition:height .25s ease;}
@@ -2572,9 +2578,9 @@ body{
 .stats-time-list li .chip-time{font-size:.78rem;padding:4px 10px;}
 
 
-.progress-stats-mobile{display:none;margin:10px 0 14px;padding:0;gap:5px;max-width:100%;overflow:hidden;}
-.progress-stats-desktop{display:block;}
-.progress-stats-mobile-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;min-width:0;width:100%;box-sizing:border-box;}
+.progress-stats-mobile{display:grid;margin:10px 0 14px;padding:0;gap:6px;max-width:100%;overflow:hidden;grid-template-columns:repeat(2,minmax(0,1fr));}
+.progress-stats-desktop{display:none;}
+.progress-stats-mobile-row{display:flex;flex-direction:column;align-items:flex-start;padding:8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:6px;min-width:0;width:100%;box-sizing:border-box;}
 .progress-stats-mobile-row .chip-label{font-size:.72rem;padding:3px 8px;max-width:70%;overflow-wrap:anywhere;}
 .progress-stats-mobile-row .chip-time{font-size:.78rem;padding:4px 10px;max-width:45%;text-align:right;overflow-wrap:anywhere;}
 
@@ -2586,7 +2592,7 @@ body{
 .stats-reward-controls{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-height:34px;flex-wrap:nowrap;margin-left:auto;flex-shrink:0;}
 .stats-reward-nav-btn{padding:5px 10px;min-width:40px;}
 .stats-reward-period{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);border-radius:999px;padding:6px 14px;font-weight:800;}
-.stats-reward-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;max-height:420px;overflow:auto;padding-right:2px;}
+.stats-reward-cards{display:grid;grid-template-columns:1fr;gap:12px;max-height:420px;overflow:auto;padding-right:2px;}
 .stats-reward-card{padding:10px 8px 12px;border-radius:14px;background:rgba(255,255,255,.06);display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;border:1px solid rgba(255,230,160,.18);}
 .stats-reward-title,.stats-reward-subtitle,.stats-reward-range,.stats-reward-tier,.stats-reward-threshold{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);padding:3px 9px;border-radius:999px;font-weight:800;font-size:.72rem;}
 .stats-reward-rating{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);padding:4px 10px;border-radius:999px;font-weight:800;font-size:.72rem;}
@@ -2594,12 +2600,71 @@ body{
 .stats-reward-card-year{padding:8px 6px 10px;gap:4px;}
 .stats-reward-img-year{width:min(170px,100%);}
 
+@media (min-width:900px){
+  .progress-stats-desktop{display:block;}
+  .progress-stats-mobile{display:none;}
+}
+
 #stats-close-btn{margin-top:6px;width:100%;}
 
-@media (max-width:900px){
-  .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .stats-gauge-layout{grid-template-columns:1fr;}
-  .stats-thermometer-wrap{justify-items:start;}
+@media (min-width:900px){
+  .profile-grid,
+  .premium-features{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .sentences-panel-header{
+    grid-template-columns:minmax(0,1fr) auto;
+  }
+
+  .sentences-controls-grid{
+    grid-template-columns:minmax(0,1fr) minmax(220px,340px);
+  }
+
+  .tts-rate-group,
+  .tts-rate-compact{
+    min-width:220px;
+  }
+}
+
+@media (min-width:900px){
+  .app{
+    max-width:390px;
+  }
+
+  .lesson-answers-grid{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .stats-grid{
+    grid-template-columns:repeat(4,minmax(0,1fr));
+  }
+
+  .stats-gauge-layout{
+    grid-template-columns:minmax(0,1fr) auto;
+    gap:14px;
+  }
+
+  .stats-thermometer-wrap{
+    grid-template-columns:auto auto;
+    grid-template-rows:auto 1fr;
+    justify-items:end;
+    align-items:end;
+  }
+
+  .stats-thermometer-labels{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+    height:180px;
+    gap:3px;
+    text-align:right;
+    align-items:flex-end;
+  }
+
+  .stats-reward-cards{
+    grid-template-columns:repeat(auto-fill,minmax(170px,1fr));
+  }
 }
 
 
@@ -2617,7 +2682,7 @@ body{
   .stats-kpi-value{font-size:1.45rem;}
 
   .progress-stats-desktop{display:none !important;}
-  .progress-stats-mobile{display:block !important;width:100%;}
+  .progress-stats-mobile{display:grid !important;width:100%;grid-template-columns:1fr;}
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
   .stats-gauge-main{gap:8px;}
