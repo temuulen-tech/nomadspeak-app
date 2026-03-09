@@ -2538,6 +2538,12 @@ body{
 .stats-time-list li .chip-label{font-size:.72rem;padding:3px 8px;}
 .stats-time-list li .chip-time{font-size:.78rem;padding:4px 10px;}
 
+
+.stats-mobile-list{display:none;list-style:none;margin:10px 0 14px;padding:0;gap:5px;}
+.stats-mobile-list li{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;min-width:0;}
+.stats-mobile-list li .chip-label{font-size:.72rem;padding:3px 8px;max-width:70%;overflow-wrap:anywhere;}
+.stats-mobile-list li .chip-time{font-size:.78rem;padding:4px 10px;max-width:45%;text-align:right;overflow-wrap:anywhere;}
+
 .stats-reward-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .stats-reward-header-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;flex:1;}
 .stats-reward-tabs{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-start;flex:1;}
@@ -2576,24 +2582,9 @@ body{
   .stats-period-btn{padding:6px 10px;font-size:.8rem;}
   .stats-kpi-value{font-size:1.45rem;}
 
-  .stats-grid{
-    grid-template-columns:1fr !important;
-    gap:12px !important;
-  }
-
-  .stats-card{
-    width:100% !important;
-    min-height:auto !important;
-    height:auto !important;
-    max-height:none !important;
-  }
-
-  .stats-card .stats-label,
-  .stats-card .stats-value{
-    white-space:normal;
-    overflow-wrap:normal;
-    word-break:normal;
-  }
+  .stats-grid{display:none !important;}
+  .stats-mobile-list{display:grid;width:100%;}
+  .stats-mobile-list li{width:100%;box-sizing:border-box;}
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
   .stats-gauge-main{gap:8px;}
