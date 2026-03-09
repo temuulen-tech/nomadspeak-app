@@ -2580,9 +2580,11 @@ body{
 
 .progress-stats-mobile{display:none;margin:10px 0 14px;padding:0;gap:6px;max-width:100%;overflow:hidden;}
 .progress-stats-desktop{display:block;}
-.progress-stats-mobile-row{display:flex;justify-content:space-between;align-items:center;padding:5px 8px;border-radius:8px;font-size:.86rem;background:rgba(255,255,255,0.06);gap:8px;min-width:0;width:100%;box-sizing:border-box;}
-.progress-stats-mobile-row .chip-label{font-size:.72rem;padding:3px 8px;max-width:70%;overflow-wrap:anywhere;flex-shrink:0;}
-.progress-stats-mobile-row .chip-time{font-size:.78rem;padding:4px 10px;text-align:right;overflow-wrap:anywhere;}
+.progress-stats-mobile-row{display:grid;grid-template-rows:auto auto;align-content:start;gap:8px;padding:8px;border-radius:10px;font-size:.86rem;background:rgba(255,255,255,0.06);min-width:0;width:100%;box-sizing:border-box;border:1px solid rgba(255,230,160,.16);}
+.progress-stats-mobile-row .chip-label,
+.progress-stats-mobile-row .chip-time{max-width:100%;width:100%;display:flex;white-space:normal;word-break:normal;overflow-wrap:anywhere;}
+.progress-stats-mobile-row .chip-label{font-size:.72rem;padding:4px 8px;justify-content:flex-start;}
+.progress-stats-mobile-row .chip-time{font-size:.78rem;padding:4px 10px;justify-content:flex-start;}
 
 .stats-reward-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
 .stats-reward-header-controls{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0;flex:1;}
@@ -2669,6 +2671,16 @@ body{
 
 
 @media (max-width:600px){
+  .phone-preview-shell{
+    overflow:visible;
+  }
+
+  .app{
+    overflow:visible;
+    max-height:none;
+    min-height:auto;
+  }
+
   .stats-panel{
     width:100%;
   }
@@ -2682,7 +2694,16 @@ body{
   .stats-kpi-value{font-size:1.45rem;}
 
   .progress-stats-desktop{display:none !important;}
-  .progress-stats-mobile{display:block !important;width:100%;}
+  .progress-stats-mobile{
+    display:grid !important;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    width:100%;
+    gap:8px;
+  }
+
+  .progress-stats-mobile-row{
+    min-height:100%;
+  }
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
   .stats-gauge-main{gap:8px;}
@@ -2733,6 +2754,12 @@ body{
   .stats-reward-nav-btn{display:none;}
   .stats-reward-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
   .stats-reward-img{width:min(128px,100%);}
+}
+
+@media (max-width:380px){
+  .progress-stats-mobile{
+    grid-template-columns:1fr;
+  }
 }
 
 #qa-game-screen .sentence-game-reward-middle{
