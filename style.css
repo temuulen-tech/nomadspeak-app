@@ -158,10 +158,7 @@ body{
   border:1px solid rgba(255,255,255,.24);
   box-shadow:0 28px 60px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.08) inset;
   position:relative;
-  overflow-y:auto;
-  overflow-x:hidden;
-  -ms-overflow-style:none;
-  scrollbar-width:none;
+  overflow:hidden;
 }
 
 .phone-preview-shell::-webkit-scrollbar{
@@ -2601,6 +2598,9 @@ body{
 .stats-reward-img{width:min(136px,100%);aspect-ratio:1 / 1;height:auto;object-fit:contain;filter:none;}
 .stats-reward-card-year{padding:8px 6px 10px;gap:4px;}
 .stats-reward-img-year{width:min(170px,100%);}
+.stats-reward-main{display:grid;grid-template-columns:1fr;gap:6px;width:100%;min-width:0;}
+.stats-reward-left,.stats-reward-right{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;min-width:0;}
+
 
 @media (min-width:900px){
   .progress-stats-desktop{display:block;}
@@ -2773,8 +2773,63 @@ body{
   .stats-reward-controls,
   .stats-reward-period,
   .stats-reward-nav-btn{display:none;}
-  .stats-reward-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
-  .stats-reward-img{width:min(128px,100%);}
+  .stats-reward-cards{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .stats-reward-card{
+    width:100%;
+    padding:8px 10px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    text-align:left;
+    gap:8px;
+  }
+
+  .stats-reward-main{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    width:100%;
+    gap:8px;
+    min-width:0;
+  }
+
+  .stats-reward-left,
+  .stats-reward-right{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    min-width:0;
+  }
+
+  .stats-reward-right{
+    justify-content:flex-end;
+    margin-left:auto;
+    flex-shrink:0;
+  }
+
+  .stats-reward-title,
+  .stats-reward-subtitle,
+  .stats-reward-range,
+  .stats-reward-tier,
+  .stats-reward-threshold,
+  .stats-reward-rating{
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+    max-width:100%;
+  }
+
+  .stats-reward-left .stats-reward-title,
+  .stats-reward-left .stats-reward-subtitle,
+  .stats-reward-left .stats-reward-range{
+    max-width:clamp(110px, 48vw, 230px);
+  }
+
+  .stats-reward-img{display:none;}
 }
 
 @media (max-width:380px){
