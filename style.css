@@ -2593,7 +2593,7 @@ body{
 .stats-reward-tab.active{background:linear-gradient(145deg,#1d9a69 0%,#0f7f65 55%,#0b5f6b 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.26),0 0 0 1px rgba(176,255,220,.7),0 12px 24px rgba(1,38,32,.45),0 0 22px rgba(80,255,215,.38);}
 .stats-reward-controls{display:flex;justify-content:flex-end;align-items:center;gap:8px;min-height:34px;flex-wrap:nowrap;margin-left:auto;flex-shrink:0;}
 .stats-reward-nav-btn{padding:5px 10px;min-width:40px;}
-.stats-reward-period{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);border-radius:999px;padding:6px 14px;font-weight:800;}
+.stats-reward-period{display:none;}
 .stats-reward-cards{display:grid;grid-template-columns:1fr;gap:12px;max-height:420px;overflow:auto;padding-right:2px;}
 .stats-reward-card{padding:10px 8px 12px;border-radius:14px;background:rgba(255,255,255,.06);display:grid;justify-items:center;align-content:start;gap:6px;text-align:center;border:1px solid rgba(255,230,160,.18);}
 .stats-reward-title,.stats-reward-subtitle,.stats-reward-range,.stats-reward-tier,.stats-reward-threshold{margin:0;color:#111;background:linear-gradient(180deg,#ffea9a,#f6bf49);padding:3px 9px;border-radius:999px;font-weight:800;font-size:.72rem;}
@@ -2672,13 +2672,16 @@ body{
 
 @media (max-width:600px){
   .phone-preview-shell{
-    overflow:visible;
+    width:100%;
+    max-width:100%;
+    overflow:hidden;
   }
 
   .app{
-    overflow:visible;
-    max-height:none;
-    min-height:auto;
+    overflow-y:auto;
+    overflow-x:hidden;
+    max-height:calc(100vh - 28px);
+    min-height:calc(100vh - 28px);
   }
 
   .stats-panel{
@@ -2696,13 +2699,31 @@ body{
   .progress-stats-desktop{display:none !important;}
   .progress-stats-mobile{
     display:grid !important;
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:1fr;
     width:100%;
     gap:8px;
   }
 
   .progress-stats-mobile-row{
-    min-height:100%;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    min-height:0;
+    width:100%;
+  }
+
+  .progress-stats-mobile-row .chip-label,
+  .progress-stats-mobile-row .chip-time{
+    width:auto;
+    max-width:calc(50% - 4px);
+    white-space:nowrap;
+    overflow:hidden;
+    text-overflow:ellipsis;
+  }
+
+  .progress-stats-mobile-row .chip-time{
+    margin-left:auto;
   }
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
@@ -2757,8 +2778,12 @@ body{
 }
 
 @media (max-width:380px){
-  .progress-stats-mobile{
-    grid-template-columns:1fr;
+  .progress-stats-mobile-row .chip-label{
+    max-width:58%;
+  }
+
+  .progress-stats-mobile-row .chip-time{
+    max-width:42%;
   }
 }
 
