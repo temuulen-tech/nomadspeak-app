@@ -263,9 +263,50 @@ body{
   justify-content:flex-start;
 }
 
+.home-start-btn{
+  min-height:36px;
+  padding:8px 14px;
+  font-size:14px;
+}
+
+.home-modes-menu-wrap{
+  position:relative;
+}
+
+.home-modes-panel{
+  position:absolute;
+  top:calc(100% + 8px);
+  left:0;
+  right:0;
+  z-index:60;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  padding:10px;
+  border-radius:12px;
+  border:1px solid rgba(255,255,255,.2);
+  background:rgba(6,24,36,.96);
+  box-shadow:0 14px 30px rgba(0,0,0,.32);
+}
+
+.home-modes-option{
+  border:1px solid transparent;
+  background:rgba(255,255,255,.06);
+  color:var(--text);
+  padding:8px 10px;
+  border-radius:9px;
+  font-size:14px;
+  font-weight:700;
+  text-align:left;
+}
+
+.home-modes-option:hover{
+  transform:translateY(-1px);
+}
+
 .header-nav{
   display:grid;
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:1fr;
   align-items:stretch;
   gap:8px;
 }
@@ -675,9 +716,10 @@ body{
 
 .start-intro-cta{
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  gap:6px;
+  flex-direction:row;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
 }
 
 .start-intro-cta-header{
@@ -689,9 +731,9 @@ body{
   background:
     linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
   color:#291404;
-  border-radius:14px;
-  padding:12px 18px;
-  font-size:16px;
+  border-radius:12px;
+  padding:8px 12px;
+  font-size:14px;
   font-weight:800;
   box-shadow:
     0 0 0 1px rgba(255,255,255,.24) inset,
@@ -704,12 +746,9 @@ body{
   gap:4px;
 }
 
-.intro-note-inline{
-  display:block;
+.home-time-chip{
+  padding:6px 10px;
   font-size:12px;
-  font-weight:700;
-  line-height:1.25;
-  color:rgba(41,20,4,.84);
 }
 
 .start-intro-panel{
@@ -2118,7 +2157,7 @@ body{
   }
 
   .header-nav{
-    grid-template-columns:1fr 1fr;
+    grid-template-columns:1fr;
   }
 
   .header-nav .nav-btn{
@@ -2261,12 +2300,9 @@ body{
     align-items:stretch;
   }
 
-  .premium-intro-btn{
-    width:100%;
-  }
-
-  .intro-note{
-    text-align:left;
+  .premium-intro-btn,
+  .home-time-chip{
+    width:calc(50% - 4px);
   }
 
   .question-text-wrap{
