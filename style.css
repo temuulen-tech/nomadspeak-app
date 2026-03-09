@@ -2564,6 +2564,15 @@ body{
 
 
 @media (max-width:600px){
+  .stats-panel{
+    width:100%;
+  }
+
+  .stats-panel .stats-gauge-layout,
+  .stats-panel .stats-gauge-main{
+    width:100%;
+  }
+
   .stats-period-btn{padding:6px 10px;font-size:.8rem;}
   .stats-kpi-value{font-size:1.45rem;}
 
@@ -2576,8 +2585,31 @@ body{
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
   .stats-gauge-main{gap:8px;}
-  .stats-period-selector{order:1;}
-  .stats-kpi-block{order:2;}
+  .stats-period-selector{
+    order:1;
+    display:flex;
+    flex-direction:row;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:8px;
+    width:100%;
+  }
+  .stats-period-btn{
+    flex:0 0 auto;
+    white-space:nowrap;
+    word-break:normal;
+  }
+  .stats-kpi-block{
+    order:2;
+    display:flex;
+    flex-wrap:wrap;
+    align-items:center;
+    gap:6px;
+    width:100%;
+  }
+  .stats-kpi-block > *{
+    margin:0;
+  }
   .stats-thermometer-wrap{
     order:3;
     grid-template-columns:auto auto;
