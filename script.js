@@ -163,11 +163,10 @@ const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
 const statsThisWeekTimeEl = document.getElementById("stats-this-week-time");
 const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
 const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
-const statsMobileYesterdayTimeEl = document.getElementById("stats-mobile-yesterday-time");
 const statsMobileThisWeekTimeEl = document.getElementById("stats-mobile-this-week-time");
 const statsMobileLastWeekTimeEl = document.getElementById("stats-mobile-last-week-time");
 const statsMobileThisMonthTimeEl = document.getElementById("stats-mobile-this-month-time");
-const statsMobileLastMonthTimeEl = document.getElementById("stats-mobile-last-month-time");
+const statsMobileTodayTimeEl = document.getElementById("stats-mobile-today-time");
 const statsLast7DaysEl = document.getElementById("stats-last-7-days");
 const statsPeriodButtons = document.querySelectorAll(".stats-period-btn");
 const statsKpiLabelEl = document.getElementById("stats-kpi-label");
@@ -1570,11 +1569,10 @@ function refreshTimeSummaryUI() {
   if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
   if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
   if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsMobileYesterdayTimeEl) statsMobileYesterdayTimeEl.textContent = formatHHMMSS(aggregates.yesterday);
   if (statsMobileThisWeekTimeEl) statsMobileThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
   if (statsMobileLastWeekTimeEl) statsMobileLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
   if (statsMobileThisMonthTimeEl) statsMobileThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsMobileLastMonthTimeEl) statsMobileLastMonthTimeEl.textContent = formatHHMMSS(aggregates.lastMonth);
+  if (statsMobileTodayTimeEl) statsMobileTodayTimeEl.textContent = formatHHMMSS(aggregates.today);
   if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
 
   updateGaugeUI(aggregates);
