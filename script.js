@@ -178,7 +178,6 @@ const statsThermometerFillEl = document.getElementById("stats-thermometer-fill")
 const statsThermometerMarkerEl = document.getElementById("stats-thermometer-marker");
 const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
 const statsRewardTabButtons = document.querySelectorAll(".stats-reward-tab");
-const statsRewardControlsEl = document.getElementById("stats-reward-controls");
 const statsRewardCardsEl = document.getElementById("stats-reward-cards");
 const statsCloseBtn = document.getElementById("stats-close-btn");
 const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
@@ -224,8 +223,6 @@ const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
 
 let statsSelectedPeriod = "day";
 let statsRewardTab = "days";
-let statsRewardMonthCursor = new Date().getMonth();
-let statsRewardYearCursor = new Date().getFullYear();
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 
@@ -1390,32 +1387,6 @@ function getTotalsEntries() {
   })).filter((item) => item.date instanceof Date && !Number.isNaN(item.date.getTime()));
 }
 
-function getMonthYearLabel(monthIndex, year) {
-  return new Date(year, monthIndex, 1).toLocaleDateString("mn-MN", { month: "long", year: "numeric" });
-}
-
-function clampRewardCursor() {
-  const now = new Date();
-  const entries = getTotalsEntries();
-  if (!entries.length) {
-    statsRewardYearCursor = now.getFullYear();
-    statsRewardMonthCursor = now.getMonth();
-    return;
-  }
-  const years = entries.map((item) => item.date.getFullYear());
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  statsRewardYearCursor = Math.max(minYear, Math.min(maxYear, statsRewardYearCursor));
-  if (statsRewardMonthCursor < 0) {
-    statsRewardMonthCursor = 11;
-    statsRewardYearCursor -= 1;
-  }
-  if (statsRewardMonthCursor > 11) {
-    statsRewardMonthCursor = 0;
-    statsRewardYearCursor += 1;
-  }
-}
-
 function getMonthTotalSeconds(monthIndex, year) {
   return getTotalsEntries().reduce((sum, item) => {
     if (item.date.getFullYear() === year && item.date.getMonth() === monthIndex) return sum + item.seconds;
@@ -1467,31 +1438,17 @@ function getWeekBucketsForMonth(monthIndex, year, totals = getAppTimeDailyTotals
   return buckets;
 }
 
-function renderStatsRewardControls() {
-  if (!statsRewardControlsEl) return;
-  statsRewardControlsEl.innerHTML = `<button class="secondary stats-reward-nav-btn" type="button" data-nav="prev">◀</button><p class="chip-label stats-reward-period">${getMonthYearLabel(statsRewardMonthCursor, statsRewardYearCursor)}</p><button class="secondary stats-reward-nav-btn" type="button" data-nav="next">▶</button>`;
-
-  statsRewardControlsEl.querySelectorAll(".stats-reward-nav-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const nav = btn.dataset.nav;
-      if (nav === "prev") statsRewardMonthCursor -= 1;
-      if (nav === "next") statsRewardMonthCursor += 1;
-      clampRewardCursor();
-      renderRewardsTab();
-    });
-  });
-}
-
 function renderRewardsTab() {
   if (!statsRewardCardsEl) return;
-  clampRewardCursor();
-  renderStatsRewardControls();
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
 
   if (statsRewardTab === "days") {
     const totals = getAppTimeDailyTotals();
-    const daysInMonth = new Date(statsRewardYearCursor, statsRewardMonthCursor + 1, 0).getDate();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     statsRewardCardsEl.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
-      const dt = new Date(statsRewardYearCursor, statsRewardMonthCursor, day);
+      const dt = new Date(currentYear, currentMonth, day);
       const key = getLocalDateKey(dt);
       const seconds = Math.max(0, Math.floor(Number(totals[key]) || 0));
       const tier = rewardTierForDailySeconds(seconds);
@@ -1508,7 +1465,7 @@ function renderRewardsTab() {
 
   if (statsRewardTab === "weeks") {
     const weeklyNorm = (10 * 3600) + (30 * 60);
-    const cards = getWeekBucketsForMonth(statsRewardMonthCursor, statsRewardYearCursor, getAppTimeDailyTotals()).map((week) => {
+    const cards = getWeekBucketsForMonth(currentMonth, currentYear, getAppTimeDailyTotals()).map((week) => {
       const percent = weeklyNorm > 0 ? (week.seconds / weeklyNorm) * 100 : 0;
       const tier = rewardTierByPercent(percent);
       const reward = statsRewardDefs[tier - 1];
@@ -1526,12 +1483,12 @@ function renderRewardsTab() {
 
   if (statsRewardTab === "months") {
     const cards = Array.from({ length: 12 }, (_, monthIndex) => {
-      const seconds = getMonthTotalSeconds(monthIndex, statsRewardYearCursor);
-      const norm = 90 * 60 * new Date(statsRewardYearCursor, monthIndex + 1, 0).getDate();
+      const seconds = getMonthTotalSeconds(monthIndex, currentYear);
+      const norm = 90 * 60 * new Date(currentYear, monthIndex + 1, 0).getDate();
       const percent = norm > 0 ? (seconds / norm) * 100 : 0;
       const tier = rewardTierByPercent(percent);
       return buildRewardCard({
-        title: new Date(statsRewardYearCursor, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
+        title: new Date(currentYear, monthIndex, 1).toLocaleDateString("mn-MN", { month: "short" }),
         tier,
         thresholdText: `${percent.toFixed(1)}%`,
         ratingLabel: getPercentRatingLabel(percent),
@@ -1542,11 +1499,11 @@ function renderRewardsTab() {
   }
 
   const yearlyNorm = 90 * 60 * 365;
-  const seconds = getYearTotalSeconds(statsRewardYearCursor);
+  const seconds = getYearTotalSeconds(currentYear);
   const percent = yearlyNorm > 0 ? (seconds / yearlyNorm) * 100 : 0;
   const tier = rewardTierByPercent(percent);
   statsRewardCardsEl.innerHTML = buildRewardCard({
-    title: `${statsRewardYearCursor}`,
+    title: `${currentYear}`,
     tier,
     thresholdText: `${percent.toFixed(1)}%`,
     ratingLabel: getPercentRatingLabel(percent),
