@@ -2492,7 +2492,7 @@ body{
 
 .stats-card .stats-label,
 .stats-card .stats-value{
-  overflow-wrap:anywhere;
+  overflow-wrap:break-word;
 }
 
 .stats-value.chip-time{
@@ -2563,18 +2563,40 @@ body{
 }
 
 
-@media (max-width:640px){
+@media (max-width:600px){
   .stats-period-btn{padding:6px 10px;font-size:.8rem;}
   .stats-kpi-value{font-size:1.45rem;}
-  .stats-thermometer-wrap{grid-template-columns:auto auto;}
-}
-@media (max-width:640px){
+
   .stats-grid{grid-template-columns:1fr;}
+  .stats-card .stats-label,
+  .stats-card .stats-value{
+    overflow-wrap:normal;
+    word-break:normal;
+  }
+
+  .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
+  .stats-gauge-main{gap:8px;}
+  .stats-period-selector{order:1;}
+  .stats-kpi-block{order:2;}
+  .stats-thermometer-wrap{
+    order:3;
+    grid-template-columns:auto auto;
+    justify-content:flex-start;
+    justify-items:start;
+  }
+
   .stats-reward-header{flex-direction:column;align-items:stretch;}
-  .stats-reward-header-controls{align-items:center;flex-wrap:wrap;}
-  .stats-reward-tabs{justify-content:flex-start;}
-  .stats-reward-controls{justify-content:flex-end;}
-  .stats-reward-cards{grid-template-columns:1fr;}
+  .stats-reward-header-controls{display:block;}
+  .stats-reward-tabs{
+    justify-content:flex-start;
+    flex-wrap:nowrap;
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:4px;
+  }
+  .stats-reward-controls{justify-content:space-between;margin-top:8px;}
+  .stats-reward-cards{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .stats-reward-img{width:min(128px,100%);}
 }
 
 #qa-game-screen .sentence-game-reward-middle{
