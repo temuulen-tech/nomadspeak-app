@@ -2619,8 +2619,6 @@ body{
 .stats-reward-left,.stats-reward-right{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;align-items:center;min-width:0;}
 
 
-#stats-close-btn{margin-top:6px;width:100%;}
-
 @media (min-width:900px){
   .profile-grid,
   .premium-features{

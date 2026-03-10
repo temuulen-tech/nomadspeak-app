@@ -77,8 +77,8 @@ const introPanel = document.getElementById("intro-panel");
 const introCloseBtn = document.getElementById("intro-close-btn");
 const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
-const backBtn = document.getElementById("back-btn");
 const finalTextEl = document.getElementById("final-text");
+const homeShell = document.getElementById("home-shell");
 
 const navHomeBtn = document.getElementById("nav-home-btn");
 const navLessonBtn = document.getElementById("nav-lesson-btn");
@@ -170,7 +170,6 @@ const statsThermometerMarkerEl = document.getElementById("stats-thermometer-mark
 const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
 const statsRewardTabButtons = document.querySelectorAll(".stats-reward-tab");
 const statsRewardCardsEl = document.getElementById("stats-reward-cards");
-const statsCloseBtn = document.getElementById("stats-close-btn");
 const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
 const timeDetailsButtons = document.querySelectorAll(".time-details-btn");
 const timeDetailsModalEl = document.getElementById("time-details-modal");
@@ -415,13 +414,16 @@ const SCREEN_IDS = {
   [endScreen.id]: "end",
 };
 
-const PLAY_SCREEN_IDS = new Set([
-  quizScreen.id,
-  sentencesScreen.id,
-  sentenceGameScreen.id,
-  qaGameScreen.id,
-  endScreen.id,
-]);
+const SCREENS = {
+  start: startScreen,
+  lesson: quizScreen,
+  sentences: sentencesScreen,
+  "sentence-game": sentenceGameScreen,
+  "qa-game": qaGameScreen,
+  stats: statsScreen,
+  profile: profileScreen,
+  end: endScreen,
+};
 
 function setAppMode(mode) {
   if (!document.body) return;
@@ -1832,69 +1834,71 @@ function getAllAnswersExcept(correct) {
   return all.filter(a => a !== correct);
 }
 
-function showScreen(screen) {
+function showScreen(screenId) {
+  const targetScreen = typeof screenId === "string"
+    ? SCREENS[screenId]
+    : screenId;
+  if (!targetScreen) return;
+
   const wasSentenceGameVisible = sentenceGameScreenVisible();
   const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
   const wasSentencesVisible = sentencesScreen && !sentencesScreen.classList.contains("hidden");
   const wasLessonVisible = quizScreen && !quizScreen.classList.contains("hidden");
 
-  hide(startScreen);
-  hide(quizScreen);
-  hide(sentencesScreen);
-  hide(sentenceGameScreen);
-  hide(qaGameScreen);
-  hide(statsScreen);
-  hide(profileScreen);
-  hide(endScreen);
-  show(screen);
+  Object.values(SCREENS).forEach((screenEl) => hide(screenEl));
+  show(targetScreen);
 
-  if (screen === quizScreen) {
+  if (homeShell) {
+    homeShell.classList.toggle("hidden", targetScreen !== startScreen);
+  }
+
+  if (targetScreen === quizScreen) {
     show(topbar);
   } else {
     hide(topbar);
   }
 
-  if (screen === profileScreen) {
+  if (targetScreen === profileScreen) {
     updateProfileUI();
   }
 
-  if (screen === sentenceGameScreen && !wasSentenceGameVisible) {
+  if (targetScreen === sentenceGameScreen && !wasSentenceGameVisible) {
     beginSentenceGameSession();
   }
 
-  if (screen !== sentenceGameScreen && wasSentenceGameVisible) {
+  if (targetScreen !== sentenceGameScreen && wasSentenceGameVisible) {
     endSentenceGameSession();
   }
 
-  if (screen === quizScreen && !wasLessonVisible) {
+  if (targetScreen === quizScreen && !wasLessonVisible) {
     startLessonTimer();
   }
 
-  if (screen !== quizScreen && wasLessonVisible) {
+  if (targetScreen !== quizScreen && wasLessonVisible) {
     stopLessonTimer();
   }
 
-  if (screen === qaGameScreen && !wasQaGameVisible && qaGameLevel) {
+  if (targetScreen === qaGameScreen && !wasQaGameVisible && qaGameLevel) {
     startQaTimer();
   }
 
-  if (screen !== qaGameScreen && wasQaGameVisible) {
+  if (targetScreen !== qaGameScreen && wasQaGameVisible) {
     stopQaTimer();
   }
 
-  if (screen === sentencesScreen && !wasSentencesVisible) {
+  if (targetScreen === sentencesScreen && !wasSentencesVisible) {
     startSentencesTimer();
   }
 
-  if (screen !== sentencesScreen && wasSentencesVisible) {
+  if (targetScreen !== sentencesScreen && wasSentencesVisible) {
     stopSentencesTimer();
   }
 
-  const screenId = screen && screen.id ? SCREEN_IDS[screen.id] || screen.id : null;
-  const playModeActive = Boolean(screen && screen.id && PLAY_SCREEN_IDS.has(screen.id));
+  const resolvedScreenId = targetScreen.id ? SCREEN_IDS[targetScreen.id] || targetScreen.id : null;
+  const playModeActive = targetScreen !== startScreen;
   setAppMode(playModeActive ? "play" : "home");
 
-  startSession(screenId);
+  startSession(resolvedScreenId);
   startTimeUiUpdater();
   refreshTimeSummaryUI();
 
@@ -1905,7 +1909,7 @@ function navigateTo(destination) {
   if (destination === "home") {
     stopSpeaking();
     hideStartIntroPanel();
-    showScreen(startScreen);
+    showScreen("start");
   }
 
   if (destination === "lesson") {
@@ -1917,31 +1921,31 @@ function navigateTo(destination) {
 
   if (destination === "sentences") {
     stopSpeaking();
-    showScreen(sentencesScreen);
+    showScreen("sentences");
   }
 
   if (destination === "sentence-game") {
     stopSpeaking();
-    showScreen(sentenceGameScreen);
+    showScreen("sentence-game");
     initSentenceGameRound();
     enforceFreeXpGate();
   }
 
   if (destination === "qa-game") {
     stopSpeaking();
-    showScreen(qaGameScreen);
+    showScreen("qa-game");
     resetQaGameScreen();
   }
 
   if (destination === "stats") {
     stopSpeaking();
-    showScreen(statsScreen);
+    showScreen("stats");
     updateStatsUI();
   }
 
   if (destination === "profile") {
     stopSpeaking();
-    showScreen(profileScreen);
+    showScreen("profile");
   }
 }
 
@@ -3490,16 +3494,6 @@ function setStartLevelMenuOpen(isOpen) {
   startBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
 }
 
-function backToStart() {
-  stopSpeaking();
-  hideStartIntroPanel();
-  setStartLevelMenuOpen(false);
-  questions = [];
-  currentIndex = 0;
-  lessonReviewMode = false;
-  showScreen(startScreen);
-}
-
 function exitPlayModeToHome() {
   stopSpeaking();
   hideStartIntroPanel();
@@ -4137,7 +4131,6 @@ document.addEventListener("click", (event) => {
 
 nextBtn.addEventListener("click", nextQuestion);
 restartBtn.addEventListener("click", startQuiz);
-backBtn.addEventListener("click", backToStart);
 sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
 sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
 sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
@@ -4216,10 +4209,6 @@ statsRewardTabButtons.forEach((btn) => {
     renderRewardsTab();
   });
 });
-
-if (statsCloseBtn) {
-  statsCloseBtn.addEventListener("click", () => requestNavigation("home"));
-}
 
 if (premiumOkBtn) {
   premiumOkBtn.addEventListener("click", closePremiumModal);
