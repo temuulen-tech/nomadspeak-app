@@ -154,18 +154,10 @@ const statsTotalXpEl = document.getElementById("stats-total-xp");
 const statsLevelEl = document.getElementById("stats-level");
 const statsStreakEl = document.getElementById("stats-streak");
 const statsTodayProgressEl = document.getElementById("stats-today-progress");
-const statsMobileTotalXpEl = document.getElementById("stats-mobile-total-xp");
-const statsMobileLevelEl = document.getElementById("stats-mobile-level");
-const statsMobileStreakEl = document.getElementById("stats-mobile-streak");
-const statsMobileTodayProgressEl = document.getElementById("stats-mobile-today-progress");
 const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
 const statsThisWeekTimeEl = document.getElementById("stats-this-week-time");
 const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
 const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
-const statsMobileThisWeekTimeEl = document.getElementById("stats-mobile-this-week-time");
-const statsMobileLastWeekTimeEl = document.getElementById("stats-mobile-last-week-time");
-const statsMobileThisMonthTimeEl = document.getElementById("stats-mobile-this-month-time");
-const statsMobileTodayTimeEl = document.getElementById("stats-mobile-today-time");
 const statsLast7DaysEl = document.getElementById("stats-last-7-days");
 const statsPeriodButtons = document.querySelectorAll(".stats-period-btn");
 const statsKpiLabelEl = document.getElementById("stats-kpi-label");
@@ -1571,10 +1563,6 @@ function refreshTimeSummaryUI() {
   if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
   if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
   if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsMobileThisWeekTimeEl) statsMobileThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
-  if (statsMobileLastWeekTimeEl) statsMobileLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
-  if (statsMobileThisMonthTimeEl) statsMobileThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsMobileTodayTimeEl) statsMobileTodayTimeEl.textContent = formatHHMMSS(aggregates.today);
   if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
 
   updateGaugeUI(aggregates);
@@ -1608,10 +1596,6 @@ function updateStatsUI() {
   if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
   if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
   if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
-  if (statsMobileTotalXpEl) statsMobileTotalXpEl.textContent = String(progressState.xp);
-  if (statsMobileLevelEl) statsMobileLevelEl.textContent = `Lv.${progressState.level}`;
-  if (statsMobileStreakEl) statsMobileStreakEl.textContent = `${progressState.streak} өдөр`;
-  if (statsMobileTodayProgressEl) statsMobileTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
 
   refreshTimeSummaryUI();
 
