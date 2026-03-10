@@ -440,53 +440,40 @@
       </div>
       <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
 
-      <div class="progress-stats-desktop" id="progress-stats-desktop">
-        <div class="stats-grid" id="progress-stats-grid">
-          <article class="stats-card">
-            <p class="stats-label chip-label">⭐ Оноо</p>
-            <p class="stats-value" id="stats-total-xp">0</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">📈 Миний түвшин</p>
-            <p class="stats-value" id="stats-level">Lv.1</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">🔥 Дарааллаж хичээлсэн өдөр</p>
-            <p class="stats-value" id="stats-streak">0 өдөр</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">📅 Өнөөдрийн ахиц</p>
-            <p class="stats-value" id="stats-today-progress">0/10</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">Энэ долоо хоног</p>
-            <p class="stats-value chip-time" id="stats-this-week-time">00:00:00</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">Өнгөрсөн долоо хоног</p>
-            <p class="stats-value chip-time" id="stats-last-week-time">00:00:00</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">Энэ сар</p>
-            <p class="stats-value chip-time" id="stats-this-month-time">00:00:00</p>
-          </article>
-          <article class="stats-card">
-            <p class="stats-label chip-label">Өнөөдөр</p>
-            <p class="stats-value chip-time" id="stats-today-minutes">00:00:00</p>
-          </article>
-        </div>
-      </div>
-
-      <div class="progress-stats-mobile" id="progress-stats-mobile" aria-label="Ахицын товч мэдээлэл">
-        <div class="progress-stats-mobile-row"><span class="chip-label">⭐ Оноо</span><span class="chip-time" id="stats-mobile-total-xp">45</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">📈 Миний түвшин</span><span class="chip-time" id="stats-mobile-level">Lv.1</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">🔥 Дарааллаж хичээллэсэн өдөр</span><span class="chip-time" id="stats-mobile-streak">4 өдөр</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">📅 Өнөөдрийн ахиц</span><span class="chip-time" id="stats-mobile-today-progress">0/10</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">Энэ долоо хоног</span><span class="chip-time" id="stats-mobile-this-week-time">HH:MM:SS</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">Өнгөрсөн долоо хоног</span><span class="chip-time" id="stats-mobile-last-week-time">HH:MM:SS</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">Энэ сар</span><span class="chip-time" id="stats-mobile-this-month-time">HH:MM:SS</span></div>
-        <div class="progress-stats-mobile-row"><span class="chip-label">Өнөөдөр</span><span class="chip-time" id="stats-mobile-today-time">HH:MM:SS</span></div>
-      </div>
+      <section class="progress-summary" aria-label="Ахицын товч мэдээлэл">
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">⭐ Оноо</p>
+          <p class="progress-summary-value" id="stats-total-xp">0</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">📈 Миний түвшин</p>
+          <p class="progress-summary-value" id="stats-level">Lv.1</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">🔥 Дарааллаж хичээллэсэн өдөр</p>
+          <p class="progress-summary-value" id="stats-streak">0 өдөр</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">📅 Өнөөдрийн ахиц</p>
+          <p class="progress-summary-value" id="stats-today-progress">0/10</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">Энэ долоо хоног</p>
+          <p class="progress-summary-value chip-time" id="stats-this-week-time">00:00:00</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">Өнгөрсөн долоо хоног</p>
+          <p class="progress-summary-value chip-time" id="stats-last-week-time">00:00:00</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">Энэ сар</p>
+          <p class="progress-summary-value chip-time" id="stats-this-month-time">00:00:00</p>
+        </article>
+        <article class="progress-summary-card">
+          <p class="chip-label progress-summary-label">Өнөөдөр</p>
+          <p class="progress-summary-value chip-time" id="stats-today-minutes">00:00:00</p>
+        </article>
+      </section>
 
       <article class="stats-panel control-panel-gold-outline">
         <div class="stats-panel-header">
