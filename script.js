@@ -102,6 +102,7 @@ const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice
 const ttsRateSlider = document.getElementById("tts-rate-slider");
 const ttsRateValueEl = document.getElementById("tts-rate-value");
 const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
+const playExitButtons = document.querySelectorAll(".play-exit-btn");
 const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
 const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
 const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
@@ -180,7 +181,6 @@ const timeDetailsLastWeekEl = document.getElementById("time-details-last-week");
 const timeDetailsThisMonthEl = document.getElementById("time-details-this-month");
 const timeDetailsLastMonthEl = document.getElementById("time-details-last-month");
 
-const qaGameBackBtn = document.getElementById("qa-game-back-btn");
 const qaRewardBarEl = document.getElementById("qa-reward-bar");
 const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".reward-img") : [];
 const lessonRewardBarEl = document.getElementById("lesson-reward-bar");
@@ -414,6 +414,19 @@ const SCREEN_IDS = {
   [profileScreen.id]: "profile",
   [endScreen.id]: "end",
 };
+
+const PLAY_SCREEN_IDS = new Set([
+  quizScreen.id,
+  sentencesScreen.id,
+  sentenceGameScreen.id,
+  qaGameScreen.id,
+  endScreen.id,
+]);
+
+function setAppMode(mode) {
+  if (!document.body) return;
+  document.body.dataset.mode = mode;
+}
 
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
@@ -1878,6 +1891,9 @@ function showScreen(screen) {
   }
 
   const screenId = screen && screen.id ? SCREEN_IDS[screen.id] || screen.id : null;
+  const playModeActive = Boolean(screen && screen.id && PLAY_SCREEN_IDS.has(screen.id));
+  setAppMode(playModeActive ? "play" : "home");
+
   startSession(screenId);
   startTimeUiUpdater();
   refreshTimeSummaryUI();
@@ -3484,6 +3500,16 @@ function backToStart() {
   showScreen(startScreen);
 }
 
+function exitPlayModeToHome() {
+  stopSpeaking();
+  hideStartIntroPanel();
+  closeHomeModesPanel();
+  setStartLevelMenuOpen(false);
+  persistAllActiveTime();
+  stopSession();
+  requestNavigation("home");
+}
+
 function formatQaBuiltLine(tokens) {
   return tokens.join(" ").replace(/\s+([?.])/g, "$1");
 }
@@ -3941,7 +3967,6 @@ if (qaToggleAnswerBtn) {
     qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
   });
 }
-if (qaGameBackBtn) qaGameBackBtn.addEventListener("click", () => requestNavigation("home"));
 if (qaShowSentencesBtn) {
   qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
 }
@@ -3976,6 +4001,7 @@ updateSentenceFilterActiveState();
 setSentencesLevelPickerOpen(false);
 setStartLevelMenuOpen(false);
 updateStartButtonLabel();
+setAppMode("home");
 
 startLevelOptions.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -4062,6 +4088,10 @@ soundToggleButtons.forEach(toggleBtn => {
     updateSoundToggleState();
     persistSoundSettings();
   });
+});
+
+playExitButtons.forEach((btn) => {
+  btn.addEventListener("click", exitPlayModeToHome);
 });
 
 navHomeBtn.addEventListener("click", () => requestNavigation("home"));

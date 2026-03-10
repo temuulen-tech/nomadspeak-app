@@ -8,7 +8,7 @@
   <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
 </head>
-<body>
+<body data-mode="home">
 
   <div class="phone-preview-shell">
     <div class="phone-frame" role="presentation" aria-hidden="true">
@@ -16,7 +16,7 @@
     </div>
 
     <div class="app">
-    <header class="header">
+    <header class="header home-only">
       <button
         class="profile-icon-btn"
         id="nav-profile-btn"
@@ -79,7 +79,7 @@
 
     </header>
 
-    <div class="completion-banner hidden" id="completion-banner" role="status" aria-live="polite">
+    <div class="completion-banner hidden home-only" id="completion-banner" role="status" aria-live="polite">
       <span class="banner-text">Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.</span>
       <div class="banner-overlay" aria-hidden="true">
         <div class="banner-effects"></div>
@@ -87,7 +87,7 @@
     </div>
 
     <!-- START SCREEN -->
-    <section class="card" id="start-screen">
+    <section class="card home-only" id="start-screen">
       <div class="start-hero" aria-hidden="true">
         <div class="start-hero-content">
           <span class="start-hero-chip">Premium Learning</span>
@@ -105,6 +105,7 @@
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header">
         <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
         <div class="time-widget">
@@ -186,6 +187,7 @@
 
     <!-- SENTENCES SCREEN -->
     <section class="card hidden" id="sentences-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header sentences-panel-header">
         <div class="sentences-title-stack">
           <h2 class="screen-title-chip chip-title">Асуугаад &amp; Хариулаарай</h2>
@@ -269,6 +271,7 @@
 
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden" id="sentence-game-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-top">
         <div class="sentence-game-top-header">
@@ -354,6 +357,7 @@
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden" id="qa-game-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header">
         <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
         <div class="time-widget">
@@ -364,7 +368,6 @@
         <button class="secondary" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
         <button class="secondary vault-open-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
         <button class="secondary vault-save-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
-        <button class="secondary" id="qa-game-back-btn" type="button">← Буцах</button>
       </div>
 
       <div class="sentence-game-reward-middle control-panel-gold-outline">
@@ -590,6 +593,7 @@
 
     <!-- END SCREEN -->
     <section class="card hidden" id="end-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header">
         <h2 class="screen-title-chip chip-title">Дууслаа 🎉</h2>
         <div class="time-widget">
@@ -606,7 +610,7 @@
       </div>
     </section>
 
-    <footer class="footer">
+    <footer class="footer home-only">
       <span class="muted">© NomadSpeak</span>
     </footer>
     </div>
