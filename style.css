@@ -763,10 +763,9 @@ body{
 }
 
 .premium-intro-btn{
-  border:1px solid rgba(255,221,135,.96);
-  background:
-    linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
-  color:#291404;
+  border:1px solid rgba(116,255,191,.85);
+  background:linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);
+  color:#f8fffb;
   border-radius:12px;
   padding:8px 12px;
   font-size:14px;
@@ -3072,4 +3071,147 @@ body{
 .control-panel-gold-outline{
   border-color:rgba(255,218,126,.72);
   box-shadow:0 0 0 1px rgba(255,239,185,.16) inset, 0 0 16px rgba(255,203,92,.22);
+}
+
+.chip-title,
+.screen-title-chip,
+.chip-label,
+.chip-time,
+.status-pill,
+.today-time,
+.stats-section-chip,
+.stats-kpi-value,
+.stats-kpi-meta,
+.stats-reward-title,
+.stats-reward-subtitle,
+.stats-reward-range,
+.stats-reward-tier,
+.stats-reward-threshold,
+.stats-reward-rating{
+  background:var(--chip-bg);
+  color:var(--chip-text);
+}
+
+@media (max-width:600px){
+  .app{
+    min-height:auto;
+    max-height:none;
+    overflow:visible;
+  }
+
+  .panel-header,
+  .stats-gauge-layout,
+  .stats-thermometer-wrap,
+  .progress-summary,
+  .stats-reward-cards,
+  .profile-grid,
+  .premium-features,
+  .sentences-controls-grid,
+  .sentence-game-top-header,
+  .lesson-answers-grid{
+    grid-template-columns:1fr;
+  }
+
+  .sentences-list,
+  .stats-reward-cards,
+  .vault-body{
+    max-height:none;
+    overflow:visible;
+    padding-right:0;
+  }
+
+  .sentence-row,
+  .sentence-row-actions,
+  .vault-actions,
+  .vault-footer-buttons,
+  .sentence-game-actions,
+  .qa-toggle-row,
+  .qa-bottom-actions,
+  .stats-reward-main,
+  .stats-reward-left,
+  .stats-reward-right{
+    flex-direction:column;
+    align-items:stretch;
+    width:100%;
+  }
+
+  .sentence-row .speak-btn,
+  .sentence-save-btn,
+  .sentence-game-actions button,
+  .qa-bottom-actions button,
+  .vault-footer-buttons button,
+  .vault-actions button,
+  .stats-reward-tab,
+  .stats-reward-nav-btn,
+  .time-details-btn{
+    width:100%;
+    max-width:100%;
+  }
+
+  .stats-reward-tabs{
+    flex-wrap:wrap;
+    overflow:visible;
+  }
+
+  .reward-row,
+  .sentence-game-reward-row,
+  .sentence-game-difficulty-panel,
+  .topbar,
+  .status-bar,
+  .tts-controls,
+  .tts-group,
+  .lesson-controls-row,
+  .lesson-top-controls,
+  .lesson-audio-controls{
+    flex-wrap:wrap;
+  }
+
+  .start-intro-cta,
+  .start-intro-panel-head,
+  .stats-panel-header,
+  .stats-reward-header,
+  .stats-reward-header-controls,
+  .stats-reward-controls{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .premium-intro-btn,
+  .home-time-chip,
+  .start-level-picker,
+  .start-level-dropdown,
+  #start-btn,
+  #quiz-screen .lesson-top-controls .start-level-picker,
+  #quiz-screen .lesson-top-controls #start-btn,
+  #quiz-screen .lesson-top-controls #lesson-vault-btn,
+  #quiz-screen .lesson-audio-controls #lesson-save-btn,
+  #quiz-screen .lesson-audio-controls .sound-toggle-btn,
+  .sentences-vault-compact-btn,
+  .sentence-game-difficulty-btn,
+  .sentence-game-difficulty-toggle,
+  .sentence-game-tip-actions .secondary,
+  .sentence-game-tip-close-row .secondary,
+  .qa-level-options button,
+  .qa-chip{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
+
+  .stats-reward-card,
+  .vault-entry,
+  .sentence-row,
+  .progress-summary-card,
+  .card,
+  .stats-panel{
+    overflow:hidden;
+  }
+
+  #vault-modal .vault-modal,
+  .confirm-card,
+  .qa-modal-card{
+    width:100%;
+    max-width:100%;
+    min-width:0;
+  }
 }
