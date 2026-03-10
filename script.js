@@ -78,7 +78,6 @@ const introCloseBtn = document.getElementById("intro-close-btn");
 const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const finalTextEl = document.getElementById("final-text");
-const homeShell = document.getElementById("home-shell");
 
 const navHomeBtn = document.getElementById("nav-home-btn");
 const navLessonBtn = document.getElementById("nav-lesson-btn");
@@ -102,7 +101,7 @@ const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice
 const ttsRateSlider = document.getElementById("tts-rate-slider");
 const ttsRateValueEl = document.getElementById("tts-rate-value");
 const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
-const playExitButtons = document.querySelectorAll(".play-exit-btn");
+const playExitButtons = document.querySelectorAll(".play-exit-btn, .game-exit-btn");
 const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
 const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
 const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
@@ -427,7 +426,10 @@ const SCREENS = {
 
 function setAppMode(mode) {
   if (!document.body) return;
-  document.body.dataset.mode = mode;
+  const resolvedMode = mode === "home" ? "home" : "learning";
+  document.body.dataset.mode = resolvedMode;
+  document.body.classList.toggle("mode-home", resolvedMode === "home");
+  document.body.classList.toggle("mode-learning", resolvedMode === "learning");
 }
 
 function registerServiceWorker() {
@@ -1848,10 +1850,6 @@ function showScreen(screenId) {
   Object.values(SCREENS).forEach((screenEl) => hide(screenEl));
   show(targetScreen);
 
-  if (homeShell) {
-    homeShell.classList.toggle("hidden", targetScreen !== startScreen);
-  }
-
   if (targetScreen === quizScreen) {
     show(topbar);
   } else {
@@ -1895,8 +1893,8 @@ function showScreen(screenId) {
   }
 
   const resolvedScreenId = targetScreen.id ? SCREEN_IDS[targetScreen.id] || targetScreen.id : null;
-  const playModeActive = targetScreen !== startScreen;
-  setAppMode(playModeActive ? "play" : "home");
+  const learningModeActive = targetScreen !== startScreen;
+  setAppMode(learningModeActive ? "learning" : "home");
 
   startSession(resolvedScreenId);
   startTimeUiUpdater();
@@ -4088,14 +4086,14 @@ playExitButtons.forEach((btn) => {
   btn.addEventListener("click", exitPlayModeToHome);
 });
 
-navHomeBtn.addEventListener("click", () => requestNavigation("home"));
+if (navHomeBtn) navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
 if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
 if (navModesBtn) navModesBtn.addEventListener("click", toggleHomeModesPanel);
-navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
-navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
+if (navStatsBtn) navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
+if (navProfileBtn) navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
 
 document.addEventListener("click", (event) => {
   if (!homeModesPanel || !navModesBtn) return;
@@ -4249,8 +4247,12 @@ updateInstallHintVisibility();
 const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
 if (initialVisibleScreen) {
   const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
+  const isHomeVisible = initialVisibleScreen === startScreen;
+  setAppMode(isHomeVisible ? "home" : "learning");
   startSession(initialScreenId);
   startTimeUiUpdater();
+} else {
+  setAppMode("home");
 }
 
 loadSentences();

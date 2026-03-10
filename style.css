@@ -3214,7 +3214,8 @@ body{
   }
 }
 
-body[data-mode="play"] .home-only {
+body.mode-learning .home-only,
+body[data-mode="learning"] .home-only {
   display: none !important;
 }
 
@@ -3224,6 +3225,84 @@ body[data-mode="play"] .home-only {
   margin-bottom: 12px;
 }
 
-.play-exit-btn {
+.play-exit-btn,
+.game-exit-btn {
   min-width: 190px;
+}
+
+.game-exit-btn{
+  align-self:flex-start;
+}
+
+
+/* Learning mode full-screen shell and overlap fixes */
+body.mode-learning .app,
+body[data-mode="learning"] .app{
+  padding-top:16px;
+}
+
+#quiz-screen .panel-header,
+#qa-game-screen .panel-header,
+#stats-screen .panel-header,
+#profile-screen .panel-header,
+#sentences-screen .panel-header{
+  align-items:flex-start;
+  gap:12px;
+}
+
+#quiz-screen .panel-header > *,
+#sentences-screen .panel-header > *,
+#sentence-game-screen .sentence-game-top > *,
+#qa-game-screen .panel-header > *,
+#stats-screen .panel-header > *,
+#profile-screen .panel-header > *{
+  min-width:0;
+}
+
+#quiz-screen .sentence-game-reward-row,
+#sentences-screen .sentences-reward-strip,
+#sentence-game-screen .sentence-game-reward-row,
+#qa-game-screen .sentence-game-reward-row{
+  margin-top:8px;
+  margin-bottom:12px;
+}
+
+#quiz-screen .lesson-controls-panel,
+.sentences-top-controls,
+.sentence-game-control-panel{
+  width:100%;
+  max-width:100%;
+}
+
+@media (max-width:700px){
+  .play-exit-row{
+    margin-bottom:10px;
+  }
+
+  .play-exit-btn,
+  .game-exit-btn{
+    width:100%;
+    min-width:0;
+  }
+
+  .panel-header,
+  .sentences-panel-header,
+  .sentence-game-top-header{
+    row-gap:12px;
+  }
+
+  .reward-row,
+  .sentence-game-reward-row,
+  .sentences-reward-strip,
+  .lesson-controls-row,
+  .lesson-top-controls,
+  .lesson-audio-controls,
+  .sentences-header-actions,
+  .stats-reward-header-controls{
+    gap:10px;
+  }
+
+  .reward-tile{
+    flex:1 1 100%;
+  }
 }
