@@ -2391,6 +2391,105 @@ body{
   #quiz-screen .lesson-audio-controls .sound-toggle-btn{
     width:100%;
   }
+
+  #quiz-screen .panel-header{
+    display:flex;
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  #quiz-screen .lesson-title{
+    order:1;
+    width:100%;
+  }
+
+  #quiz-screen .lesson-controls-panel{
+    order:2;
+    justify-self:stretch;
+    align-items:stretch;
+    gap:10px;
+    padding:12px;
+  }
+
+  #quiz-screen .time-widget{
+    order:3;
+    margin:0;
+    gap:8px;
+  }
+
+  #quiz-screen .lesson-controls-panel .topbar{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+    gap:8px;
+    width:100%;
+  }
+
+  #quiz-screen .lesson-controls-row,
+  #quiz-screen .lesson-top-controls,
+  #quiz-screen .lesson-audio-controls{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    gap:8px;
+    width:100%;
+  }
+
+  #quiz-screen .start-level-picker,
+  #quiz-screen .lesson-top-controls #start-btn,
+  #quiz-screen .lesson-top-controls #lesson-vault-btn,
+  #quiz-screen .lesson-audio-controls #lesson-save-btn,
+  #quiz-screen .lesson-audio-controls .sound-toggle-btn{
+    width:100%;
+    min-width:0;
+  }
+
+  #quiz-screen .start-level-dropdown{
+    position:static;
+    width:100%;
+    margin-top:8px;
+    z-index:auto;
+  }
+
+  #quiz-screen .sentence-game-reward-middle{
+    margin-top:10px;
+    padding:12px 10px;
+    gap:12px;
+  }
+
+  #quiz-screen .sentence-game-reward-row{
+    margin-top:0;
+    justify-content:center;
+    gap:10px;
+    flex-wrap:wrap;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-tile{
+    flex:1 1 calc(50% - 10px);
+    max-width:180px;
+    margin:0;
+  }
+
+  #quiz-screen .question-text-wrap{
+    margin-top:8px;
+    gap:12px;
+  }
+
+  #quiz-screen .lesson-question-row{
+    margin-top:0;
+    gap:10px;
+  }
+}
+
+@media (max-width:420px){
+  #quiz-screen .lesson-controls-row,
+  #quiz-screen .lesson-top-controls,
+  #quiz-screen .lesson-audio-controls,
+  #quiz-screen .lesson-controls-panel .topbar,
+  #quiz-screen .sentence-game-reward-row .reward-tile{
+    grid-template-columns:1fr;
+    flex-basis:100%;
+    max-width:none;
+  }
 }
 
 @media (max-width:420px){
