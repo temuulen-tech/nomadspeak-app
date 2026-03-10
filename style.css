@@ -3215,3 +3215,17 @@ body{
     min-width:0;
   }
 }
+
+body[data-mode="play"] .home-only {
+  display: none !important;
+}
+
+.play-exit-row {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 12px;
+}
+
+.play-exit-btn {
+  min-width: 190px;
+}
