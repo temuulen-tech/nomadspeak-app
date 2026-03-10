@@ -16,6 +16,7 @@
     </div>
 
     <div class="app">
+    <div id="home-shell">
     <header class="header home-only">
       <button
         class="profile-icon-btn"
@@ -102,6 +103,8 @@
         <p class="muted">Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
       </div>
     </section>
+
+    </div>
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden" id="quiz-screen">
@@ -438,6 +441,7 @@
 
     <!-- STATS SCREEN -->
     <section class="card hidden" id="stats-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header">
         <h2 class="screen-title-chip chip-title">Миний ахиц &amp; Амжилт</h2>
       </div>
@@ -536,11 +540,11 @@
         <div class="stats-reward-cards" id="stats-reward-cards" aria-live="polite"></div>
       </article>
 
-      <button class="secondary" id="stats-close-btn" type="button">Хаах</button>
     </section>
 
     <!-- PROFILE SCREEN -->
     <section class="card hidden" id="profile-screen">
+      <div class="play-exit-row"><button class="primary play-exit-btn" type="button">Тоглоомоос гарах</button></div>
       <div class="panel-header">
         <h2 class="screen-title-chip chip-title">👤 Профайл</h2>
         <div class="time-widget">
@@ -606,7 +610,6 @@
 
       <div class="end-actions">
         <button class="primary" id="restart-btn">Дахин эхлэх</button>
-        <button class="secondary" id="back-btn">Буцаад түвшин сонгох</button>
       </div>
     </section>
 
