@@ -3499,7 +3499,8 @@ function exitPlayModeToHome() {
   setStartLevelMenuOpen(false);
   persistAllActiveTime();
   stopSession();
-  requestNavigation("home");
+  resetLessonProgress();
+  navigateTo("home");
 }
 
 function formatQaBuiltLine(tokens) {
