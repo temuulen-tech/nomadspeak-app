@@ -102,7 +102,6 @@ const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice
 const ttsRateSlider = document.getElementById("tts-rate-slider");
 const ttsRateValueEl = document.getElementById("tts-rate-value");
 const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
-const statusRewardEl = document.getElementById("status-reward");
 const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
 const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
 const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
@@ -1622,7 +1621,6 @@ function updateStatsUI() {
 function updateHeaderStatus() {
   loadProgressState();
   syncProgressForToday();
-  if (statusRewardEl) statusRewardEl.textContent = `⭐ Шагнал`;
 }
 
 

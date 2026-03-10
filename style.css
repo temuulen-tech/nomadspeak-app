@@ -2699,31 +2699,43 @@ body{
   .progress-stats-desktop{display:none !important;}
   .progress-stats-mobile{
     display:grid !important;
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(2,minmax(0,1fr));
     width:100%;
-    gap:8px;
+    gap:10px;
+    overflow:hidden;
   }
 
   .progress-stats-mobile-row{
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+    display:grid;
+    grid-template-rows:auto auto;
+    align-content:start;
     gap:8px;
-    min-height:0;
+    min-height:96px;
     width:100%;
+    min-width:0;
+    overflow:hidden;
+    padding:10px;
   }
 
   .progress-stats-mobile-row .chip-label,
   .progress-stats-mobile-row .chip-time{
-    width:auto;
-    max-width:calc(50% - 4px);
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    width:100%;
+    max-width:100%;
+    white-space:normal;
+    overflow-wrap:anywhere;
+    word-break:break-word;
+  }
+
+  .progress-stats-mobile-row .chip-label{
+    font-size:.74rem;
+    line-height:1.25;
+    justify-content:flex-start;
   }
 
   .progress-stats-mobile-row .chip-time{
-    margin-left:auto;
+    margin-left:0;
+    font-size:.82rem;
+    justify-content:flex-start;
   }
 
   .stats-gauge-layout{grid-template-columns:1fr;gap:10px;}
@@ -2833,12 +2845,13 @@ body{
 }
 
 @media (max-width:380px){
-  .progress-stats-mobile-row .chip-label{
-    max-width:58%;
+  .progress-stats-mobile{
+    gap:8px;
   }
 
-  .progress-stats-mobile-row .chip-time{
-    max-width:42%;
+  .progress-stats-mobile-row{
+    min-height:90px;
+    padding:9px;
   }
 }
 
