@@ -220,6 +220,7 @@ const lessonVaultBadge = document.getElementById("lesson-vault-badge");
 const lessonSaveBtn = document.getElementById("lesson-save-btn");
 const sentencesVaultBtn = document.getElementById("sentences-vault-btn");
 const sentencesVaultBadge = document.getElementById("sentences-vault-badge");
+const sentencesSaveBtn = document.getElementById("sentences-save-btn");
 const sentenceGameVaultBtn = document.getElementById("sentence-game-vault-btn");
 const sentenceGameVaultBadge = document.getElementById("sentence-game-vault-badge");
 const sentenceGameSaveBtn = document.getElementById("sentence-game-save-btn");
@@ -899,6 +900,7 @@ function saveCurrentSentenceGameItem() {
 }
 
 function saveSentenceListItem(item) {
+  if (!item) return;
   const payload = {
     id: `sentences:${String(item.en || "").toLowerCase().trim()}`,
     enSentence: item.en,
@@ -910,6 +912,13 @@ function saveSentenceListItem(item) {
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function saveCurrentSentencesItem() {
+  const visible = filteredSentences();
+  if (!visible.length) return;
+  const active = visible.find((item) => String(item.id) === String(speakingSentenceId || ""));
+  saveSentenceListItem(active || visible[0]);
 }
 
 function getLocalDateKey(date = new Date()) {
@@ -3923,6 +3932,7 @@ updateSentenceGameTipControls();
 resetQaGameScreen();
 
 if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
+if (sentencesSaveBtn) sentencesSaveBtn.addEventListener("click", saveCurrentSentencesItem);
 if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
 if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
 
