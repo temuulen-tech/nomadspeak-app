@@ -3318,6 +3318,48 @@ body[data-mode="learning"] .home-only {
   display: none !important;
 }
 
+.learning-layout-header{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:10px;
+}
+
+.learning-topbar{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+
+.learning-topbar-primary,
+.learning-topbar-utilities{
+  width:100%;
+}
+
+.learning-topbar-utilities{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  align-items:stretch;
+}
+
+.learning-utility-btn{
+  min-height:36px;
+  padding:7px 10px;
+  font-size:13px;
+  line-height:1.2;
+  border-radius:11px;
+  width:100%;
+  min-width:0;
+}
+
+.learning-exit-btn{
+  min-height:40px;
+  width:100%;
+  max-width:320px;
+}
+
 .play-exit-row {
   display: flex;
   justify-content: flex-start;
@@ -3346,7 +3388,7 @@ body[data-mode="learning"] .app{
 #profile-screen .panel-header,
 #sentences-screen .panel-header{
   align-items:flex-start;
-  gap:12px;
+  gap:10px;
 }
 
 #quiz-screen .panel-header > *,
@@ -3373,21 +3415,33 @@ body[data-mode="learning"] .app{
   max-width:100%;
 }
 
-@media (max-width:700px){
-  .play-exit-row{
-    margin-bottom:10px;
-  }
+#quiz-screen .panel-header .time-widget,
+#sentences-screen .panel-header .time-widget,
+#sentence-game-screen .sentence-game-top-header .time-widget,
+#qa-game-screen .panel-header .time-widget{
+  margin-top:0;
+}
 
-  .play-exit-btn,
-  .game-exit-btn{
-    width:100%;
-    min-width:0;
+@media (max-width:700px){
+  .learning-topbar-utilities{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:7px;
   }
 
   .panel-header,
   .sentences-panel-header,
   .sentence-game-top-header{
-    row-gap:12px;
+    row-gap:10px;
+  }
+
+  .learning-utility-btn{
+    min-height:34px;
+    padding:6px 9px;
+    font-size:12.5px;
+  }
+
+  .learning-exit-btn{
+    max-width:none;
   }
 
   .reward-row,
@@ -3398,10 +3452,16 @@ body[data-mode="learning"] .app{
   .lesson-audio-controls,
   .sentences-header-actions,
   .stats-reward-header-controls{
-    gap:10px;
+    gap:8px;
   }
 
   .reward-tile{
     flex:1 1 100%;
+  }
+}
+
+@media (max-width:480px){
+  .learning-topbar-utilities{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 }
