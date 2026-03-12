@@ -52,28 +52,29 @@
               NomadSpeak
             </h1>
             <p class="subtitle">English Learning Quiz</p>
-            <div class="start-intro-cta start-intro-cta-header">
-              <button class="premium-intro-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">
-                Апплекшны танилцуулга
-              </button>
-              <div class="today-time chip-time home-time-chip">Өнөөдрийн хугацаа: <span id="today-time-start">00:00:00</span></div>
-            </div>
+            <div class="today-time chip-time home-time-chip">Өнөөдрийн хугацаа: <span id="today-time-start">00:00:00</span></div>
           </div>
         </div>
 
         <div class="header-right">
-          <div class="header-nav" aria-label="Үндсэн навигаци">
-            <button class="primary nav-btn home-start-btn" id="nav-home-btn" type="button">Эхлэл</button>
-            <div class="home-modes-menu-wrap">
-              <button class="secondary nav-btn" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">Тоглоом &amp; Хичээлүүд</button>
-              <div class="home-modes-panel hidden" id="home-modes-panel" role="menu" aria-label="Тоглоом ба хичээлүүд">
-                <button class="home-modes-option" id="nav-lesson-btn" type="button" role="menuitem">Зөв хариулт сонгоорой</button>
-                <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
-                <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэрийн тоглоом</button>
-                <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">Асуулт хариулт бүтээх тоглоом</button>
+          <button class="primary nav-btn home-start-btn home-hidden-nav" id="nav-home-btn" type="button" tabindex="-1" aria-hidden="true">Эхлэл</button>
+          <div class="home-header-actions" aria-label="Үндсэн навигаци">
+            <button class="premium-intro-btn home-intro-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">
+              <span>Апплекшиний танилцуулга</span>
+              <span class="home-intro-subline">Танилцуулгыг заавал уншаарай</span>
+            </button>
+            <div class="home-secondary-actions">
+              <div class="home-modes-menu-wrap">
+                <button class="secondary nav-btn home-secondary-btn" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">Тоглоом &amp; Хичээлүүд</button>
+                <div class="home-modes-panel hidden" id="home-modes-panel" role="menu" aria-label="Тоглоом ба хичээлүүд">
+                  <button class="home-modes-option" id="nav-lesson-btn" type="button" role="menuitem">Зөв хариулт сонгоорой</button>
+                  <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
+                  <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэрийн тоглоом</button>
+                  <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">Асуулт хариулт бүтээх тоглоом</button>
+                </div>
               </div>
+              <button class="secondary nav-btn home-secondary-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
             </div>
-            <button class="secondary nav-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
           </div>
         </div>
       </div>
