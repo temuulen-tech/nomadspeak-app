@@ -3359,7 +3359,7 @@ body[data-mode="learning"] .home-only {
 /* Learning mode full-screen shell and overlap fixes */
 body.mode-learning .app,
 body[data-mode="learning"] .app{
-  padding-top:16px;
+  padding-top:10px;
 }
 
 #quiz-screen .panel-header,
@@ -3451,6 +3451,19 @@ body[data-mode="learning"] .app{
   display:flex;
   flex-direction:column;
   gap:8px;
+}
+
+.learning-screen{
+  padding:12px;
+}
+
+.learning-screen .primary,
+.learning-screen .secondary{
+  min-height:34px;
+  padding:6px 10px;
+  font-size:12px;
+  line-height:1.2;
+  border-radius:10px;
 }
 
 .learning-header-compact{
