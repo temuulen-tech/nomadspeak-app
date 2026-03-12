@@ -108,9 +108,10 @@
 
     <!-- QUIZ SCREEN -->
     <section class="card hidden learning-screen" id="quiz-screen">
-      <div class="panel-header learning-layout-header">
+      <div class="learning-screen-shell">
+      <div class="panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary">
+          <div class="learning-topbar-primary learning-topbar-exit">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
           </div>
           <div class="learning-topbar-utilities">
@@ -135,9 +136,11 @@
             <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
         </div>
-        <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
-        <div class="time-widget">
-          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+        <div class="learning-status-row">
+          <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
+          <div class="time-widget">
+            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+          </div>
         </div>
         <div class="lesson-controls-panel control-panel-gold-outline">
           <div class="topbar hidden" id="topbar">
@@ -147,7 +150,7 @@
           </div>
         </div>
       </div>
-      <div class="sentence-game-reward-middle control-panel-gold-outline">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Lesson reward unlock progress">
           <article class="reward-tile" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -187,14 +190,16 @@
       <div class="actions">
         <button class="secondary" id="next-btn">Дараачийн асуултруу орох</button>
       </div>
+      </div>
     </section>
 
 
     <!-- SENTENCES SCREEN -->
     <section class="card hidden learning-screen" id="sentences-screen">
-      <div class="panel-header sentences-panel-header learning-layout-header">
+      <div class="learning-screen-shell">
+      <div class="panel-header sentences-panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary">
+          <div class="learning-topbar-primary learning-topbar-exit">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
           </div>
           <div class="learning-topbar-utilities">
@@ -203,14 +208,14 @@
             <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           </div>
         </div>
-        <div class="sentences-title-stack">
+        <div class="sentences-title-stack learning-status-row">
           <h2 class="screen-title-chip chip-title">Асуугаад &amp; Хариулаарай</h2>
           <div class="time-widget">
             <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
           </div>
         </div>
       </div>
-      <div class="sentences-reward-strip reward-row rewards-group" id="sentences-reward-strip" aria-label="Sentences reward progress">
+      <div class="sentences-reward-strip reward-row rewards-group learning-progress-compact" id="sentences-reward-strip" aria-label="Sentences reward progress">
         <article class="reward-tile" data-reward-index="0" data-level="1">
           <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
           <img class="reward-img" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
@@ -276,15 +281,17 @@
         </div>
       </div>
       <div class="sentences-list" id="sentences-list" aria-live="polite"></div>
+      </div>
     </section>
 
     <!-- SENTENCE GAME SCREEN -->
     <section class="card hidden learning-screen" id="sentence-game-screen">
+      <div class="learning-screen-shell">
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-top">
-        <div class="sentence-game-top-header learning-layout-header">
+        <div class="sentence-game-top-header learning-layout-header learning-header-compact">
           <div class="learning-topbar">
-            <div class="learning-topbar-primary">
+            <div class="learning-topbar-primary learning-topbar-exit">
               <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
             </div>
             <div class="learning-topbar-utilities">
@@ -295,12 +302,14 @@
               <button class="sentence-game-tip-toggle learning-utility-btn" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
             </div>
           </div>
-          <h2 class="screen-title-chip chip-title">Өгүүлбэрийн тоглоом</h2>
-          <div class="time-widget">
-            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+          <div class="learning-status-row">
+            <h2 class="screen-title-chip chip-title">Өгүүлбэрийн тоглоом</h2>
+            <div class="time-widget">
+              <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+            </div>
           </div>
         </div>
-        <div class="sentence-game-rewards-block control-panel-gold-outline" id="sentence-game-reward-middle">
+        <div class="sentence-game-rewards-block control-panel-gold-outline learning-progress-compact" id="sentence-game-reward-middle">
           <div class="sentence-game-reward-row reward-row rewards-group" id="sentence-game-reward-row" aria-label="Reward unlock progress">
             <article class="reward-tile" data-level="1">
               <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -362,15 +371,17 @@
         <p><strong>Зөв өгүүлбэр:</strong> <span id="sentence-game-correct-en"></span></p>
         <p><strong>Орчуулга:</strong> <span id="sentence-game-correct-mn"></span></p>
       </div>
+      </div>
     </section>
 
 
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden learning-screen" id="qa-game-screen">
-      <div class="panel-header learning-layout-header">
+      <div class="learning-screen-shell">
+      <div class="panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary">
+          <div class="learning-topbar-primary learning-topbar-exit">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
           </div>
           <div class="learning-topbar-utilities">
@@ -381,13 +392,15 @@
             <button class="secondary vault-save-btn learning-utility-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
           </div>
         </div>
-        <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
-        <div class="time-widget">
-          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+        <div class="learning-status-row">
+          <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
+          <div class="time-widget">
+            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+          </div>
         </div>
       </div>
 
-      <div class="sentence-game-reward-middle control-panel-gold-outline">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact">
         <div class="sentence-game-reward-row reward-row rewards-group" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
           <article class="reward-tile" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -451,6 +464,7 @@
         <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
       </div>
 
+      </div>
     </section>
 
     <!-- STATS SCREEN -->

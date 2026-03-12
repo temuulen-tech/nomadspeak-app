@@ -3445,3 +3445,150 @@ body[data-mode="learning"] .app{
     grid-template-columns:repeat(2, minmax(0, 1fr));
   }
 }
+
+/* Global compact learning/game layout system */
+.learning-screen-shell{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.learning-header-compact{
+  gap:8px;
+  padding:10px;
+  margin-bottom:0;
+}
+
+.learning-topbar{
+  gap:6px;
+}
+
+.learning-topbar-exit{
+  display:flex;
+  justify-content:flex-start;
+}
+
+.learning-topbar-utilities{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:6px;
+}
+
+.learning-utility-btn,
+#sentence-game-screen .sentence-game-tip-toggle.learning-utility-btn{
+  min-height:34px;
+  padding:5px 8px;
+  font-size:12px;
+  border-radius:9px;
+  box-shadow:none;
+}
+
+.learning-exit-btn{
+  min-height:34px;
+  max-width:240px;
+  padding:6px 10px;
+  font-size:12px;
+  border-radius:10px;
+}
+
+.learning-status-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-header-compact .screen-title-chip,
+.learning-header-compact .lesson-title{
+  margin:0;
+  font-size:1rem;
+  padding:4px 10px;
+  line-height:1.2;
+}
+
+.learning-header-compact .chip-time,
+.learning-header-compact .today-time{
+  font-size:.75rem;
+  padding:4px 9px;
+}
+
+.learning-header-compact .topbar{
+  gap:6px;
+  padding:6px;
+}
+
+.learning-header-compact .topbar .pill{
+  font-size:.72rem;
+  padding:4px 8px;
+}
+
+.learning-progress-compact,
+.learning-progress-compact .reward-row,
+.learning-progress-compact .sentence-game-reward-row,
+.learning-progress-compact.sentences-reward-strip{
+  margin:0;
+  gap:6px;
+  padding:6px;
+}
+
+.learning-progress-compact .reward-tile{
+  padding:6px 4px;
+  border-radius:10px;
+  min-height:auto;
+}
+
+.learning-progress-compact .reward-label-chip{
+  font-size:.68rem;
+  padding:2px 7px;
+}
+
+.learning-progress-compact .reward-img{
+  width:40px;
+  max-width:40px;
+}
+
+@media (max-width:700px){
+  .learning-screen-shell{
+    gap:6px;
+  }
+
+  .learning-header-compact{
+    padding:8px;
+    gap:6px;
+  }
+
+  .learning-topbar-utilities{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+
+  .learning-utility-btn,
+  #sentence-game-screen .sentence-game-tip-toggle.learning-utility-btn{
+    min-height:32px;
+    font-size:11.5px;
+    padding:4px 7px;
+  }
+
+  .learning-exit-btn{
+    min-height:32px;
+    max-width:none;
+    font-size:11.5px;
+    padding:5px 9px;
+  }
+
+  .learning-header-compact .screen-title-chip,
+  .learning-header-compact .lesson-title{
+    font-size:.9rem;
+    padding:3px 9px;
+  }
+
+  .learning-header-compact .chip-time,
+  .learning-header-compact .today-time{
+    font-size:.68rem;
+    padding:3px 8px;
+  }
+
+  .learning-progress-compact .reward-img{
+    width:34px;
+    max-width:34px;
+  }
+}
