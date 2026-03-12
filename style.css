@@ -3883,3 +3883,114 @@ body[data-mode="learning"] .app{
     max-width:none;
   }
 }
+
+/* Shared master top layout for all learning/game screens */
+.learning-master-top{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+
+.learning-master-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  width:100%;
+  flex-wrap:nowrap;
+}
+
+.learning-master-row--top .learning-exit-btn,
+.learning-master-row--top .learning-alltime-btn{
+  flex:0 1 48%;
+  max-width:48%;
+  min-width:0;
+}
+
+.learning-exit-btn,
+.learning-alltime-btn,
+.learning-review-btn,
+.learning-level-btn,
+.learning-save-btn,
+.learning-sound-btn{
+  min-height:36px;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:12px;
+  line-height:1.2;
+  white-space:normal;
+  word-break:break-word;
+}
+
+.learning-alltime-btn{
+  margin-left:auto;
+  max-width:160px;
+}
+
+.learning-exit-btn{
+  margin-right:auto;
+  max-width:170px;
+}
+
+.learning-review-btn,
+.learning-level-wrap{
+  flex:0 1 48%;
+  max-width:48%;
+  min-width:0;
+}
+
+.learning-level-wrap{
+  position:relative;
+}
+
+.learning-level-btn,
+.learning-save-btn,
+.learning-sound-btn,
+.learning-review-btn{
+  width:100%;
+  max-width:100%;
+}
+
+.learning-master-row--title{
+  align-items:center;
+}
+
+.learning-title-row .learning-title-block{
+  margin:0;
+  flex:1 1 auto;
+}
+
+.learning-title-row .learning-today-time{
+  margin-left:auto;
+  flex:0 1 auto;
+  white-space:nowrap;
+}
+
+.learning-master-extra-controls{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+@media (max-width:560px){
+  .learning-master-row{
+    flex-wrap:wrap;
+  }
+
+  .learning-master-row--top .learning-exit-btn,
+  .learning-master-row--top .learning-alltime-btn,
+  .learning-review-btn,
+  .learning-level-wrap,
+  .learning-save-btn,
+  .learning-sound-btn{
+    flex:1 1 calc(50% - 4px);
+    max-width:calc(50% - 4px);
+  }
+
+  .learning-title-row .learning-title-block,
+  .learning-title-row .learning-today-time{
+    flex:1 1 100%;
+    max-width:100%;
+  }
+}

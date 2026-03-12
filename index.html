@@ -110,15 +110,16 @@
     <section class="card hidden learning-screen" id="quiz-screen">
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
-        <div class="learning-topbar">
-          <div class="learning-topbar-row">
+        <div class="learning-master-top">
+          <div class="learning-master-row learning-master-row--top">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
-            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary time-details-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
-          <div class="learning-topbar-utilities learning-utilities-grid">
-            <div class="start-level-picker">
+          <div class="learning-master-row learning-master-row--secondary">
+            <button class="secondary vault-open-btn learning-review-btn" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
+            <div class="start-level-picker learning-level-wrap">
               <button
-                class="secondary learning-utility-btn learning-level-btn"
+                class="secondary learning-level-btn"
                 id="start-btn"
                 type="button"
                 aria-haspopup="true"
@@ -131,14 +132,15 @@
                 <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
               </div>
             </div>
-            <button class="secondary vault-open-btn learning-utility-btn learning-utility-btn--stacked" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
-            <button class="secondary vault-save-btn learning-utility-btn learning-utility-btn--stacked" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
-            <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           </div>
-        </div>
-        <div class="learning-header-row">
-          <h2 class="lesson-title screen-title-chip chip-title learning-title-block">Зөв хариулт сонгоорой</h2>
-          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+          <div class="learning-master-row learning-master-row--tertiary">
+            <button class="secondary vault-save-btn learning-save-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+            <button class="secondary sound-toggle-btn learning-sound-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          </div>
+          <div class="learning-master-row learning-master-row--title learning-title-row">
+            <h2 class="lesson-title screen-title-chip chip-title learning-title-block">Зөв хариулт сонгоорой</h2>
+            <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+          </div>
         </div>
         <div class="lesson-controls-panel control-panel-gold-outline">
           <div class="learning-status-inline hidden" id="topbar">
@@ -196,19 +198,30 @@
     <section class="card hidden learning-screen" id="sentences-screen">
       <div class="learning-screen-shell">
       <div class="panel-header sentences-panel-header learning-layout-header learning-header-compact">
-        <div class="learning-topbar">
-          <div class="learning-topbar-row">
+        <div class="learning-master-top">
+          <div class="learning-master-row learning-master-row--top">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
-            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary time-details-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
-          <div class="learning-topbar-utilities learning-utilities-grid">
-            <button class="secondary vault-open-btn sentences-vault-compact-btn learning-utility-btn learning-utility-btn--stacked" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
-            <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          <div class="learning-master-row learning-master-row--secondary">
+            <button class="secondary vault-open-btn sentences-vault-compact-btn learning-review-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
+            <div class="sentences-level-picker learning-level-wrap" id="sentences-level-picker">
+              <button class="filter-btn sentences-level-picker-btn learning-level-btn" id="sentences-level-picker-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sentences-level-options">Түвшин сонгох: Анхан</button>
+              <div class="sentences-level-options hidden" id="sentences-level-options" role="menu" aria-label="Түвшин сонголт">
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="true" data-filter="beginner">Анхан</button>
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="intermediate">Дунд</button>
+                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="advanced">Дээд</button>
+              </div>
+            </div>
           </div>
-        </div>
-        <div class="sentences-title-stack learning-header-row">
-          <h2 class="screen-title-chip chip-title learning-title-block">Асуугаад &amp; Хариулаарай</h2>
-          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+          <div class="learning-master-row learning-master-row--tertiary">
+            <button class="secondary vault-save-btn learning-save-btn" id="sentences-master-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+            <button class="secondary sound-toggle-btn learning-sound-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          </div>
+          <div class="learning-master-row learning-master-row--title learning-title-row">
+            <h2 class="screen-title-chip chip-title learning-title-block">Асуугаад &amp; Хариулаарай</h2>
+            <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+          </div>
         </div>
         <div class="learning-status-inline">
           <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
@@ -251,14 +264,7 @@
                 <button class="tts-option-btn" type="button" data-voice="female">Эм</button>
               </div>
             </div>
-            <div class="sentences-level-picker" id="sentences-level-picker">
-              <button class="filter-btn sentences-level-picker-btn learning-level-btn" id="sentences-level-picker-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="sentences-level-options">Түвшин сонгох: Анхан</button>
-              <div class="sentences-level-options hidden" id="sentences-level-options" role="menu" aria-label="Түвшин сонголт">
-                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="true" data-filter="beginner">Анхан</button>
-                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="intermediate">Дунд</button>
-                <button class="sentences-level-option" type="button" role="menuitemradio" aria-checked="false" data-filter="advanced">Дээд</button>
-              </div>
-            </div>
+            
           </div>
           <div class="tts-group tts-rate-group tts-rate-compact sentences-speed-block" aria-label="Хурд">
             <div class="tts-rate-header">
@@ -293,21 +299,33 @@
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-top">
         <div class="sentence-game-top-header learning-layout-header learning-header-compact">
-          <div class="learning-topbar">
-            <div class="learning-topbar-row">
+          <div class="learning-master-top">
+            <div class="learning-master-row learning-master-row--top">
               <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
-              <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
+              <button class="secondary time-details-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
             </div>
-            <div class="learning-topbar-utilities learning-utilities-grid">
-              <button class="secondary vault-open-btn learning-utility-btn learning-utility-btn--stacked" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
-              <button class="secondary vault-save-btn learning-utility-btn learning-utility-btn--stacked" id="sentence-game-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
-              <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-              <button class="sentence-game-tip-toggle learning-utility-btn" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
+            <div class="learning-master-row learning-master-row--secondary">
+              <button class="secondary vault-open-btn learning-review-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
+              <div class="sentence-game-difficulty-wrap learning-level-wrap">
+                <button class="sentence-game-difficulty-toggle learning-level-btn" id="sentence-game-difficulty-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-difficulty-panel">Түвшин сонгох</button>
+                <div class="sentence-game-difficulty-panel hidden" id="sentence-game-difficulty-panel">
+                  <button class="sentence-game-difficulty-btn" type="button" data-difficulty="beginner">Анхан шат</button>
+                  <button class="sentence-game-difficulty-btn" type="button" data-difficulty="intermediate">Дунд шат</button>
+                  <button class="sentence-game-difficulty-btn" type="button" data-difficulty="advanced">Дээд түвшин</button>
+                </div>
+              </div>
+            </div>
+            <div class="learning-master-row learning-master-row--tertiary">
+              <button class="secondary vault-save-btn learning-save-btn" id="sentence-game-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+              <button class="secondary sound-toggle-btn learning-sound-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+            </div>
+            <div class="learning-master-row learning-master-row--title learning-title-row">
+              <h2 class="screen-title-chip chip-title learning-title-block">Өгүүлбэрийн тоглоом</h2>
+              <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
             </div>
           </div>
-          <div class="learning-header-row">
-            <h2 class="screen-title-chip chip-title learning-title-block">Өгүүлбэрийн тоглоом</h2>
-            <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+          <div class="learning-master-extra-controls">
+            <button class="sentence-game-tip-toggle learning-utility-btn" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
           </div>
           <div class="learning-status-inline">
             <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
@@ -338,14 +356,7 @@
               <img class="reward-img learning-progress-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
             </article>
           </div>
-          <div class="sentence-game-difficulty-wrap">
-            <button class="sentence-game-difficulty-toggle" id="sentence-game-difficulty-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-difficulty-panel">Тоглох түвшинээ сонгоно уу?</button>
-            <div class="sentence-game-difficulty-panel hidden" id="sentence-game-difficulty-panel">
-              <button class="sentence-game-difficulty-btn" type="button" data-difficulty="beginner">Анхан шат</button>
-              <button class="sentence-game-difficulty-btn" type="button" data-difficulty="intermediate">Дунд шат</button>
-              <button class="sentence-game-difficulty-btn" type="button" data-difficulty="advanced">Дээд түвшин</button>
-            </div>
-          </div>
+          
         </div>
       </div>
       <div class="sentence-game-reward-banner hidden" id="sentence-game-reward-banner" role="status" aria-live="polite"></div>
@@ -386,21 +397,34 @@
     <section class="card hidden learning-screen" id="qa-game-screen">
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
-        <div class="learning-topbar">
-          <div class="learning-topbar-row">
+        <div class="learning-master-top">
+          <div class="learning-master-row learning-master-row--top">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
-            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary time-details-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
-          <div class="learning-topbar-utilities learning-utilities-grid">
-            <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
-            <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
-            <button class="secondary vault-open-btn learning-utility-btn learning-utility-btn--stacked" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
-            <button class="secondary vault-save-btn learning-utility-btn learning-utility-btn--stacked" id="qa-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+          <div class="learning-master-row learning-master-row--secondary">
+            <button class="secondary vault-open-btn learning-review-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
+            <div class="qa-level-picker learning-level-wrap">
+              <button class="primary learning-level-btn" id="qa-level-select-btn" type="button">Түвшин сонгох</button>
+              <div class="qa-level-options hidden" id="qa-level-options">
+                <button class="secondary" type="button" data-qa-level="beginner">Анхан</button>
+                <button class="secondary" type="button" data-qa-level="intermediate">Дунд</button>
+                <button class="secondary" type="button" data-qa-level="advanced">Дээд</button>
+              </div>
+            </div>
+          </div>
+          <div class="learning-master-row learning-master-row--tertiary">
+            <button class="secondary vault-save-btn learning-save-btn" id="qa-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+            <button class="secondary sound-toggle-btn learning-sound-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          </div>
+          <div class="learning-master-row learning-master-row--title learning-title-row">
+            <h2 class="screen-title-chip chip-title learning-title-block">Асуулт Хариулт тоглоом</h2>
+            <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
           </div>
         </div>
-        <div class="learning-header-row">
-          <h2 class="screen-title-chip chip-title learning-title-block">Асуулт Хариулт тоглоом</h2>
-          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+        <div class="learning-master-extra-controls">
+          <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
+          <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
         </div>
         <div class="learning-status-inline">
           <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
@@ -435,14 +459,7 @@
       </div>
       <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
 
-      <div class="qa-level-picker">
-        <button class="primary learning-level-btn" id="qa-level-select-btn" type="button">Тоглох ангилалаа сонгоорой</button>
-        <div class="qa-level-options hidden" id="qa-level-options">
-          <button class="secondary" type="button" data-qa-level="beginner">Анхан</button>
-          <button class="secondary" type="button" data-qa-level="intermediate">Дунд</button>
-          <button class="secondary" type="button" data-qa-level="advanced">Дээд</button>
-        </div>
-      </div>
+      
 
       <div class="qa-round-panel control-panel-gold-outline" id="qa-round-panel">
         <div class="qa-toggle-row">

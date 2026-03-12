@@ -223,6 +223,7 @@ const sentencesVaultBadge = document.getElementById("sentences-vault-badge");
 const sentenceGameVaultBtn = document.getElementById("sentence-game-vault-btn");
 const sentenceGameVaultBadge = document.getElementById("sentence-game-vault-badge");
 const sentenceGameSaveBtn = document.getElementById("sentence-game-save-btn");
+const sentencesMasterSaveBtn = document.getElementById("sentences-master-save-btn");
 const qaVaultBtn = document.getElementById("qa-vault-btn");
 const qaVaultBadge = document.getElementById("qa-vault-badge");
 const qaSaveBtn = document.getElementById("qa-save-btn");
@@ -896,6 +897,15 @@ function saveCurrentSentenceGameItem() {
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+}
+
+function saveCurrentSentenceListItem() {
+  const list = filteredSentences();
+  if (!list.length) {
+    showVaultToast("Хадгалах өгүүлбэр алга");
+    return;
+  }
+  saveSentenceListItem(list[0]);
 }
 
 function saveSentenceListItem(item) {
@@ -3925,6 +3935,7 @@ resetQaGameScreen();
 if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
 if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
 if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
+if (sentencesMasterSaveBtn) sentencesMasterSaveBtn.addEventListener("click", saveCurrentSentenceListItem);
 
 if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("lesson")));
 if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
