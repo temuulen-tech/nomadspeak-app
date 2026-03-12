@@ -3468,8 +3468,12 @@ body[data-mode="learning"] .app{
 
 .learning-header-compact{
   gap:8px;
-  padding:10px;
+  padding:8px;
   margin-bottom:0;
+}
+
+.learning-layout-header{
+  border-radius:12px;
 }
 
 .learning-topbar{
@@ -3507,22 +3511,27 @@ body[data-mode="learning"] .app{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  gap:8px;
+  gap:6px;
   flex-wrap:wrap;
+}
+
+.learning-layout-header .time-widget{
+  gap:4px;
+  margin:0;
 }
 
 .learning-header-compact .screen-title-chip,
 .learning-header-compact .lesson-title{
   margin:0;
-  font-size:1rem;
-  padding:4px 10px;
-  line-height:1.2;
+  font-size:.9rem;
+  padding:3px 9px;
+  line-height:1.15;
 }
 
 .learning-header-compact .chip-time,
 .learning-header-compact .today-time{
-  font-size:.75rem;
-  padding:4px 9px;
+  font-size:.68rem;
+  padding:3px 8px;
 }
 
 .learning-header-compact .topbar{
@@ -3566,7 +3575,7 @@ body[data-mode="learning"] .app{
   }
 
   .learning-header-compact{
-    padding:8px;
+    padding:7px;
     gap:6px;
   }
 
@@ -3590,14 +3599,14 @@ body[data-mode="learning"] .app{
 
   .learning-header-compact .screen-title-chip,
   .learning-header-compact .lesson-title{
-    font-size:.9rem;
-    padding:3px 9px;
+    font-size:.82rem;
+    padding:2px 8px;
   }
 
   .learning-header-compact .chip-time,
   .learning-header-compact .today-time{
-    font-size:.68rem;
-    padding:3px 8px;
+    font-size:.64rem;
+    padding:2px 7px;
   }
 
   .learning-progress-compact .reward-img{
