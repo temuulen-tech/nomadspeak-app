@@ -273,7 +273,7 @@ body{
   flex-direction:column;
   align-items:stretch;
   justify-content:flex-start;
-  gap:10px;
+  gap:12px;
 }
 
 .brand{
@@ -289,6 +289,13 @@ body{
   gap:8px;
   width:100%;
   min-width:0;
+}
+
+.home-header-actions{
+  display:grid;
+  grid-template-columns:minmax(0, 1.45fr) minmax(0, 1fr);
+  align-items:stretch;
+  gap:10px;
 }
 
 .status-bar{
@@ -775,15 +782,36 @@ body{
     0 10px 20px rgba(29,16,2,.35),
     0 0 24px rgba(255,200,96,.35);
   text-align:left;
-  display:inline-flex;
+  display:flex;
   flex-direction:column;
   align-items:flex-start;
-  gap:4px;
+  justify-content:center;
+  gap:3px;
+  width:100%;
+  min-height:86px;
+}
+
+.intro-btn-line{
+  display:block;
+  line-height:1.25;
+}
+
+.intro-btn-sub{
+  font-size:12px;
+  font-weight:700;
+  color:rgba(236,255,246,.92);
 }
 
 .home-time-chip{
+  align-self:flex-start;
   padding:6px 10px;
   font-size:12px;
+}
+
+.home-header-actions .header-nav .nav-btn{
+  min-height:39px;
+  padding:8px 10px;
+  font-size:13px;
 }
 
 .start-intro-panel{
@@ -2184,6 +2212,10 @@ body{
     grid-template-columns:1fr;
   }
 
+  .home-header-actions{
+    grid-template-columns:minmax(0, 1.35fr) minmax(0, 1fr);
+  }
+
   .header-nav .nav-btn{
     max-width:none;
   }
@@ -2233,6 +2265,10 @@ body{
   }
 
   .header-nav{
+    grid-template-columns:1fr;
+  }
+
+  .home-header-actions{
     grid-template-columns:1fr;
   }
 
@@ -2320,9 +2356,8 @@ body{
     align-items:stretch;
   }
 
-  .premium-intro-btn,
   .home-time-chip{
-    width:calc(50% - 4px);
+    width:100%;
   }
 
   .question-text-wrap{
