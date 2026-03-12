@@ -3614,3 +3614,150 @@ body[data-mode="learning"] .app{
     max-width:34px;
   }
 }
+
+/* Global shared compact learning/game UI refactor */
+.learning-topbar-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-exit-btn{
+  min-height:32px;
+  min-width:0;
+  max-width:180px;
+  padding:5px 10px;
+  font-size:11.5px;
+  border-radius:9px;
+}
+
+.learning-alltime-btn{
+  min-height:32px;
+  min-width:0;
+  width:auto;
+  margin-left:auto;
+  padding:5px 10px;
+  font-size:11.5px;
+  border-radius:9px;
+}
+
+.learning-topbar-utilities{
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:6px;
+}
+
+.learning-header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-title-block{
+  margin:0;
+}
+
+.learning-today-time{
+  margin-left:auto;
+  font-size:.68rem;
+  padding:2px 7px;
+}
+
+.learning-status-inline{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:4px 6px;
+}
+
+.learning-status-item{
+  font-size:.72rem;
+  line-height:1.2;
+  padding:2px 6px;
+  border-radius:7px;
+  border:1px solid rgba(255,220,143,.34);
+  background:rgba(8, 35, 45, .42);
+  color:#fff4d5;
+}
+
+.learning-progress-frame{
+  border:1px solid rgba(255,219,136,.5);
+  border-radius:10px;
+  padding:8px;
+  box-shadow:none;
+}
+
+.learning-progress-compact .reward-row,
+.learning-progress-compact .sentence-game-reward-row,
+.learning-progress-compact.sentences-reward-strip,
+.learning-progress-compact .sentences-reward-strip{
+  padding:0;
+  margin:0;
+  gap:8px;
+}
+
+.learning-progress-compact .reward-tile,
+.learning-progress-compact .learning-progress-item{
+  border:none;
+  background:transparent;
+  box-shadow:none;
+  border-radius:0;
+  padding:18px 4px 4px;
+  flex:1 1 0;
+  opacity:.8;
+}
+
+.learning-progress-compact .reward-tile.is-active{
+  border:none;
+  box-shadow:none;
+}
+
+.learning-progress-compact .reward-img,
+.learning-progress-compact .learning-progress-image{
+  width:clamp(102px, 12vw, 154px);
+  height:clamp(102px, 12vw, 154px);
+  max-width:none;
+}
+
+@media (max-width:700px){
+  .learning-topbar-utilities{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-progress-compact .reward-tile,
+  .learning-progress-compact .learning-progress-item{
+    flex:1 1 calc(33.333% - 8px);
+  }
+
+  .learning-progress-compact .reward-img,
+  .learning-progress-compact .learning-progress-image{
+    width:clamp(82px, 20vw, 112px);
+    height:clamp(82px, 20vw, 112px);
+  }
+}
+
+@media (max-width:480px){
+  .learning-exit-btn,
+  .learning-alltime-btn{
+    flex:1 1 calc(50% - 4px);
+    max-width:none;
+  }
+
+  .learning-header-row{
+    gap:6px;
+  }
+
+  .learning-status-item{
+    font-size:.68rem;
+    padding:2px 5px;
+  }
+
+  .learning-progress-compact .reward-tile,
+  .learning-progress-compact .learning-progress-item{
+    flex:1 1 calc(50% - 8px);
+  }
+}

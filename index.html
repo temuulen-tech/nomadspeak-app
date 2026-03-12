@@ -111,8 +111,9 @@
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary learning-topbar-exit">
+          <div class="learning-topbar-row">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
           <div class="learning-topbar-utilities">
             <div class="start-level-picker">
@@ -133,44 +134,41 @@
             <button class="secondary vault-open-btn learning-utility-btn" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
             <button class="secondary vault-save-btn learning-utility-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
             <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
         </div>
-        <div class="learning-status-row">
-          <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
-          <div class="time-widget">
-            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
-          </div>
+        <div class="learning-header-row">
+          <h2 class="lesson-title screen-title-chip chip-title learning-title-block">Зөв хариулт сонгоорой</h2>
+          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
         </div>
         <div class="lesson-controls-panel control-panel-gold-outline">
-          <div class="topbar hidden" id="topbar">
-            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
-            <div class="pill">Оноо: <span id="score">0</span></div>
-            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+          <div class="learning-status-inline hidden" id="topbar">
+            <div class="learning-status-item">Түвшин: <span id="level-label">Анхан</span></div>
+            <div class="learning-status-item">Оноо: <span id="score">0</span></div>
+            <div class="learning-status-item">Асуулт: <span id="progress">0/0</span></div>
           </div>
         </div>
       </div>
-      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Lesson reward unlock progress">
-          <article class="reward-tile" data-level="1">
+          <article class="reward-tile learning-progress-item" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
-            <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Lesson reward flag" />
+            <img class="reward-img learning-progress-image" data-level="1" src="assets/rewards/1-flag.png" alt="Lesson reward flag" />
           </article>
-          <article class="reward-tile" data-level="2">
+          <article class="reward-tile learning-progress-item" data-level="2">
             <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
-            <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Lesson reward star" />
+            <img class="reward-img learning-progress-image" data-level="2" src="assets/rewards/2-star.png" alt="Lesson reward star" />
           </article>
-          <article class="reward-tile" data-level="3">
+          <article class="reward-tile learning-progress-item" data-level="3">
             <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
-            <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Lesson reward coin" />
+            <img class="reward-img learning-progress-image" data-level="3" src="assets/rewards/3-coin.png" alt="Lesson reward coin" />
           </article>
-          <article class="reward-tile" data-level="4">
+          <article class="reward-tile learning-progress-item" data-level="4">
             <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
-            <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Lesson reward trophy" />
+            <img class="reward-img learning-progress-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Lesson reward trophy" />
           </article>
-          <article class="reward-tile" data-level="5">
+          <article class="reward-tile learning-progress-item" data-level="5">
             <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
-            <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Lesson reward diamond" />
+            <img class="reward-img learning-progress-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Lesson reward diamond" />
           </article>
         </div>
       </div>
@@ -199,43 +197,48 @@
       <div class="learning-screen-shell">
       <div class="panel-header sentences-panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary learning-topbar-exit">
+          <div class="learning-topbar-row">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
           <div class="learning-topbar-utilities">
-            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
             <button class="secondary vault-open-btn sentences-vault-compact-btn learning-utility-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
             <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
           </div>
         </div>
-        <div class="sentences-title-stack learning-status-row">
-          <h2 class="screen-title-chip chip-title">Асуугаад &amp; Хариулаарай</h2>
-          <div class="time-widget">
-            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
-          </div>
+        <div class="sentences-title-stack learning-header-row">
+          <h2 class="screen-title-chip chip-title learning-title-block">Асуугаад &amp; Хариулаарай</h2>
+          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
+        </div>
+        <div class="learning-status-inline">
+          <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
+          <div class="learning-status-item">Оноо: <span>0</span></div>
+          <div class="learning-status-item">Асуулт: <span>0/0</span></div>
         </div>
       </div>
+      <div class="control-panel-gold-outline learning-progress-compact learning-progress-frame">
       <div class="sentences-reward-strip reward-row rewards-group learning-progress-compact" id="sentences-reward-strip" aria-label="Sentences reward progress">
-        <article class="reward-tile" data-reward-index="0" data-level="1">
+        <article class="reward-tile learning-progress-item" data-reward-index="0" data-level="1">
           <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
-          <img class="reward-img" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
+          <img class="reward-img learning-progress-image" src="assets/rewards/1-flag.png" alt="Sentences reward flag" loading="lazy" />
         </article>
-        <article class="reward-tile" data-reward-index="1" data-level="2">
+        <article class="reward-tile learning-progress-item" data-reward-index="1" data-level="2">
           <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
-          <img class="reward-img" src="assets/rewards/2-star.png" alt="Sentences reward star" loading="lazy" />
+          <img class="reward-img learning-progress-image" src="assets/rewards/2-star.png" alt="Sentences reward star" loading="lazy" />
         </article>
-        <article class="reward-tile" data-reward-index="2" data-level="3">
+        <article class="reward-tile learning-progress-item" data-reward-index="2" data-level="3">
           <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
-          <img class="reward-img" src="assets/rewards/3-coin.png" alt="Sentences reward coin" loading="lazy" />
+          <img class="reward-img learning-progress-image" src="assets/rewards/3-coin.png" alt="Sentences reward coin" loading="lazy" />
         </article>
-        <article class="reward-tile" data-reward-index="3" data-level="4">
+        <article class="reward-tile learning-progress-item" data-reward-index="3" data-level="4">
           <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
-          <img class="reward-img" src="assets/rewards/4-trophy.png" alt="Sentences reward cup" loading="lazy" />
+          <img class="reward-img learning-progress-image" src="assets/rewards/4-trophy.png" alt="Sentences reward cup" loading="lazy" />
         </article>
-        <article class="reward-tile" data-reward-index="4" data-level="5">
+        <article class="reward-tile learning-progress-item" data-reward-index="4" data-level="5">
           <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
-          <img class="reward-img" src="assets/rewards/5-diamond.png" alt="Sentences reward diamond" loading="lazy" />
+          <img class="reward-img learning-progress-image" src="assets/rewards/5-diamond.png" alt="Sentences reward diamond" loading="lazy" />
         </article>
+      </div>
       </div>
       <div class="sentences-top-controls control-panel-gold-outline">
         <div class="sentences-controls-grid">
@@ -291,45 +294,48 @@
       <div class="sentence-game-top">
         <div class="sentence-game-top-header learning-layout-header learning-header-compact">
           <div class="learning-topbar">
-            <div class="learning-topbar-primary learning-topbar-exit">
+            <div class="learning-topbar-row">
               <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+              <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
             </div>
             <div class="learning-topbar-utilities">
-              <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
               <button class="secondary vault-open-btn learning-utility-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
               <button class="secondary vault-save-btn learning-utility-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
               <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
               <button class="sentence-game-tip-toggle learning-utility-btn" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
             </div>
           </div>
-          <div class="learning-status-row">
-            <h2 class="screen-title-chip chip-title">Өгүүлбэрийн тоглоом</h2>
-            <div class="time-widget">
-              <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
-            </div>
+          <div class="learning-header-row">
+            <h2 class="screen-title-chip chip-title learning-title-block">Өгүүлбэрийн тоглоом</h2>
+            <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
+          </div>
+          <div class="learning-status-inline">
+            <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
+            <div class="learning-status-item">Оноо: <span>0</span></div>
+            <div class="learning-status-item">Асуулт: <span>0/0</span></div>
           </div>
         </div>
-        <div class="sentence-game-rewards-block control-panel-gold-outline learning-progress-compact" id="sentence-game-reward-middle">
+        <div class="sentence-game-rewards-block control-panel-gold-outline learning-progress-compact learning-progress-frame" id="sentence-game-reward-middle">
           <div class="sentence-game-reward-row reward-row rewards-group" id="sentence-game-reward-row" aria-label="Reward unlock progress">
-            <article class="reward-tile" data-level="1">
+            <article class="reward-tile learning-progress-item" data-level="1">
               <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
-              <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
+              <img class="reward-img learning-progress-image" data-level="1" src="assets/rewards/1-flag.png" alt="Level 1 reward flag" />
             </article>
-            <article class="reward-tile" data-level="2">
+            <article class="reward-tile learning-progress-item" data-level="2">
               <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
-              <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
+              <img class="reward-img learning-progress-image" data-level="2" src="assets/rewards/2-star.png" alt="Level 2 reward star" />
             </article>
-            <article class="reward-tile" data-level="3">
+            <article class="reward-tile learning-progress-item" data-level="3">
               <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
-              <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
+              <img class="reward-img learning-progress-image" data-level="3" src="assets/rewards/3-coin.png" alt="Level 3 reward coin" />
             </article>
-            <article class="reward-tile" data-level="4">
+            <article class="reward-tile learning-progress-item" data-level="4">
               <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
-              <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
+              <img class="reward-img learning-progress-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Level 4 reward trophy" />
             </article>
-            <article class="reward-tile" data-level="5">
+            <article class="reward-tile learning-progress-item" data-level="5">
               <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
-              <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
+              <img class="reward-img learning-progress-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Level 5 reward diamond" />
             </article>
           </div>
           <div class="sentence-game-difficulty-wrap">
@@ -381,46 +387,49 @@
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
         <div class="learning-topbar">
-          <div class="learning-topbar-primary learning-topbar-exit">
+          <div class="learning-topbar-row">
             <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
           <div class="learning-topbar-utilities">
-            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
             <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
             <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
             <button class="secondary vault-open-btn learning-utility-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
             <button class="secondary vault-save-btn learning-utility-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
           </div>
         </div>
-        <div class="learning-status-row">
-          <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
-          <div class="time-widget">
-            <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
-          </div>
+        <div class="learning-header-row">
+          <h2 class="screen-title-chip chip-title learning-title-block">Асуулт Хариулт тоглоом</h2>
+          <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
+        </div>
+        <div class="learning-status-inline">
+          <div class="learning-status-item">Түвшин: <span>Анхан</span></div>
+          <div class="learning-status-item">Оноо: <span>0</span></div>
+          <div class="learning-status-item">Асуулт: <span>0/0</span></div>
         </div>
       </div>
 
-      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame">
         <div class="sentence-game-reward-row reward-row rewards-group" id="qa-reward-bar" aria-label="Q&amp;A reward unlock progress">
-          <article class="reward-tile" data-level="1">
+          <article class="reward-tile learning-progress-item" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
-            <img class="reward-img" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
+            <img class="reward-img learning-progress-image" data-level="1" src="assets/rewards/1-flag.png" alt="Q&amp;A reward flag" />
           </article>
-          <article class="reward-tile" data-level="2">
+          <article class="reward-tile learning-progress-item" data-level="2">
             <p class="reward-label-chip chip-label">Улаан одын Эзэн</p>
-            <img class="reward-img" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
+            <img class="reward-img learning-progress-image" data-level="2" src="assets/rewards/2-star.png" alt="Q&amp;A reward star" />
           </article>
-          <article class="reward-tile" data-level="3">
+          <article class="reward-tile learning-progress-item" data-level="3">
             <p class="reward-label-chip chip-label">Алтан зоос Чинийх</p>
-            <img class="reward-img" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
+            <img class="reward-img learning-progress-image" data-level="3" src="assets/rewards/3-coin.png" alt="Q&amp;A reward coin" />
           </article>
-          <article class="reward-tile" data-level="4">
+          <article class="reward-tile learning-progress-item" data-level="4">
             <p class="reward-label-chip chip-label">Алтан цомын Эзэн</p>
-            <img class="reward-img" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
+            <img class="reward-img learning-progress-image" data-level="4" src="assets/rewards/4-trophy.png" alt="Q&amp;A reward trophy" />
           </article>
-          <article class="reward-tile" data-level="5">
+          <article class="reward-tile learning-progress-item" data-level="5">
             <p class="reward-label-chip chip-label">Алмөөз эрдэнэ Чинийх</p>
-            <img class="reward-img" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
+            <img class="reward-img learning-progress-image" data-level="5" src="assets/rewards/5-diamond.png" alt="Q&amp;A reward diamond" />
           </article>
         </div>
       </div>
