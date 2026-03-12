@@ -1673,20 +1673,13 @@ body{
 }
 
 .sentence-game-top-header{
-  display:grid;
-  grid-template-columns:minmax(260px, 1fr) minmax(240px, 360px);
-  align-items:start;
-  gap:14px;
-}
-
-.sentence-game-top-left{
   display:flex;
   flex-direction:column;
-  align-items:flex-start;
-  gap:8px;
+  align-items:stretch;
+  gap:10px;
 }
 
-.sentence-game-top-left .screen-title-chip{
+.sentence-game-top-header .screen-title-chip{
   margin:0;
 }
 
@@ -2074,10 +2067,6 @@ body{
 }
 
 @media (max-width:700px){
-  .sentence-game-top-header{
-    grid-template-columns:1fr;
-  }
-
   .sentence-game-control-panel{
     justify-self:stretch;
     max-width:none;
@@ -2197,10 +2186,6 @@ body{
 
   .header-nav .nav-btn{
     max-width:none;
-  }
-
-  .sentence-game-top-header{
-    grid-template-columns:1fr;
   }
 
   .sentence-game-control-panel{
@@ -2515,12 +2500,7 @@ body{
   }
 
   .sentence-game-top-header{
-    grid-template-columns:1fr;
     gap:8px;
-  }
-
-  .sentence-game-top-left{
-    width:100%;
   }
 
   .sentence-game-rewards-block{
