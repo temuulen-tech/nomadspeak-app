@@ -79,7 +79,6 @@ const nextBtn = document.getElementById("next-btn");
 const restartBtn = document.getElementById("restart-btn");
 const finalTextEl = document.getElementById("final-text");
 
-const navHomeBtn = document.getElementById("nav-home-btn");
 const navLessonBtn = document.getElementById("nav-lesson-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
@@ -4109,7 +4108,6 @@ playExitButtons.forEach((btn) => {
   btn.addEventListener("click", exitPlayModeToHome);
 });
 
-if (navHomeBtn) navHomeBtn.addEventListener("click", () => requestNavigation("home"));
 if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
 if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
