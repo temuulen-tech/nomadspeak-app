@@ -3761,3 +3761,64 @@ body[data-mode="learning"] .app{
     flex:1 1 calc(50% - 8px);
   }
 }
+
+/* Shared required top-area layout for all game/learning screens */
+.learning-master-top{
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  width:100%;
+}
+
+.learning-master-row{
+  display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
+  gap:8px;
+  align-items:center;
+}
+
+.learning-master-row .learning-utility-btn,
+.learning-master-row .learning-exit-btn,
+.learning-master-row .learning-alltime-btn,
+.learning-master-row .sentence-game-difficulty-toggle{
+  width:100%;
+  max-width:none;
+  margin:0;
+}
+
+.learning-master-control{
+  position:relative;
+  width:100%;
+}
+
+.learning-master-row .start-level-picker .start-level-dropdown,
+.learning-master-row .sentences-level-picker .sentences-level-options,
+.learning-master-row .sentence-game-difficulty-wrap .sentence-game-difficulty-panel{
+  top:calc(100% + 6px);
+}
+
+.learning-master-row .learning-title-block{
+  justify-self:start;
+}
+
+.learning-master-row .learning-today-time{
+  justify-self:end;
+  margin-left:0;
+}
+
+.learning-top-extras{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-top-extras .learning-utility-btn{
+  flex:1 1 220px;
+}
+
+@media (max-width:480px){
+  .learning-master-row{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:6px;
+  }
+}
