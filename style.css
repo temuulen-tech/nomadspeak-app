@@ -3761,3 +3761,125 @@ body[data-mode="learning"] .app{
     flex:1 1 calc(50% - 8px);
   }
 }
+
+/* Unified global learning/game header + utility layout (all current/future modes) */
+.learning-layout-header{
+  gap:8px;
+}
+
+.learning-topbar-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-exit-btn,
+.learning-alltime-btn{
+  min-height:34px;
+  padding:6px 10px;
+  border-radius:10px;
+  font-size:12px;
+  line-height:1.2;
+  width:auto;
+  max-width:100%;
+}
+
+.learning-exit-btn{
+  margin-right:auto;
+}
+
+.learning-alltime-btn{
+  margin-left:auto;
+}
+
+.learning-header-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.learning-title-block{
+  margin:0;
+  padding:4px 10px;
+  font-size:.92rem;
+}
+
+.learning-today-time{
+  margin-left:auto;
+  padding:3px 8px;
+  font-size:.7rem;
+  white-space:nowrap;
+}
+
+.learning-utilities-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+  gap:8px;
+  align-items:stretch;
+}
+
+.learning-utility-btn{
+  min-height:36px;
+  width:100%;
+  min-width:0;
+  padding:6px 9px;
+  border-radius:10px;
+  font-size:12px;
+  line-height:1.2;
+}
+
+.learning-level-btn{
+  min-height:38px;
+  max-width:220px;
+  width:100%;
+  justify-self:start;
+}
+
+.start-level-picker,
+.sentences-level-picker,
+.qa-level-picker{
+  width:100%;
+  margin:4px 0 2px;
+}
+
+.learning-utility-btn--stacked{
+  max-width:160px;
+  min-height:56px;
+  justify-self:start;
+  white-space:normal;
+  word-break:break-word;
+  text-align:center;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  line-height:1.15;
+  padding:8px 10px;
+}
+
+.learning-utility-btn--stacked .vault-badge{
+  margin-left:6px;
+}
+
+@media (max-width:560px){
+  .learning-utilities-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
+  .learning-topbar-row{
+    gap:6px;
+  }
+
+  .learning-exit-btn,
+  .learning-alltime-btn{
+    flex:1 1 calc(50% - 3px);
+  }
+
+  .learning-level-btn,
+  .learning-utility-btn--stacked{
+    max-width:none;
+  }
+}
