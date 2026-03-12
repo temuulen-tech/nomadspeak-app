@@ -1440,7 +1440,7 @@ body{
   display:inline-flex;
   flex-direction:column;
   gap:8px;
-  margin:14px 0;
+  margin:0;
 }
 
 .filter-btn,
@@ -1736,18 +1736,20 @@ body{
 
 .sentence-game-difficulty-wrap{
   width:100%;
-  max-width:520px;
+  max-width:100%;
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:6px;
+  margin:0;
 }
 
 .sentence-game-difficulty-toggle{
   width:100%;
-  border-radius:999px;
-  padding:11px 14px;
-  font-size:14px;
-  font-weight:800;
+  border-radius:10px;
+  padding:6px 10px;
+  min-height:36px;
+  font-size:12px;
+  font-weight:700;
   color:#fef6d7;
   border:1px solid rgba(255,219,136,.66);
   background:linear-gradient(145deg, rgba(14,92,84,.92), rgba(14,66,57,.95) 58%, rgba(102,74,28,.92));
@@ -2935,7 +2937,7 @@ body{
 #qa-game-screen .panel-header{
   align-items:center;
 }
-.qa-level-picker{margin:12px 0;}
+.qa-level-picker{margin:0;}
 .qa-level-options{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;}
 .qa-round-panel{margin-top:8px;padding:10px;}
 .qa-toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
@@ -3817,7 +3819,7 @@ body[data-mode="learning"] .app{
 
 .learning-utilities-grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+  grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:8px;
   align-items:stretch;
 }
@@ -3862,6 +3864,10 @@ body[data-mode="learning"] .app{
 
 .learning-utility-btn--stacked .vault-badge{
   margin-left:6px;
+}
+
+#sentence-game-screen .sentence-game-tip-toggle.learning-utility-btn{
+  width:100%;
 }
 
 @media (max-width:560px){
