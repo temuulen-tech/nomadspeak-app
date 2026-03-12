@@ -293,7 +293,7 @@ body{
 
 .home-header-actions{
   display:grid;
-  grid-template-columns:minmax(0, 1.45fr) minmax(0, 1fr);
+  grid-template-columns:minmax(0, 1.55fr) minmax(0, 1fr);
   align-items:stretch;
   gap:10px;
 }
@@ -352,6 +352,10 @@ body{
   grid-template-columns:1fr;
   align-items:stretch;
   gap:8px;
+}
+
+.home-right-column{
+  grid-template-rows:repeat(2, minmax(0, 1fr));
 }
 
 .status-pill{
@@ -788,7 +792,7 @@ body{
   justify-content:center;
   gap:3px;
   width:100%;
-  min-height:86px;
+  min-height:84px;
 }
 
 .intro-btn-line{
@@ -809,7 +813,7 @@ body{
 }
 
 .home-header-actions .header-nav .nav-btn{
-  min-height:39px;
+  min-height:38px;
   padding:8px 10px;
   font-size:13px;
 }
@@ -2213,7 +2217,7 @@ body{
   }
 
   .home-header-actions{
-    grid-template-columns:minmax(0, 1.35fr) minmax(0, 1fr);
+    grid-template-columns:minmax(0, 1.52fr) minmax(0, 1fr);
   }
 
   .header-nav .nav-btn{
@@ -2269,7 +2273,8 @@ body{
   }
 
   .home-header-actions{
-    grid-template-columns:1fr;
+    grid-template-columns:minmax(0, 1.5fr) minmax(0, 1fr);
+    align-items:stretch;
   }
 
   .header-nav .nav-btn{
