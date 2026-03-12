@@ -107,24 +107,16 @@
     </div>
 
     <!-- QUIZ SCREEN -->
-    <section class="card hidden" id="quiz-screen">
-      <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
-      <div class="panel-header">
-        <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
-        <div class="time-widget">
-          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
-          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
-        </div>
-        <div class="lesson-controls-panel control-panel-gold-outline">
-          <div class="topbar hidden" id="topbar">
-            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
-            <div class="pill">Оноо: <span id="score">0</span></div>
-            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
+    <section class="card hidden learning-screen" id="quiz-screen">
+      <div class="panel-header learning-layout-header">
+        <div class="learning-topbar">
+          <div class="learning-topbar-primary">
+            <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
           </div>
-          <div class="lesson-controls-row lesson-top-controls">
+          <div class="learning-topbar-utilities">
             <div class="start-level-picker">
               <button
-                class="secondary"
+                class="secondary learning-utility-btn"
                 id="start-btn"
                 type="button"
                 aria-haspopup="true"
@@ -137,11 +129,21 @@
                 <button class="start-level-option" type="button" data-level="advanced" role="menuitem">Дээд</button>
               </div>
             </div>
-            <button class="secondary vault-open-btn" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
+            <button class="secondary vault-open-btn learning-utility-btn" id="lesson-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="lesson-vault-badge">0</span></button>
+            <button class="secondary vault-save-btn learning-utility-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
+            <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
-          <div class="lesson-controls-row lesson-audio-controls">
-            <button class="secondary vault-save-btn" id="lesson-save-btn" type="button">Дасгалыг дараа давтахаар хадгалах</button>
-            <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+        </div>
+        <h2 class="lesson-title screen-title-chip chip-title">Зөв хариулт сонгоорой</h2>
+        <div class="time-widget">
+          <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
+        </div>
+        <div class="lesson-controls-panel control-panel-gold-outline">
+          <div class="topbar hidden" id="topbar">
+            <div class="pill">Түвшин: <span id="level-label">Анхан</span></div>
+            <div class="pill">Оноо: <span id="score">0</span></div>
+            <div class="pill">Асуулт: <span id="progress">0/0</span></div>
           </div>
         </div>
       </div>
@@ -189,19 +191,23 @@
 
 
     <!-- SENTENCES SCREEN -->
-    <section class="card hidden" id="sentences-screen">
-      <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
-      <div class="panel-header sentences-panel-header">
+    <section class="card hidden learning-screen" id="sentences-screen">
+      <div class="panel-header sentences-panel-header learning-layout-header">
+        <div class="learning-topbar">
+          <div class="learning-topbar-primary">
+            <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+          </div>
+          <div class="learning-topbar-utilities">
+            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary vault-open-btn sentences-vault-compact-btn learning-utility-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
+            <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+          </div>
+        </div>
         <div class="sentences-title-stack">
           <h2 class="screen-title-chip chip-title">Асуугаад &amp; Хариулаарай</h2>
           <div class="time-widget">
             <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
-            <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
           </div>
-        </div>
-        <div class="sentences-header-actions">
-          <button class="secondary vault-open-btn sentences-vault-compact-btn" id="sentences-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentences-vault-badge">0</span></button>
-          <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
         </div>
       </div>
       <div class="sentences-reward-strip reward-row rewards-group" id="sentences-reward-strip" aria-label="Sentences reward progress">
@@ -273,23 +279,27 @@
     </section>
 
     <!-- SENTENCE GAME SCREEN -->
-    <section class="card hidden" id="sentence-game-screen">
-      <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
+    <section class="card hidden learning-screen" id="sentence-game-screen">
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
       <div class="sentence-game-top">
-        <div class="sentence-game-top-header">
+        <div class="sentence-game-top-header learning-layout-header">
+          <div class="learning-topbar">
+            <div class="learning-topbar-primary">
+              <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+            </div>
+            <div class="learning-topbar-utilities">
+              <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
+              <button class="secondary vault-open-btn learning-utility-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
+              <button class="secondary vault-save-btn learning-utility-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
+              <button class="secondary sound-toggle-btn learning-utility-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
+              <button class="sentence-game-tip-toggle learning-utility-btn" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
+            </div>
+          </div>
           <div class="sentence-game-top-left">
             <h2 class="screen-title-chip chip-title">Өгүүлбэрийн тоглоом</h2>
             <div class="time-widget">
               <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
-              <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
             </div>
-          </div>
-          <div class="sentence-game-control-panel control-panel-gold-outline" aria-label="Sentence game quick actions">
-            <button class="secondary vault-open-btn" id="sentence-game-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="sentence-game-vault-badge">0</span></button>
-            <button class="secondary vault-save-btn" id="sentence-game-save-btn" type="button">⭐ Хадгалах</button>
-            <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Sound: ON</button>
-            <button class="sentence-game-tip-toggle" id="sentence-game-tip-toggle-btn" type="button" aria-expanded="false" aria-controls="sentence-game-tip-panel">✨ Тоглоомын тайлбарыг унших</button>
           </div>
         </div>
         <div class="sentence-game-rewards-block control-panel-gold-outline" id="sentence-game-reward-middle">
@@ -359,18 +369,24 @@
 
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
-    <section class="card hidden" id="qa-game-screen">
-      <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
-      <div class="panel-header">
+    <section class="card hidden learning-screen" id="qa-game-screen">
+      <div class="panel-header learning-layout-header">
+        <div class="learning-topbar">
+          <div class="learning-topbar-primary">
+            <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+          </div>
+          <div class="learning-topbar-utilities">
+            <button class="secondary time-details-btn learning-utility-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
+            <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
+            <button class="secondary vault-open-btn learning-utility-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
+            <button class="secondary vault-save-btn learning-utility-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
+          </div>
+        </div>
         <h2 class="screen-title-chip chip-title">Асуулт Хариулт тоглоом</h2>
         <div class="time-widget">
           <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
-          <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
         </div>
-        <button class="secondary" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
-        <button class="secondary" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
-        <button class="secondary vault-open-btn" id="qa-vault-btn" type="button">Дахин давтах / Дараа харах <span class="vault-badge" id="qa-vault-badge">0</span></button>
-        <button class="secondary vault-save-btn" id="qa-save-btn" type="button">⭐ Хадгалах</button>
       </div>
 
       <div class="sentence-game-reward-middle control-panel-gold-outline">
