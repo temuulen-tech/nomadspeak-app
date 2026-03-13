@@ -2392,6 +2392,7 @@ function setBoardGameRollEnabled(enabled) {
 
 function renderBoardGameChallenge() {
   const challenge = boardGameState.challenge.activeChallenge;
+  const challengePanel = document.querySelector(".board-game-challenge-panel");
   if (boardGameChallengeTitleEl) {
     boardGameChallengeTitleEl.textContent = challenge
       ? `Монгол өгүүлбэр · ${challenge.promptMn}`
@@ -2406,6 +2407,8 @@ function renderBoardGameChallenge() {
 
   if (!boardGameOptionsEl) return;
   boardGameOptionsEl.innerHTML = "";
+
+  if (challengePanel) challengePanel.classList.toggle("show", Boolean(challenge));
 
   if (!challenge) return;
 
