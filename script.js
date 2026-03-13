@@ -234,6 +234,10 @@ const boardGameCoinsEl = document.getElementById("board-game-coins");
 const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
 
 
+const boardGameFeedbackHubEl = document.getElementById("board-game-feedback-hub");
+const boardGameParticlesEl = document.getElementById("board-game-particles");
+
+
 const lessonVaultBtn = document.getElementById("lesson-vault-btn");
 const lessonVaultBadge = document.getElementById("lesson-vault-badge");
 const lessonSaveBtn = document.getElementById("lesson-save-btn");
@@ -2118,6 +2122,123 @@ const boardGameState = {
   feedback: { message: "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.", type: "info" },
 };
 
+const GAME_FEEL_MOTION = {
+  tilePulseMs: 900,
+  rewardPopMs: 850,
+  penaltyMs: 520,
+  moveStepMs: 210,
+};
+
+const GAME_FEEL_SOUND_EVENTS = {
+  ambient: "ambient",
+  dice: "dice",
+  correct: "correct",
+  wrong: "wrong",
+  reward: "reward",
+  chest: "chest",
+  finish: "finish",
+};
+
+const gameFeelSoundManager = {
+  ambientTimer: null,
+  ambientEnabled: false,
+  play(eventName) {
+    if (!soundEnabled) return;
+    if (eventName === GAME_FEEL_SOUND_EVENTS.dice) {
+      playTone({ frequency: 420, type: "triangle", duration: 0.06, volume: 0.08, attack: 0.003, release: 0.05 });
+      setTimeout(() => playTone({ frequency: 260, type: "triangle", duration: 0.08, volume: 0.07, attack: 0.004, release: 0.06 }), 70);
+      return;
+    }
+    if (eventName === GAME_FEEL_SOUND_EVENTS.correct) {
+      playSuccessSound();
+      return;
+    }
+    if (eventName === GAME_FEEL_SOUND_EVENTS.wrong) {
+      playErrorSound();
+      return;
+    }
+    if (eventName === GAME_FEEL_SOUND_EVENTS.reward) {
+      playTone({ frequency: 988, type: "sine", duration: 0.08, volume: 0.11, attack: 0.004, release: 0.06 });
+      setTimeout(() => playTone({ frequency: 1480, type: "triangle", duration: 0.1, volume: 0.1, attack: 0.004, release: 0.08 }), 55);
+      return;
+    }
+    if (eventName === GAME_FEEL_SOUND_EVENTS.chest) {
+      playTone({ frequency: 320, type: "square", duration: 0.1, volume: 0.07, attack: 0.001, release: 0.08 });
+      setTimeout(() => playTone({ frequency: 760, type: "triangle", duration: 0.11, volume: 0.09, attack: 0.004, release: 0.07 }), 95);
+      return;
+    }
+    if (eventName === GAME_FEEL_SOUND_EVENTS.finish) {
+      [660, 880, 1174].forEach((freq, i) => {
+        setTimeout(() => playTone({ frequency: freq, type: "triangle", duration: 0.1, volume: 0.11, attack: 0.005, release: 0.08 }), i * 90);
+      });
+    }
+  },
+  startAmbient() {
+    this.stopAmbient();
+    if (!soundEnabled) return;
+    this.ambientEnabled = true;
+    const pulse = () => {
+      if (!this.ambientEnabled || !soundEnabled || document.hidden) return;
+      playTone({ frequency: 174, type: "sine", duration: 0.2, volume: 0.018, attack: 0.05, release: 0.2 });
+      this.ambientTimer = window.setTimeout(pulse, 4200);
+    };
+    this.ambientTimer = window.setTimeout(pulse, 1200);
+  },
+  stopAmbient() {
+    this.ambientEnabled = false;
+    if (this.ambientTimer) {
+      clearTimeout(this.ambientTimer);
+      this.ambientTimer = null;
+    }
+  },
+};
+
+function gameFeelAnimate(el, className, duration = 600) {
+  if (!el) return;
+  el.classList.remove(className);
+  void el.offsetWidth;
+  el.classList.add(className);
+  setTimeout(() => el.classList.remove(className), duration);
+}
+
+function spawnBoardParticles(type = "reward") {
+  if (!boardGameParticlesEl) return;
+  const count = type === "finish" ? 14 : 8;
+  for (let i = 0; i < count; i += 1) {
+    const particle = document.createElement("span");
+    particle.className = `board-particle is-${type}`;
+    particle.style.left = `${10 + Math.random() * 80}%`;
+    particle.style.animationDelay = `${Math.random() * 180}ms`;
+    particle.style.animationDuration = `${700 + Math.random() * 500}ms`;
+    boardGameParticlesEl.appendChild(particle);
+    setTimeout(() => particle.remove(), 1500);
+  }
+}
+
+function showBoardGamePopup(type, text) {
+  if (!boardGameFeedbackHubEl) return;
+  const chip = document.createElement("div");
+  chip.className = `board-popup board-popup-${type}`;
+  chip.textContent = text;
+  boardGameFeedbackHubEl.appendChild(chip);
+  requestAnimationFrame(() => chip.classList.add("show"));
+  setTimeout(() => {
+    chip.classList.remove("show");
+    setTimeout(() => chip.remove(), 280);
+  }, 1800);
+}
+
+function applyBoardGameTileMoment(tileType) {
+  const activeTile = boardGameBoardEl?.querySelector(`[data-tile="${boardGameState.player.currentTile}"]`);
+  if (tileType === "checkpoint") gameFeelAnimate(activeTile, "gf-checkpoint-glow", 1000);
+  if (tileType === "reward") gameFeelAnimate(activeTile, "gf-reward-pop", GAME_FEEL_MOTION.rewardPopMs);
+  if (tileType === "penalty") gameFeelAnimate(activeTile, "gf-penalty-flash", GAME_FEEL_MOTION.penaltyMs);
+  if (tileType === "finish") {
+    gameFeelAnimate(activeTile, "gf-chest-open", 1200);
+    spawnBoardParticles("finish");
+  }
+}
+
 function boardLevelConfig() {
   return BOARD_GAME_CONFIG.levels[boardGameState.levelId];
 }
@@ -2155,8 +2276,11 @@ function updateBoardGameTokenPosition() {
 
   boardGameBoardEl.querySelectorAll(".board-game-tile").forEach((tileEl) => {
     const tileNumber = Number(tileEl.dataset.tile || 0);
-    tileEl.classList.toggle("active", tileNumber === boardGameState.player.currentTile);
+    const isActive = tileNumber === boardGameState.player.currentTile;
+    tileEl.classList.toggle("active", isActive);
+    tileEl.classList.toggle("gf-tile-pulse", isActive);
   });
+  gameFeelAnimate(boardGameTokenEl, "gf-token-step", GAME_FEEL_MOTION.moveStepMs);
 }
 
 function updateBoardGameChapterPanel() {
@@ -2164,6 +2288,8 @@ function updateBoardGameChapterPanel() {
   if (boardGameChapterTitleEl) boardGameChapterTitleEl.textContent = chapter.title;
   if (boardGameChapterTextEl) boardGameChapterTextEl.textContent = chapter.story;
   if (boardGameChapterIndexEl) boardGameChapterIndexEl.textContent = String(chapter.index);
+  const storyPanel = document.querySelector(".board-game-story-panel");
+  gameFeelAnimate(storyPanel, "gf-story-panel-in", 420);
 }
 
 function updateBoardGameMetaUi() {
@@ -2230,12 +2356,15 @@ function sleep(ms) {
 async function animateBoardGameDice(roll) {
   if (!boardGameDiceEl) return;
   boardGameState.dice.rolling = true;
+  boardGameDiceEl.classList.add("gf-dice-roll");
+  gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.dice);
   const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-  for (let i = 0; i < 8; i += 1) {
+  for (let i = 0; i < 10; i += 1) {
     boardGameDiceEl.textContent = faces[Math.floor(Math.random() * faces.length)];
-    await sleep(65);
+    await sleep(60);
   }
   boardGameDiceEl.textContent = faces[roll - 1] || "🎲";
+  boardGameDiceEl.classList.remove("gf-dice-roll");
   boardGameState.dice.rolling = false;
 }
 
@@ -2248,7 +2377,7 @@ async function animateBoardGameMovement(fromTile, toTile) {
     updateBoardGameChapterPanel();
     updateBoardGameMetaUi();
     updateBoardGameTokenPosition();
-    await sleep(220);
+    await sleep(GAME_FEEL_MOTION.moveStepMs);
   }
   boardGameState.movement.isMoving = false;
 }
@@ -2256,16 +2385,31 @@ async function animateBoardGameMovement(fromTile, toTile) {
 function setBoardGameFeedback(message, type = "info") {
   boardGameState.feedback.message = message;
   boardGameState.feedback.type = type;
+  if (boardGameFeedbackEl) {
+    boardGameFeedbackEl.dataset.type = type;
+    gameFeelAnimate(boardGameFeedbackEl, type === "penalty" ? "gf-feedback-penalty" : "gf-feedback-success", 500);
+  }
+  showBoardGamePopup(type, message);
   updateBoardGameMetaUi();
 }
 
 function applyPostLandingTileFeedback(tile) {
   if (tile.tileType === "story") {
-    setBoardGameFeedback("Өгүүлэмжийн нүд: хоёр ертөнц сониуч бөгөөд болгоомжтойгоор бие биеэ ажиглана.");
+    setBoardGameFeedback("Өгүүлэмжийн нүд: хоёр ертөнц сониуч бөгөөд болгоомжтойгоор бие биеэ ажиглана.", "story");
     return;
   }
   const effectMessage = applyBoardTileEffect(tile);
-  if (effectMessage) setBoardGameFeedback(effectMessage, tile.tileType);
+  if (effectMessage) {
+    setBoardGameFeedback(effectMessage, tile.tileType);
+    applyBoardGameTileMoment(tile.tileType);
+    if (tile.tileType === "reward") {
+      gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.reward);
+      spawnBoardParticles("reward");
+    }
+    if (tile.tileType === "penalty") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.wrong);
+    if (tile.tileType === "checkpoint") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.chest);
+    if (tile.tileType === "finish") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.finish);
+  }
 }
 
 async function resolveBoardLanding(tileNumber, rolledValue) {
@@ -2300,6 +2444,9 @@ async function handleBoardGameAnswer(selectedOption) {
     boardGameState.player.xp += 20;
     boardGameState.player.coins += 12;
     setBoardGameFeedback(`Зөв! ${challenge.promptMn} = ${challenge.answer}. Байрлалаа хадгалж, +20 туршлага, +12 зоос авлаа.`, "success");
+    gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.correct);
+    spawnBoardParticles("reward");
+    gameFeelAnimate(boardGameOptionsEl, "gf-reward-pop", GAME_FEEL_MOTION.rewardPopMs);
     boardGameState.challenge.activeChallenge = null;
     renderBoardGameChallenge();
     if (boardGameState.player.currentTile === boardLevelConfig().totalTiles) setBoardGameRollEnabled(false);
@@ -2308,6 +2455,8 @@ async function handleBoardGameAnswer(selectedOption) {
   }
 
   setBoardGameFeedback(`Буруу хариулт. ${challenge.promptMn} нь ${challenge.answer} гэсэн утгатай. ${boardGameState.challenge.pendingRoll} нүд ухарна.`, "penalty");
+  gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.wrong);
+  gameFeelAnimate(boardGameTokenEl, "gf-penalty-shake", GAME_FEEL_MOTION.penaltyMs);
   await sleep(450);
 
   const fromTile = boardGameState.player.currentTile;
@@ -2356,6 +2505,8 @@ function initBoardGameMvp() {
   updateBoardGameTokenPosition();
   setBoardGameRollEnabled(true);
   if (boardGameDiceEl) boardGameDiceEl.textContent = "🎲";
+  if (boardGameFeedbackHubEl) boardGameFeedbackHubEl.innerHTML = "";
+  gameFeelSoundManager.startAmbient();
 }
 
 // 4 option хийх: 1 зөв + 3 буруу
@@ -4469,6 +4620,9 @@ soundToggleButtons.forEach(toggleBtn => {
     soundEnabled = !soundEnabled;
     if (!soundEnabled) {
       stopSpeaking();
+      gameFeelSoundManager.stopAmbient();
+    } else if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
+      gameFeelSoundManager.startAmbient();
     }
     updateSoundToggleState();
     persistSoundSettings();
@@ -4476,7 +4630,10 @@ soundToggleButtons.forEach(toggleBtn => {
 });
 
 playExitButtons.forEach((btn) => {
-  btn.addEventListener("click", exitPlayModeToHome);
+  btn.addEventListener("click", () => {
+    gameFeelSoundManager.stopAmbient();
+    exitPlayModeToHome();
+  });
 });
 
 if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
@@ -4645,6 +4802,11 @@ window.addEventListener("resize", () => {
   if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
     updateBoardGameTokenPosition();
   }
+});
+
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) gameFeelSoundManager.stopAmbient();
+  else if (soundEnabled && boardGameScreen && !boardGameScreen.classList.contains("hidden")) gameFeelSoundManager.startAmbient();
 });
 
 const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
