@@ -431,6 +431,11 @@
               <span class="game-feel-mist"></span>
               <span class="game-feel-glow"></span>
             </div>
+            <div class="board-game-scene-horizon" aria-hidden="true"></div>
+            <div class="board-game-character-presence" aria-hidden="true">
+              <span class="board-game-character-figure">🧭</span>
+              <span class="board-game-character-shadow"></span>
+            </div>
             <div class="board-game-scene-story board-game-story-panel" aria-live="polite">
               <p class="chip-label" id="board-game-chapter-title">Бүлгийн гарчиг</p>
               <p class="muted" id="board-game-chapter-text">Энэ бүлэгт түүхэн үйл явдлыг олон өнцгөөс тайлбарлана.</p>
@@ -443,9 +448,7 @@
             </div>
             <div class="board-game-feedback-hub" id="board-game-feedback-hub" aria-live="polite"></div>
             <div class="board-game-controls-panel">
-              <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
-              <button class="primary" id="board-game-roll-btn" type="button">Шоо</button>
-              <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
+              <div class="board-game-dice" id="board-game-dice" role="button" tabindex="0" aria-label="Шоо шидэх" aria-live="polite">🎲</div>
             </div>
             <section class="board-game-challenge-panel" aria-live="polite">
               <p id="board-game-challenge-title">Эхний сорилоо нээхийн тулд шоо шиднэ үү.</p>
