@@ -3553,9 +3553,22 @@ body[data-mode="learning"] .app{
   }
 }
 
-/* ---- Board Game MVP Scaffold ---- */
+/* ---- Board Game MVP ---- */
 .board-game-world-chip{
   margin:0 0 10px;
+}
+
+.board-game-meta-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin:0 0 10px;
+}
+
+.board-game-meta-chip{
+  display:inline-flex;
+  gap:6px;
+  align-items:center;
 }
 
 .board-game-layout{
@@ -3596,13 +3609,23 @@ body[data-mode="learning"] .app{
 }
 
 .board-game-tile{
-  min-height:42px;
+  min-height:46px;
   border-radius:10px;
   border:1px solid rgba(255,210,118,.4);
   background:linear-gradient(145deg, rgba(14,89,80,.84), rgba(69,53,21,.74));
   color:#fff4d0;
   font-weight:800;
-  padding:8px 0;
+  padding:6px 0;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:3px;
+}
+
+.board-game-tile small{
+  font-size:.66rem;
+  opacity:.93;
 }
 
 .board-game-tile.active{
@@ -3627,10 +3650,51 @@ body[data-mode="learning"] .app{
   z-index:2;
 }
 
+.board-game-dice{
+  margin-top:8px;
+  width:58px;
+  height:58px;
+  border-radius:14px;
+  border:1px solid rgba(255,212,122,.7);
+  background:linear-gradient(160deg, rgba(56,37,15,.92), rgba(100,72,22,.84));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  box-shadow:0 0 16px rgba(255,201,90,.22);
+}
+
 .board-game-controls-panel #board-game-roll-btn{
   margin-top:10px;
   width:100%;
 }
+
+.board-game-options{
+  margin-top:10px;
+  display:grid;
+  gap:8px;
+}
+
+.board-game-option-btn{
+  width:100%;
+  text-align:left;
+}
+
+.board-game-option-btn.correct{
+  border-color:#7affae;
+  box-shadow:0 0 0 1px rgba(122,255,174,.45);
+}
+
+.board-game-option-btn.wrong{
+  border-color:#ff8d8d;
+  box-shadow:0 0 0 1px rgba(255,141,141,.45);
+}
+
+.tile-type-reward{ background:linear-gradient(145deg, rgba(17,95,70,.88), rgba(124,88,27,.84)); }
+.tile-type-penalty{ background:linear-gradient(145deg, rgba(78,35,35,.9), rgba(89,54,24,.85)); }
+.tile-type-checkpoint{ background:linear-gradient(145deg, rgba(18,87,92,.88), rgba(79,88,29,.82)); }
+.tile-type-story{ background:linear-gradient(145deg, rgba(19,72,88,.88), rgba(71,57,28,.84)); }
+.tile-type-finish{ background:linear-gradient(145deg, rgba(89,68,19,.95), rgba(150,110,25,.88)); }
 
 @media (min-width: 760px){
   .board-game-layout{
