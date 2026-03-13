@@ -220,10 +220,6 @@ const sentencesCompanionLineEl = document.getElementById("sentences-companion-li
 
 const boardGameBoardEl = document.getElementById("board-game-board");
 const boardGameTokenEl = document.getElementById("board-game-token");
-const boardGameRollBtn = document.getElementById("board-game-roll-btn");
-const boardGamePositionEl = document.getElementById("board-game-position");
-const boardGameTotalTilesEl = document.getElementById("board-game-total-tiles");
-const boardGameLastRollEl = document.getElementById("board-game-last-roll");
 const boardGameChapterTitleEl = document.getElementById("board-game-chapter-title");
 const boardGameChapterTextEl = document.getElementById("board-game-chapter-text");
 const boardGameChallengeTitleEl = document.getElementById("board-game-challenge-title");
@@ -2377,9 +2373,6 @@ function updateBoardGameChapterPanel() {
 }
 
 function updateBoardGameMetaUi() {
-  if (boardGamePositionEl) boardGamePositionEl.textContent = String(boardGameState.player.currentTile);
-  if (boardGameTotalTilesEl) boardGameTotalTilesEl.textContent = String(boardLevelConfig().totalTiles);
-  if (boardGameLastRollEl) boardGameLastRollEl.textContent = boardGameState.dice.lastRoll === null ? "-" : String(boardGameState.dice.lastRoll);
   if (boardGameFeedbackEl) boardGameFeedbackEl.textContent = boardGameState.feedback.message;
   if (boardGameXpEl) boardGameXpEl.textContent = String(boardGameState.player.xp);
   if (boardGameCoinsEl) boardGameCoinsEl.textContent = String(boardGameState.player.coins);
@@ -2387,7 +2380,7 @@ function updateBoardGameMetaUi() {
 
 function setBoardGameRollEnabled(enabled) {
   boardGameState.dice.canRoll = enabled;
-  if (boardGameRollBtn) boardGameRollBtn.disabled = !enabled;
+  if (boardGameDiceEl) boardGameDiceEl.classList.toggle("is-disabled", !enabled);
 }
 
 function renderBoardGameChallenge() {
@@ -4899,8 +4892,14 @@ if (installBtn) {
 
 updateInstallHintVisibility();
 
-if (boardGameRollBtn) {
-  boardGameRollBtn.addEventListener("click", boardGameRollDice);
+if (boardGameDiceEl) {
+  boardGameDiceEl.addEventListener("click", boardGameRollDice);
+  boardGameDiceEl.addEventListener("keydown", (event) => {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      boardGameRollDice();
+    }
+  });
 }
 
 window.addEventListener("resize", () => {
