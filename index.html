@@ -419,8 +419,13 @@
           </section>
 
           <section class="board-game-panel board-game-board-panel" aria-label="Самбарын нүднүүд">
+            <div class="game-feel-ambient-layer" aria-hidden="true">
+              <span class="game-feel-mist"></span>
+              <span class="game-feel-glow"></span>
+            </div>
             <div class="board-game-board" id="board-game-board"></div>
             <div class="board-game-token" id="board-game-token" aria-hidden="true">⛵</div>
+            <div class="board-game-particles" id="board-game-particles" aria-hidden="true"></div>
           </section>
 
           <section class="board-game-panel board-game-controls-panel">
@@ -429,6 +434,7 @@
             <p class="muted">Сүүлд буусан тоо: <span id="board-game-last-roll">-</span></p>
             <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
             <button class="primary" id="board-game-roll-btn" type="button">🎲 Шоо шидэх</button>
+            <button class="secondary sound-toggle-btn board-sound-toggle" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
           </section>
 
           <section class="board-game-panel board-game-challenge-panel" aria-live="polite">
@@ -441,6 +447,7 @@
           <section class="board-game-panel board-game-feedback-panel" aria-live="polite">
             <h3 class="chip-label">Шагнал / Торгуулийн мэдэгдэл</h3>
             <p id="board-game-feedback">Далай дамнасан аяллаа эхлэхийн тулд шоо шиднэ үү.</p>
+            <div class="board-game-feedback-hub" id="board-game-feedback-hub" aria-live="polite"></div>
           </section>
         </div>
       </div>
