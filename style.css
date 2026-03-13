@@ -3552,3 +3552,93 @@ body[data-mode="learning"] .app{
     font-size:.66rem;
   }
 }
+
+/* ---- Board Game MVP Scaffold ---- */
+.board-game-world-chip{
+  margin:0 0 10px;
+}
+
+.board-game-layout{
+  display:grid;
+  gap:10px;
+  grid-template-columns:1fr;
+}
+
+.board-game-panel{
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:14px;
+  background:linear-gradient(160deg, rgba(6,30,41,.84), rgba(8,44,39,.72));
+  padding:12px;
+}
+
+.board-game-panel h3{
+  margin:0 0 8px;
+  font-size:.92rem;
+}
+
+.board-game-panel p{
+  margin:0;
+}
+
+.board-game-board-panel{
+  position:relative;
+}
+
+.board-game-board{
+  display:grid;
+  grid-template-columns:repeat(6, minmax(0, 1fr));
+  gap:8px;
+  padding:8px;
+  border-radius:12px;
+  border:1px dashed rgba(255,220,140,.45);
+  background:rgba(2,20,26,.65);
+  min-height:220px;
+}
+
+.board-game-tile{
+  min-height:42px;
+  border-radius:10px;
+  border:1px solid rgba(255,210,118,.4);
+  background:linear-gradient(145deg, rgba(14,89,80,.84), rgba(69,53,21,.74));
+  color:#fff4d0;
+  font-weight:800;
+  padding:8px 0;
+}
+
+.board-game-tile.active{
+  border-color:#ffe08e;
+  box-shadow:0 0 0 1px rgba(255,224,142,.68), 0 0 18px rgba(255,201,90,.35);
+}
+
+.board-game-token{
+  position:absolute;
+  width:32px;
+  height:32px;
+  border-radius:999px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+  border:1px solid rgba(255,233,160,.9);
+  background:linear-gradient(145deg, rgba(55,37,10,.95), rgba(114,81,24,.9));
+  box-shadow:0 10px 24px rgba(0,0,0,.38), 0 0 12px rgba(255,205,108,.35);
+  transform:translate(-50%, -50%);
+  pointer-events:none;
+  z-index:2;
+}
+
+.board-game-controls-panel #board-game-roll-btn{
+  margin-top:10px;
+  width:100%;
+}
+
+@media (min-width: 760px){
+  .board-game-layout{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .board-game-board-panel,
+  .board-game-feedback-panel{
+    grid-column:1 / -1;
+  }
+}

@@ -59,6 +59,7 @@ const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
 const qaGameScreen = document.getElementById("qa-game-screen");
+const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
 
@@ -83,6 +84,7 @@ const navLessonBtn = document.getElementById("nav-lesson-btn");
 const navSentencesBtn = document.getElementById("nav-sentences-btn");
 const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
 const navQaGameBtn = document.getElementById("nav-qa-game-btn");
+const navBoardGameBtn = document.getElementById("nav-board-game-btn");
 const navStatsBtn = document.getElementById("nav-stats-btn");
 const navProfileBtn = document.getElementById("nav-profile-btn");
 const navModesBtn = document.getElementById("nav-modes-btn");
@@ -212,6 +214,19 @@ let statsSelectedPeriod = "day";
 let statsRewardTab = "days";
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
+
+
+const boardGameBoardEl = document.getElementById("board-game-board");
+const boardGameTokenEl = document.getElementById("board-game-token");
+const boardGameRollBtn = document.getElementById("board-game-roll-btn");
+const boardGamePositionEl = document.getElementById("board-game-position");
+const boardGameTotalTilesEl = document.getElementById("board-game-total-tiles");
+const boardGameLastRollEl = document.getElementById("board-game-last-roll");
+const boardGameChapterTitleEl = document.getElementById("board-game-chapter-title");
+const boardGameChapterTextEl = document.getElementById("board-game-chapter-text");
+const boardGameChallengeTitleEl = document.getElementById("board-game-challenge-title");
+const boardGameChallengeTextEl = document.getElementById("board-game-challenge-text");
+const boardGameFeedbackEl = document.getElementById("board-game-feedback");
 
 
 const lessonVaultBtn = document.getElementById("lesson-vault-btn");
@@ -408,6 +423,7 @@ const SCREEN_IDS = {
   [sentencesScreen.id]: "sentences",
   [sentenceGameScreen.id]: "sentence-game",
   [qaGameScreen.id]: "qa-game",
+  [boardGameScreen.id]: "board-game",
   [statsScreen.id]: "stats",
   [profileScreen.id]: "profile",
   [endScreen.id]: "end",
@@ -419,6 +435,7 @@ const SCREENS = {
   sentences: sentencesScreen,
   "sentence-game": sentenceGameScreen,
   "qa-game": qaGameScreen,
+  "board-game": boardGameScreen,
   stats: statsScreen,
   profile: profileScreen,
   end: endScreen,
@@ -1955,6 +1972,12 @@ function navigateTo(destination) {
     resetQaGameScreen();
   }
 
+  if (destination === "board-game") {
+    stopSpeaking();
+    showScreen("board-game");
+    initBoardGameMvp();
+  }
+
   if (destination === "stats") {
     stopSpeaking();
     showScreen("stats");
@@ -1985,6 +2008,219 @@ function requestNavigation(destination) {
   if (destination !== "lesson") resetLessonProgress();
 
   navigateTo(destination);
+}
+
+// ---- Board Game MVP Scaffold ----
+const BOARD_GAME_TILE_COUNT = 26;
+
+const BOARD_GAME_CHAPTERS = [
+  {
+    id: "ocean-crossing",
+    title: "Chapter 1 · The world beyond the sea",
+    story: "Sailors cross a vast ocean while native communities continue life on their shores. Curiosity and uncertainty rise on both sides.",
+    startTile: 1,
+    endTile: 6,
+  },
+  {
+    id: "landfall-and-contact",
+    title: "Chapter 2 · First landfall and first meetings",
+    story: "First contact brings gestures, trade attempts, and misunderstandings. Not every encounter is friendly, and survival decisions matter.",
+    startTile: 7,
+    endTile: 13,
+  },
+  {
+    id: "trade-and-tension",
+    title: "Chapter 3 · Trade, gifts, and rising tension",
+    story: "Goods and knowledge are exchanged, but pressure, gold-seeking, and fear increase tension for sailors and native communities alike.",
+    startTile: 14,
+    endTile: 20,
+  },
+  {
+    id: "danger-and-settlement",
+    title: "Chapter 4 · Danger, survival, and settlement",
+    story: "Storms, shortages, and conflict test everyone. Early settlement begins under fragile and uncertain conditions.",
+    startTile: 21,
+    endTile: 26,
+  },
+];
+
+const BOARD_GAME_TILE_DATA = Array.from({ length: BOARD_GAME_TILE_COUNT }, (_, index) => {
+  const tileNumber = index + 1;
+  const phase = tileNumber <= 6
+    ? "ocean"
+    : tileNumber <= 13
+      ? "landfall"
+      : tileNumber <= 20
+        ? "trade"
+        : "survival";
+
+  return {
+    id: `tile-${tileNumber}`,
+    tileNumber,
+    phase,
+    tileType: tileNumber % 5 === 0 ? "challenge" : "story",
+    chapterId: BOARD_GAME_CHAPTERS.find((chapter) => tileNumber >= chapter.startTile && tileNumber <= chapter.endTile)?.id || "ocean-crossing",
+    label: `Tile ${tileNumber}`,
+  };
+});
+
+const BOARD_GAME_CHALLENGES = [
+  {
+    id: "challenge-trade-words",
+    tileNumber: 5,
+    type: "vocabulary",
+    prompt: "Placeholder: choose a respectful trade-related phrase.",
+    perspective: "trade",
+  },
+  {
+    id: "challenge-contact-tone",
+    tileNumber: 10,
+    type: "tone",
+    prompt: "Placeholder: choose language that shows curiosity without disrespect.",
+    perspective: "first-contact",
+  },
+  {
+    id: "challenge-survival-choice",
+    tileNumber: 18,
+    type: "decision",
+    prompt: "Placeholder: pick a survival dialogue strategy for tense moments.",
+    perspective: "survival",
+  },
+  {
+    id: "challenge-community-view",
+    tileNumber: 24,
+    type: "reflection",
+    prompt: "Placeholder: identify how different communities may view the same event.",
+    perspective: "multiple",
+  },
+];
+
+const boardGameState = {
+  player: {
+    id: "player-1",
+    name: "Voyager",
+    token: "⛵",
+    currentTile: 1,
+  },
+  dice: {
+    sides: 6,
+    lastRoll: null,
+    canRoll: true,
+  },
+  movement: {
+    fromTile: 1,
+    toTile: 1,
+    stepsPending: 0,
+    isMoving: false,
+  },
+  chapter: {
+    activeChapterId: BOARD_GAME_CHAPTERS[0].id,
+  },
+  challenge: {
+    activeChallengeId: null,
+  },
+  feedback: {
+    message: "Roll the dice to begin your journey across the sea.",
+    type: "info",
+  },
+};
+
+function boardGameChapterByTile(tileNumber) {
+  return BOARD_GAME_CHAPTERS.find((chapter) => tileNumber >= chapter.startTile && tileNumber <= chapter.endTile) || BOARD_GAME_CHAPTERS[0];
+}
+
+function boardGameChallengeByTile(tileNumber) {
+  return BOARD_GAME_CHALLENGES.find((challenge) => challenge.tileNumber === tileNumber) || null;
+}
+
+function renderBoardGameTiles() {
+  if (!boardGameBoardEl) return;
+  boardGameBoardEl.innerHTML = BOARD_GAME_TILE_DATA.map((tile) => (
+    `<button class="board-game-tile" data-tile="${tile.tileNumber}" type="button">${tile.tileNumber}</button>`
+  )).join("");
+}
+
+function updateBoardGameTokenPosition() {
+  if (!boardGameBoardEl || !boardGameTokenEl) return;
+
+  const activeTile = boardGameBoardEl.querySelector(`[data-tile="${boardGameState.player.currentTile}"]`);
+  if (!activeTile) return;
+
+  const boardRect = boardGameBoardEl.getBoundingClientRect();
+  const tileRect = activeTile.getBoundingClientRect();
+  const x = tileRect.left - boardRect.left + (tileRect.width / 2);
+  const y = tileRect.top - boardRect.top + (tileRect.height / 2);
+
+  boardGameTokenEl.style.left = `${x}px`;
+  boardGameTokenEl.style.top = `${y}px`;
+
+  boardGameBoardEl.querySelectorAll(".board-game-tile").forEach((tileEl) => {
+    const tileNumber = Number(tileEl.dataset.tile || 0);
+    tileEl.classList.toggle("active", tileNumber === boardGameState.player.currentTile);
+  });
+}
+
+function updateBoardGameChapterPanel() {
+  const chapter = boardGameChapterByTile(boardGameState.player.currentTile);
+  boardGameState.chapter.activeChapterId = chapter.id;
+
+  if (boardGameChapterTitleEl) boardGameChapterTitleEl.textContent = chapter.title;
+  if (boardGameChapterTextEl) boardGameChapterTextEl.textContent = chapter.story;
+}
+
+function updateBoardGameChallengePanel() {
+  const challenge = boardGameChallengeByTile(boardGameState.player.currentTile);
+  boardGameState.challenge.activeChallengeId = challenge ? challenge.id : null;
+
+  if (boardGameChallengeTitleEl) {
+    boardGameChallengeTitleEl.textContent = challenge
+      ? `Challenge · ${challenge.type}`
+      : "Challenge placeholder";
+  }
+
+  if (boardGameChallengeTextEl) {
+    boardGameChallengeTextEl.textContent = challenge
+      ? challenge.prompt
+      : "Challenge/question content will be loaded by tile type in the next step.";
+  }
+}
+
+function updateBoardGameMetaUi() {
+  if (boardGamePositionEl) boardGamePositionEl.textContent = String(boardGameState.player.currentTile);
+  if (boardGameTotalTilesEl) boardGameTotalTilesEl.textContent = String(BOARD_GAME_TILE_COUNT);
+  if (boardGameLastRollEl) boardGameLastRollEl.textContent = boardGameState.dice.lastRoll === null ? "-" : String(boardGameState.dice.lastRoll);
+  if (boardGameFeedbackEl) boardGameFeedbackEl.textContent = boardGameState.feedback.message;
+}
+
+function boardGameRollDice() {
+  if (!boardGameState.dice.canRoll || boardGameState.movement.isMoving) return;
+
+  const roll = Math.floor(Math.random() * boardGameState.dice.sides) + 1;
+  const fromTile = boardGameState.player.currentTile;
+  const toTile = Math.min(BOARD_GAME_TILE_COUNT, fromTile + roll);
+
+  boardGameState.dice.lastRoll = roll;
+  boardGameState.movement.fromTile = fromTile;
+  boardGameState.movement.toTile = toTile;
+  boardGameState.movement.stepsPending = toTile - fromTile;
+  boardGameState.movement.isMoving = true;
+  boardGameState.player.currentTile = toTile;
+  boardGameState.movement.isMoving = false;
+
+  boardGameState.feedback.message = `You rolled ${roll}. Moved from tile ${fromTile} to tile ${toTile}.`;
+
+  updateBoardGameChapterPanel();
+  updateBoardGameChallengePanel();
+  updateBoardGameMetaUi();
+  updateBoardGameTokenPosition();
+}
+
+function initBoardGameMvp() {
+  renderBoardGameTiles();
+  updateBoardGameChapterPanel();
+  updateBoardGameChallengePanel();
+  updateBoardGameMetaUi();
+  updateBoardGameTokenPosition();
 }
 
 // 4 option хийх: 1 зөв + 3 буруу
@@ -4112,6 +4348,7 @@ if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation
 if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
 if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
+if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => requestNavigation("board-game"));
 if (navModesBtn) navModesBtn.addEventListener("click", toggleHomeModesPanel);
 if (navStatsBtn) navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 if (navProfileBtn) navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
@@ -4265,6 +4502,16 @@ if (installBtn) {
 
 updateInstallHintVisibility();
 
+if (boardGameRollBtn) {
+  boardGameRollBtn.addEventListener("click", boardGameRollDice);
+}
+
+window.addEventListener("resize", () => {
+  if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
+    updateBoardGameTokenPosition();
+  }
+});
+
 const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
 if (initialVisibleScreen) {
   const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
@@ -4277,3 +4524,4 @@ if (initialVisibleScreen) {
 }
 
 loadSentences();
+initBoardGameMvp();
