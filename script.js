@@ -227,6 +227,11 @@ const boardGameChapterTextEl = document.getElementById("board-game-chapter-text"
 const boardGameChallengeTitleEl = document.getElementById("board-game-challenge-title");
 const boardGameChallengeTextEl = document.getElementById("board-game-challenge-text");
 const boardGameFeedbackEl = document.getElementById("board-game-feedback");
+const boardGameOptionsEl = document.getElementById("board-game-options");
+const boardGameDiceEl = document.getElementById("board-game-dice");
+const boardGameXpEl = document.getElementById("board-game-xp");
+const boardGameCoinsEl = document.getElementById("board-game-coins");
+const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
 
 
 const lessonVaultBtn = document.getElementById("lesson-vault-btn");
@@ -2010,147 +2015,141 @@ function requestNavigation(destination) {
   navigateTo(destination);
 }
 
-// ---- Board Game MVP Scaffold ----
-const BOARD_GAME_TILE_COUNT = 26;
-
-const BOARD_GAME_CHAPTERS = [
-  {
-    id: "ocean-crossing",
-    title: "Chapter 1 · The world beyond the sea",
-    story: "Sailors cross a vast ocean while native communities continue life on their shores. Curiosity and uncertainty rise on both sides.",
-    startTile: 1,
-    endTile: 6,
-  },
-  {
-    id: "landfall-and-contact",
-    title: "Chapter 2 · First landfall and first meetings",
-    story: "First contact brings gestures, trade attempts, and misunderstandings. Not every encounter is friendly, and survival decisions matter.",
-    startTile: 7,
-    endTile: 13,
-  },
-  {
-    id: "trade-and-tension",
-    title: "Chapter 3 · Trade, gifts, and rising tension",
-    story: "Goods and knowledge are exchanged, but pressure, gold-seeking, and fear increase tension for sailors and native communities alike.",
-    startTile: 14,
-    endTile: 20,
-  },
-  {
-    id: "danger-and-settlement",
-    title: "Chapter 4 · Danger, survival, and settlement",
-    story: "Storms, shortages, and conflict test everyone. Early settlement begins under fragile and uncertain conditions.",
-    startTile: 21,
-    endTile: 26,
-  },
-];
-
-const BOARD_GAME_TILE_DATA = Array.from({ length: BOARD_GAME_TILE_COUNT }, (_, index) => {
-  const tileNumber = index + 1;
-  const phase = tileNumber <= 6
-    ? "ocean"
-    : tileNumber <= 13
-      ? "landfall"
-      : tileNumber <= 20
-        ? "trade"
-        : "survival";
-
-  return {
-    id: `tile-${tileNumber}`,
-    tileNumber,
-    phase,
-    tileType: tileNumber % 5 === 0 ? "challenge" : "story",
-    chapterId: BOARD_GAME_CHAPTERS.find((chapter) => tileNumber >= chapter.startTile && tileNumber <= chapter.endTile)?.id || "ocean-crossing",
-    label: `Tile ${tileNumber}`,
-  };
-});
-
-const BOARD_GAME_CHALLENGES = [
-  {
-    id: "challenge-trade-words",
-    tileNumber: 5,
-    type: "vocabulary",
-    prompt: "Placeholder: choose a respectful trade-related phrase.",
-    perspective: "trade",
-  },
-  {
-    id: "challenge-contact-tone",
-    tileNumber: 10,
-    type: "tone",
-    prompt: "Placeholder: choose language that shows curiosity without disrespect.",
-    perspective: "first-contact",
-  },
-  {
-    id: "challenge-survival-choice",
-    tileNumber: 18,
-    type: "decision",
-    prompt: "Placeholder: pick a survival dialogue strategy for tense moments.",
-    perspective: "survival",
-  },
-  {
-    id: "challenge-community-view",
-    tileNumber: 24,
-    type: "reflection",
-    prompt: "Placeholder: identify how different communities may view the same event.",
-    perspective: "multiple",
-  },
-];
-
-const boardGameState = {
-  player: {
-    id: "player-1",
-    name: "Voyager",
-    token: "⛵",
-    currentTile: 1,
-  },
-  dice: {
-    sides: 6,
-    lastRoll: null,
-    canRoll: true,
-  },
-  movement: {
-    fromTile: 1,
-    toTile: 1,
-    stepsPending: 0,
-    isMoving: false,
-  },
-  chapter: {
-    activeChapterId: BOARD_GAME_CHAPTERS[0].id,
-  },
-  challenge: {
-    activeChallengeId: null,
-  },
-  feedback: {
-    message: "Roll the dice to begin your journey across the sea.",
-    type: "info",
+// ---- Board Game MVP ----
+const BOARD_GAME_CONFIG = {
+  levels: {
+    world1: {
+      id: "world1",
+      title: "The world beyond the sea",
+      totalTiles: 26,
+      chapters: [
+        {
+          id: "ocean-crossing",
+          index: 1,
+          title: "Chapter 1 · Ocean crossing",
+          story: "Sailors face wind, hunger, and fear at sea while native communities continue life on distant shores.",
+          startTile: 1,
+          endTile: 6,
+        },
+        {
+          id: "landfall-contact",
+          index: 2,
+          title: "Chapter 2 · Landfall and first meetings",
+          story: "Land appears. Curiosity grows. First exchanges include gifts, signs, and confusion from both sides.",
+          startTile: 7,
+          endTile: 12,
+        },
+        {
+          id: "trade-gold-tension",
+          index: 3,
+          title: "Chapter 3 · Trade, gold, and tension",
+          story: "Trade starts, but pressure rises as sailors search for gold and misunderstandings create mistrust.",
+          startTile: 13,
+          endTile: 20,
+        },
+        {
+          id: "survival-settlement",
+          index: 4,
+          title: "Chapter 4 · Survival and fragile settlement",
+          story: "Storms, shortages, and fear test everyone as early settlements try to survive uncertain days.",
+          startTile: 21,
+          endTile: 26,
+        },
+      ],
+      tileEffects: {
+        reward: { xp: 12, coins: 8 },
+        penalty: { xp: -5, coins: -4 },
+        checkpoint: { xp: 15, coins: 10 },
+        finish: { xp: 40, coins: 30 },
+      },
+    },
   },
 };
 
+const BOARD_GAME_CHALLENGES_WORLD1 = [
+  { id: "c1", tileNumber: 2, promptMn: "ЮУ", options: ["What", "Where", "When", "Why"], answer: "What", tip: "Question word" },
+  { id: "c2", tileNumber: 3, promptMn: "ХААНА", options: ["Where", "Who", "How", "Which"], answer: "Where", tip: "Question word" },
+  { id: "c3", tileNumber: 4, promptMn: "ХЭН", options: ["Who", "When", "Why", "What"], answer: "Who", tip: "Question word" },
+  { id: "c4", tileNumber: 6, promptMn: "ХЭЗЭЭ", options: ["When", "Where", "How", "Who"], answer: "When", tip: "Question word" },
+  { id: "c5", tileNumber: 8, promptMn: "ЯАГААД", options: ["Why", "What", "Where", "Whose"], answer: "Why", tip: "Question word" },
+  { id: "c6", tileNumber: 9, promptMn: "САЙН БАЙНА УУ", options: ["Hello / How are you?", "Good night", "Please sit", "I am hungry"], answer: "Hello / How are you?", tip: "Basic conversation" },
+  { id: "c7", tileNumber: 11, promptMn: "БИ ЯВЖ БАЙНА", options: ["I am going", "I am eating", "I am sleeping", "I am waiting"], answer: "I am going", tip: "Movement verb" },
+  { id: "c8", tileNumber: 13, promptMn: "БИД ИРЛЭЭ", options: ["We arrived", "We forgot", "We traded", "We left"], answer: "We arrived", tip: "Travel action" },
+  { id: "c9", tileNumber: 15, promptMn: "СОЛИЛЦОО", options: ["Trade / Exchange", "Storm", "Ship", "Danger"], answer: "Trade / Exchange", tip: "Trade word" },
+  { id: "c10", tileNumber: 17, promptMn: "БЭЛЭГ", options: ["Gift", "Map", "Sword", "Harbor"], answer: "Gift", tip: "Object word" },
+  { id: "c11", tileNumber: 19, promptMn: "АЛТ", options: ["Gold", "Salt", "Forest", "Road"], answer: "Gold", tip: "Object word" },
+  { id: "c12", tileNumber: 21, promptMn: "АЮУЛ", options: ["Danger", "Music", "Festival", "Bridge"], answer: "Danger", tip: "Survival word" },
+  { id: "c13", tileNumber: 23, promptMn: "ХООЛ", options: ["Food", "Horse", "Ocean", "Village"], answer: "Food", tip: "Survival word" },
+  { id: "c14", tileNumber: 24, promptMn: "УС", options: ["Water", "Fire", "Wind", "Stone"], answer: "Water", tip: "Survival word" },
+  { id: "c15", tileNumber: 26, promptMn: "ДУУСЛАА", options: ["Finished", "Started", "Returned", "Lost"], answer: "Finished", tip: "Finish word" },
+];
+
+function buildBoardGameTiles(levelConfig) {
+  const typeByTile = {
+    1: "story", 5: "reward", 7: "checkpoint", 10: "penalty", 12: "story", 14: "reward", 16: "penalty", 18: "story", 20: "checkpoint", 22: "reward", 25: "penalty", 26: "finish",
+  };
+
+  return Array.from({ length: levelConfig.totalTiles }, (_, index) => {
+    const tileNumber = index + 1;
+    const chapter = levelConfig.chapters.find((item) => tileNumber >= item.startTile && tileNumber <= item.endTile) || levelConfig.chapters[0];
+    return {
+      id: `tile-${tileNumber}`,
+      tileNumber,
+      tileType: typeByTile[tileNumber] || "normal",
+      chapterId: chapter.id,
+      label: String(tileNumber),
+    };
+  });
+}
+
+function boardTileEmoji(tileType) {
+  const map = { normal: "·", reward: "💰", penalty: "⚠", story: "📜", checkpoint: "🏁", finish: "👑" };
+  return map[tileType] || "·";
+}
+
+const boardGameState = {
+  levelId: "world1",
+  tiles: [],
+  challenges: BOARD_GAME_CHALLENGES_WORLD1,
+  player: { currentTile: 1, token: "⛵", xp: 0, coins: 0 },
+  dice: { sides: 6, lastRoll: null, canRoll: true, rolling: false },
+  movement: { isMoving: false },
+  challenge: { activeChallenge: null, pendingRoll: 0, resolvedTile: 1 },
+  feedback: { message: "Roll the dice to begin your historical journey.", type: "info" },
+};
+
+function boardLevelConfig() {
+  return BOARD_GAME_CONFIG.levels[boardGameState.levelId];
+}
+
+function boardTileByNumber(tileNumber) {
+  return boardGameState.tiles.find((tile) => tile.tileNumber === tileNumber) || boardGameState.tiles[0];
+}
+
 function boardGameChapterByTile(tileNumber) {
-  return BOARD_GAME_CHAPTERS.find((chapter) => tileNumber >= chapter.startTile && tileNumber <= chapter.endTile) || BOARD_GAME_CHAPTERS[0];
+  const chapter = boardLevelConfig().chapters.find((item) => tileNumber >= item.startTile && tileNumber <= item.endTile);
+  return chapter || boardLevelConfig().chapters[0];
 }
 
 function boardGameChallengeByTile(tileNumber) {
-  return BOARD_GAME_CHALLENGES.find((challenge) => challenge.tileNumber === tileNumber) || null;
+  return boardGameState.challenges.find((challenge) => challenge.tileNumber === tileNumber) || null;
 }
 
 function renderBoardGameTiles() {
   if (!boardGameBoardEl) return;
-  boardGameBoardEl.innerHTML = BOARD_GAME_TILE_DATA.map((tile) => (
-    `<button class="board-game-tile" data-tile="${tile.tileNumber}" type="button">${tile.tileNumber}</button>`
+  boardGameBoardEl.innerHTML = boardGameState.tiles.map((tile) => (
+    `<button class="board-game-tile tile-type-${tile.tileType}" data-tile="${tile.tileNumber}" type="button"><span>${tile.tileNumber}</span><small>${boardTileEmoji(tile.tileType)}</small></button>`
   )).join("");
 }
 
 function updateBoardGameTokenPosition() {
   if (!boardGameBoardEl || !boardGameTokenEl) return;
-
   const activeTile = boardGameBoardEl.querySelector(`[data-tile="${boardGameState.player.currentTile}"]`);
   if (!activeTile) return;
-
   const boardRect = boardGameBoardEl.getBoundingClientRect();
   const tileRect = activeTile.getBoundingClientRect();
   const x = tileRect.left - boardRect.left + (tileRect.width / 2);
   const y = tileRect.top - boardRect.top + (tileRect.height / 2);
-
   boardGameTokenEl.style.left = `${x}px`;
   boardGameTokenEl.style.top = `${y}px`;
 
@@ -2162,65 +2161,201 @@ function updateBoardGameTokenPosition() {
 
 function updateBoardGameChapterPanel() {
   const chapter = boardGameChapterByTile(boardGameState.player.currentTile);
-  boardGameState.chapter.activeChapterId = chapter.id;
-
   if (boardGameChapterTitleEl) boardGameChapterTitleEl.textContent = chapter.title;
   if (boardGameChapterTextEl) boardGameChapterTextEl.textContent = chapter.story;
-}
-
-function updateBoardGameChallengePanel() {
-  const challenge = boardGameChallengeByTile(boardGameState.player.currentTile);
-  boardGameState.challenge.activeChallengeId = challenge ? challenge.id : null;
-
-  if (boardGameChallengeTitleEl) {
-    boardGameChallengeTitleEl.textContent = challenge
-      ? `Challenge · ${challenge.type}`
-      : "Challenge placeholder";
-  }
-
-  if (boardGameChallengeTextEl) {
-    boardGameChallengeTextEl.textContent = challenge
-      ? challenge.prompt
-      : "Challenge/question content will be loaded by tile type in the next step.";
-  }
+  if (boardGameChapterIndexEl) boardGameChapterIndexEl.textContent = String(chapter.index);
 }
 
 function updateBoardGameMetaUi() {
   if (boardGamePositionEl) boardGamePositionEl.textContent = String(boardGameState.player.currentTile);
-  if (boardGameTotalTilesEl) boardGameTotalTilesEl.textContent = String(BOARD_GAME_TILE_COUNT);
+  if (boardGameTotalTilesEl) boardGameTotalTilesEl.textContent = String(boardLevelConfig().totalTiles);
   if (boardGameLastRollEl) boardGameLastRollEl.textContent = boardGameState.dice.lastRoll === null ? "-" : String(boardGameState.dice.lastRoll);
   if (boardGameFeedbackEl) boardGameFeedbackEl.textContent = boardGameState.feedback.message;
+  if (boardGameXpEl) boardGameXpEl.textContent = String(boardGameState.player.xp);
+  if (boardGameCoinsEl) boardGameCoinsEl.textContent = String(boardGameState.player.coins);
 }
 
-function boardGameRollDice() {
-  if (!boardGameState.dice.canRoll || boardGameState.movement.isMoving) return;
+function setBoardGameRollEnabled(enabled) {
+  boardGameState.dice.canRoll = enabled;
+  if (boardGameRollBtn) boardGameRollBtn.disabled = !enabled;
+}
 
+function renderBoardGameChallenge() {
+  const challenge = boardGameState.challenge.activeChallenge;
+  if (boardGameChallengeTitleEl) {
+    boardGameChallengeTitleEl.textContent = challenge
+      ? `Mongolian Prompt · ${challenge.promptMn}`
+      : "No challenge on this tile. Roll again to continue.";
+  }
+
+  if (boardGameChallengeTextEl) {
+    boardGameChallengeTextEl.textContent = challenge
+      ? `Choose the best English answer (${challenge.tip}).`
+      : "Story/reward/penalty/checkpoint effects are applied automatically.";
+  }
+
+  if (!boardGameOptionsEl) return;
+  boardGameOptionsEl.innerHTML = "";
+
+  if (!challenge) return;
+
+  challenge.options.forEach((option) => {
+    const btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "secondary board-game-option-btn";
+    btn.textContent = option;
+    btn.addEventListener("click", () => handleBoardGameAnswer(option));
+    boardGameOptionsEl.appendChild(btn);
+  });
+}
+
+function applyBoardTileEffect(tile) {
+  const effect = boardLevelConfig().tileEffects[tile.tileType];
+  if (!effect) return "";
+
+  boardGameState.player.xp = Math.max(0, boardGameState.player.xp + (effect.xp || 0));
+  boardGameState.player.coins = Math.max(0, boardGameState.player.coins + (effect.coins || 0));
+
+  if (tile.tileType === "reward") return `Reward tile: +${effect.xp} XP and +${effect.coins} coins.`;
+  if (tile.tileType === "penalty") return `Penalty tile: ${effect.xp} XP and ${effect.coins} coins.`;
+  if (tile.tileType === "checkpoint") return `Checkpoint reached: +${effect.xp} XP and +${effect.coins} coins.`;
+  if (tile.tileType === "finish") return `Finish tile cleared: +${effect.xp} XP and +${effect.coins} coins.`;
+  return "";
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function animateBoardGameDice(roll) {
+  if (!boardGameDiceEl) return;
+  boardGameState.dice.rolling = true;
+  const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+  for (let i = 0; i < 8; i += 1) {
+    boardGameDiceEl.textContent = faces[Math.floor(Math.random() * faces.length)];
+    await sleep(65);
+  }
+  boardGameDiceEl.textContent = faces[roll - 1] || "🎲";
+  boardGameState.dice.rolling = false;
+}
+
+async function animateBoardGameMovement(fromTile, toTile) {
+  if (toTile === fromTile) return;
+  boardGameState.movement.isMoving = true;
+  const step = toTile > fromTile ? 1 : -1;
+  for (let tile = fromTile + step; step > 0 ? tile <= toTile : tile >= toTile; tile += step) {
+    boardGameState.player.currentTile = tile;
+    updateBoardGameChapterPanel();
+    updateBoardGameMetaUi();
+    updateBoardGameTokenPosition();
+    await sleep(220);
+  }
+  boardGameState.movement.isMoving = false;
+}
+
+function setBoardGameFeedback(message, type = "info") {
+  boardGameState.feedback.message = message;
+  boardGameState.feedback.type = type;
+  updateBoardGameMetaUi();
+}
+
+function applyPostLandingTileFeedback(tile) {
+  if (tile.tileType === "story") {
+    setBoardGameFeedback("Story tile: two worlds observe each other with curiosity and caution.");
+    return;
+  }
+  const effectMessage = applyBoardTileEffect(tile);
+  if (effectMessage) setBoardGameFeedback(effectMessage, tile.tileType);
+}
+
+async function resolveBoardLanding(tileNumber, rolledValue) {
+  const tile = boardTileByNumber(tileNumber);
+  boardGameState.challenge.pendingRoll = rolledValue;
+  boardGameState.challenge.resolvedTile = tileNumber;
+  boardGameState.challenge.activeChallenge = boardGameChallengeByTile(tileNumber);
+
+  applyPostLandingTileFeedback(tile);
+  renderBoardGameChallenge();
+  updateBoardGameMetaUi();
+
+  if (!boardGameState.challenge.activeChallenge) {
+    if (tile.tileType === "finish") setBoardGameRollEnabled(false);
+    else setBoardGameRollEnabled(true);
+  }
+}
+
+async function handleBoardGameAnswer(selectedOption) {
+  const challenge = boardGameState.challenge.activeChallenge;
+  if (!challenge) return;
+
+  const optionButtons = boardGameOptionsEl ? [...boardGameOptionsEl.querySelectorAll("button")] : [];
+  optionButtons.forEach((btn) => {
+    btn.disabled = true;
+    if (btn.textContent === challenge.answer) btn.classList.add("correct");
+    if (btn.textContent === selectedOption && selectedOption !== challenge.answer) btn.classList.add("wrong");
+  });
+
+  const wasCorrect = selectedOption === challenge.answer;
+  if (wasCorrect) {
+    boardGameState.player.xp += 20;
+    boardGameState.player.coins += 12;
+    setBoardGameFeedback(`Correct! ${challenge.promptMn} = ${challenge.answer}. You keep your position and gain +20 XP, +12 coins.`, "success");
+    boardGameState.challenge.activeChallenge = null;
+    renderBoardGameChallenge();
+    if (boardGameState.player.currentTile === boardLevelConfig().totalTiles) setBoardGameRollEnabled(false);
+    else setBoardGameRollEnabled(true);
+    return;
+  }
+
+  setBoardGameFeedback(`Wrong answer. ${challenge.promptMn} means ${challenge.answer}. Move backward by ${boardGameState.challenge.pendingRoll}.`, "penalty");
+  await sleep(450);
+
+  const fromTile = boardGameState.player.currentTile;
+  const toTile = Math.max(1, fromTile - boardGameState.challenge.pendingRoll);
+  await animateBoardGameMovement(fromTile, toTile);
+
+  boardGameState.challenge.activeChallenge = null;
+  renderBoardGameChallenge();
+
+  const retreatTile = boardTileByNumber(toTile);
+  if (retreatTile.tileType === "checkpoint") {
+    setBoardGameFeedback("You retreated onto a checkpoint tile. Regroup and roll again.", "checkpoint");
+  }
+
+  setBoardGameRollEnabled(true);
+  updateBoardGameMetaUi();
+}
+
+async function boardGameRollDice() {
+  if (!boardGameState.dice.canRoll || boardGameState.movement.isMoving || boardGameState.dice.rolling) return;
+
+  setBoardGameRollEnabled(false);
   const roll = Math.floor(Math.random() * boardGameState.dice.sides) + 1;
   const fromTile = boardGameState.player.currentTile;
-  const toTile = Math.min(BOARD_GAME_TILE_COUNT, fromTile + roll);
+  const toTile = Math.min(boardLevelConfig().totalTiles, fromTile + roll);
 
   boardGameState.dice.lastRoll = roll;
-  boardGameState.movement.fromTile = fromTile;
-  boardGameState.movement.toTile = toTile;
-  boardGameState.movement.stepsPending = toTile - fromTile;
-  boardGameState.movement.isMoving = true;
-  boardGameState.player.currentTile = toTile;
-  boardGameState.movement.isMoving = false;
-
-  boardGameState.feedback.message = `You rolled ${roll}. Moved from tile ${fromTile} to tile ${toTile}.`;
-
-  updateBoardGameChapterPanel();
-  updateBoardGameChallengePanel();
-  updateBoardGameMetaUi();
-  updateBoardGameTokenPosition();
+  await animateBoardGameDice(roll);
+  await animateBoardGameMovement(fromTile, toTile);
+  await resolveBoardLanding(toTile, roll);
 }
 
 function initBoardGameMvp() {
+  boardGameState.tiles = buildBoardGameTiles(boardLevelConfig());
+  boardGameState.player.currentTile = 1;
+  boardGameState.player.xp = 0;
+  boardGameState.player.coins = 0;
+  boardGameState.dice.lastRoll = null;
+  boardGameState.challenge.activeChallenge = null;
+  boardGameState.feedback.message = "Roll the dice to begin your historical journey.";
+
   renderBoardGameTiles();
   updateBoardGameChapterPanel();
-  updateBoardGameChallengePanel();
+  renderBoardGameChallenge();
   updateBoardGameMetaUi();
   updateBoardGameTokenPosition();
+  setBoardGameRollEnabled(true);
+  if (boardGameDiceEl) boardGameDiceEl.textContent = "🎲";
 }
 
 // 4 option хийх: 1 зөв + 3 буруу

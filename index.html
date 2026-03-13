@@ -405,6 +405,11 @@
         </div>
 
         <div class="board-game-world-chip chip-label">World 1 · Sailors, landfall, trade, misunderstanding, survival</div>
+        <div class="board-game-meta-row" aria-live="polite">
+          <span class="board-game-meta-chip chip-label">XP <strong id="board-game-xp">0</strong></span>
+          <span class="board-game-meta-chip chip-label">Coins <strong id="board-game-coins">0</strong></span>
+          <span class="board-game-meta-chip chip-label">Chapter <strong id="board-game-chapter-index">1</strong>/4</span>
+        </div>
 
         <div class="board-game-layout">
           <section class="board-game-panel board-game-story-panel" aria-live="polite">
@@ -422,13 +427,15 @@
             <h3 class="chip-label">Dice / Movement</h3>
             <p class="muted">Current tile: <span id="board-game-position">1</span> / <span id="board-game-total-tiles">0</span></p>
             <p class="muted">Last roll: <span id="board-game-last-roll">-</span></p>
+            <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
             <button class="primary" id="board-game-roll-btn" type="button">🎲 Roll Dice</button>
           </section>
 
           <section class="board-game-panel board-game-challenge-panel" aria-live="polite">
-            <h3 class="chip-label">Challenge Panel</h3>
-            <p id="board-game-challenge-title">Challenge placeholder</p>
-            <p class="muted" id="board-game-challenge-text">Challenge/question content will be loaded by tile type in the next step.</p>
+            <h3 class="chip-label">Language Challenge</h3>
+            <p id="board-game-challenge-title">Roll to reveal your first challenge.</p>
+            <p class="muted" id="board-game-challenge-text">Select the best English meaning for the Mongolian prompt.</p>
+            <div class="board-game-options" id="board-game-options"></div>
           </section>
 
           <section class="board-game-panel board-game-feedback-panel" aria-live="polite">
