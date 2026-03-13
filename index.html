@@ -68,6 +68,7 @@
                 <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
                 <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэрийн тоглоом</button>
                 <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">Асуулт хариулт бүтээх тоглоом</button>
+                <button class="home-modes-option" id="nav-board-game-btn" type="button" role="menuitem">Board Game: Далайн цаадах ертөнц</button>
               </div>
             </div>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
@@ -383,6 +384,58 @@
         <p><strong>Зөв өгүүлбэр:</strong> <span id="sentence-game-correct-en"></span></p>
         <p><strong>Орчуулга:</strong> <span id="sentence-game-correct-mn"></span></p>
       </div>
+      </div>
+    </section>
+
+
+    <!-- BOARD GAME MVP SCREEN -->
+    <section class="card hidden learning-screen" id="board-game-screen">
+      <div class="learning-screen-shell">
+        <div class="panel-header learning-layout-header learning-header-compact">
+          <div class="learning-master-top">
+            <div class="learning-master-row learning-master-row-1">
+              <button class="primary play-exit-btn game-exit-btn learning-exit-btn" type="button">Тоглоомоос гарах</button>
+              <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn" type="button">Бүх хугацаагаа харах</button>
+            </div>
+            <div class="learning-master-row learning-master-row-4 learning-header-row">
+              <h2 class="screen-title-chip chip-title learning-title-block">Board Game MVP · The world beyond the sea</h2>
+              <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-board">00:00:00</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="board-game-world-chip chip-label">World 1 · Sailors, landfall, trade, misunderstanding, survival</div>
+
+        <div class="board-game-layout">
+          <section class="board-game-panel board-game-story-panel" aria-live="polite">
+            <h3 class="chip-label">Story / Chapter</h3>
+            <p id="board-game-chapter-title">Chapter placeholder</p>
+            <p class="muted" id="board-game-chapter-text">This chapter will explain the historical context from different perspectives.</p>
+          </section>
+
+          <section class="board-game-panel board-game-board-panel" aria-label="Board tiles">
+            <div class="board-game-board" id="board-game-board"></div>
+            <div class="board-game-token" id="board-game-token" aria-hidden="true">⛵</div>
+          </section>
+
+          <section class="board-game-panel board-game-controls-panel">
+            <h3 class="chip-label">Dice / Movement</h3>
+            <p class="muted">Current tile: <span id="board-game-position">1</span> / <span id="board-game-total-tiles">0</span></p>
+            <p class="muted">Last roll: <span id="board-game-last-roll">-</span></p>
+            <button class="primary" id="board-game-roll-btn" type="button">🎲 Roll Dice</button>
+          </section>
+
+          <section class="board-game-panel board-game-challenge-panel" aria-live="polite">
+            <h3 class="chip-label">Challenge Panel</h3>
+            <p id="board-game-challenge-title">Challenge placeholder</p>
+            <p class="muted" id="board-game-challenge-text">Challenge/question content will be loaded by tile type in the next step.</p>
+          </section>
+
+          <section class="board-game-panel board-game-feedback-panel" aria-live="polite">
+            <h3 class="chip-label">Reward / Penalty Feedback</h3>
+            <p id="board-game-feedback">Roll the dice to begin your journey across the sea.</p>
+          </section>
+        </div>
       </div>
     </section>
 
