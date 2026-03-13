@@ -1,7 +1,7 @@
 {
   "name": "NomadSpeak",
   "short_name": "NomadSpeak",
-  "description": "NomadSpeak English learning app",
+  "description": "NomadSpeak англи хэл сурах апп",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
