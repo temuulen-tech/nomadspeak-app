@@ -341,11 +341,11 @@ const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох 
 
 const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
 const QA_REWARD_STEPS = [
-  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: "assets/rewards/1-flag.png", alt: "Q&A reward flag" },
-  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: "assets/rewards/2-star.png", alt: "Q&A reward star" },
-  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: "assets/rewards/3-coin.png", alt: "Q&A reward coin" },
-  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/4-trophy.png", alt: "Q&A reward trophy" },
-  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/5-diamond.png", alt: "Q&A reward diamond" },
+  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: "assets/rewards/1-flag.png", alt: "Асуулт-хариултын шагнал туг" },
+  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: "assets/rewards/2-star.png", alt: "Асуулт-хариултын шагнал од" },
+  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: "assets/rewards/3-coin.png", alt: "Асуулт-хариултын шагнал зоос" },
+  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/4-trophy.png", alt: "Асуулт-хариултын шагнал цом" },
+  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/5-diamond.png", alt: "Асуулт-хариултын шагнал эрдэнэ" },
 ];
 const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
 
@@ -1241,7 +1241,7 @@ function persistProfileName() {
   localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
 }
 
-function openPremiumModal(message, title = "Premium") {
+function openPremiumModal(message, title = "Дээд багц") {
   if (!premiumOverlay || !premiumMessageEl) return;
   premiumTitleEl.textContent = title;
   premiumMessageEl.textContent = message;
@@ -1265,7 +1265,7 @@ function enforceFreeXpGate() {
   loadProgressState();
   syncProgressForToday();
   if (progressState.dailyXP >= FREE_DAILY_XP_LIMIT) {
-    openPremiumModal("Premium авахад хязгааргүй болно", "Free хязгаар хүрлээ");
+    openPremiumModal("Дээд багц авбал хязгааргүй болно", "Үнэгүй багцын хязгаарт хүрлээ");
     return true;
   }
   return false;
@@ -1281,7 +1281,7 @@ function updateProfileUI() {
   if (profileStreakDaysEl) profileStreakDaysEl.textContent = `${progressState.streak} өдөр`;
   if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
   if (profileRewardStageEl) profileRewardStageEl.textContent = `Tier ${progressState.rewardTierUnlocked}`;
-  if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${isPremium ? "Premium" : "Free"}`;
+  if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${isPremium ? "Дээд багц" : "Үнэгүй"}`;
 }
 
 function playDailyGoalSuccessChime() {
@@ -1298,7 +1298,7 @@ function awardXP(amount, reason = "") {
   if (!Number.isFinite(earned) || earned <= 0) return;
 
   if (reason.startsWith("sentence_game") && !canEarnMoreSentenceGameXp(earned)) {
-    openPremiumModal("Premium авахад хязгааргүй болно", "Free хязгаар хүрлээ");
+    openPremiumModal("Дээд багц авбал хязгааргүй болно", "Үнэгүй багцын хязгаарт хүрлээ");
     return;
   }
 
@@ -1395,11 +1395,11 @@ function rewardTierForDailySeconds(totalSeconds) {
 }
 
 const statsRewardDefs = [
-  { tier: 1, image: "assets/rewards/1-flag.png", threshold: "20:00+", label: "Муу", alt: "Flag reward" },
-  { tier: 2, image: "assets/rewards/2-star.png", threshold: "30:00+", label: "Дунд", alt: "Star reward" },
-  { tier: 3, image: "assets/rewards/3-coin.png", threshold: "60:00+", label: "Хэвийн", alt: "Coin reward" },
-  { tier: 4, image: "assets/rewards/4-trophy.png", threshold: "90:00+", label: "Сайн", alt: "Trophy reward" },
-  { tier: 5, image: "assets/rewards/5-diamond.png", threshold: "120:00+", label: "Онц сайн", alt: "Diamond reward" },
+  { tier: 1, image: "assets/rewards/1-flag.png", threshold: "20:00+", label: "Муу", alt: "Туг шагнал" },
+  { tier: 2, image: "assets/rewards/2-star.png", threshold: "30:00+", label: "Дунд", alt: "Од шагнал" },
+  { tier: 3, image: "assets/rewards/3-coin.png", threshold: "60:00+", label: "Хэвийн", alt: "Зоос шагнал" },
+  { tier: 4, image: "assets/rewards/4-trophy.png", threshold: "90:00+", label: "Сайн", alt: "Цом шагнал" },
+  { tier: 5, image: "assets/rewards/5-diamond.png", threshold: "120:00+", label: "Онц сайн", alt: "Эрдэнэ шагнал" },
 ];
 
 function rewardTierByPercent(percent) {
@@ -2020,38 +2020,38 @@ const BOARD_GAME_CONFIG = {
   levels: {
     world1: {
       id: "world1",
-      title: "The world beyond the sea",
+      title: "Далайн цаадах ертөнц",
       totalTiles: 26,
       chapters: [
         {
           id: "ocean-crossing",
           index: 1,
-          title: "Chapter 1 · Ocean crossing",
-          story: "Sailors face wind, hunger, and fear at sea while native communities continue life on distant shores.",
+          title: "1-р бүлэг · Далай гатлалт",
+          story: "Далайчид салхи, өлсгөлөн, айдастай нүүр тулж, алс эргийн ард түмэн өдөр тутмын амьдралаа үргэлжлүүлнэ.",
           startTile: 1,
           endTile: 6,
         },
         {
           id: "landfall-contact",
           index: 2,
-          title: "Chapter 2 · Landfall and first meetings",
-          story: "Land appears. Curiosity grows. First exchanges include gifts, signs, and confusion from both sides.",
+          title: "2-р бүлэг · Газардаж анх уулзсан нь",
+          story: "Газар харагдаж, сониуч зан нэмэгдэнэ. Анхны солилцоо бэлэг, дохио, үл ойлголцлоор өрнөнө.",
           startTile: 7,
           endTile: 12,
         },
         {
           id: "trade-gold-tension",
           index: 3,
-          title: "Chapter 3 · Trade, gold, and tension",
-          story: "Trade starts, but pressure rises as sailors search for gold and misunderstandings create mistrust.",
+          title: "3-р бүлэг · Солилцоо, алт, хурцадмал байдал",
+          story: "Солилцоо эхлэх ч алт эрсэн шахалт нэмэгдэж, үл ойлголцол итгэлцлийг сулруулна.",
           startTile: 13,
           endTile: 20,
         },
         {
           id: "survival-settlement",
           index: 4,
-          title: "Chapter 4 · Survival and fragile settlement",
-          story: "Storms, shortages, and fear test everyone as early settlements try to survive uncertain days.",
+          title: "4-р бүлэг · Амьд үлдэхүй ба эмзэг суурьшил",
+          story: "Шуурга, хомсдол, айдас нь тодорхойгүй өдрүүдэд амьд үлдэх гэж буй суурьшигчдыг сорьно.",
           startTile: 21,
           endTile: 26,
         },
@@ -2067,21 +2067,21 @@ const BOARD_GAME_CONFIG = {
 };
 
 const BOARD_GAME_CHALLENGES_WORLD1 = [
-  { id: "c1", tileNumber: 2, promptMn: "ЮУ", options: ["What", "Where", "When", "Why"], answer: "What", tip: "Question word" },
-  { id: "c2", tileNumber: 3, promptMn: "ХААНА", options: ["Where", "Who", "How", "Which"], answer: "Where", tip: "Question word" },
-  { id: "c3", tileNumber: 4, promptMn: "ХЭН", options: ["Who", "When", "Why", "What"], answer: "Who", tip: "Question word" },
-  { id: "c4", tileNumber: 6, promptMn: "ХЭЗЭЭ", options: ["When", "Where", "How", "Who"], answer: "When", tip: "Question word" },
-  { id: "c5", tileNumber: 8, promptMn: "ЯАГААД", options: ["Why", "What", "Where", "Whose"], answer: "Why", tip: "Question word" },
-  { id: "c6", tileNumber: 9, promptMn: "САЙН БАЙНА УУ", options: ["Hello / How are you?", "Good night", "Please sit", "I am hungry"], answer: "Hello / How are you?", tip: "Basic conversation" },
-  { id: "c7", tileNumber: 11, promptMn: "БИ ЯВЖ БАЙНА", options: ["I am going", "I am eating", "I am sleeping", "I am waiting"], answer: "I am going", tip: "Movement verb" },
-  { id: "c8", tileNumber: 13, promptMn: "БИД ИРЛЭЭ", options: ["We arrived", "We forgot", "We traded", "We left"], answer: "We arrived", tip: "Travel action" },
-  { id: "c9", tileNumber: 15, promptMn: "СОЛИЛЦОО", options: ["Trade / Exchange", "Storm", "Ship", "Danger"], answer: "Trade / Exchange", tip: "Trade word" },
-  { id: "c10", tileNumber: 17, promptMn: "БЭЛЭГ", options: ["Gift", "Map", "Sword", "Harbor"], answer: "Gift", tip: "Object word" },
-  { id: "c11", tileNumber: 19, promptMn: "АЛТ", options: ["Gold", "Salt", "Forest", "Road"], answer: "Gold", tip: "Object word" },
-  { id: "c12", tileNumber: 21, promptMn: "АЮУЛ", options: ["Danger", "Music", "Festival", "Bridge"], answer: "Danger", tip: "Survival word" },
-  { id: "c13", tileNumber: 23, promptMn: "ХООЛ", options: ["Food", "Horse", "Ocean", "Village"], answer: "Food", tip: "Survival word" },
-  { id: "c14", tileNumber: 24, promptMn: "УС", options: ["Water", "Fire", "Wind", "Stone"], answer: "Water", tip: "Survival word" },
-  { id: "c15", tileNumber: 26, promptMn: "ДУУСЛАА", options: ["Finished", "Started", "Returned", "Lost"], answer: "Finished", tip: "Finish word" },
+  { id: "c1", tileNumber: 2, promptMn: "ЮУ", options: ["What", "Where", "When", "Why"], answer: "What", tip: "Асуух үг" },
+  { id: "c2", tileNumber: 3, promptMn: "ХААНА", options: ["Where", "Who", "How", "Which"], answer: "Where", tip: "Асуух үг" },
+  { id: "c3", tileNumber: 4, promptMn: "ХЭН", options: ["Who", "When", "Why", "What"], answer: "Who", tip: "Асуух үг" },
+  { id: "c4", tileNumber: 6, promptMn: "ХЭЗЭЭ", options: ["When", "Where", "How", "Who"], answer: "When", tip: "Асуух үг" },
+  { id: "c5", tileNumber: 8, promptMn: "ЯАГААД", options: ["Why", "What", "Where", "Whose"], answer: "Why", tip: "Асуух үг" },
+  { id: "c6", tileNumber: 9, promptMn: "САЙН БАЙНА УУ", options: ["Hello / How are you?", "Good night", "Please sit", "I am hungry"], answer: "Hello / How are you?", tip: "Энгийн яриа" },
+  { id: "c7", tileNumber: 11, promptMn: "БИ ЯВЖ БАЙНА", options: ["I am going", "I am eating", "I am sleeping", "I am waiting"], answer: "I am going", tip: "Хөдөлгөөний үйл үг" },
+  { id: "c8", tileNumber: 13, promptMn: "БИД ИРЛЭЭ", options: ["We arrived", "We forgot", "We traded", "We left"], answer: "We arrived", tip: "Аяллын үйлдэл" },
+  { id: "c9", tileNumber: 15, promptMn: "СОЛИЛЦОО", options: ["Trade / Exchange", "Storm", "Ship", "Danger"], answer: "Trade / Exchange", tip: "Солилцооны үг" },
+  { id: "c10", tileNumber: 17, promptMn: "БЭЛЭГ", options: ["Gift", "Map", "Sword", "Harbor"], answer: "Gift", tip: "Зүйл заах үг" },
+  { id: "c11", tileNumber: 19, promptMn: "АЛТ", options: ["Gold", "Salt", "Forest", "Road"], answer: "Gold", tip: "Зүйл заах үг" },
+  { id: "c12", tileNumber: 21, promptMn: "АЮУЛ", options: ["Danger", "Music", "Festival", "Bridge"], answer: "Danger", tip: "Амьдралын үг" },
+  { id: "c13", tileNumber: 23, promptMn: "ХООЛ", options: ["Food", "Horse", "Ocean", "Village"], answer: "Food", tip: "Амьдралын үг" },
+  { id: "c14", tileNumber: 24, promptMn: "УС", options: ["Water", "Fire", "Wind", "Stone"], answer: "Water", tip: "Амьдралын үг" },
+  { id: "c15", tileNumber: 26, promptMn: "ДУУСЛАА", options: ["Finished", "Started", "Returned", "Lost"], answer: "Finished", tip: "Дуусгах үг" },
 ];
 
 function buildBoardGameTiles(levelConfig) {
@@ -2115,7 +2115,7 @@ const boardGameState = {
   dice: { sides: 6, lastRoll: null, canRoll: true, rolling: false },
   movement: { isMoving: false },
   challenge: { activeChallenge: null, pendingRoll: 0, resolvedTile: 1 },
-  feedback: { message: "Roll the dice to begin your historical journey.", type: "info" },
+  feedback: { message: "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.", type: "info" },
 };
 
 function boardLevelConfig() {
@@ -2184,14 +2184,14 @@ function renderBoardGameChallenge() {
   const challenge = boardGameState.challenge.activeChallenge;
   if (boardGameChallengeTitleEl) {
     boardGameChallengeTitleEl.textContent = challenge
-      ? `Mongolian Prompt · ${challenge.promptMn}`
-      : "No challenge on this tile. Roll again to continue.";
+      ? `Монгол өгүүлбэр · ${challenge.promptMn}`
+      : "Энэ нүдэнд сорил алга. Үргэлжлүүлэхийн тулд дахин шоо шиднэ үү.";
   }
 
   if (boardGameChallengeTextEl) {
     boardGameChallengeTextEl.textContent = challenge
-      ? `Choose the best English answer (${challenge.tip}).`
-      : "Story/reward/penalty/checkpoint effects are applied automatically.";
+      ? `Хамгийн зөв англи хариултыг сонгоно уу (${challenge.tip}).`
+      : "Өгүүлэмж, шагнал, торгууль, шалган нэвтрэх нүдний нөлөө автоматаар хэрэгжинэ.";
   }
 
   if (!boardGameOptionsEl) return;
@@ -2216,10 +2216,10 @@ function applyBoardTileEffect(tile) {
   boardGameState.player.xp = Math.max(0, boardGameState.player.xp + (effect.xp || 0));
   boardGameState.player.coins = Math.max(0, boardGameState.player.coins + (effect.coins || 0));
 
-  if (tile.tileType === "reward") return `Reward tile: +${effect.xp} XP and +${effect.coins} coins.`;
-  if (tile.tileType === "penalty") return `Penalty tile: ${effect.xp} XP and ${effect.coins} coins.`;
-  if (tile.tileType === "checkpoint") return `Checkpoint reached: +${effect.xp} XP and +${effect.coins} coins.`;
-  if (tile.tileType === "finish") return `Finish tile cleared: +${effect.xp} XP and +${effect.coins} coins.`;
+  if (tile.tileType === "reward") return `Шагналын нүд: +${effect.xp} туршлага, +${effect.coins} зоос.`;
+  if (tile.tileType === "penalty") return `Торгуулийн нүд: ${effect.xp} туршлага, ${effect.coins} зоос.`;
+  if (tile.tileType === "checkpoint") return `Шалган нэвтрэх нүдэнд хүрлээ: +${effect.xp} туршлага, +${effect.coins} зоос.`;
+  if (tile.tileType === "finish") return `Барианы нүдийг давлаа: +${effect.xp} туршлага, +${effect.coins} зоос.`;
   return "";
 }
 
@@ -2261,7 +2261,7 @@ function setBoardGameFeedback(message, type = "info") {
 
 function applyPostLandingTileFeedback(tile) {
   if (tile.tileType === "story") {
-    setBoardGameFeedback("Story tile: two worlds observe each other with curiosity and caution.");
+    setBoardGameFeedback("Өгүүлэмжийн нүд: хоёр ертөнц сониуч бөгөөд болгоомжтойгоор бие биеэ ажиглана.");
     return;
   }
   const effectMessage = applyBoardTileEffect(tile);
@@ -2299,7 +2299,7 @@ async function handleBoardGameAnswer(selectedOption) {
   if (wasCorrect) {
     boardGameState.player.xp += 20;
     boardGameState.player.coins += 12;
-    setBoardGameFeedback(`Correct! ${challenge.promptMn} = ${challenge.answer}. You keep your position and gain +20 XP, +12 coins.`, "success");
+    setBoardGameFeedback(`Зөв! ${challenge.promptMn} = ${challenge.answer}. Байрлалаа хадгалж, +20 туршлага, +12 зоос авлаа.`, "success");
     boardGameState.challenge.activeChallenge = null;
     renderBoardGameChallenge();
     if (boardGameState.player.currentTile === boardLevelConfig().totalTiles) setBoardGameRollEnabled(false);
@@ -2307,7 +2307,7 @@ async function handleBoardGameAnswer(selectedOption) {
     return;
   }
 
-  setBoardGameFeedback(`Wrong answer. ${challenge.promptMn} means ${challenge.answer}. Move backward by ${boardGameState.challenge.pendingRoll}.`, "penalty");
+  setBoardGameFeedback(`Буруу хариулт. ${challenge.promptMn} нь ${challenge.answer} гэсэн утгатай. ${boardGameState.challenge.pendingRoll} нүд ухарна.`, "penalty");
   await sleep(450);
 
   const fromTile = boardGameState.player.currentTile;
@@ -2319,7 +2319,7 @@ async function handleBoardGameAnswer(selectedOption) {
 
   const retreatTile = boardTileByNumber(toTile);
   if (retreatTile.tileType === "checkpoint") {
-    setBoardGameFeedback("You retreated onto a checkpoint tile. Regroup and roll again.", "checkpoint");
+    setBoardGameFeedback("Та шалган нэвтрэх нүд рүү ухарлаа. Дахин төвлөрч шоо шиднэ үү.", "checkpoint");
   }
 
   setBoardGameRollEnabled(true);
@@ -2347,7 +2347,7 @@ function initBoardGameMvp() {
   boardGameState.player.coins = 0;
   boardGameState.dice.lastRoll = null;
   boardGameState.challenge.activeChallenge = null;
-  boardGameState.feedback.message = "Roll the dice to begin your historical journey.";
+  boardGameState.feedback.message = "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.";
 
   renderBoardGameTiles();
   updateBoardGameChapterPanel();
@@ -2409,7 +2409,7 @@ function persistSoundSettings() {
 
 function updateSoundToggleState() {
   soundToggleButtons.forEach(toggleBtn => {
-    toggleBtn.textContent = soundEnabled ? "🔊 Sound: ON" : "🔇 Sound: OFF";
+    toggleBtn.textContent = soundEnabled ? "🔊 Дуу: АСААЛТТАЙ" : "🔇 Дуу: УНТРААЛТТАЙ";
     toggleBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
   });
 }
@@ -4079,11 +4079,11 @@ function renderQaBuilder() {
 
   qaQuestionLineEl.innerHTML = qaQuestionBuilt.length
     ? qaQuestionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
-    : '<span class="qa-placeholder">Question энд үгсээ байрлуулна.</span>';
+    : '<span class="qa-placeholder">Асуултын мөрөнд үгсээ байрлуулна.</span>';
 
   qaAnswerLineEl.innerHTML = qaAnswerBuilt.length
     ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
-    : '<span class="qa-placeholder">Answer энд үгсээ байрлуулна.</span>';
+    : '<span class="qa-placeholder">Хариултын мөрөнд үгсээ байрлуулна.</span>';
 
   qaAnswerLineEl.classList.toggle("locked", !qaQuestionSolved);
 
@@ -4577,7 +4577,7 @@ if (profileNameInput) {
 
 if (upgradePremiumBtn) {
   upgradePremiumBtn.addEventListener("click", () => {
-    openPremiumModal("Төлбөрийн хэсэг удахгүй (Play Store / App Store In-App Purchase)");
+    openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
   });
 }
 
