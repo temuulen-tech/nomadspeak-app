@@ -214,7 +214,9 @@ let statsSelectedPeriod = "day";
 let statsRewardTab = "days";
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
-
+const worldFeedbackHubEl = document.getElementById("world-feedback-hub");
+const lessonCompanionLineEl = document.getElementById("lesson-companion-line");
+const sentencesCompanionLineEl = document.getElementById("sentences-companion-line");
 
 const boardGameBoardEl = document.getElementById("board-game-board");
 const boardGameTokenEl = document.getElementById("board-game-token");
@@ -1942,6 +1944,16 @@ function showScreen(screenId) {
   const learningModeActive = targetScreen !== startScreen;
   setAppMode(learningModeActive ? "learning" : "home");
 
+  if (document.body) {
+    document.body.dataset.activeScreen = resolvedScreenId || "home";
+  }
+
+  const ambienceMode = resolvedScreenId === "lesson" ? "lesson" : (resolvedScreenId === "sentences" ? "sentences" : "home");
+  worldSoundscape.start(ambienceMode);
+
+  if (resolvedScreenId === "lesson") updateCompanionLine("lesson", "idle");
+  if (resolvedScreenId === "sentences") updateCompanionLine("sentences", "idle");
+
   startSession(resolvedScreenId);
   startTimeUiUpdater();
   refreshTimeSummaryUI();
@@ -2137,6 +2149,78 @@ const GAME_FEEL_SOUND_EVENTS = {
   reward: "reward",
   chest: "chest",
   finish: "finish",
+};
+
+const ADVENTURE_COMPANION_LINES = {
+  lesson: {
+    idle: "Өнөөдрийн аяллаа эхлүүлэхэд бэлэн. Зөв хариулт бүр таны замыг гэрэлтүүлнэ.",
+    success: "Гайхалтай! Одон зам таны өмнө улам гэрэлтлээ.",
+    error: "Зүгээр ээ, баатар аа. Дараагийн алхам дээрээ эрчээ нэмээрэй.",
+    reward: "Шагналын авдар ойртож байна. Эрчээ битгий суллаарай.",
+  },
+  sentences: {
+    idle: "Өгүүлбэр бүрийг амилуулж сонсоорой. Дуугаа дарж аяллын хэлээ хөгжүүлээрэй.",
+    success: "Чи өгүүлбэрийн хэмнэлийг маш сайн барьж байна.",
+    reward: "Сайхан ахиц! Түүхэн замд шинэ тэмдэг нээгдлээ.",
+  },
+};
+
+function showWorldFeedbackChip(text, tone = "reward") {
+  if (!worldFeedbackHubEl || !text) return;
+  const chip = document.createElement("div");
+  chip.className = `world-feedback-chip world-feedback-${tone}`;
+  chip.textContent = text;
+  worldFeedbackHubEl.appendChild(chip);
+  requestAnimationFrame(() => chip.classList.add("show"));
+  setTimeout(() => {
+    chip.classList.remove("show");
+    setTimeout(() => chip.remove(), 260);
+  }, 1700);
+}
+
+function updateCompanionLine(mode, tone = "idle") {
+  if (mode === "lesson" && lessonCompanionLineEl) {
+    lessonCompanionLineEl.textContent = ADVENTURE_COMPANION_LINES.lesson[tone] || ADVENTURE_COMPANION_LINES.lesson.idle;
+  }
+  if (mode === "sentences" && sentencesCompanionLineEl) {
+    sentencesCompanionLineEl.textContent = ADVENTURE_COMPANION_LINES.sentences[tone] || ADVENTURE_COMPANION_LINES.sentences.idle;
+  }
+}
+
+const worldSoundscape = {
+  ambientTimer: null,
+  enabled: false,
+  start(mode = "lesson") {
+    this.stop();
+    if (!soundEnabled || mode === "home") return;
+    this.enabled = true;
+    const pulse = () => {
+      if (!this.enabled || !soundEnabled || document.hidden) return;
+      const base = mode === "sentences" ? 208 : 184;
+      playTone({ frequency: base, type: "sine", duration: 0.2, volume: 0.02, attack: 0.04, release: 0.19 });
+      setTimeout(() => playTone({ frequency: base * 1.5, type: "triangle", duration: 0.08, volume: 0.018, attack: 0.01, release: 0.08 }), 280);
+      this.ambientTimer = window.setTimeout(pulse, 4800);
+    };
+    this.ambientTimer = window.setTimeout(pulse, 1400);
+  },
+  stop() {
+    this.enabled = false;
+    if (this.ambientTimer) {
+      clearTimeout(this.ambientTimer);
+      this.ambientTimer = null;
+    }
+  },
+  play(eventName) {
+    if (!soundEnabled) return;
+    if (eventName === "reward") {
+      playTone({ frequency: 1046, type: "sine", duration: 0.08, volume: 0.09, attack: 0.003, release: 0.06 });
+      setTimeout(() => playTone({ frequency: 1318, type: "triangle", duration: 0.1, volume: 0.08, attack: 0.004, release: 0.08 }), 55);
+      return;
+    }
+    if (eventName === "soft-fail") {
+      playTone({ frequency: 210, type: "sawtooth", duration: 0.08, volume: 0.07, attack: 0.002, release: 0.07 });
+    }
+  },
 };
 
 const gameFeelSoundManager = {
@@ -3166,6 +3250,9 @@ function stopSpeaking() {
 function speakSentence(item) {
   if (!soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
+  updateCompanionLine("sentences", "success");
+  showWorldFeedbackChip("🗣️ Амилуулж уншлаа!", "reward");
+  worldSoundscape.play("reward");
 
   stopSpeaking();
 
@@ -3960,6 +4047,7 @@ function renderQuestion() {
 
   updateTopbar();
   updateHeaderStatus();
+  updateCompanionLine("lesson", "idle");
 }
 
 function pickAnswer(buttonEl, selected) {
@@ -3984,11 +4072,17 @@ function pickAnswer(buttonEl, selected) {
     resultEl.textContent = "✅ Зөв!";
     resultEl.classList.add("ok");
     playSuccessSound();
+    worldSoundscape.play("reward");
+    updateCompanionLine("lesson", "success");
+    showWorldFeedbackChip("✨ Зөв хариулт! Зам тань гэрэлтлээ.", "reward");
   } else {
     buttonEl.classList.add("wrong");
     resultEl.textContent = `❌ Буруу! Зөв нь: ${correct}`;
     resultEl.classList.add("bad");
     playErrorSound();
+    worldSoundscape.play("soft-fail");
+    updateCompanionLine("lesson", "error");
+    showWorldFeedbackChip("⚠️ Дахин оролдоод үзээрэй, баатар аа.", "warning");
   }
 
   show(resultEl);
@@ -4069,6 +4163,9 @@ function updateSentencesTimerUI() {
   while (sentencesUnlockedRewards < SENTENCES_REWARD_STEPS.length && sentencesElapsedSeconds >= SENTENCES_REWARD_STEPS[sentencesUnlockedRewards].seconds) {
     sentencesUnlockedRewards += 1;
     renderSentencesRewards();
+    updateCompanionLine("sentences", "reward");
+    showWorldFeedbackChip(`🎁 ${sentencesUnlockedRewards}-р шагнал нээгдлээ!`, "reward");
+    worldSoundscape.play("reward");
   }
 }
 
@@ -4621,8 +4718,12 @@ soundToggleButtons.forEach(toggleBtn => {
     if (!soundEnabled) {
       stopSpeaking();
       gameFeelSoundManager.stopAmbient();
+      worldSoundscape.stop();
     } else if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
       gameFeelSoundManager.startAmbient();
+    } else {
+      const activeScreen = document.body?.dataset.activeScreen || "home";
+      worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
     }
     updateSoundToggleState();
     persistSoundSettings();
@@ -4632,6 +4733,7 @@ soundToggleButtons.forEach(toggleBtn => {
 playExitButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     gameFeelSoundManager.stopAmbient();
+    worldSoundscape.stop();
     exitPlayModeToHome();
   });
 });
