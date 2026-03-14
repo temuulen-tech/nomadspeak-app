@@ -412,7 +412,7 @@
     <!-- BOARD GAME MVP SCREEN -->
     <section class="card hidden learning-screen" id="board-game-screen">
       <div class="learning-screen-shell">
-        <div class="board-game-topbar panel-header" aria-live="polite">
+        <div class="board-game-topbar" aria-live="polite">
           <button class="primary play-exit-btn game-exit-btn learning-exit-btn board-topbar-exit" type="button">Гарах</button>
           <div class="board-game-topbar-center">
             <h2 class="screen-title-chip chip-title learning-title-block">1-р ертөнц · Далайн цаадах ертөнц</h2>
@@ -427,6 +427,14 @@
 
         <div class="board-game-layout">
           <section class="board-game-board-panel" aria-label="Самбарын нүднүүд">
+            <div class="board-game-scene-backdrop" aria-hidden="true">
+              <span class="board-sky-haze"></span>
+              <span class="board-mountain-ridge board-mountain-ridge-back"></span>
+              <span class="board-mountain-ridge board-mountain-ridge-front"></span>
+              <span class="board-waterline"></span>
+              <span class="board-port-silhouette"></span>
+              <span class="board-reward-chest" title="Эрдэнэс"></span>
+            </div>
             <div class="game-feel-ambient-layer" aria-hidden="true">
               <span class="game-feel-mist"></span>
               <span class="game-feel-glow"></span>
@@ -435,16 +443,22 @@
               <p class="chip-label" id="board-game-chapter-title">Бүлгийн гарчиг</p>
               <p class="muted" id="board-game-chapter-text">Энэ бүлэгт түүхэн үйл явдлыг олон өнцгөөс тайлбарлана.</p>
             </div>
+            <div class="board-game-voyager" aria-hidden="true">
+              <span class="voyager-avatar">🧑🏻‍✈️</span>
+              <span class="voyager-label">Аялагч</span>
+            </div>
             <div class="board-game-board" id="board-game-board"></div>
-            <div class="board-game-token" id="board-game-token" aria-hidden="true">⛵</div>
+            <div class="board-game-token" id="board-game-token" aria-hidden="true">
+              <span class="token-ship">⛵</span>
+            </div>
             <div class="board-game-particles" id="board-game-particles" aria-hidden="true"></div>
             <div class="board-game-feedback-strip" aria-live="polite">
               <p id="board-game-feedback">Далай дамнасан аяллаа эхлэхийн тулд шоо шиднэ үү.</p>
             </div>
             <div class="board-game-feedback-hub" id="board-game-feedback-hub" aria-live="polite"></div>
-            <div class="board-game-controls-panel">
+            <div class="board-game-controls-panel" aria-label="Тоглоомын удирдлага">
               <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
-              <button class="primary" id="board-game-roll-btn" type="button">Шоо</button>
+              <button class="primary board-roll-btn" id="board-game-roll-btn" type="button">Шоо шидэх</button>
               <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
             </div>
             <section class="board-game-challenge-panel" aria-live="polite">
