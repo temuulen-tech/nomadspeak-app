@@ -2388,6 +2388,10 @@ function updateBoardGameMetaUi() {
 function setBoardGameRollEnabled(enabled) {
   boardGameState.dice.canRoll = enabled;
   if (boardGameRollBtn) boardGameRollBtn.disabled = !enabled;
+  if (boardGameDiceEl) {
+    boardGameDiceEl.disabled = !enabled;
+    boardGameDiceEl.setAttribute("aria-disabled", enabled ? "false" : "true");
+  }
 }
 
 function renderBoardGameChallenge() {
@@ -2445,12 +2449,12 @@ async function animateBoardGameDice(roll) {
   boardGameState.dice.rolling = true;
   boardGameDiceEl.classList.add("gf-dice-roll");
   gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.dice);
-  const faces = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
-  for (let i = 0; i < 10; i += 1) {
-    boardGameDiceEl.textContent = faces[Math.floor(Math.random() * faces.length)];
-    await sleep(60);
+  for (let i = 0; i < 14; i += 1) {
+    const randomFace = Math.floor(Math.random() * 6) + 1;
+    boardGameDiceEl.dataset.face = String(randomFace);
+    await sleep(72);
   }
-  boardGameDiceEl.textContent = faces[roll - 1] || "🎲";
+  boardGameDiceEl.dataset.face = String(roll);
   boardGameDiceEl.classList.remove("gf-dice-roll");
   boardGameState.dice.rolling = false;
 }
@@ -2591,7 +2595,7 @@ function initBoardGameMvp() {
   updateBoardGameMetaUi();
   updateBoardGameTokenPosition();
   setBoardGameRollEnabled(true);
-  if (boardGameDiceEl) boardGameDiceEl.textContent = "🎲";
+  if (boardGameDiceEl) boardGameDiceEl.dataset.face = "1";
   if (boardGameFeedbackHubEl) boardGameFeedbackHubEl.innerHTML = "";
   gameFeelSoundManager.startAmbient();
 }
@@ -4901,6 +4905,10 @@ updateInstallHintVisibility();
 
 if (boardGameRollBtn) {
   boardGameRollBtn.addEventListener("click", boardGameRollDice);
+}
+
+if (boardGameDiceEl) {
+  boardGameDiceEl.addEventListener("click", boardGameRollDice);
 }
 
 window.addEventListener("resize", () => {

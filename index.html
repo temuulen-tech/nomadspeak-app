@@ -457,8 +457,20 @@
             </div>
             <div class="board-game-feedback-hub" id="board-game-feedback-hub" aria-live="polite"></div>
             <div class="board-game-controls-panel" aria-label="Тоглоомын удирдлага">
-              <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
-              <button class="primary board-roll-btn" id="board-game-roll-btn" type="button">Шоо шидэх</button>
+              <button class="board-game-dice" id="board-game-dice" type="button" aria-live="polite" aria-label="Шоо шидэх" title="Шоо шидэх">
+                <span class="dice-cube" aria-hidden="true">
+                  <span class="dice-face-shadow"></span>
+                  <span class="dice-face-surface">
+                    <span class="dice-pip dice-pip-tl"></span>
+                    <span class="dice-pip dice-pip-tr"></span>
+                    <span class="dice-pip dice-pip-ml"></span>
+                    <span class="dice-pip dice-pip-center"></span>
+                    <span class="dice-pip dice-pip-mr"></span>
+                    <span class="dice-pip dice-pip-bl"></span>
+                    <span class="dice-pip dice-pip-br"></span>
+                  </span>
+                </span>
+              </button>
               <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
             </div>
             <section class="board-game-challenge-panel" aria-live="polite">
