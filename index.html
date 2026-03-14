@@ -428,10 +428,14 @@
         <div class="board-game-layout">
           <section class="board-game-board-panel" aria-label="Самбарын нүднүүд">
             <div class="board-game-scene-backdrop" aria-hidden="true">
+              <span class="board-sun-shaft"></span>
+              <span class="board-ancient-map"></span>
               <span class="board-sky-haze"></span>
               <span class="board-mountain-ridge board-mountain-ridge-back"></span>
               <span class="board-mountain-ridge board-mountain-ridge-front"></span>
               <span class="board-waterline"></span>
+              <span class="board-foam-layer"></span>
+              <span class="board-reed-foreground"></span>
               <span class="board-port-silhouette"></span>
               <span class="board-reward-chest" title="Эрдэнэс"></span>
             </div>
@@ -457,6 +461,7 @@
             </div>
             <div class="board-game-feedback-hub" id="board-game-feedback-hub" aria-live="polite"></div>
             <div class="board-game-controls-panel" aria-label="Тоглоомын удирдлага">
+              <div class="board-dice-pedestal" aria-hidden="true"></div>
               <div class="board-game-dice" id="board-game-dice" aria-live="polite">🎲</div>
               <button class="primary board-roll-btn" id="board-game-roll-btn" type="button">Шоо шидэх</button>
               <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
