@@ -3762,7 +3762,14 @@ body[data-mode="learning"] .app{
 @keyframes gf-penalty-shake{ 0%,100%{ transform:translate(-50%, -50%) translateX(0);} 25%{ transform:translate(-50%, -50%) translateX(-4px);} 75%{ transform:translate(-50%, -50%) translateX(4px);} }
 @keyframes gf-feedback-flash-good{ 0%{ box-shadow:0 0 0 rgba(0,0,0,0);} 50%{ box-shadow:0 0 18px rgba(110,255,173,.24);} 100%{ box-shadow:0 0 0 rgba(0,0,0,0);} }
 @keyframes gf-feedback-flash-bad{ 0%{ box-shadow:0 0 0 rgba(0,0,0,0);} 50%{ box-shadow:0 0 18px rgba(255,122,132,.28);} 100%{ box-shadow:0 0 0 rgba(0,0,0,0);} }
-@keyframes gf-dice-roll{ 0%{ transform:rotate(0deg) scale(1);} 50%{ transform:rotate(8deg) scale(1.05);} 100%{ transform:rotate(-8deg) scale(1);} }
+@keyframes gf-dice-roll{
+  0%{ transform:rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1); }
+  20%{ transform:rotateX(120deg) rotateY(86deg) rotateZ(54deg) scale(1.05); }
+  40%{ transform:rotateX(220deg) rotateY(176deg) rotateZ(134deg) scale(1.08); }
+  60%{ transform:rotateX(330deg) rotateY(260deg) rotateZ(212deg) scale(1.1); }
+  80%{ transform:rotateX(430deg) rotateY(344deg) rotateZ(282deg) scale(1.05); }
+  100%{ transform:rotateX(520deg) rotateY(430deg) rotateZ(360deg) scale(1); }
+}
 @keyframes gf-panel-in{ from{ opacity:.55; transform:translateY(4px);} to{ opacity:1; transform:translateY(0);} }
 
 .gf-token-step{ animation:gf-token-float .24s ease; }
@@ -3772,7 +3779,7 @@ body[data-mode="learning"] .app{
 .gf-checkpoint-glow{ box-shadow:0 0 0 1px rgba(166,240,255,.7),0 0 16px rgba(112,223,255,.35)!important; }
 .gf-chest-open{ box-shadow:0 0 0 1px rgba(255,220,140,.74),0 0 24px rgba(255,200,92,.42)!important; }
 .gf-penalty-flash{ filter:saturate(.7) brightness(.95); }
-.gf-dice-roll{ animation:gf-dice-roll .18s linear infinite; }
+.gf-dice-roll{ animation:gf-dice-roll .72s cubic-bezier(.2,.88,.26,.98) infinite; }
 .gf-story-panel-in{ animation:gf-panel-in .28s ease; }
 .gf-feedback-success{ animation:gf-feedback-flash-good .45s ease; }
 .gf-feedback-penalty{ animation:gf-feedback-flash-bad .45s ease; }
@@ -4108,20 +4115,139 @@ body[data-mode="learning"] .app{
   gap:6px;
 }
 
-.board-roll-btn{ min-width:96px; border-radius:999px; padding:8px 14px; }
-
 .board-game-dice{
   margin-top:0;
-  width:50px;
-  height:50px;
-  border-radius:12px;
-  border:1px solid rgba(255,218,129,.72);
-  background:linear-gradient(160deg, rgba(71,48,18,.94), rgba(116,84,28,.84));
+  width:64px;
+  height:64px;
+  border-radius:16px;
+  border:none;
+  padding:0;
+  cursor:pointer;
+  position:relative;
+  background:transparent;
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:24px;
-  box-shadow:0 0 16px rgba(255,201,90,.22);
+  font-size:0;
+  box-shadow:none;
+  transform-style:preserve-3d;
+  perspective:520px;
+  transition:transform .2s ease, filter .2s ease;
+}
+
+.board-game-dice::before,
+.board-game-dice::after{
+  content:"";
+  position:absolute;
+  border-radius:50%;
+  pointer-events:none;
+}
+
+.board-game-dice::before{
+  width:56px;
+  height:14px;
+  bottom:-8px;
+  background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.48), rgba(0,0,0,0));
+  filter:blur(2px);
+}
+
+.board-game-dice::after{
+  inset:-6px;
+  border:1px solid rgba(255,228,160,.32);
+  opacity:.48;
+}
+
+.board-game-dice:hover,
+.board-game-dice:focus-visible{
+  transform:translateY(-2px) scale(1.04);
+  filter:brightness(1.08);
+}
+
+.board-game-dice:focus-visible{
+  outline:2px solid rgba(255,232,176,.82);
+  outline-offset:2px;
+}
+
+.dice-cube{
+  position:relative;
+  width:52px;
+  height:52px;
+  transform-style:preserve-3d;
+  transform:rotateX(14deg) rotateY(-18deg);
+}
+
+.dice-face-shadow,
+.dice-face-surface{
+  position:absolute;
+  inset:0;
+  border-radius:12px;
+}
+
+.dice-face-shadow{
+  transform:translate3d(6px, 6px, -10px);
+  border-radius:11px;
+  background:linear-gradient(165deg, rgba(82,54,20,.78), rgba(47,29,10,.95));
+  box-shadow:
+    inset -3px -4px 0 rgba(0,0,0,.22),
+    inset 3px 2px 0 rgba(255,242,210,.08);
+}
+
+.dice-face-surface{
+  background:
+    radial-gradient(circle at 24% 20%, rgba(255,255,255,.92), rgba(255,255,255,.16) 42%, rgba(255,255,255,0) 60%),
+    linear-gradient(145deg, #fffef9 0%, #f5efe1 46%, #ddd1b8 100%);
+  border:1px solid rgba(103,77,42,.45);
+  box-shadow:
+    inset 3px 3px 0 rgba(255,255,255,.72),
+    inset -4px -4px 0 rgba(128,95,52,.24),
+    0 9px 18px rgba(0,0,0,.34),
+    0 0 14px rgba(255,218,129,.22);
+}
+
+.dice-pip{
+  position:absolute;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:radial-gradient(circle at 30% 30%, #3e2f1f, #0d0906 72%);
+  box-shadow:inset 1px 1px 1px rgba(255,247,228,.25), 0 1px 1px rgba(0,0,0,.25);
+  opacity:0;
+}
+
+.dice-pip-tl{ top:11px; left:11px; }
+.dice-pip-tr{ top:11px; right:11px; }
+.dice-pip-ml{ top:22px; left:11px; }
+.dice-pip-center{ top:22px; left:22px; }
+.dice-pip-mr{ top:22px; right:11px; }
+.dice-pip-bl{ bottom:11px; left:11px; }
+.dice-pip-br{ bottom:11px; right:11px; }
+
+.board-game-dice[data-face="1"] .dice-pip-center,
+.board-game-dice[data-face="2"] .dice-pip-tl,
+.board-game-dice[data-face="2"] .dice-pip-br,
+.board-game-dice[data-face="3"] .dice-pip-tl,
+.board-game-dice[data-face="3"] .dice-pip-center,
+.board-game-dice[data-face="3"] .dice-pip-br,
+.board-game-dice[data-face="4"] .dice-pip-tl,
+.board-game-dice[data-face="4"] .dice-pip-tr,
+.board-game-dice[data-face="4"] .dice-pip-bl,
+.board-game-dice[data-face="4"] .dice-pip-br,
+.board-game-dice[data-face="5"] .dice-pip-tl,
+.board-game-dice[data-face="5"] .dice-pip-tr,
+.board-game-dice[data-face="5"] .dice-pip-center,
+.board-game-dice[data-face="5"] .dice-pip-bl,
+.board-game-dice[data-face="5"] .dice-pip-br,
+.board-game-dice[data-face="6"] .dice-pip-tl,
+.board-game-dice[data-face="6"] .dice-pip-tr,
+.board-game-dice[data-face="6"] .dice-pip-ml,
+.board-game-dice[data-face="6"] .dice-pip-mr,
+.board-game-dice[data-face="6"] .dice-pip-bl,
+.board-game-dice[data-face="6"] .dice-pip-br{
+  opacity:1;
+}
+
+.board-game-dice.gf-dice-roll{
+  filter:brightness(1.12) saturate(1.04);
 }
 
 .board-game-mini-status{
