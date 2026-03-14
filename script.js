@@ -234,7 +234,9 @@ const boardGameDiceEl = document.getElementById("board-game-dice");
 const boardGameXpEl = document.getElementById("board-game-xp");
 const boardGameCoinsEl = document.getElementById("board-game-coins");
 const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
-
+const boardGameVoyagerEl = document.getElementById("board-game-voyager");
+const boardGameVoyagerLabelEl = document.getElementById("board-game-voyager-label");
+const boardGamePanelEl = document.querySelector(".board-game-board-panel");
 
 const boardGameFeedbackHubEl = document.getElementById("board-game-feedback-hub");
 const boardGameParticlesEl = document.getElementById("board-game-particles");
@@ -2123,6 +2125,18 @@ function boardTileEmoji(tileType) {
   return map[tileType] || "·";
 }
 
+function boardTileAtmosphere(tileType) {
+  const map = {
+    normal: "Элсэн зам чимээгүйхэн хөдөлж байна.",
+    reward: "Гялтганасан олз олдлоо.",
+    penalty: "Аян замын аюул анхааруулж байна.",
+    story: "Түүхийн мөр таны өмнө дэлгэгдлээ.",
+    checkpoint: "Хамгаалалтын цэгт түр амарлаа.",
+    finish: "Эцсийн боомтын гэрэл тодорлоо.",
+  };
+  return map[tileType] || map.normal;
+}
+
 const boardGameState = {
   levelId: "world1",
   tiles: [],
@@ -2323,6 +2337,26 @@ function applyBoardGameTileMoment(tileType) {
   }
 }
 
+function applyBoardCameraFocus(mode = "tile") {
+  if (!boardGamePanelEl) return;
+  gameFeelAnimate(boardGamePanelEl, "gf-focus-zoom", 680);
+}
+
+function setBoardVoyagerMood(mood = "idle", line = "Аялагч") {
+  if (!boardGameVoyagerEl) return;
+  boardGameVoyagerEl.classList.remove("gf-voyager-cheer", "gf-voyager-worry");
+  if (mood === "good") gameFeelAnimate(boardGameVoyagerEl, "gf-voyager-cheer", 520);
+  if (mood === "bad") gameFeelAnimate(boardGameVoyagerEl, "gf-voyager-worry", 520);
+  if (boardGameVoyagerLabelEl) boardGameVoyagerLabelEl.textContent = line;
+}
+
+function triggerTileLandingImpact(tileNumber) {
+  const tileEl = boardGameBoardEl?.querySelector(`[data-tile="${tileNumber}"]`);
+  if (!tileEl) return;
+  gameFeelAnimate(tileEl, "landed", 420);
+  spawnBoardParticles("reward");
+}
+
 function boardLevelConfig() {
   return BOARD_GAME_CONFIG.levels[boardGameState.levelId];
 }
@@ -2395,13 +2429,13 @@ function renderBoardGameChallenge() {
   const challengePanel = document.querySelector(".board-game-challenge-panel");
   if (boardGameChallengeTitleEl) {
     boardGameChallengeTitleEl.textContent = challenge
-      ? `Монгол өгүүлбэр · ${challenge.promptMn}`
+      ? `🪨 Чулуун самбар · ${challenge.promptMn}`
       : "Энэ нүдэнд сорил алга. Үргэлжлүүлэхийн тулд дахин шоо шиднэ үү.";
   }
 
   if (boardGameChallengeTextEl) {
     boardGameChallengeTextEl.textContent = challenge
-      ? `Хамгийн зөв англи хариултыг сонгоно уу (${challenge.tip}).`
+      ? `Ханын бичээсийг тайлж, зөв орчуулгыг сонгоно уу (${challenge.tip}).`
       : "Өгүүлэмж, шагнал, торгууль, шалган нэвтрэх нүдний нөлөө автоматаар хэрэгжинэ.";
   }
 
@@ -2416,7 +2450,7 @@ function renderBoardGameChallenge() {
     const btn = document.createElement("button");
     btn.type = "button";
     btn.className = "secondary board-game-option-btn";
-    btn.textContent = option;
+    btn.textContent = `➤ ${option}`;
     btn.addEventListener("click", () => handleBoardGameAnswer(option));
     boardGameOptionsEl.appendChild(btn);
   });
@@ -2464,9 +2498,12 @@ async function animateBoardGameMovement(fromTile, toTile) {
     updateBoardGameChapterPanel();
     updateBoardGameMetaUi();
     updateBoardGameTokenPosition();
+    setBoardVoyagerMood("idle", `Аялагч · ${boardTileAtmosphere(boardTileByNumber(tile).tileType)}`);
     await sleep(GAME_FEEL_MOTION.moveStepMs);
   }
   boardGameState.movement.isMoving = false;
+  triggerTileLandingImpact(toTile);
+  applyBoardCameraFocus("tile");
 }
 
 function setBoardGameFeedback(message, type = "info") {
@@ -2474,7 +2511,7 @@ function setBoardGameFeedback(message, type = "info") {
   boardGameState.feedback.type = type;
   if (boardGameFeedbackEl) {
     boardGameFeedbackEl.dataset.type = type;
-    gameFeelAnimate(boardGameFeedbackEl, type === "penalty" ? "gf-feedback-penalty" : "gf-feedback-success", 500);
+    gameFeelAnimate(boardGameFeedbackEl, ["penalty","wrong"].includes(type) ? "gf-feedback-penalty" : "gf-feedback-success", 500);
   }
   showBoardGamePopup(type, message);
   updateBoardGameMetaUi();
@@ -2483,12 +2520,16 @@ function setBoardGameFeedback(message, type = "info") {
 function applyPostLandingTileFeedback(tile) {
   if (tile.tileType === "story") {
     setBoardGameFeedback("Өгүүлэмжийн нүд: хоёр ертөнц сониуч бөгөөд болгоомжтойгоор бие биеэ ажиглана.", "story");
+    setBoardVoyagerMood("idle", "Аялагч · Түүхийн дуу хоолойг сонсож байна");
+    applyBoardCameraFocus("story");
     return;
   }
   const effectMessage = applyBoardTileEffect(tile);
   if (effectMessage) {
     setBoardGameFeedback(effectMessage, tile.tileType);
     applyBoardGameTileMoment(tile.tileType);
+    setBoardVoyagerMood("idle", `Аялагч · ${boardTileAtmosphere(tile.tileType)}`);
+    applyBoardCameraFocus("tile");
     if (tile.tileType === "reward") {
       gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.reward);
       spawnBoardParticles("reward");
@@ -2507,6 +2548,10 @@ async function resolveBoardLanding(tileNumber, rolledValue) {
 
   applyPostLandingTileFeedback(tile);
   renderBoardGameChallenge();
+  if (boardGameState.challenge.activeChallenge) {
+    applyBoardCameraFocus("challenge");
+    setBoardVoyagerMood("idle", "Аялагч · Чулуун бичээсийг тайлъя");
+  }
   updateBoardGameMetaUi();
 
   if (!boardGameState.challenge.activeChallenge) {
@@ -2522,8 +2567,9 @@ async function handleBoardGameAnswer(selectedOption) {
   const optionButtons = boardGameOptionsEl ? [...boardGameOptionsEl.querySelectorAll("button")] : [];
   optionButtons.forEach((btn) => {
     btn.disabled = true;
-    if (btn.textContent === challenge.answer) btn.classList.add("correct");
-    if (btn.textContent === selectedOption && selectedOption !== challenge.answer) btn.classList.add("wrong");
+    const label = btn.textContent?.replace(/^➤\s*/, "") || "";
+    if (label === challenge.answer) btn.classList.add("correct");
+    if (label === selectedOption && selectedOption !== challenge.answer) btn.classList.add("wrong");
   });
 
   const wasCorrect = selectedOption === challenge.answer;
@@ -2532,7 +2578,9 @@ async function handleBoardGameAnswer(selectedOption) {
     boardGameState.player.coins += 12;
     setBoardGameFeedback(`Зөв! ${challenge.promptMn} = ${challenge.answer}. Байрлалаа хадгалж, +20 туршлага, +12 зоос авлаа.`, "success");
     gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.correct);
+    setBoardVoyagerMood("good", "Аялагч · Гайхалтай! Урагш ахилаа");
     spawnBoardParticles("reward");
+    applyBoardCameraFocus("reward");
     gameFeelAnimate(boardGameOptionsEl, "gf-reward-pop", GAME_FEEL_MOTION.rewardPopMs);
     boardGameState.challenge.activeChallenge = null;
     renderBoardGameChallenge();
@@ -2543,7 +2591,9 @@ async function handleBoardGameAnswer(selectedOption) {
 
   setBoardGameFeedback(`Буруу хариулт. ${challenge.promptMn} нь ${challenge.answer} гэсэн утгатай. ${boardGameState.challenge.pendingRoll} нүд ухарна.`, "penalty");
   gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.wrong);
+  setBoardVoyagerMood("bad", "Аялагч · Дахиад оролдоорой");
   gameFeelAnimate(boardGameTokenEl, "gf-penalty-shake", GAME_FEEL_MOTION.penaltyMs);
+  applyBoardCameraFocus("penalty");
   await sleep(450);
 
   const fromTile = boardGameState.player.currentTile;
@@ -2588,11 +2638,16 @@ function initBoardGameMvp() {
   renderBoardGameTiles();
   updateBoardGameChapterPanel();
   renderBoardGameChallenge();
+  if (boardGameState.challenge.activeChallenge) {
+    applyBoardCameraFocus("challenge");
+    setBoardVoyagerMood("idle", "Аялагч · Чулуун бичээсийг тайлъя");
+  }
   updateBoardGameMetaUi();
   updateBoardGameTokenPosition();
   setBoardGameRollEnabled(true);
   if (boardGameDiceEl) boardGameDiceEl.textContent = "🎲";
   if (boardGameFeedbackHubEl) boardGameFeedbackHubEl.innerHTML = "";
+  setBoardVoyagerMood("idle", "Аялагч · Аяллаа эхлүүлэхэд бэлэн");
   gameFeelSoundManager.startAmbient();
 }
 
