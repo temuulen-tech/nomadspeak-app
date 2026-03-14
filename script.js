@@ -401,9 +401,35 @@ let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
 let audioPrimed = false;
+let audioInteractionUnlocked = false;
 let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
+
+const WORLD_AUDIO_PROFILES = {
+  sea: {
+    music: {
+      intervalMs: 3600,
+      root: 196,
+      sequence: [1, 1.26, 1.5, 1.26],
+      volume: 0.055,
+    },
+    ambient: {
+      swellHz: 0.09,
+      seaToneHz: 123,
+      seaToneVolume: 0.018,
+      windVolume: 0.042,
+    },
+  },
+};
+
+const SOUND_EVENT_HOOKS = {
+  diceRoll: "dice-roll",
+  answerCorrect: "answer-correct",
+  answerWrong: "answer-wrong",
+  chestReward: "chest-reward",
+  progression: "progression",
+};
 
 let progressState = {
   xp: 35,
@@ -2187,28 +2213,193 @@ function updateCompanionLine(mode, tone = "idle") {
   }
 }
 
-const worldSoundscape = {
-  ambientTimer: null,
-  enabled: false,
-  start(mode = "lesson") {
-    this.stop();
-    if (!soundEnabled || mode === "home") return;
-    this.enabled = true;
-    const pulse = () => {
-      if (!this.enabled || !soundEnabled || document.hidden) return;
-      const base = mode === "sentences" ? 208 : 184;
-      playTone({ frequency: base, type: "sine", duration: 0.2, volume: 0.02, attack: 0.04, release: 0.19 });
-      setTimeout(() => playTone({ frequency: base * 1.5, type: "triangle", duration: 0.08, volume: 0.018, attack: 0.01, release: 0.08 }), 280);
-      this.ambientTimer = window.setTimeout(pulse, 4800);
+const audioEngine = {
+  worldId: "sea",
+  activeMode: "home",
+  masterGain: null,
+  musicGain: null,
+  ambienceGain: null,
+  musicOscillators: [],
+  ambienceNodes: [],
+  musicStepTimer: null,
+  musicStepIndex: 0,
+  musicRunning: false,
+  ambienceRunning: false,
+  fade(gainNode, target, duration = 1.2) {
+    if (!gainNode) return;
+    const ctx = getAudioContext();
+    if (!ctx) return;
+    const now = ctx.currentTime;
+    gainNode.gain.cancelScheduledValues(now);
+    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
+    gainNode.gain.linearRampToValueAtTime(target, now + duration);
+  },
+  ensureGraph() {
+    const ctx = getAudioContext();
+    if (!ctx) return null;
+    if (!this.masterGain) {
+      this.masterGain = ctx.createGain();
+      this.musicGain = ctx.createGain();
+      this.ambienceGain = ctx.createGain();
+      this.masterGain.gain.value = 0;
+      this.musicGain.gain.value = 0;
+      this.ambienceGain.gain.value = 0;
+      this.musicGain.connect(this.masterGain);
+      this.ambienceGain.connect(this.masterGain);
+      this.masterGain.connect(ctx.destination);
+    }
+    return ctx;
+  },
+  resolveProfile(worldId = this.worldId) {
+    return WORLD_AUDIO_PROFILES[worldId] || WORLD_AUDIO_PROFILES.sea;
+  },
+  start(worldId = "sea", mode = "lesson") {
+    this.worldId = worldId;
+    this.activeMode = mode;
+    if (!soundEnabled || !audioInteractionUnlocked || mode === "home") {
+      this.stop(true);
+      return;
+    }
+    this.startMusic();
+    this.startAmbience();
+  },
+  stop(immediate = false) {
+    this.stopMusic(immediate);
+    this.stopAmbience(immediate);
+  },
+  startMusic() {
+    const ctx = this.ensureGraph();
+    if (!ctx) return;
+    const profile = this.resolveProfile();
+    if (!this.musicOscillators.length) {
+      this.musicOscillators = [0, 1, 2].map((voiceIndex) => {
+        const osc = ctx.createOscillator();
+        osc.type = voiceIndex === 1 ? "triangle" : "sine";
+        osc.detune.value = voiceIndex === 0 ? -3 : (voiceIndex === 2 ? 4 : 0);
+        osc.frequency.value = profile.music.root;
+        osc.connect(this.musicGain);
+        osc.start();
+        return osc;
+      });
+    }
+    this.musicRunning = true;
+    this.fade(this.masterGain, 1, 1.1);
+    this.fade(this.musicGain, profile.music.volume, 1.7);
+
+    const step = () => {
+      if (!this.musicRunning || !soundEnabled || document.hidden) return;
+      const activeProfile = this.resolveProfile();
+      const ratio = activeProfile.music.sequence[this.musicStepIndex % activeProfile.music.sequence.length] || 1;
+      const now = ctx.currentTime;
+      this.musicOscillators.forEach((osc, index) => {
+        const interval = index === 0 ? 1 : (index === 1 ? 0.5 : 2);
+        osc.frequency.cancelScheduledValues(now);
+        osc.frequency.linearRampToValueAtTime(activeProfile.music.root * ratio * interval, now + 1.05);
+      });
+      this.musicStepIndex += 1;
+      this.musicStepTimer = window.setTimeout(step, activeProfile.music.intervalMs);
     };
-    this.ambientTimer = window.setTimeout(pulse, 1400);
+
+    if (this.musicStepTimer) clearTimeout(this.musicStepTimer);
+    this.musicStepTimer = window.setTimeout(step, 240);
+  },
+  stopMusic(immediate = false) {
+    this.musicRunning = false;
+    if (this.musicStepTimer) {
+      clearTimeout(this.musicStepTimer);
+      this.musicStepTimer = null;
+    }
+    if (!this.musicGain) return;
+    if (immediate) {
+      this.musicGain.gain.value = 0;
+      if (this.masterGain) this.masterGain.gain.value = 0;
+      return;
+    }
+    this.fade(this.musicGain, 0, 0.9);
+    this.fade(this.masterGain, 0, 1.2);
+  },
+  startAmbience() {
+    const ctx = this.ensureGraph();
+    if (!ctx) return;
+    const profile = this.resolveProfile();
+    if (!this.ambienceNodes.length) {
+      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
+      const data = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < data.length; i += 1) data[i] = (Math.random() * 2 - 1) * 0.6;
+
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+      noise.loop = true;
+
+      const windFilter = ctx.createBiquadFilter();
+      windFilter.type = "lowpass";
+      windFilter.frequency.value = 750;
+
+      const windGain = ctx.createGain();
+      windGain.gain.value = 0;
+
+      const seaOsc = ctx.createOscillator();
+      seaOsc.type = "sine";
+      seaOsc.frequency.value = profile.ambient.seaToneHz;
+
+      const seaGain = ctx.createGain();
+      seaGain.gain.value = 0;
+
+      const swellLfo = ctx.createOscillator();
+      swellLfo.type = "sine";
+      swellLfo.frequency.value = profile.ambient.swellHz;
+
+      const swellGain = ctx.createGain();
+      swellGain.gain.value = profile.ambient.seaToneVolume * 0.55;
+
+      noise.connect(windFilter);
+      windFilter.connect(windGain);
+      windGain.connect(this.ambienceGain);
+      seaOsc.connect(seaGain);
+      seaGain.connect(this.ambienceGain);
+      swellLfo.connect(swellGain);
+      swellGain.connect(seaGain.gain);
+
+      noise.start();
+      seaOsc.start();
+      swellLfo.start();
+
+      this.ambienceNodes = [noise, seaOsc, swellLfo, windGain, seaGain];
+    }
+    this.ambienceRunning = true;
+    this.fade(this.masterGain, 1, 1.1);
+    this.fade(this.ambienceGain, 1, 1.5);
+    const windGain = this.ambienceNodes[3];
+    const seaGain = this.ambienceNodes[4];
+    this.fade(windGain, profile.ambient.windVolume, 1.8);
+    this.fade(seaGain, profile.ambient.seaToneVolume, 1.6);
+  },
+  stopAmbience(immediate = false) {
+    this.ambienceRunning = false;
+    if (!this.ambienceGain) return;
+    if (immediate) {
+      this.ambienceGain.gain.value = 0;
+      if (this.masterGain) this.masterGain.gain.value = 0;
+      return;
+    }
+    this.fade(this.ambienceGain, 0, 1.1);
+    this.fade(this.masterGain, 0, 1.3);
+  },
+  onVisibilityChange() {
+    if (document.hidden) {
+      this.stop();
+      return;
+    }
+    this.start(this.worldId, this.activeMode);
+  },
+};
+
+const worldSoundscape = {
+  start(mode = "lesson") {
+    audioEngine.start("sea", mode);
   },
   stop() {
-    this.enabled = false;
-    if (this.ambientTimer) {
-      clearTimeout(this.ambientTimer);
-      this.ambientTimer = null;
-    }
+    audioEngine.stop();
   },
   play(eventName) {
     if (!soundEnabled) return;
@@ -2224,56 +2415,49 @@ const worldSoundscape = {
 };
 
 const gameFeelSoundManager = {
-  ambientTimer: null,
-  ambientEnabled: false,
-  play(eventName) {
+  playSoundHook(eventName) {
     if (!soundEnabled) return;
-    if (eventName === GAME_FEEL_SOUND_EVENTS.dice) {
+    if (eventName === SOUND_EVENT_HOOKS.diceRoll) {
       playTone({ frequency: 420, type: "triangle", duration: 0.06, volume: 0.08, attack: 0.003, release: 0.05 });
       setTimeout(() => playTone({ frequency: 260, type: "triangle", duration: 0.08, volume: 0.07, attack: 0.004, release: 0.06 }), 70);
       return;
     }
-    if (eventName === GAME_FEEL_SOUND_EVENTS.correct) {
+    if (eventName === SOUND_EVENT_HOOKS.answerCorrect) {
       playSuccessSound();
       return;
     }
-    if (eventName === GAME_FEEL_SOUND_EVENTS.wrong) {
+    if (eventName === SOUND_EVENT_HOOKS.answerWrong) {
       playErrorSound();
       return;
     }
-    if (eventName === GAME_FEEL_SOUND_EVENTS.reward) {
-      playTone({ frequency: 988, type: "sine", duration: 0.08, volume: 0.11, attack: 0.004, release: 0.06 });
-      setTimeout(() => playTone({ frequency: 1480, type: "triangle", duration: 0.1, volume: 0.1, attack: 0.004, release: 0.08 }), 55);
-      return;
-    }
-    if (eventName === GAME_FEEL_SOUND_EVENTS.chest) {
+    if (eventName === SOUND_EVENT_HOOKS.chestReward) {
       playTone({ frequency: 320, type: "square", duration: 0.1, volume: 0.07, attack: 0.001, release: 0.08 });
       setTimeout(() => playTone({ frequency: 760, type: "triangle", duration: 0.11, volume: 0.09, attack: 0.004, release: 0.07 }), 95);
       return;
     }
-    if (eventName === GAME_FEEL_SOUND_EVENTS.finish) {
+    if (eventName === SOUND_EVENT_HOOKS.progression) {
       [660, 880, 1174].forEach((freq, i) => {
         setTimeout(() => playTone({ frequency: freq, type: "triangle", duration: 0.1, volume: 0.11, attack: 0.005, release: 0.08 }), i * 90);
       });
     }
   },
-  startAmbient() {
-    this.stopAmbient();
-    if (!soundEnabled) return;
-    this.ambientEnabled = true;
-    const pulse = () => {
-      if (!this.ambientEnabled || !soundEnabled || document.hidden) return;
-      playTone({ frequency: 174, type: "sine", duration: 0.2, volume: 0.018, attack: 0.05, release: 0.2 });
-      this.ambientTimer = window.setTimeout(pulse, 4200);
+  play(eventName) {
+    const map = {
+      [GAME_FEEL_SOUND_EVENTS.dice]: SOUND_EVENT_HOOKS.diceRoll,
+      [GAME_FEEL_SOUND_EVENTS.correct]: SOUND_EVENT_HOOKS.answerCorrect,
+      [GAME_FEEL_SOUND_EVENTS.wrong]: SOUND_EVENT_HOOKS.answerWrong,
+      [GAME_FEEL_SOUND_EVENTS.reward]: SOUND_EVENT_HOOKS.progression,
+      [GAME_FEEL_SOUND_EVENTS.chest]: SOUND_EVENT_HOOKS.chestReward,
+      [GAME_FEEL_SOUND_EVENTS.finish]: SOUND_EVENT_HOOKS.progression,
     };
-    this.ambientTimer = window.setTimeout(pulse, 1200);
+    const hook = map[eventName];
+    if (hook) this.playSoundHook(hook);
+  },
+  startAmbient() {
+    audioEngine.start("sea", "board-game");
   },
   stopAmbient() {
-    this.ambientEnabled = false;
-    if (this.ambientTimer) {
-      clearTimeout(this.ambientTimer);
-      this.ambientTimer = null;
-    }
+    audioEngine.stop();
   },
 };
 
@@ -2678,7 +2862,13 @@ function ensureAudioUnlocked() {
   audioPrimed = true;
 
   const unlock = () => {
+    audioInteractionUnlocked = true;
     primeAudioContext();
+    const activeScreen = document.body?.dataset.activeScreen || "home";
+    if (soundEnabled) {
+      if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) gameFeelSoundManager.startAmbient();
+      else worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
+    }
     window.removeEventListener("pointerdown", unlock, true);
     window.removeEventListener("keydown", unlock, true);
   };
@@ -2688,7 +2878,7 @@ function ensureAudioUnlocked() {
 }
 
 function playTone({ frequency, type, duration, volume, attack = 0.005, release = 0.05 }) {
-  if (!soundEnabled) return;
+  if (!soundEnabled || !audioInteractionUnlocked) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -2811,6 +3001,7 @@ function renderSentenceGameClimb(level = 0, options = {}) {
 
 function playSentenceGameLevelUpSound(stage) {
   if (!soundEnabled || stage < 1 || stage > 5) return;
+  gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.progression);
   const stagePatterns = {
     1: [620, 740, 930],
     2: [660, 880, 1100],
@@ -2828,6 +3019,7 @@ function playSentenceGameLevelUpSound(stage) {
 
 function playSentenceGameLevelDownSound() {
   if (!soundEnabled) return;
+  gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.answerWrong);
   [300, 230, 170].forEach((freq, index) => {
     setTimeout(() => {
       playTone({ frequency: freq, type: "sawtooth", duration: 0.09, volume: 0.095, attack: 0.002, release: 0.08 });
@@ -4918,8 +5110,7 @@ window.addEventListener("resize", () => {
 });
 
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) gameFeelSoundManager.stopAmbient();
-  else if (soundEnabled && boardGameScreen && !boardGameScreen.classList.contains("hidden")) gameFeelSoundManager.startAmbient();
+  audioEngine.onVisibilityChange();
 });
 
 const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
