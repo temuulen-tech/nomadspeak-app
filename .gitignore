@@ -1,0 +1,2 @@
+# Keep local audio files out of commits/PRs
+assets/audio/*.mp3
