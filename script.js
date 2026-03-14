@@ -402,6 +402,7 @@ let soundEnabled = true;
 let audioContext = null;
 let audioPrimed = false;
 let audioInteractionUnlocked = false;
+const BACKGROUND_AUDIO_ENABLED = false;
 let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
@@ -2256,7 +2257,7 @@ const audioEngine = {
   start(worldId = "sea", mode = "lesson") {
     this.worldId = worldId;
     this.activeMode = mode;
-    if (!soundEnabled || !audioInteractionUnlocked || mode === "home") {
+    if (!soundEnabled || !audioInteractionUnlocked || mode === "home" || !BACKGROUND_AUDIO_ENABLED) {
       this.stop(true);
       return;
     }
