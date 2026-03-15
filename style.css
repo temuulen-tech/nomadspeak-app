@@ -3849,9 +3849,9 @@ body[data-mode="learning"] .app{
   min-height:620px;
   padding:12px;
   background:
-    radial-gradient(130% 90% at 50% -20%, rgba(104,174,204,.24), transparent 58%),
-    radial-gradient(120% 120% at 50% 115%, rgba(23,64,83,.52), transparent 62%),
-    linear-gradient(180deg, #123044 0%, #1a3f53 36%, #1e4f5c 58%, #20445a 72%, #1f3c4f 100%);
+    radial-gradient(120% 100% at 55% -18%, rgba(255,232,173,.18), transparent 58%),
+    radial-gradient(120% 120% at 46% 124%, rgba(7,36,50,.32), transparent 66%),
+    #20445a;
 }
 
 .board-game-scene-backdrop{
@@ -3861,6 +3861,29 @@ body[data-mode="learning"] .app{
   pointer-events:none;
 }
 
+.board-game-scene-backdrop::before,
+.board-game-scene-backdrop::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+}
+
+.board-game-scene-backdrop::before{
+  background-image:url("assets/worlds/sailors/ship-deck.png");
+  background-repeat:no-repeat;
+  background-size:cover;
+  background-position:center 42%;
+  filter:saturate(1.12) contrast(1.04) brightness(1.03);
+  transform:scale(1.03);
+}
+
+.board-game-scene-backdrop::after{
+  background:
+    linear-gradient(180deg, rgba(7,22,29,.2) 0%, rgba(7,22,29,.07) 24%, rgba(7,22,29,.03) 48%, rgba(7,22,29,.2) 100%),
+    radial-gradient(72% 58% at 50% 96%, rgba(6,20,28,.26), transparent 62%);
+}
+
 .board-sky-haze,
 .board-mountain-ridge,
 .board-waterline,
@@ -3868,6 +3891,7 @@ body[data-mode="learning"] .app{
 .board-reward-chest{
   position:absolute;
   pointer-events:none;
+  opacity:0;
 }
 
 .board-sky-haze{
@@ -3961,7 +3985,7 @@ body[data-mode="learning"] .app{
   margin:0;
   padding:8px 10px;
   border-radius:12px;
-  background:linear-gradient(160deg, rgba(8,24,32,.72), rgba(8,30,32,.52));
+  background:linear-gradient(160deg, rgba(8,24,32,.58), rgba(8,30,32,.34));
   border:1px solid rgba(255,227,158,.2);
   backdrop-filter:blur(3px);
 }
@@ -4099,7 +4123,7 @@ body[data-mode="learning"] .app{
   border-radius:12px;
   padding:8px 10px;
   border:1px solid rgba(255,229,164,.35);
-  background:linear-gradient(160deg, rgba(7,18,25,.75), rgba(8,26,32,.56));
+  background:linear-gradient(160deg, rgba(7,18,25,.64), rgba(8,26,32,.4));
   backdrop-filter:blur(2px);
 }
 
