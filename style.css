@@ -3933,6 +3933,28 @@ body[data-mode="learning"] .app{
     linear-gradient(180deg, rgba(23,90,114,.72), rgba(14,62,81,.92));
 }
 
+.board-game-board-panel::before,
+.board-game-board-panel::after{
+  content:"";
+  position:absolute;
+  pointer-events:none;
+}
+
+.board-game-board-panel::before{
+  inset:0;
+  z-index:1;
+  background:radial-gradient(85% 70% at 10% 68%, rgba(255,177,94,.26), rgba(255,177,94,0) 58%);
+}
+
+.board-game-board-panel::after{
+  z-index:3;
+  left:0;
+  top:0;
+  bottom:0;
+  width:44%;
+  background:linear-gradient(90deg, rgba(15,8,6,.2), rgba(15,8,6,0));
+}
+
 .board-port-silhouette{
   left:16px;
   bottom:26%;
@@ -3978,7 +4000,7 @@ body[data-mode="learning"] .app{
 
 .board-game-scene-story{
   position:absolute;
-  z-index:5;
+  z-index:7;
   left:12px;
   right:12px;
   top:12px;
@@ -3994,40 +4016,145 @@ body[data-mode="learning"] .app{
 
 .board-game-voyager{
   position:absolute;
-  z-index:4;
-  left:14px;
-  bottom:23%;
+  z-index:6;
+  left:18px;
+  bottom:20%;
   display:grid;
   justify-items:center;
-  gap:2px;
-  filter:drop-shadow(0 6px 12px rgba(0,0,0,.36));
+  gap:6px;
+  isolation:isolate;
+  filter:drop-shadow(0 10px 18px rgba(0,0,0,.52));
 }
 
-.voyager-avatar{
-  width:36px;
-  height:36px;
+.voyager-hero-glow{
+  position:absolute;
+  width:128px;
+  height:128px;
   border-radius:50%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  border:1px solid rgba(255,230,168,.6);
-  background:linear-gradient(150deg, rgba(72,48,23,.94), rgba(30,28,35,.9));
-  animation:companion-bob 2.3s ease-in-out infinite;
+  background:radial-gradient(circle at 50% 56%, rgba(255,214,124,.4), rgba(255,191,103,.17) 48%, rgba(27,12,6,0) 76%);
+  transform:translateY(8px);
+  z-index:-2;
+  filter:blur(1px);
+}
+
+.voyager-hero{
+  position:relative;
+  width:86px;
+  height:128px;
+  display:block;
+  transform-origin:50% 92%;
+  animation:companion-bob 2.5s ease-in-out infinite;
+}
+
+.voyager-hero::after{
+  content:"";
+  position:absolute;
+  left:50%;
+  bottom:-5px;
+  width:78px;
+  height:18px;
+  border-radius:50%;
+  transform:translateX(-50%);
+  background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.56), rgba(0,0,0,0) 70%);
+  z-index:-1;
+}
+
+.voyager-head,
+.voyager-torso,
+.voyager-satchel{
+  position:absolute;
+  display:block;
+}
+
+.voyager-head{
+  width:30px;
+  height:30px;
+  left:28px;
+  top:8px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 35% 34%, rgba(255,237,214,.95), rgba(240,196,153,.9) 66%, rgba(184,131,96,.95));
+  border:2px solid rgba(83,46,22,.78);
+  box-shadow:0 0 0 2px rgba(255,231,177,.33), 0 7px 12px rgba(11,7,5,.33);
+}
+
+.voyager-head::before{
+  content:"";
+  position:absolute;
+  left:-6px;
+  right:-6px;
+  top:-9px;
+  height:14px;
+  border-radius:10px 10px 4px 4px;
+  background:linear-gradient(180deg, rgba(80,48,24,.98), rgba(34,22,11,.94));
+  box-shadow:0 2px 0 rgba(255,208,129,.5);
+}
+
+.voyager-torso{
+  width:58px;
+  height:78px;
+  left:14px;
+  top:36px;
+  border-radius:14px 14px 18px 18px;
+  background:
+    linear-gradient(180deg, rgba(255,219,145,.96) 0 22%, rgba(153,67,39,.98) 22% 62%, rgba(66,36,27,.98));
+  border:2px solid rgba(255,231,173,.62);
+  box-shadow:0 0 0 2px rgba(50,24,15,.48), 0 8px 16px rgba(14,8,6,.4);
+}
+
+.voyager-torso::before,
+.voyager-torso::after{
+  content:"";
+  position:absolute;
+  top:16px;
+  width:12px;
+  height:46px;
+  border-radius:10px;
+  background:linear-gradient(180deg, rgba(172,79,45,.95), rgba(82,43,30,.95));
+  border:1px solid rgba(255,219,155,.35);
+}
+
+.voyager-torso::before{ left:-10px; transform:rotate(8deg); }
+.voyager-torso::after{ right:-10px; transform:rotate(-8deg); }
+
+.voyager-satchel{
+  width:22px;
+  height:24px;
+  left:8px;
+  top:58px;
+  border-radius:8px;
+  background:linear-gradient(180deg, rgba(109,69,30,.98), rgba(62,36,18,.98));
+  border:1px solid rgba(255,212,126,.55);
+  box-shadow:0 0 0 1px rgba(45,24,11,.55);
+}
+
+.voyager-satchel::before{
+  content:"";
+  position:absolute;
+  width:48px;
+  height:4px;
+  left:10px;
+  top:-12px;
+  border-radius:999px;
+  background:linear-gradient(90deg, rgba(201,131,74,.85), rgba(97,53,35,.82));
+  transform:rotate(38deg);
 }
 
 .voyager-label{
-  font-size:.58rem;
-  padding:1px 5px;
+  font-size:.62rem;
+  padding:2px 8px;
   border-radius:999px;
-  color:#ffefc9;
-  background:rgba(5,18,24,.7);
-  border:1px solid rgba(255,222,147,.26);
+  color:#fff1cc;
+  letter-spacing:.02em;
+  background:linear-gradient(160deg, rgba(31,16,11,.85), rgba(68,35,21,.76));
+  border:1px solid rgba(255,220,142,.52);
+  text-shadow:0 1px 0 rgba(0,0,0,.5);
 }
 
 .board-game-board{
   position:absolute;
   z-index:2;
-  left:10px;
+  left:112px;
   right:10px;
   bottom:118px;
   top:106px;
@@ -4085,8 +4212,8 @@ body[data-mode="learning"] .app{
 
 .board-game-token{
   position:absolute;
-  width:40px;
-  height:40px;
+  width:46px;
+  height:46px;
   border-radius:50%;
   display:flex;
   align-items:center;
