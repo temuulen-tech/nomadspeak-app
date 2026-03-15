@@ -410,8 +410,10 @@ let profileName = "";
 const WORLD_AUDIO_TRACKS = {
   sea: {
     src: "assets/audio/sea-sailors-world.mp3",
-    volume: 0.18,
+    volume: 0.16,
     loop: true,
+    fadeInMs: 1800,
+    fadeOutMs: 1100,
   },
 };
 
@@ -2209,12 +2211,14 @@ const audioEngine = {
   worldId: "sea",
   activeMode: "home",
   worldTracks: {},
+  failedTracks: new Set(),
   activeTrackAudio: null,
-  fadeTimer: null,
+  fadeRequestId: 0,
   resolveTrack(worldId = this.worldId) {
     return WORLD_AUDIO_TRACKS[worldId] || null;
   },
   ensureTrack(worldId = this.worldId) {
+    if (this.failedTracks.has(worldId)) return null;
     const track = this.resolveTrack(worldId);
     if (!track) return null;
     if (!this.worldTracks[worldId]) {
@@ -2222,6 +2226,12 @@ const audioEngine = {
       audio.loop = track.loop !== false;
       audio.preload = "auto";
       audio.volume = 0;
+      audio.addEventListener("error", () => {
+        this.failedTracks.add(worldId);
+        if (this.activeTrackAudio === audio) {
+          this.stop(true);
+        }
+      });
       this.worldTracks[worldId] = audio;
     }
     return this.worldTracks[worldId];
@@ -2231,24 +2241,23 @@ const audioEngine = {
       if (typeof onDone === "function") onDone();
       return;
     }
-    if (this.fadeTimer) {
-      clearInterval(this.fadeTimer);
-      this.fadeTimer = null;
-    }
+    if (this.fadeRequestId) cancelAnimationFrame(this.fadeRequestId);
     const initialVolume = Number.isFinite(audio.volume) ? audio.volume : 0;
-    const startTime = Date.now();
+    const startTime = performance.now();
     const safeDuration = Math.max(durationMs, 1);
-    const stepMs = 50;
-    this.fadeTimer = window.setInterval(() => {
-      const elapsed = Date.now() - startTime;
+    const runFade = (now) => {
+      const elapsed = now - startTime;
       const progress = Math.min(elapsed / safeDuration, 1);
-      audio.volume = initialVolume + ((targetVolume - initialVolume) * progress);
+      const nextVolume = initialVolume + ((targetVolume - initialVolume) * progress);
+      audio.volume = Math.max(0, Math.min(1, nextVolume));
       if (progress >= 1) {
-        clearInterval(this.fadeTimer);
-        this.fadeTimer = null;
+        this.fadeRequestId = 0;
         if (typeof onDone === "function") onDone();
+        return;
       }
-    }, stepMs);
+      this.fadeRequestId = requestAnimationFrame(runFade);
+    };
+    this.fadeRequestId = requestAnimationFrame(runFade);
   },
   start(worldId = "sea", mode = "lesson") {
     this.worldId = worldId;
@@ -2271,6 +2280,7 @@ const audioEngine = {
     this.activeTrackAudio = audio;
     audio.loop = track.loop !== false;
     const targetVolume = track.volume ?? 0.2;
+    const fadeInMs = track.fadeInMs ?? 1600;
 
     const playPromise = audio.play();
     if (playPromise && typeof playPromise.catch === "function") {
@@ -2278,16 +2288,14 @@ const audioEngine = {
         // Playback can fail until browser fully allows media; we'll retry on next interaction.
       });
     }
-    this.fadeTrack(audio, targetVolume, 1600);
+    this.fadeTrack(audio, targetVolume, fadeInMs);
   },
   stop(immediate = false) {
     const audio = this.activeTrackAudio || this.ensureTrack(this.worldId);
     if (!audio) return;
 
-    if (this.fadeTimer) {
-      clearInterval(this.fadeTimer);
-      this.fadeTimer = null;
-    }
+    if (this.fadeRequestId) cancelAnimationFrame(this.fadeRequestId);
+    this.fadeRequestId = 0;
     if (immediate) {
       audio.volume = 0;
       audio.pause();
@@ -2295,8 +2303,10 @@ const audioEngine = {
       this.activeTrackAudio = null;
       return;
     }
-    this.fadeTrack(audio, 0, 1000, () => {
+    const track = this.resolveTrack(this.worldId) || {};
+    this.fadeTrack(audio, 0, track.fadeOutMs ?? 1000, () => {
       audio.pause();
+      audio.currentTime = 0;
       this.activeTrackAudio = null;
     });
   },
