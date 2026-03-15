@@ -3849,9 +3849,9 @@ body[data-mode="learning"] .app{
   min-height:620px;
   padding:12px;
   background:
-    radial-gradient(130% 90% at 50% -20%, rgba(104,174,204,.24), transparent 58%),
-    radial-gradient(120% 120% at 50% 115%, rgba(23,64,83,.52), transparent 62%),
-    linear-gradient(180deg, #123044 0%, #1a3f53 36%, #1e4f5c 58%, #20445a 72%, #1f3c4f 100%);
+    radial-gradient(138% 98% at 50% -24%, rgba(255,206,136,.28), transparent 56%),
+    radial-gradient(126% 124% at 50% 116%, rgba(20,77,105,.34), transparent 65%),
+    linear-gradient(180deg, #2d627d 0%, #3c7f96 33%, #3f8f9f 58%, #367183 75%, #2b5b72 100%);
 }
 
 .board-game-scene-backdrop{
@@ -3873,8 +3873,8 @@ body[data-mode="learning"] .app{
 .board-sky-haze{
   inset:0;
   background:
-    radial-gradient(80% 42% at 50% 0%, rgba(253,206,136,.38), transparent 70%),
-    radial-gradient(120% 80% at 10% 10%, rgba(161,212,239,.18), transparent 75%);
+    radial-gradient(86% 46% at 50% 0%, rgba(255,221,154,.5), transparent 72%),
+    radial-gradient(126% 82% at 12% 10%, rgba(194,233,252,.26), transparent 76%);
 }
 
 .board-mountain-ridge{
@@ -3887,14 +3887,14 @@ body[data-mode="learning"] .app{
 .board-mountain-ridge-back{
   height:35%;
   bottom:34%;
-  background:linear-gradient(180deg, rgba(36,72,95,.8), rgba(22,54,75,.94));
+  background:linear-gradient(180deg, rgba(71,121,148,.72), rgba(34,79,105,.84));
   clip-path:polygon(0 100%, 8% 65%, 17% 72%, 27% 48%, 39% 68%, 49% 44%, 58% 63%, 68% 51%, 80% 67%, 92% 45%, 100% 62%, 100% 100%);
 }
 
 .board-mountain-ridge-front{
   height:29%;
   bottom:24%;
-  background:linear-gradient(180deg, rgba(21,55,74,.95), rgba(13,39,54,.96));
+  background:linear-gradient(180deg, rgba(56,101,124,.88), rgba(26,63,84,.9));
   clip-path:polygon(0 100%, 10% 59%, 20% 66%, 29% 44%, 41% 71%, 52% 42%, 62% 61%, 73% 47%, 82% 69%, 94% 52%, 100% 64%, 100% 100%);
 }
 
@@ -3904,9 +3904,9 @@ body[data-mode="learning"] .app{
   bottom:0;
   height:38%;
   background:
-    radial-gradient(120% 80% at 50% 0%, rgba(118,204,222,.22), transparent 66%),
-    repeating-linear-gradient(176deg, rgba(117,195,212,.22) 0 2px, rgba(24,74,100,.18) 2px 10px),
-    linear-gradient(180deg, rgba(23,90,114,.72), rgba(14,62,81,.92));
+    radial-gradient(120% 82% at 50% 0%, rgba(152,228,241,.32), transparent 67%),
+    repeating-linear-gradient(176deg, rgba(138,211,226,.26) 0 2px, rgba(47,107,136,.14) 2px 10px),
+    linear-gradient(180deg, rgba(43,122,146,.64), rgba(24,87,114,.78));
 }
 
 .board-port-silhouette{
@@ -3914,8 +3914,8 @@ body[data-mode="learning"] .app{
   bottom:26%;
   width:130px;
   height:60px;
-  opacity:.7;
-  background:linear-gradient(180deg, rgba(8,23,31,.7), rgba(3,12,16,.95));
+  opacity:.56;
+  background:linear-gradient(180deg, rgba(23,49,61,.54), rgba(9,25,34,.78));
   clip-path:polygon(0 100%, 0 76%, 18% 76%, 22% 30%, 28% 30%, 31% 64%, 40% 64%, 40% 42%, 47% 42%, 48% 58%, 58% 58%, 58% 22%, 64% 22%, 65% 67%, 74% 67%, 74% 48%, 81% 48%, 82% 71%, 100% 71%, 100% 100%);
 }
 
@@ -3927,7 +3927,7 @@ body[data-mode="learning"] .app{
   border-radius:8px;
   border:1px solid rgba(255,232,171,.9);
   background:linear-gradient(160deg, rgba(130,84,28,.95), rgba(87,56,17,.94));
-  box-shadow:0 6px 16px rgba(0,0,0,.42), 0 0 12px rgba(255,209,108,.3);
+  box-shadow:0 6px 14px rgba(7,33,49,.3), 0 0 14px rgba(255,209,108,.44);
 }
 
 .board-reward-chest::before{
@@ -3961,8 +3961,8 @@ body[data-mode="learning"] .app{
   margin:0;
   padding:8px 10px;
   border-radius:12px;
-  background:linear-gradient(160deg, rgba(8,24,32,.72), rgba(8,30,32,.52));
-  border:1px solid rgba(255,227,158,.2);
+  background:linear-gradient(160deg, rgba(15,44,58,.62), rgba(22,58,68,.44));
+  border:1px solid rgba(255,232,175,.32);
   backdrop-filter:blur(3px);
 }
 .board-game-scene-story p{margin:0;}
@@ -4021,7 +4021,7 @@ body[data-mode="learning"] .app{
   min-height:31px;
   border-radius:999px;
   border:1px solid rgba(250,221,150,.45);
-  background:radial-gradient(90% 100% at 32% 24%, rgba(255,241,190,.45), rgba(212,171,91,.52) 55%, rgba(101,74,30,.92));
+  background:radial-gradient(94% 104% at 32% 22%, rgba(255,246,204,.62), rgba(224,184,100,.66) 54%, rgba(126,92,37,.88));
   color:#38250a;
   font-weight:900;
   padding:0;
@@ -4029,7 +4029,7 @@ body[data-mode="learning"] .app{
   align-items:center;
   justify-content:center;
   position:relative;
-  box-shadow:0 2px 10px rgba(0,0,0,.28);
+  box-shadow:0 2px 9px rgba(20,45,62,.24);
 }
 
 .board-game-tile::after{
@@ -4099,7 +4099,7 @@ body[data-mode="learning"] .app{
   border-radius:12px;
   padding:8px 10px;
   border:1px solid rgba(255,229,164,.35);
-  background:linear-gradient(160deg, rgba(7,18,25,.75), rgba(8,26,32,.56));
+  background:linear-gradient(160deg, rgba(16,45,58,.72), rgba(15,56,66,.5));
   backdrop-filter:blur(2px);
 }
 
