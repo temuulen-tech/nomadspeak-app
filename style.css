@@ -847,9 +847,11 @@ body{
   border:1px solid rgba(255,255,255,.18);
   min-height:132px;
   background:
-    linear-gradient(150deg, rgba(10,45,76,.75), rgba(30,93,135,.46) 44%, rgba(201,143,59,.42)),
-    radial-gradient(120% 90% at 50% 110%, rgba(255,216,130,.55), transparent 55%),
-    linear-gradient(180deg, rgba(6,22,35,.85), rgba(10,36,56,.65));
+    linear-gradient(160deg, rgba(4,16,26,.62), rgba(4,16,26,.2) 45%, rgba(7,24,38,.72)),
+    url("assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png");
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
   box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 30px rgba(6,16,26,.45);
   display:flex;
   align-items:flex-end;
