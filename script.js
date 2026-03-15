@@ -402,25 +402,16 @@ let soundEnabled = true;
 let audioContext = null;
 let audioPrimed = false;
 let audioInteractionUnlocked = false;
-const BACKGROUND_AUDIO_ENABLED = false;
+const BACKGROUND_AUDIO_ENABLED = true;
 let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
 
-const WORLD_AUDIO_PROFILES = {
+const WORLD_AUDIO_TRACKS = {
   sea: {
-    music: {
-      intervalMs: 3600,
-      root: 196,
-      sequence: [1, 1.26, 1.5, 1.26],
-      volume: 0.055,
-    },
-    ambient: {
-      swellHz: 0.09,
-      seaToneHz: 123,
-      seaToneVolume: 0.018,
-      windVolume: 0.042,
-    },
+    src: "assets/audio/sea-sailors-world.mp3",
+    volume: 0.18,
+    loop: true,
   },
 };
 
@@ -2217,42 +2208,47 @@ function updateCompanionLine(mode, tone = "idle") {
 const audioEngine = {
   worldId: "sea",
   activeMode: "home",
-  masterGain: null,
-  musicGain: null,
-  ambienceGain: null,
-  musicOscillators: [],
-  ambienceNodes: [],
-  musicStepTimer: null,
-  musicStepIndex: 0,
-  musicRunning: false,
-  ambienceRunning: false,
-  fade(gainNode, target, duration = 1.2) {
-    if (!gainNode) return;
-    const ctx = getAudioContext();
-    if (!ctx) return;
-    const now = ctx.currentTime;
-    gainNode.gain.cancelScheduledValues(now);
-    gainNode.gain.setValueAtTime(gainNode.gain.value, now);
-    gainNode.gain.linearRampToValueAtTime(target, now + duration);
+  worldTracks: {},
+  activeTrackAudio: null,
+  fadeTimer: null,
+  resolveTrack(worldId = this.worldId) {
+    return WORLD_AUDIO_TRACKS[worldId] || null;
   },
-  ensureGraph() {
-    const ctx = getAudioContext();
-    if (!ctx) return null;
-    if (!this.masterGain) {
-      this.masterGain = ctx.createGain();
-      this.musicGain = ctx.createGain();
-      this.ambienceGain = ctx.createGain();
-      this.masterGain.gain.value = 0;
-      this.musicGain.gain.value = 0;
-      this.ambienceGain.gain.value = 0;
-      this.musicGain.connect(this.masterGain);
-      this.ambienceGain.connect(this.masterGain);
-      this.masterGain.connect(ctx.destination);
+  ensureTrack(worldId = this.worldId) {
+    const track = this.resolveTrack(worldId);
+    if (!track) return null;
+    if (!this.worldTracks[worldId]) {
+      const audio = new Audio(track.src);
+      audio.loop = track.loop !== false;
+      audio.preload = "auto";
+      audio.volume = 0;
+      this.worldTracks[worldId] = audio;
     }
-    return ctx;
+    return this.worldTracks[worldId];
   },
-  resolveProfile(worldId = this.worldId) {
-    return WORLD_AUDIO_PROFILES[worldId] || WORLD_AUDIO_PROFILES.sea;
+  fadeTrack(audio, targetVolume, durationMs = 1200, onDone = null) {
+    if (!audio) {
+      if (typeof onDone === "function") onDone();
+      return;
+    }
+    if (this.fadeTimer) {
+      clearInterval(this.fadeTimer);
+      this.fadeTimer = null;
+    }
+    const initialVolume = Number.isFinite(audio.volume) ? audio.volume : 0;
+    const startTime = Date.now();
+    const safeDuration = Math.max(durationMs, 1);
+    const stepMs = 50;
+    this.fadeTimer = window.setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / safeDuration, 1);
+      audio.volume = initialVolume + ((targetVolume - initialVolume) * progress);
+      if (progress >= 1) {
+        clearInterval(this.fadeTimer);
+        this.fadeTimer = null;
+        if (typeof onDone === "function") onDone();
+      }
+    }, stepMs);
   },
   start(worldId = "sea", mode = "lesson") {
     this.worldId = worldId;
@@ -2261,130 +2257,48 @@ const audioEngine = {
       this.stop(true);
       return;
     }
-    this.startMusic();
-    this.startAmbience();
+    const track = this.resolveTrack(worldId);
+    if (!track) {
+      this.stop(true);
+      return;
+    }
+    const audio = this.ensureTrack(worldId);
+    if (!audio) return;
+
+    if (this.activeTrackAudio && this.activeTrackAudio !== audio) {
+      this.stop(true);
+    }
+    this.activeTrackAudio = audio;
+    audio.loop = track.loop !== false;
+    const targetVolume = track.volume ?? 0.2;
+
+    const playPromise = audio.play();
+    if (playPromise && typeof playPromise.catch === "function") {
+      playPromise.catch(() => {
+        // Playback can fail until browser fully allows media; we'll retry on next interaction.
+      });
+    }
+    this.fadeTrack(audio, targetVolume, 1600);
   },
   stop(immediate = false) {
-    this.stopMusic(immediate);
-    this.stopAmbience(immediate);
-  },
-  startMusic() {
-    const ctx = this.ensureGraph();
-    if (!ctx) return;
-    const profile = this.resolveProfile();
-    if (!this.musicOscillators.length) {
-      this.musicOscillators = [0, 1, 2].map((voiceIndex) => {
-        const osc = ctx.createOscillator();
-        osc.type = voiceIndex === 1 ? "triangle" : "sine";
-        osc.detune.value = voiceIndex === 0 ? -3 : (voiceIndex === 2 ? 4 : 0);
-        osc.frequency.value = profile.music.root;
-        osc.connect(this.musicGain);
-        osc.start();
-        return osc;
-      });
-    }
-    this.musicRunning = true;
-    this.fade(this.masterGain, 1, 1.1);
-    this.fade(this.musicGain, profile.music.volume, 1.7);
+    const audio = this.activeTrackAudio || this.ensureTrack(this.worldId);
+    if (!audio) return;
 
-    const step = () => {
-      if (!this.musicRunning || !soundEnabled || document.hidden) return;
-      const activeProfile = this.resolveProfile();
-      const ratio = activeProfile.music.sequence[this.musicStepIndex % activeProfile.music.sequence.length] || 1;
-      const now = ctx.currentTime;
-      this.musicOscillators.forEach((osc, index) => {
-        const interval = index === 0 ? 1 : (index === 1 ? 0.5 : 2);
-        osc.frequency.cancelScheduledValues(now);
-        osc.frequency.linearRampToValueAtTime(activeProfile.music.root * ratio * interval, now + 1.05);
-      });
-      this.musicStepIndex += 1;
-      this.musicStepTimer = window.setTimeout(step, activeProfile.music.intervalMs);
-    };
-
-    if (this.musicStepTimer) clearTimeout(this.musicStepTimer);
-    this.musicStepTimer = window.setTimeout(step, 240);
-  },
-  stopMusic(immediate = false) {
-    this.musicRunning = false;
-    if (this.musicStepTimer) {
-      clearTimeout(this.musicStepTimer);
-      this.musicStepTimer = null;
+    if (this.fadeTimer) {
+      clearInterval(this.fadeTimer);
+      this.fadeTimer = null;
     }
-    if (!this.musicGain) return;
     if (immediate) {
-      this.musicGain.gain.value = 0;
-      if (this.masterGain) this.masterGain.gain.value = 0;
+      audio.volume = 0;
+      audio.pause();
+      audio.currentTime = 0;
+      this.activeTrackAudio = null;
       return;
     }
-    this.fade(this.musicGain, 0, 0.9);
-    this.fade(this.masterGain, 0, 1.2);
-  },
-  startAmbience() {
-    const ctx = this.ensureGraph();
-    if (!ctx) return;
-    const profile = this.resolveProfile();
-    if (!this.ambienceNodes.length) {
-      const noiseBuffer = ctx.createBuffer(1, ctx.sampleRate * 2, ctx.sampleRate);
-      const data = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < data.length; i += 1) data[i] = (Math.random() * 2 - 1) * 0.6;
-
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuffer;
-      noise.loop = true;
-
-      const windFilter = ctx.createBiquadFilter();
-      windFilter.type = "lowpass";
-      windFilter.frequency.value = 750;
-
-      const windGain = ctx.createGain();
-      windGain.gain.value = 0;
-
-      const seaOsc = ctx.createOscillator();
-      seaOsc.type = "sine";
-      seaOsc.frequency.value = profile.ambient.seaToneHz;
-
-      const seaGain = ctx.createGain();
-      seaGain.gain.value = 0;
-
-      const swellLfo = ctx.createOscillator();
-      swellLfo.type = "sine";
-      swellLfo.frequency.value = profile.ambient.swellHz;
-
-      const swellGain = ctx.createGain();
-      swellGain.gain.value = profile.ambient.seaToneVolume * 0.55;
-
-      noise.connect(windFilter);
-      windFilter.connect(windGain);
-      windGain.connect(this.ambienceGain);
-      seaOsc.connect(seaGain);
-      seaGain.connect(this.ambienceGain);
-      swellLfo.connect(swellGain);
-      swellGain.connect(seaGain.gain);
-
-      noise.start();
-      seaOsc.start();
-      swellLfo.start();
-
-      this.ambienceNodes = [noise, seaOsc, swellLfo, windGain, seaGain];
-    }
-    this.ambienceRunning = true;
-    this.fade(this.masterGain, 1, 1.1);
-    this.fade(this.ambienceGain, 1, 1.5);
-    const windGain = this.ambienceNodes[3];
-    const seaGain = this.ambienceNodes[4];
-    this.fade(windGain, profile.ambient.windVolume, 1.8);
-    this.fade(seaGain, profile.ambient.seaToneVolume, 1.6);
-  },
-  stopAmbience(immediate = false) {
-    this.ambienceRunning = false;
-    if (!this.ambienceGain) return;
-    if (immediate) {
-      this.ambienceGain.gain.value = 0;
-      if (this.masterGain) this.masterGain.gain.value = 0;
-      return;
-    }
-    this.fade(this.ambienceGain, 0, 1.1);
-    this.fade(this.masterGain, 0, 1.3);
+    this.fadeTrack(audio, 0, 1000, () => {
+      audio.pause();
+      this.activeTrackAudio = null;
+    });
   },
   onVisibilityChange() {
     if (document.hidden) {

@@ -2,7 +2,8 @@
 
 Place your local MP3 files in this folder when testing audio locally.
 
-Example:
+Examples:
+- `assets/audio/sea-sailors-world.mp3`
 - `assets/audio/background.mp3`
 
-Audio integration points in `script.js` are intentionally preserved; this folder is kept ready for manual local asset drops.
+`script.js` uses a world-to-track map (`WORLD_AUDIO_TRACKS`) so future worlds can attach their own MP3 files by adding new entries.
