@@ -841,42 +841,37 @@ body{
   color:var(--muted);
 }
 
-.start-hero{
-  margin:8px 0 14px;
-  border-radius:16px;
-  border:1px solid rgba(255,255,255,.18);
-  min-height:132px;
+.board-game-intro-screen{
+  position:relative;
+  overflow:hidden;
+  min-height:calc(var(--phone-height) - 62px);
+  border-radius:26px;
+  padding:0;
+  border:1px solid rgba(255,255,255,.2);
+}
+
+.board-game-intro-cover{
+  position:absolute;
+  inset:0;
   background:
-    linear-gradient(160deg, rgba(4,16,26,.62), rgba(4,16,26,.2) 45%, rgba(7,24,38,.72)),
+    linear-gradient(180deg, rgba(6,16,32,.25) 0%, rgba(6,16,32,.58) 62%, rgba(4,10,22,.88) 100%),
     url("assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png");
   background-size:cover;
   background-position:center;
   background-repeat:no-repeat;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 30px rgba(6,16,26,.45);
-  display:flex;
-  align-items:flex-end;
-  overflow:hidden;
 }
 
-.start-hero-content{
-  padding:14px 16px;
-}
-
-.start-hero-chip{
-  display:inline-flex;
-  align-items:center;
-  padding:4px 10px;
-  border-radius:999px;
-  border:1px solid rgba(255,227,144,.9);
-  color:#fff6d4;
-  font-size:12px;
-  letter-spacing:.04em;
-  text-transform:uppercase;
-  background:rgba(67,46,13,.45);
-}
-
-.start-hero p{
-  display:none;
+.board-game-intro-continue-btn{
+  position:absolute;
+  left:16px;
+  right:16px;
+  bottom:18px;
+  min-height:52px;
+  font-size:17px;
+  font-weight:800;
+  letter-spacing:.02em;
+  z-index:2;
+  box-shadow:0 14px 28px rgba(0,0,0,.35);
 }
 
 .start-main-actions{

@@ -59,6 +59,7 @@ const sentencesScreen = document.getElementById("sentences-screen");
 const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
 const qaGameScreen = document.getElementById("qa-game-screen");
+const boardGameIntroScreen = document.getElementById("board-game-intro-screen");
 const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
@@ -234,6 +235,7 @@ const boardGameDiceEl = document.getElementById("board-game-dice");
 const boardGameXpEl = document.getElementById("board-game-xp");
 const boardGameCoinsEl = document.getElementById("board-game-coins");
 const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
+const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
 
 
 const boardGameFeedbackHubEl = document.getElementById("board-game-feedback-hub");
@@ -454,6 +456,7 @@ const SCREEN_IDS = {
   [sentencesScreen.id]: "sentences",
   [sentenceGameScreen.id]: "sentence-game",
   [qaGameScreen.id]: "qa-game",
+  [boardGameIntroScreen.id]: "board-game-intro",
   [boardGameScreen.id]: "board-game",
   [statsScreen.id]: "stats",
   [profileScreen.id]: "profile",
@@ -466,6 +469,7 @@ const SCREENS = {
   sentences: sentencesScreen,
   "sentence-game": sentenceGameScreen,
   "qa-game": qaGameScreen,
+  "board-game-intro": boardGameIntroScreen,
   "board-game": boardGameScreen,
   stats: statsScreen,
   profile: profileScreen,
@@ -2014,6 +2018,11 @@ function navigateTo(destination) {
   }
 
   if (destination === "board-game") {
+    stopSpeaking();
+    showScreen("board-game-intro");
+  }
+
+  if (destination === "board-game-start") {
     stopSpeaking();
     showScreen("board-game");
     initBoardGameMvp();
@@ -4867,6 +4876,7 @@ if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavi
 if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
 if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
 if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => requestNavigation("board-game"));
+if (boardGameIntroContinueBtn) boardGameIntroContinueBtn.addEventListener("click", () => navigateTo("board-game-start"));
 if (navModesBtn) navModesBtn.addEventListener("click", toggleHomeModesPanel);
 if (navStatsBtn) navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
 if (navProfileBtn) navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
