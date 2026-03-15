@@ -853,11 +853,10 @@ body{
 .board-game-intro-cover{
   position:absolute;
   inset:0;
-  background:
-    linear-gradient(180deg, rgba(6,16,32,.25) 0%, rgba(6,16,32,.58) 62%, rgba(4,10,22,.88) 100%),
-    url("assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png");
-  background-size:cover;
-  background-position:center;
+  background-color:#020611;
+  background-image:url("assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png");
+  background-size:contain;
+  background-position:center center;
   background-repeat:no-repeat;
 }
 
