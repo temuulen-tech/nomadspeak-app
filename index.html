@@ -417,9 +417,9 @@
           <div class="board-game-topbar-center">
             <h2 class="screen-title-chip chip-title learning-title-block">1-р ертөнц · Далайн цаадах ертөнц</h2>
             <div class="board-game-meta-row board-game-topbar-status">
-              <span class="board-game-meta-chip chip-label">XP <strong id="board-game-xp">0</strong></span>
-              <span class="board-game-meta-chip chip-label">Зоос <strong id="board-game-coins">0</strong></span>
-              <span class="board-game-meta-chip chip-label">Бүлэг <strong id="board-game-chapter-index">1</strong>/4</span>
+              <span class="board-game-meta-chip chip-label board-game-hud-chip">⚔️ XP <strong id="board-game-xp">0</strong></span>
+              <span class="board-game-meta-chip chip-label board-game-hud-chip">🪙 Зоос <strong id="board-game-coins">0</strong></span>
+              <span class="board-game-meta-chip chip-label board-game-hud-chip">📜 Бүлэг <strong id="board-game-chapter-index">1</strong>/4</span>
             </div>
           </div>
           <button class="secondary sound-toggle-btn board-sound-toggle board-topbar-sound" type="button" aria-pressed="true">🔊</button>
@@ -433,19 +433,25 @@
               <span class="board-mountain-ridge board-mountain-ridge-front"></span>
               <span class="board-waterline"></span>
               <span class="board-port-silhouette"></span>
+              <span class="board-ambient-flags"></span>
+              <span class="board-ambient-birds"></span>
+              <span class="board-ambient-smoke"></span>
+              <span class="board-ambient-dust"></span>
+              <span class="board-ambient-torch"></span>
               <span class="board-reward-chest" title="Эрдэнэс"></span>
             </div>
             <div class="game-feel-ambient-layer" aria-hidden="true">
               <span class="game-feel-mist"></span>
               <span class="game-feel-glow"></span>
+              <span class="game-feel-focus-ring"></span>
             </div>
             <div class="board-game-scene-story board-game-story-panel" aria-live="polite">
               <p class="chip-label" id="board-game-chapter-title">Бүлгийн гарчиг</p>
               <p class="muted" id="board-game-chapter-text">Энэ бүлэгт түүхэн үйл явдлыг олон өнцгөөс тайлбарлана.</p>
             </div>
-            <div class="board-game-voyager" aria-hidden="true">
+            <div class="board-game-voyager" id="board-game-voyager" aria-hidden="true">
               <span class="voyager-avatar">🧑🏻‍✈️</span>
-              <span class="voyager-label">Аялагч</span>
+              <span class="voyager-label" id="board-game-voyager-label">Аялагч</span>
             </div>
             <div class="board-game-board" id="board-game-board"></div>
             <div class="board-game-token" id="board-game-token" aria-hidden="true">
@@ -474,6 +480,10 @@
               <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
             </div>
             <section class="board-game-challenge-panel" aria-live="polite">
+              <div class="board-challenge-tablet-head">
+                <span class="board-challenge-tablet-glyph" aria-hidden="true">🪨</span>
+                <p class="board-challenge-tablet-title">Чулуун самбар дээрх сорил</p>
+              </div>
               <p id="board-game-challenge-title">Эхний сорилоо нээхийн тулд шоо шиднэ үү.</p>
               <p class="muted" id="board-game-challenge-text">Монгол өгүүлбэрийн хамгийн зөв англи утгыг сонгоно уу.</p>
               <div class="board-game-options" id="board-game-options"></div>

@@ -3710,6 +3710,15 @@ body[data-mode="learning"] .app{
   animation:gf-pulse 5s ease-in-out infinite;
 }
 
+.game-feel-focus-ring{
+  position:absolute;
+  inset:6%;
+  border-radius:16px;
+  border:1px solid rgba(255,221,139,.24);
+  box-shadow:inset 0 0 30px rgba(255,214,122,.08);
+  animation:gf-focus-breathe 4.4s ease-in-out infinite;
+}
+
 .board-game-particles{
   position:absolute;
   inset:0;
@@ -3771,6 +3780,16 @@ body[data-mode="learning"] .app{
   100%{ transform:rotateX(520deg) rotateY(430deg) rotateZ(360deg) scale(1); }
 }
 @keyframes gf-panel-in{ from{ opacity:.55; transform:translateY(4px);} to{ opacity:1; transform:translateY(0);} }
+@keyframes gf-focus-breathe{ 0%,100%{ opacity:.38; transform:scale(.98);} 50%{ opacity:.86; transform:scale(1.02);} }
+@keyframes gf-landing-impact{ 0%{ transform:translate(-50%,-50%) scale(.6); opacity:0;} 25%{ opacity:.95;} 100%{ transform:translate(-50%,-50%) scale(1.55); opacity:0;} }
+@keyframes gf-world-flag{ 0%,100%{ transform:skewY(0deg) rotate(0deg);} 50%{ transform:skewY(-7deg) rotate(-2deg);} }
+@keyframes gf-world-birds{ from{ transform:translateX(-12px) translateY(0);} to{ transform:translateX(14px) translateY(-5px);} }
+@keyframes gf-world-smoke{ from{ transform:translateY(6px) scale(.92); opacity:.28;} to{ transform:translateY(-16px) scale(1.08); opacity:.58;} }
+@keyframes gf-world-dust{ from{ transform:translateX(-8px);} to{ transform:translateX(12px);} }
+@keyframes gf-torch-flicker{ 0%,100%{ opacity:.45; transform:scale(1);} 50%{ opacity:.9; transform:scale(1.18);} }
+@keyframes gf-voyager-cheer{ 0%,100%{ transform:translateY(0) scale(1);} 50%{ transform:translateY(-7px) scale(1.08);} }
+@keyframes gf-voyager-worry{ 0%,100%{ transform:translateY(0) rotate(0deg);} 25%{ transform:translateY(1px) rotate(-6deg);} 75%{ transform:translateY(1px) rotate(6deg);} }
+
 
 .gf-token-step{ animation:gf-token-float .24s ease; }
 .gf-tile-pulse{ animation:gf-tile-pulse var(--gf-tile-pulse-ms, 1.2s) ease-in-out infinite; }
@@ -3783,9 +3802,12 @@ body[data-mode="learning"] .app{
 .gf-story-panel-in{ animation:gf-panel-in .28s ease; }
 .gf-feedback-success{ animation:gf-feedback-flash-good .45s ease; }
 .gf-feedback-penalty{ animation:gf-feedback-flash-bad .45s ease; }
+.gf-focus-zoom{ animation:gf-focus-breathe .65s ease; }
+.gf-voyager-cheer .voyager-avatar{ animation:gf-voyager-cheer .48s ease; }
+.gf-voyager-worry .voyager-avatar{ animation:gf-voyager-worry .48s ease; }
 
 @media (prefers-reduced-motion: reduce){
-  .game-feel-mist,.game-feel-glow,.gf-dice-roll,.gf-tile-pulse,.gf-token-step{ animation:none !important; }
+  .game-feel-mist,.game-feel-glow,.game-feel-focus-ring,.board-ambient-flags,.board-ambient-birds,.board-ambient-smoke,.board-ambient-dust,.board-ambient-torch,.gf-dice-roll,.gf-tile-pulse,.gf-token-step{ animation:none !important; }
 }
 
 /* ---- Board Game MVP ---- */
@@ -3888,7 +3910,12 @@ body[data-mode="learning"] .app{
 .board-mountain-ridge,
 .board-waterline,
 .board-port-silhouette,
-.board-reward-chest{
+.board-reward-chest,
+.board-ambient-flags,
+.board-ambient-birds,
+.board-ambient-smoke,
+.board-ambient-dust,
+.board-ambient-torch{
   position:absolute;
   pointer-events:none;
   opacity:0;
@@ -3974,6 +4001,51 @@ body[data-mode="learning"] .app{
   color:#ffe7a7;
   font-size:13px;
   text-shadow:0 0 8px rgba(255,212,116,.8);
+}
+
+.board-ambient-flags{
+  left:26px;
+  bottom:34%;
+  width:66px;
+  height:36px;
+  background:linear-gradient(90deg, rgba(176,44,33,.75), rgba(244,179,107,.7));
+  clip-path:polygon(0 0, 100% 16%, 88% 48%, 100% 80%, 0 100%);
+  transform-origin:left center;
+  animation:gf-world-flag 2.3s ease-in-out infinite;
+  opacity:.76;
+}
+.board-ambient-birds{
+  right:16%;
+  top:16%;
+  width:46px;
+  height:20px;
+  opacity:.55;
+  background:radial-gradient(circle at 20% 50%, rgba(13,31,44,.75) 0 2px, transparent 3px), radial-gradient(circle at 70% 45%, rgba(13,31,44,.72) 0 2px, transparent 3px);
+  animation:gf-world-birds 4s ease-in-out infinite alternate;
+}
+.board-ambient-smoke{
+  right:30px;
+  bottom:34%;
+  width:42px;
+  height:64px;
+  background:radial-gradient(60% 35% at 50% 80%, rgba(173,201,210,.3), transparent 75%), radial-gradient(60% 35% at 40% 45%, rgba(193,210,218,.35), transparent 75%);
+  animation:gf-world-smoke 3.5s ease-in-out infinite alternate;
+}
+.board-ambient-dust{
+  inset:auto 0 18% 0;
+  height:26px;
+  background:repeating-linear-gradient(90deg, rgba(241,211,140,.16) 0 9px, rgba(241,211,140,0) 9px 18px);
+  animation:gf-world-dust 8s linear infinite alternate;
+}
+.board-ambient-torch{
+  right:92px;
+  bottom:30%;
+  width:9px;
+  height:18px;
+  border-radius:999px;
+  background:radial-gradient(circle at 50% 58%, rgba(255,210,108,.95), rgba(248,118,50,.42) 64%, transparent 74%);
+  box-shadow:0 0 16px rgba(255,178,82,.5);
+  animation:gf-torch-flicker 1.1s ease-in-out infinite;
 }
 
 .board-game-scene-story{
@@ -4081,6 +4153,23 @@ body[data-mode="learning"] .app{
   border-color:#fff0bf;
   box-shadow:0 0 0 2px rgba(255,229,153,.82), 0 0 20px rgba(255,225,142,.64);
   transform:scale(1.08);
+}
+
+.board-game-tile.landed{
+  box-shadow:0 0 0 2px rgba(255,229,153,.9), 0 0 24px rgba(255,218,130,.85), 0 0 42px rgba(255,216,122,.48);
+}
+
+.board-game-tile.landed::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  top:50%;
+  width:20px;
+  height:20px;
+  border-radius:50%;
+  border:2px solid rgba(255,229,156,.85);
+  transform:translate(-50%, -50%);
+  animation:gf-landing-impact .46s ease-out;
 }
 
 .board-game-token{
@@ -4332,3 +4421,14 @@ body[data-mode="learning"] .app{
     min-height:620px;
   }
 }
+
+.board-game-hud-chip{ background:linear-gradient(160deg, rgba(42,29,10,.78), rgba(76,52,16,.62)); border-color:rgba(255,218,132,.4); color:#ffe8b7; }
+#board-game-feedback[data-type="penalty"]{ color:#ffc0c0; }
+#board-game-feedback[data-type="success"],#board-game-feedback[data-type="reward"],#board-game-feedback[data-type="finish"]{ color:#c9ffd8; }
+#board-game-feedback[data-type="story"]{ color:#d5e8ff; }
+.board-challenge-tablet-head{ display:flex; align-items:center; gap:8px; margin-bottom:6px; }
+.board-challenge-tablet-glyph{ width:24px; height:24px; border-radius:8px; display:inline-flex; align-items:center; justify-content:center; background:rgba(65,59,48,.72); border:1px solid rgba(200,183,150,.45); }
+.board-challenge-tablet-title{ font-size:.64rem; letter-spacing:.04em; text-transform:uppercase; color:#f3dfbc; }
+.board-game-challenge-panel{ border-color:rgba(205,177,133,.5); background:linear-gradient(165deg, rgba(45,37,28,.95), rgba(28,40,41,.9)); box-shadow:0 8px 18px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,224,158,.12);}
+.board-game-option-btn{ background:linear-gradient(165deg, rgba(71,58,40,.9), rgba(38,54,49,.84)); border:1px solid rgba(236,211,171,.32); text-align:left; font-weight:700; }
+.board-game-option-btn:hover{ transform:translateY(-1px); box-shadow:0 5px 14px rgba(0,0,0,.24);}
