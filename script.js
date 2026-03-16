@@ -7,6 +7,25 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { initStatsScreen } from "./stats-screen.js";
+import {
+  renderHomeScreen,
+  setHomeModesPanelOpen,
+  setStartIntroOpen,
+  setStartLevelMenuOpen as renderStartLevelMenuOpen,
+  updateStartButtonLabel as renderStartButtonLabel,
+} from "./render-home.js";
+import {
+  renderBoardScreen,
+  updateBoardToken,
+  renderBoardChapterPanel,
+  renderBoardMeta,
+  renderBoardRollState,
+  renderBoardChallenge,
+  renderBoardFeedbackVisual,
+  renderBoardPopup,
+} from "./render-board.js";
+import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
+import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
 
 // ======================
 // NomadSpeak Quiz Engine
@@ -1684,16 +1703,13 @@ function updateHeaderStatus() {
 
 
 function closeHomeModesPanel() {
-  if (!homeModesPanel) return;
-  homeModesPanel.classList.add("hidden");
-  if (navModesBtn) navModesBtn.setAttribute("aria-expanded", "false");
+  setHomeModesPanelOpen(false);
 }
 
 function toggleHomeModesPanel() {
-  if (!homeModesPanel || !navModesBtn) return;
+  if (!homeModesPanel) return;
   const shouldOpen = homeModesPanel.classList.contains("hidden");
-  homeModesPanel.classList.toggle("hidden", !shouldOpen);
-  navModesBtn.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+  setHomeModesPanelOpen(shouldOpen);
 }
 
 function clearBannerEffects() {
@@ -2429,16 +2445,7 @@ function spawnBoardParticles(type = "reward") {
 }
 
 function showBoardGamePopup(type, text) {
-  if (!boardGameFeedbackHubEl) return;
-  const chip = document.createElement("div");
-  chip.className = `board-popup board-popup-${type}`;
-  chip.textContent = text;
-  boardGameFeedbackHubEl.appendChild(chip);
-  requestAnimationFrame(() => chip.classList.add("show"));
-  setTimeout(() => {
-    chip.classList.remove("show");
-    setTimeout(() => chip.remove(), 280);
-  }, 1800);
+  renderBoardPopup({ hubEl: boardGameFeedbackHubEl, type, text });
 }
 
 function applyBoardGameTileMoment(tileType) {
@@ -2470,88 +2477,74 @@ function boardGameChallengeByTile(tileNumber) {
 }
 
 function renderBoardGameTiles() {
-  if (!boardGameBoardEl) return;
-  boardGameBoardEl.innerHTML = boardGameState.tiles.map((tile) => (
-    `<button class="board-game-tile tile-type-${tile.tileType}" data-tile="${tile.tileNumber}" type="button"><span>${tile.tileNumber}</span><small>${boardTileEmoji(tile.tileType)}</small></button>`
-  )).join("");
+  renderBoardScreen({
+    boardEl: boardGameBoardEl,
+    tokenEl: boardGameTokenEl,
+    tiles: boardGameState.tiles,
+    currentTile: boardGameState.player.currentTile,
+    tileEmoji: boardTileEmoji,
+    animate: gameFeelAnimate,
+    tokenStepClass: "gf-token-step",
+    tokenStepDuration: GAME_FEEL_MOTION.moveStepMs,
+  });
 }
 
 function updateBoardGameTokenPosition() {
-  if (!boardGameBoardEl || !boardGameTokenEl) return;
-  const activeTile = boardGameBoardEl.querySelector(`[data-tile="${boardGameState.player.currentTile}"]`);
-  if (!activeTile) return;
-  const boardRect = boardGameBoardEl.getBoundingClientRect();
-  const tileRect = activeTile.getBoundingClientRect();
-  const x = tileRect.left - boardRect.left + (tileRect.width / 2);
-  const y = tileRect.top - boardRect.top + (tileRect.height / 2);
-  boardGameTokenEl.style.left = `${x}px`;
-  boardGameTokenEl.style.top = `${y}px`;
-
-  boardGameBoardEl.querySelectorAll(".board-game-tile").forEach((tileEl) => {
-    const tileNumber = Number(tileEl.dataset.tile || 0);
-    const isActive = tileNumber === boardGameState.player.currentTile;
-    tileEl.classList.toggle("active", isActive);
-    tileEl.classList.toggle("gf-tile-pulse", isActive);
+  updateBoardToken({
+    boardEl: boardGameBoardEl,
+    tokenEl: boardGameTokenEl,
+    currentTile: boardGameState.player.currentTile,
+    tokenStepClass: "gf-token-step",
+    tokenStepDuration: GAME_FEEL_MOTION.moveStepMs,
+    animate: gameFeelAnimate,
   });
-  gameFeelAnimate(boardGameTokenEl, "gf-token-step", GAME_FEEL_MOTION.moveStepMs);
 }
 
 function updateBoardGameChapterPanel() {
   const chapter = boardGameChapterByTile(boardGameState.player.currentTile);
-  if (boardGameChapterTitleEl) boardGameChapterTitleEl.textContent = chapter.title;
-  if (boardGameChapterTextEl) boardGameChapterTextEl.textContent = chapter.story;
-  if (boardGameChapterIndexEl) boardGameChapterIndexEl.textContent = String(chapter.index);
-  const storyPanel = document.querySelector(".board-game-story-panel");
-  gameFeelAnimate(storyPanel, "gf-story-panel-in", 420);
+  const storyPanelEl = document.querySelector(".board-game-story-panel");
+  renderBoardChapterPanel({
+    chapter,
+    titleEl: boardGameChapterTitleEl,
+    textEl: boardGameChapterTextEl,
+    indexEl: boardGameChapterIndexEl,
+    storyPanelEl,
+    animate: gameFeelAnimate,
+  });
 }
 
 function updateBoardGameMetaUi() {
-  if (boardGamePositionEl) boardGamePositionEl.textContent = String(boardGameState.player.currentTile);
-  if (boardGameTotalTilesEl) boardGameTotalTilesEl.textContent = String(boardLevelConfig().totalTiles);
-  if (boardGameLastRollEl) boardGameLastRollEl.textContent = boardGameState.dice.lastRoll === null ? "-" : String(boardGameState.dice.lastRoll);
-  if (boardGameFeedbackEl) boardGameFeedbackEl.textContent = boardGameState.feedback.message;
-  if (boardGameXpEl) boardGameXpEl.textContent = String(boardGameState.player.xp);
-  if (boardGameCoinsEl) boardGameCoinsEl.textContent = String(boardGameState.player.coins);
+  renderBoardMeta({
+    currentTile: boardGameState.player.currentTile,
+    totalTiles: boardLevelConfig().totalTiles,
+    lastRoll: boardGameState.dice.lastRoll,
+    feedback: boardGameState.feedback.message,
+    xp: boardGameState.player.xp,
+    coins: boardGameState.player.coins,
+    positionEl: boardGamePositionEl,
+    totalTilesEl: boardGameTotalTilesEl,
+    lastRollEl: boardGameLastRollEl,
+    feedbackEl: boardGameFeedbackEl,
+    xpEl: boardGameXpEl,
+    coinsEl: boardGameCoinsEl,
+  });
 }
 
 function setBoardGameRollEnabled(enabled) {
   boardGameState.dice.canRoll = enabled;
-  if (boardGameRollBtn) boardGameRollBtn.disabled = !enabled;
-  if (boardGameDiceEl) {
-    boardGameDiceEl.disabled = !enabled;
-    boardGameDiceEl.setAttribute("aria-disabled", enabled ? "false" : "true");
-  }
+  renderBoardRollState({ enabled, rollBtn: boardGameRollBtn, diceEl: boardGameDiceEl });
 }
 
 function renderBoardGameChallenge() {
   const challenge = boardGameState.challenge.activeChallenge;
-  const challengePanel = document.querySelector(".board-game-challenge-panel");
-  if (boardGameChallengeTitleEl) {
-    boardGameChallengeTitleEl.textContent = challenge
-      ? `Монгол өгүүлбэр · ${challenge.promptMn}`
-      : "Энэ нүдэнд сорил алга. Үргэлжлүүлэхийн тулд дахин шоо шиднэ үү.";
-  }
-
-  if (boardGameChallengeTextEl) {
-    boardGameChallengeTextEl.textContent = challenge
-      ? `Хамгийн зөв англи хариултыг сонгоно уу (${challenge.tip}).`
-      : "Өгүүлэмж, шагнал, торгууль, шалган нэвтрэх нүдний нөлөө автоматаар хэрэгжинэ.";
-  }
-
-  if (!boardGameOptionsEl) return;
-  boardGameOptionsEl.innerHTML = "";
-
-  if (challengePanel) challengePanel.classList.toggle("show", Boolean(challenge));
-
-  if (!challenge) return;
-
-  challenge.options.forEach((option) => {
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "secondary board-game-option-btn";
-    btn.textContent = option;
-    btn.addEventListener("click", () => handleBoardGameAnswer(option));
-    boardGameOptionsEl.appendChild(btn);
+  const panelEl = document.querySelector(".board-game-challenge-panel");
+  renderBoardChallenge({
+    challenge,
+    titleEl: boardGameChallengeTitleEl,
+    textEl: boardGameChallengeTextEl,
+    optionsEl: boardGameOptionsEl,
+    panelEl,
+    onSelectOption: (option) => handleBoardGameAnswer(option),
   });
 }
 
@@ -2605,10 +2598,7 @@ async function animateBoardGameMovement(fromTile, toTile) {
 function setBoardGameFeedback(message, type = "info") {
   boardGameState.feedback.message = message;
   boardGameState.feedback.type = type;
-  if (boardGameFeedbackEl) {
-    boardGameFeedbackEl.dataset.type = type;
-    gameFeelAnimate(boardGameFeedbackEl, type === "penalty" ? "gf-feedback-penalty" : "gf-feedback-success", 500);
-  }
+  renderBoardFeedbackVisual({ feedbackEl: boardGameFeedbackEl, type, animate: gameFeelAnimate });
   showBoardGamePopup(type, message);
   updateBoardGameMetaUi();
 }
@@ -2748,16 +2738,13 @@ function show(el) { el.classList.remove("hidden"); }
 function hide(el) { el.classList.add("hidden"); }
 
 function hideStartIntroPanel() {
-  if (!introPanel || !introToggleBtn) return;
-  hide(introPanel);
-  introToggleBtn.setAttribute("aria-expanded", "false");
+  setStartIntroOpen(false);
 }
 
 function toggleStartIntroPanel() {
-  if (!introPanel || !introToggleBtn) return;
+  if (!introPanel) return;
   const willOpen = introPanel.classList.contains("hidden");
-  introPanel.classList.toggle("hidden", !willOpen);
-  introToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  setStartIntroOpen(willOpen);
 }
 
 function loadSoundSettings() {
@@ -4170,23 +4157,15 @@ function startQuiz() {
 
 function renderQuestion() {
   locked = false;
-  resultEl.textContent = "";
-  resultEl.className = "result hidden";
-
   const item = questions[currentIndex];
-  questionEl.textContent = item.q;
-
   const options = Array.isArray(item.replayOptions) && item.replayOptions.length
     ? item.replayOptions.slice()
     : buildOptions(item.a);
-  optionsEl.innerHTML = "";
 
-  options.forEach(opt => {
-    const btn = document.createElement("button");
-    btn.className = "option";
-    btn.textContent = opt;
-    btn.addEventListener("click", () => pickAnswer(btn, opt));
-    optionsEl.appendChild(btn);
+  renderLessonScreen({
+    question: item.q,
+    options,
+    onPickAnswer: (btn, opt) => pickAnswer(btn, opt),
   });
 
   updateTopbar();
@@ -4200,36 +4179,29 @@ function pickAnswer(buttonEl, selected) {
 
   const correct = questions[currentIndex].a;
 
-  // бүх товчийг disable болгох + өнгө
-  const buttons = optionsEl ? [...optionsEl.querySelectorAll(".option")] : [];
-  buttons.forEach(b => {
-    b.disabled = true;
-    if (b.textContent === correct) b.classList.add("correct");
+  const { isCorrect } = renderLessonAnswerState({
+    selectedButton: buttonEl,
+    correctAnswer: correct,
+    selectedAnswer: selected,
+    revealed: true,
   });
 
-  if (selected === correct) {
+  if (isCorrect) {
     if (!lessonReviewMode) {
       score += 1;
       awardXP(1, "quiz_correct_answer");
     }
-    buttonEl.classList.add("correct");
-    resultEl.textContent = "✅ Зөв!";
-    resultEl.classList.add("ok");
     playSuccessSound();
     worldSoundscape.play("reward");
     updateCompanionLine("lesson", "success");
     showWorldFeedbackChip("✨ Зөв хариулт! Зам тань гэрэлтлээ.", "reward");
   } else {
-    buttonEl.classList.add("wrong");
-    resultEl.textContent = `❌ Буруу! Зөв нь: ${correct}`;
-    resultEl.classList.add("bad");
     playErrorSound();
     worldSoundscape.play("soft-fail");
     updateCompanionLine("lesson", "error");
     showWorldFeedbackChip("⚠️ Дахин оролдоод үзээрэй, баатар аа.", "warning");
   }
 
-  show(resultEl);
   updateTopbar();
   updateHeaderStatus();
 }
@@ -4262,14 +4234,12 @@ function startLevelLabel(levelKey) {
 let hasExplicitStartLevelSelection = false;
 
 function updateStartButtonLabel() {
-  if (!startBtn) return;
-  startBtn.textContent = `Түвшин сонгох: ${startLevelLabel(level)}`;
+  renderStartButtonLabel(startLevelLabel(level));
+  renderHomeScreen({ levelLabel: startLevelLabel(level) });
 }
 
 function setStartLevelMenuOpen(isOpen) {
-  if (!startLevelDropdown || !startBtn) return;
-  startLevelDropdown.classList.toggle("hidden", !isOpen);
-  startBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  renderStartLevelMenuOpen(isOpen);
 }
 
 function exitPlayModeToHome() {
@@ -4288,19 +4258,11 @@ function formatQaBuiltLine(tokens) {
 }
 
 function renderSentencesRewards() {
-  if (!sentencesRewardStripEl) return;
-  const activeLevel = Math.min(sentencesUnlockedRewards + 1, SENTENCES_REWARD_STEPS.length);
-  sentencesRewardStripEl.innerHTML = SENTENCES_REWARD_STEPS.map((reward, index) => {
-    const level = index + 1;
-    const unlocked = level <= sentencesUnlockedRewards;
-    const active = level === activeLevel;
-    return `
-      <article class="reward-tile ${unlocked ? "is-unlocked" : "is-locked"} ${active ? "is-active" : ""}" data-reward-index="${index}" data-level="${level}">
-        <p class="reward-label-chip">${reward.label}</p>
-        <img class="reward-img" src="${reward.image}" alt="${reward.alt}" loading="lazy" />
-      </article>
-    `;
-  }).join("");
+  renderRewardStripTiles({
+    containerEl: sentencesRewardStripEl,
+    rewards: SENTENCES_REWARD_STEPS,
+    unlockedRewards: sentencesUnlockedRewards,
+  });
 }
 
 function updateSentencesTimerUI() {
@@ -4342,42 +4304,20 @@ function getQaCurrentRound() {
 }
 
 function renderQaRewards() {
-  if (!qaRewardBarEl) return;
-  const activeLevel = Math.min(qaUnlockedRewards + 1, QA_REWARD_STEPS.length);
-  qaRewardImageEls().forEach((imgEl) => {
-    const level = Number(imgEl.dataset.level || 0);
-    const unlocked = level > 0 && level <= qaUnlockedRewards;
-    const active = level > 0 && level === activeLevel;
-    const tileEl = imgEl.closest(".reward-tile");
-    if (tileEl) {
-      tileEl.classList.toggle("is-unlocked", unlocked);
-      tileEl.classList.toggle("is-locked", !unlocked);
-      tileEl.classList.toggle("is-active", active);
-    }
-    imgEl.classList.toggle("is-unlocked", unlocked);
-    imgEl.classList.toggle("is-locked", !unlocked);
-    imgEl.classList.toggle("active", active);
-    imgEl.classList.toggle("is-active", active);
+  renderRewards({
+    rewardBarEl: qaRewardBarEl,
+    rewardImageEls: qaRewardImageEls,
+    unlockedRewards: qaUnlockedRewards,
+    totalSteps: QA_REWARD_STEPS.length,
   });
 }
 
 function renderLessonRewards() {
-  if (!lessonRewardBarEl) return;
-  const activeLevel = Math.min(lessonUnlockedRewards + 1, QA_REWARD_STEPS.length);
-  lessonRewardImageEls().forEach((imgEl) => {
-    const level = Number(imgEl.dataset.level || 0);
-    const unlocked = level > 0 && level <= lessonUnlockedRewards;
-    const active = level > 0 && level === activeLevel;
-    const tileEl = imgEl.closest(".reward-tile");
-    if (tileEl) {
-      tileEl.classList.toggle("is-unlocked", unlocked);
-      tileEl.classList.toggle("is-locked", !unlocked);
-      tileEl.classList.toggle("is-active", active);
-    }
-    imgEl.classList.toggle("is-unlocked", unlocked);
-    imgEl.classList.toggle("is-locked", !unlocked);
-    imgEl.classList.toggle("active", active);
-    imgEl.classList.toggle("is-active", active);
+  renderRewards({
+    rewardBarEl: lessonRewardBarEl,
+    rewardImageEls: lessonRewardImageEls,
+    unlockedRewards: lessonUnlockedRewards,
+    totalSteps: QA_REWARD_STEPS.length,
   });
 }
 

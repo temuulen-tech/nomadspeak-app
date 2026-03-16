@@ -3,6 +3,8 @@
  * Owns home/landing screen element access and home-specific event wiring.
  */
 
+import { renderHomeScreen } from "./render-home.js";
+
 export function initHomeScreen(handlers = {}) {
   const startScreenEl = document.getElementById("start-screen");
   const navLessonBtn = document.getElementById("nav-lesson-btn");
@@ -57,7 +59,10 @@ export function initHomeScreen(handlers = {}) {
   return {
     id: "home",
     element: startScreenEl,
-    activate: () => handlers.onActivate?.(),
+    activate: () => {
+      renderHomeScreen();
+      handlers.onActivate?.();
+    },
     deactivate: () => handlers.onDeactivate?.(),
   };
 }
