@@ -3,15 +3,17 @@
  * Centralized persistence keys and local/session storage helpers.
  */
 
+import { STORAGE_KEYS as APP_STORAGE_KEYS } from "./constants.js";
+
 export const STORAGE_KEYS = {
-  ttsSettings: "nomadspeak:tts:v1",
-  legacyTtsRate: "ttsRate",
-  soundEnabled: "soundEnabled",
-  progressSettings: "nomadProgress",
-  appTimeDailyTotals: "appTimeDailyTotals",
-  appTimeActiveSession: "appTimeActiveSession",
-  profileName: "nomadProfileName",
-  premium: "isPremium",
+  ttsSettings: APP_STORAGE_KEYS.TTS_SETTINGS,
+  legacyTtsRate: APP_STORAGE_KEYS.LEGACY_TTS_RATE,
+  soundEnabled: APP_STORAGE_KEYS.SOUND_ENABLED,
+  progressSettings: APP_STORAGE_KEYS.PROGRESS_SETTINGS,
+  appTimeDailyTotals: APP_STORAGE_KEYS.APP_TIME_DAILY_TOTALS,
+  appTimeActiveSession: APP_STORAGE_KEYS.APP_TIME_ACTIVE_SESSION,
+  profileName: APP_STORAGE_KEYS.PROFILE_NAME,
+  premium: APP_STORAGE_KEYS.PREMIUM,
 };
 
 export function loadJson(key, fallback = null) {

@@ -3,10 +3,12 @@
  * Sentence-building game specific constants and string helpers.
  */
 
+import { DIFFICULTY_LEVELS } from "./constants.js";
+
 export const SENTENCE_GAME_DIFFICULTY_LABELS = {
-  beginner: "Анхан шат",
-  intermediate: "Дунд шат",
-  advanced: "Дээд түвшин",
+  [DIFFICULTY_LEVELS.BEGINNER]: "Анхан шат",
+  [DIFFICULTY_LEVELS.INTERMEDIATE]: "Дунд шат",
+  [DIFFICULTY_LEVELS.ADVANCED]: "Дээд түвшин",
 };
 
 export function tokenizeSentence(sentence = "") {
