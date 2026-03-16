@@ -1,3 +1,8 @@
+import { STORAGE_KEYS } from "./storage.js";
+import { getState, setStateValue } from "./state.js";
+import { formatHHMMSS as formatDuration } from "./stats.js";
+import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
+
 // ======================
 // NomadSpeak Quiz Engine
 // 4 options • 3 levels • score • end screen
@@ -384,14 +389,14 @@ let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
 
 
-const TTS_SETTINGS_KEY = "nomadspeak:tts:v1";
-const LEGACY_TTS_RATE_KEY = "ttsRate";
-const SOUND_SETTINGS_KEY = "soundEnabled";
-const PROGRESS_SETTINGS_KEY = "nomadProgress";
-const APP_TIME_DAILY_TOTALS_KEY = "appTimeDailyTotals";
-const APP_TIME_ACTIVE_SESSION_KEY = "appTimeActiveSession";
-const PROFILE_NAME_STORAGE_KEY = "nomadProfileName";
-const PREMIUM_STORAGE_KEY = "isPremium";
+const TTS_SETTINGS_KEY = STORAGE_KEYS.ttsSettings;
+const LEGACY_TTS_RATE_KEY = STORAGE_KEYS.legacyTtsRate;
+const SOUND_SETTINGS_KEY = STORAGE_KEYS.soundEnabled;
+const PROGRESS_SETTINGS_KEY = STORAGE_KEYS.progressSettings;
+const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
+const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
+const PROFILE_NAME_STORAGE_KEY = STORAGE_KEYS.profileName;
+const PREMIUM_STORAGE_KEY = STORAGE_KEYS.premium;
 const FREE_DAILY_XP_LIMIT = 10;
 const DEFAULT_DAILY_GOAL = 10;
 const DEFAULT_TTS_SETTINGS = {
@@ -1131,11 +1136,7 @@ function getAggregates(now = new Date()) {
 }
 
 function formatHHMMSS(totalSeconds) {
-  const safe = Math.max(0, Math.floor(Number(totalSeconds) || 0));
-  const hours = String(Math.floor(safe / 3600)).padStart(2, "0");
-  const minutes = String(Math.floor((safe % 3600) / 60)).padStart(2, "0");
-  const seconds = String(safe % 60).padStart(2, "0");
-  return `${hours}:${minutes}:${seconds}`;
+  return formatDuration(totalSeconds);
 }
 
 function previousDayKey(dayKey) {
@@ -1909,6 +1910,7 @@ function getAllAnswersExcept(correct) {
 }
 
 function showScreen(screenId) {
+  if (typeof screenId === "string") setStateValue("currentScreen", screenId);
   const targetScreen = typeof screenId === "string"
     ? SCREENS[screenId]
     : screenId;
@@ -4848,6 +4850,7 @@ if (ttsRateSlider) {
 soundToggleButtons.forEach(toggleBtn => {
   toggleBtn.addEventListener("click", () => {
     soundEnabled = !soundEnabled;
+    setGlobalSoundEnabled(soundEnabled);
     if (!soundEnabled) {
       stopSpeaking();
       gameFeelSoundManager.stopAmbient();
@@ -5048,6 +5051,7 @@ document.addEventListener("visibilitychange", () => {
   audioEngine.onVisibilityChange();
 });
 
+const _sharedState = getState();
 const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
 if (initialVisibleScreen) {
   const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
