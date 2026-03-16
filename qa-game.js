@@ -3,12 +3,14 @@
  * Question-answer game constants and mode-specific helper functions.
  */
 
+import { ASSETS } from "./assets.js";
+
 export const QA_REWARD_STEPS = [
-  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: "assets/rewards/reward-flag.png", alt: "Асуулт-хариултын шагнал туг" },
-  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: "assets/rewards/reward-star.png", alt: "Асуулт-хариултын шагнал од" },
-  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: "assets/rewards/reward-coin.png", alt: "Асуулт-хариултын шагнал зоос" },
-  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/reward-trophy.png", alt: "Асуулт-хариултын шагнал цом" },
-  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/reward-diamond.png", alt: "Асуулт-хариултын шагнал эрдэнэ" },
+  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: ASSETS.rewardIcons.flag, alt: "Асуулт-хариултын шагнал туг" },
+  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: ASSETS.rewardIcons.star, alt: "Асуулт-хариултын шагнал од" },
+  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: ASSETS.rewardIcons.coin, alt: "Асуулт-хариултын шагнал зоос" },
+  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: ASSETS.rewardIcons.trophy, alt: "Асуулт-хариултын шагнал цом" },
+  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: ASSETS.rewardIcons.diamond, alt: "Асуулт-хариултын шагнал эрдэнэ" },
 ];
 
 export const QA_WORD_BANK_BASE = ["I","China","from","?","arrived","Where","to","yesterday","did","you","are","come","Mongolia","from","I","When","in","you","am","China","?"];
