@@ -3,6 +3,8 @@
  * Owns board gameplay screen interactions (dice, board scene hooks, board controls).
  */
 
+import { renderBoardRollState } from "./render-board.js";
+
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
   const rollBtn = document.getElementById("board-game-roll-btn");
@@ -19,7 +21,10 @@ export function initBoardScreen(handlers = {}) {
   return {
     id: "board",
     element: boardScreenEl,
-    activate: () => handlers.onActivate?.(),
+    activate: () => {
+      renderBoardRollState({ enabled: true, rollBtn, diceEl });
+      handlers.onActivate?.();
+    },
     deactivate: () => handlers.onDeactivate?.(),
   };
 }

@@ -3,6 +3,8 @@
  * Owns lesson screen controls and lesson-specific entry actions.
  */
 
+import { renderLessonScreen } from "./render-lesson.js";
+
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
   const nextBtn = document.getElementById("next-btn");
@@ -14,7 +16,10 @@ export function initLessonScreen(handlers = {}) {
   return {
     id: "lesson",
     element: lessonScreenEl,
-    activate: () => handlers.onActivate?.(),
+    activate: () => {
+      renderLessonScreen();
+      handlers.onActivate?.();
+    },
     deactivate: () => handlers.onDeactivate?.(),
   };
 }
