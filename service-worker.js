@@ -1,4 +1,4 @@
-const CACHE_NAME = 'nomadspeak-v2';
+const CACHE_NAME = 'nomadspeak-v3';
 const PRECACHE_URLS = [
   './',
   './index.html',
