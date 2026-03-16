@@ -1,3 +1,5 @@
+import { DIFFICULTY_LEVELS } from "./constants.js";
+
 /**
  * lesson.js
  * Lesson content and core lesson helpers (question bank, labels, options).
@@ -51,7 +53,7 @@ export function buildLessonTranslationMaps() {
 export const LESSON_TRANSLATIONS = buildLessonTranslationMaps();
 
 export function levelName(levelKey) {
-  return levelKey === "beginner" ? "Анхан" : levelKey === "intermediate" ? "Дунд" : "Дээд";
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? "Анхан" : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : "Дээд";
 }
 
 export function buildOptions(correct, allAnswers) {

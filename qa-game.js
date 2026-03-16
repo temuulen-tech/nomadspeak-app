@@ -4,6 +4,7 @@
  */
 
 import { ASSETS } from "./assets.js";
+import { DIFFICULTY_LEVELS } from "./constants.js";
 
 export const QA_REWARD_STEPS = [
   { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: ASSETS.rewardIcons.flag, alt: "Асуулт-хариултын шагнал туг" },
@@ -34,9 +35,9 @@ export function formatQaBuiltLine(tokens) {
 }
 
 export function qaLevelLabel(levelKey) {
-  return levelKey === "beginner" ? "Анхан шат" : levelKey === "intermediate" ? "Дунд шат" : "Дээд түвшин";
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? "Анхан шат" : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд шат" : "Дээд түвшин";
 }
 
 export function qaRoundPoolForLevel(levelKey) {
-  return levelKey === "beginner" ? [QA_ROUNDS[0]] : levelKey === "intermediate" ? [QA_ROUNDS[1]] : [...QA_ROUNDS];
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? [QA_ROUNDS[0]] : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? [QA_ROUNDS[1]] : [...QA_ROUNDS];
 }

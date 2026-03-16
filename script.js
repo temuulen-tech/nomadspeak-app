@@ -27,6 +27,15 @@ import {
 } from "./render-board.js";
 import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
+import {
+  DIFFICULTY_LEVELS,
+  DIFFICULTY_LEVEL_LIST,
+  GAME_MODES,
+  REWARD_TABS,
+  SCREEN_NAMES,
+  STATS_PERIODS,
+  WORLD_IDS,
+} from "./constants.js";
 
 // ======================
 // NomadSpeak Quiz Engine
@@ -249,8 +258,8 @@ const qaModalTitleEl = document.getElementById("qa-modal-title");
 const qaModalBodyEl = document.getElementById("qa-modal-body");
 const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
 
-let statsSelectedPeriod = "day";
-let statsRewardTab = "days";
+let statsSelectedPeriod = STATS_PERIODS.DAY;
+let statsRewardTab = REWARD_TABS.DAYS;
 const installHintEl = document.getElementById("install-hint");
 const installBtn = document.getElementById("install-btn");
 const worldFeedbackHubEl = document.getElementById("world-feedback-hub");
@@ -300,7 +309,7 @@ const vaultDeleteBtn = document.getElementById("vault-delete-btn");
 const vaultLearnedBtn = document.getElementById("vault-learned-btn");
 
 // ---- State ----
-let level = "beginner";
+let level = DIFFICULTY_LEVELS.BEGINNER;
 let questions = [];
 let currentIndex = 0;
 let score = 0;
@@ -308,7 +317,7 @@ let locked = false;
 let lessonReviewMode = false;
 
 let sentenceItems = [];
-let sentenceFilter = "beginner";
+let sentenceFilter = DIFFICULTY_LEVELS.BEGINNER;
 let speakingSentenceId = null;
 let availableVoices = [];
 
@@ -342,7 +351,7 @@ let sentenceGameLastActivityAt = 0;
 let sentenceGameLastTick = 0;
 let sentenceGameActiveTimer = null;
 let sentenceGameRewardBannerTimer = null;
-let sentenceGameDifficulty = "beginner";
+let sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
 
 const SENTENCE_GAME_TOAST_DURATION = 8000;
 const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
@@ -488,15 +497,15 @@ let deferredInstallPrompt = null;
 let appTimeUiInterval = null;
 
 const SCREEN_IDS = {
-  [startScreen.id]: "start",
-  [quizScreen.id]: "lesson",
-  [sentencesScreen.id]: "sentences",
-  [sentenceGameScreen.id]: "sentence-game",
-  [qaGameScreen.id]: "qa-game",
+  [startScreen.id]: SCREEN_NAMES.START,
+  [quizScreen.id]: SCREEN_NAMES.LESSON,
+  [sentencesScreen.id]: SCREEN_NAMES.SENTENCES,
+  [sentenceGameScreen.id]: SCREEN_NAMES.SENTENCE_GAME,
+  [qaGameScreen.id]: SCREEN_NAMES.QA_GAME,
   [boardGameIntroScreen.id]: "board-game-intro",
-  [boardGameScreen.id]: "board-game",
-  [statsScreen.id]: "stats",
-  [profileScreen.id]: "profile",
+  [boardGameScreen.id]: SCREEN_NAMES.BOARD_GAME,
+  [statsScreen.id]: SCREEN_NAMES.STATS,
+  [profileScreen.id]: SCREEN_NAMES.PROFILE,
   [endScreen.id]: "end",
 };
 
@@ -504,10 +513,10 @@ const SCREENS = {
   start: startScreen,
   lesson: quizScreen,
   sentences: sentencesScreen,
-  "sentence-game": sentenceGameScreen,
-  "qa-game": qaGameScreen,
+  [SCREEN_NAMES.SENTENCE_GAME]: sentenceGameScreen,
+  [SCREEN_NAMES.QA_GAME]: qaGameScreen,
   "board-game-intro": boardGameIntroScreen,
-  "board-game": boardGameScreen,
+  [SCREEN_NAMES.BOARD_GAME]: boardGameScreen,
   stats: statsScreen,
   profile: profileScreen,
   end: endScreen,
@@ -518,10 +527,10 @@ let activeScreenId = null;
 
 function setAppMode(mode) {
   if (!document.body) return;
-  const resolvedMode = mode === "home" ? "home" : "learning";
+  const resolvedMode = mode === GAME_MODES.HOME ? GAME_MODES.HOME : GAME_MODES.LEARNING;
   document.body.dataset.mode = resolvedMode;
-  document.body.classList.toggle("mode-home", resolvedMode === "home");
-  document.body.classList.toggle("mode-learning", resolvedMode === "learning");
+  document.body.classList.toggle("mode-home", resolvedMode === GAME_MODES.HOME);
+  document.body.classList.toggle("mode-learning", resolvedMode === GAME_MODES.LEARNING);
 }
 
 function registerServiceWorker() {
@@ -582,8 +591,8 @@ function tokenizeSentence(sentence = "") {
 }
 
 function levelName(lv) {
-  if (lv === "beginner") return "Анхан";
-  if (lv === "intermediate") return "Дунд";
+  if (lv === DIFFICULTY_LEVELS.BEGINNER) return "Анхан";
+  if (lv === DIFFICULTY_LEVELS.INTERMEDIATE) return "Дунд";
   return "Дээд";
 }
 
@@ -767,7 +776,7 @@ function loadSentenceGameFromVault(savedItem) {
   if (!savedItem || !savedItem.enSentence) return;
   const normalized = String(savedItem.enSentence).trim().toLowerCase();
   const matched = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === normalized)
-    || { en: savedItem.enSentence, mn: savedItem.mnTranslation || "", level: (savedItem.level || "beginner").toLowerCase() };
+    || { en: savedItem.enSentence, mn: savedItem.mnTranslation || "", level: (savedItem.level || DIFFICULTY_LEVELS.BEGINNER).toLowerCase() };
 
   sentenceGameHistory = [matched];
   sentenceGameIndex = 0;
@@ -784,7 +793,7 @@ function loadQaRoundFromVault(savedItem) {
     enAnswer: savedItem.enAnswer || "",
   };
 
-  qaGameLevel = "intermediate";
+  qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
   qaRoundPool = [round];
   qaRoundIndex = 0;
   qaRoundPanelEl.classList.remove("hidden");
@@ -807,12 +816,12 @@ function repeatFromVault(sectionKey, itemId) {
 
   if (vaultModalEl) vaultModalEl.classList.add("hidden");
 
-  if (sectionKey === "lesson") {
+  if (sectionKey === SCREEN_NAMES.LESSON) {
     startLessonFromSaved(itemId);
     return;
   }
 
-  if (sectionKey === "sentences") {
+  if (sectionKey === SCREEN_NAMES.SENTENCES) {
     stopSpeaking();
     showScreen(sentencesScreen);
     renderSentences();
@@ -883,7 +892,7 @@ function renderVaultModal(key) {
     });
   });
 
-  if (screenId === "sentences") {
+  if (screenId === SCREEN_NAMES.SENTENCES) {
     vaultModalBodyEl.querySelectorAll(".vault-sentence-speak-btn").forEach((btn) => {
       btn.addEventListener("click", (event) => {
         event.stopPropagation();
@@ -942,14 +951,14 @@ function saveCurrentLessonItem() {
     level: levelName(level),
     timestamp: Date.now(),
   });
-  const key = vaultKeyForScreen("lesson");
+  const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
 }
 
 function startLessonFromSaved(itemId) {
-  const key = vaultKeyForScreen("lesson");
+  const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
   const savedItem = loadVault(key).find((entry) => entry.id === itemId);
   if (!savedItem) return;
 
@@ -1011,7 +1020,7 @@ function saveSentenceListItem(item) {
     voiceSetting: ttsSettings.voice,
     timestamp: Date.now(),
   };
-  const key = vaultKeyForScreen("sentences");
+  const key = vaultKeyForScreen(SCREEN_NAMES.SENTENCES);
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
   showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
@@ -1550,7 +1559,7 @@ function renderRewardsTab() {
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
 
-  if (statsRewardTab === "days") {
+  if (statsRewardTab === REWARD_TABS.DAYS) {
     const totals = getAppTimeDailyTotals();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     statsRewardCardsEl.innerHTML = Array.from({ length: daysInMonth }, (_, i) => i + 1).map((day) => {
@@ -1569,7 +1578,7 @@ function renderRewardsTab() {
     return;
   }
 
-  if (statsRewardTab === "weeks") {
+  if (statsRewardTab === REWARD_TABS.WEEKS) {
     const weeklyNorm = (10 * 3600) + (30 * 60);
     const cards = getWeekBucketsForMonth(currentMonth, currentYear, getAppTimeDailyTotals()).map((week) => {
       const percent = weeklyNorm > 0 ? (week.seconds / weeklyNorm) * 100 : 0;
@@ -1587,7 +1596,7 @@ function renderRewardsTab() {
     return;
   }
 
-  if (statsRewardTab === "months") {
+  if (statsRewardTab === REWARD_TABS.MONTHS) {
     const cards = Array.from({ length: 12 }, (_, monthIndex) => {
       const seconds = getMonthTotalSeconds(monthIndex, currentYear);
       const norm = 90 * 60 * new Date(currentYear, monthIndex + 1, 0).getDate();
@@ -1629,11 +1638,11 @@ function updateGaugeUI(aggregates, now = new Date()) {
   let seconds = aggregates.today;
   let normSeconds = 90 * 60;
 
-  if (statsSelectedPeriod === "week") {
+  if (statsSelectedPeriod === STATS_PERIODS.WEEK) {
     periodLabel = "Энэ 7 хоног";
     seconds = aggregates.thisWeek;
     normSeconds = 90 * 60 * 7;
-  } else if (statsSelectedPeriod === "month") {
+  } else if (statsSelectedPeriod === STATS_PERIODS.MONTH) {
     periodLabel = "Энэ сар";
     seconds = aggregates.thisMonth;
     normSeconds = 90 * 60 * monthDays;
@@ -1647,7 +1656,7 @@ function updateGaugeUI(aggregates, now = new Date()) {
 
   const percent = normSeconds > 0 ? (seconds / normSeconds) * 100 : 0;
   const normalized = Math.min(1, Math.max(0, percent / 100));
-  const tier = statsSelectedPeriod === "day" ? getGaugeTierBySeconds(seconds) : getGaugeTierByPercent(percent);
+  const tier = statsSelectedPeriod === STATS_PERIODS.DAY ? getGaugeTierBySeconds(seconds) : getGaugeTierByPercent(percent);
   const fillPercent = Math.max(8, Math.round(normalized * 100));
 
   statsKpiLabelEl.textContent = periodLabel;
@@ -2033,57 +2042,57 @@ function showScreen(screenId) {
 }
 
 function navigateTo(destination) {
-  if (destination === "home") {
+  if (destination === SCREEN_NAMES.HOME) {
     stopSpeaking();
     hideStartIntroPanel();
-    showScreen("start");
+    showScreen(SCREEN_NAMES.START);
   }
 
-  if (destination === "lesson") {
+  if (destination === SCREEN_NAMES.LESSON) {
     stopSpeaking();
     hideStartIntroPanel();
     setStartLevelMenuOpen(false);
     startQuiz();
   }
 
-  if (destination === "sentences") {
+  if (destination === SCREEN_NAMES.SENTENCES) {
     stopSpeaking();
-    showScreen("sentences");
+    showScreen(SCREEN_NAMES.SENTENCES);
   }
 
-  if (destination === "sentence-game") {
+  if (destination === SCREEN_NAMES.SENTENCE_GAME) {
     stopSpeaking();
-    showScreen("sentence-game");
+    showScreen(SCREEN_NAMES.SENTENCE_GAME);
     initSentenceGameRound();
     enforceFreeXpGate();
   }
 
-  if (destination === "qa-game") {
+  if (destination === SCREEN_NAMES.QA_GAME) {
     stopSpeaking();
-    showScreen("qa-game");
+    showScreen(SCREEN_NAMES.QA_GAME);
     resetQaGameScreen();
   }
 
-  if (destination === "board-game") {
+  if (destination === SCREEN_NAMES.BOARD_GAME) {
     stopSpeaking();
     showScreen("board-game-intro");
   }
 
   if (destination === "board-game-start") {
     stopSpeaking();
-    showScreen("board-game");
+    showScreen(SCREEN_NAMES.BOARD_GAME);
     initBoardGameMvp();
   }
 
-  if (destination === "stats") {
+  if (destination === SCREEN_NAMES.STATS) {
     stopSpeaking();
-    showScreen("stats");
+    showScreen(SCREEN_NAMES.STATS);
     updateStatsUI();
   }
 
-  if (destination === "profile") {
+  if (destination === SCREEN_NAMES.PROFILE) {
     stopSpeaking();
-    showScreen("profile");
+    showScreen(SCREEN_NAMES.PROFILE);
   }
 }
 
@@ -2102,7 +2111,7 @@ function resetLessonProgress() {
 
 function requestNavigation(destination) {
   closeHomeModesPanel();
-  if (destination !== "lesson") resetLessonProgress();
+  if (destination !== SCREEN_NAMES.LESSON) resetLessonProgress();
 
   navigateTo(destination);
 }
@@ -2200,7 +2209,7 @@ function boardTileEmoji(tileType) {
 }
 
 const boardGameState = {
-  levelId: "world1",
+  levelId: WORLD_IDS.WORLD_1,
   tiles: [],
   challenges: BOARD_GAME_CHALLENGES_WORLD1,
   player: { currentTile: 1, token: "⛵", xp: 0, coins: 0 },
@@ -2264,8 +2273,8 @@ function updateCompanionLine(mode, tone = "idle") {
 }
 
 const audioEngine = {
-  worldId: "sea",
-  activeMode: "home",
+  worldId: WORLD_IDS.SEA,
+  activeMode: GAME_MODES.HOME,
   worldTracks: {},
   failedTracks: new Set(),
   activeTrackAudio: null,
@@ -2315,10 +2324,10 @@ const audioEngine = {
     };
     this.fadeRequestId = requestAnimationFrame(runFade);
   },
-  start(worldId = "sea", mode = "lesson") {
+  start(worldId = WORLD_IDS.SEA, mode = GAME_MODES.LESSON) {
     this.worldId = worldId;
     this.activeMode = mode;
-    if (!soundEnabled || !audioInteractionUnlocked || mode === "home" || !BACKGROUND_AUDIO_ENABLED) {
+    if (!soundEnabled || !audioInteractionUnlocked || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
       this.stop(true);
       return;
     }
@@ -2376,8 +2385,8 @@ const audioEngine = {
 };
 
 const worldSoundscape = {
-  start(mode = "lesson") {
-    audioEngine.start("sea", mode);
+  start(mode = GAME_MODES.LESSON) {
+    audioEngine.start(WORLD_IDS.SEA, mode);
   },
   stop() {
     audioEngine.stop();
@@ -2435,7 +2444,7 @@ const gameFeelSoundManager = {
     if (hook) this.playSoundHook(hook);
   },
   startAmbient() {
-    audioEngine.start("sea", "board-game");
+    audioEngine.start(WORLD_IDS.SEA, GAME_MODES.BOARD_GAME);
   },
   stopAmbient() {
     audioEngine.stop();
@@ -3559,11 +3568,11 @@ function sentenceGameBucketsByFallback() {
 }
 
 function sentenceGameSentencesByDifficulty(difficulty = sentenceGameDifficulty) {
-  const normalizedDifficulty = ["beginner", "intermediate", "advanced"].includes(difficulty) ? difficulty : "beginner";
+  const normalizedDifficulty = DIFFICULTY_LEVEL_LIST.includes(difficulty) ? difficulty : DIFFICULTY_LEVELS.BEGINNER;
   const tagged = sentenceItems.filter((item) => {
     const rawLevel = String(item.level || item.cefr || "").toLowerCase();
-    if (normalizedDifficulty === "beginner") return rawLevel.includes("beginner") || rawLevel.includes("a1") || rawLevel.includes("a2");
-    if (normalizedDifficulty === "intermediate") return rawLevel.includes("intermediate") || rawLevel.includes("b1") || rawLevel.includes("b2");
+    if (normalizedDifficulty === DIFFICULTY_LEVELS.BEGINNER) return rawLevel.includes("beginner") || rawLevel.includes("a1") || rawLevel.includes("a2");
+    if (normalizedDifficulty === DIFFICULTY_LEVELS.INTERMEDIATE) return rawLevel.includes("intermediate") || rawLevel.includes("b1") || rawLevel.includes("b2");
     return rawLevel.includes("advanced") || rawLevel.includes("c1") || rawLevel.includes("c2");
   });
 
@@ -3609,21 +3618,21 @@ function setSentenceGameDifficultyPanelOpen(isOpen) {
 function loadSentenceGameDifficulty() {
   try {
     const stored = localStorage.getItem(SENTENCE_GAME_DIFFICULTY_KEY);
-    if (["beginner", "intermediate", "advanced"].includes(stored || "")) {
+    if (DIFFICULTY_LEVEL_LIST.includes(stored || "")) {
       sentenceGameDifficulty = stored;
     } else {
-      sentenceGameDifficulty = "beginner";
+      sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
       localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
     }
   } catch (_error) {
-    sentenceGameDifficulty = "beginner";
+    sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
   }
 
   updateSentenceGameDifficultyUI();
 }
 
 function selectSentenceGameDifficulty(difficulty, { collapsePanel = true } = {}) {
-  if (!["beginner", "intermediate", "advanced"].includes(difficulty)) return;
+  if (!DIFFICULTY_LEVEL_LIST.includes(difficulty)) return;
   sentenceGameDifficulty = difficulty;
   try {
     localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
@@ -4190,7 +4199,7 @@ function renderQuestion() {
 
   updateTopbar();
   updateHeaderStatus();
-  updateCompanionLine("lesson", "idle");
+  updateCompanionLine(GAME_MODES.LESSON, "idle");
 }
 
 function pickAnswer(buttonEl, selected) {
@@ -4213,12 +4222,12 @@ function pickAnswer(buttonEl, selected) {
     }
     playSuccessSound();
     worldSoundscape.play("reward");
-    updateCompanionLine("lesson", "success");
+    updateCompanionLine(GAME_MODES.LESSON, "success");
     showWorldFeedbackChip("✨ Зөв хариулт! Зам тань гэрэлтлээ.", "reward");
   } else {
     playErrorSound();
     worldSoundscape.play("soft-fail");
-    updateCompanionLine("lesson", "error");
+    updateCompanionLine(GAME_MODES.LESSON, "error");
     showWorldFeedbackChip("⚠️ Дахин оролдоод үзээрэй, баатар аа.", "warning");
   }
 
@@ -4248,7 +4257,7 @@ function endQuiz() {
 }
 
 function startLevelLabel(levelKey) {
-  return levelKey === "beginner" ? "Анхан" : levelKey === "intermediate" ? "Дунд" : "Дээд";
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? "Анхан" : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : "Дээд";
 }
 
 let hasExplicitStartLevelSelection = false;
@@ -4270,7 +4279,7 @@ function exitPlayModeToHome() {
   persistAllActiveTime();
   stopSession();
   resetLessonProgress();
-  navigateTo("home");
+  navigateTo(SCREEN_NAMES.HOME);
 }
 
 function formatQaBuiltLine(tokens) {
@@ -4551,18 +4560,18 @@ function closeQaModal() {
 }
 
 function buildQaSentencesModalHtml() {
-  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || "beginner");
+  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || DIFFICULTY_LEVELS.BEGINNER);
   return rounds
     .map((round) => `<p>${round.enQuestion} - ${round.enAnswer}</p><p>${round.mnQuestion} - ${round.mnAnswer}</p>`)
     .join("");
 }
 
 function qaLevelLabel(levelKey) {
-  return levelKey === "intermediate" ? "Дунд" : levelKey === "advanced" ? "Дээд" : "Анхан";
+  return levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : levelKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
 }
 
 function qaRoundPoolForLevel(levelKey) {
-  return levelKey === "beginner" ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
 }
 
 function selectQaLevel(levelKey) {
@@ -4577,7 +4586,7 @@ function selectQaLevel(levelKey) {
 }
 
 function resetQaGameScreen() {
-  const initialLevel = qaGameLevel || "beginner";
+  const initialLevel = qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
   qaGameLevel = initialLevel;
   qaRoundPool = qaRoundPoolForLevel(initialLevel);
   qaRoundIndex = 0;
@@ -4658,7 +4667,7 @@ if (sentenceGameDifficultyToggleBtn) {
 
 sentenceGameDifficultyButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    selectSentenceGameDifficulty(btn.dataset.difficulty || "beginner", { collapsePanel: true });
+    selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
   });
 });
 
@@ -4670,10 +4679,10 @@ if (sentencesSaveBtn) sentencesSaveBtn.addEventListener("click", saveCurrentSent
 if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
 if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
 
-if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("lesson")));
+if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
 if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
 if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
-if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentences")));
+if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
 if (vaultModalCloseBtn) vaultModalCloseBtn.addEventListener("click", () => vaultModalEl && vaultModalEl.classList.add("hidden"));
 if (vaultModalEl) vaultModalEl.addEventListener("click", (event) => { if (event.target === vaultModalEl) vaultModalEl.classList.add("hidden"); });
 
@@ -4738,7 +4747,7 @@ updateSentenceFilterActiveState();
 setSentencesLevelPickerOpen(false);
 setStartLevelMenuOpen(false);
 updateStartButtonLabel();
-setAppMode("home");
+setAppMode(GAME_MODES.HOME);
 
 startLevelOptions.forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -4754,7 +4763,7 @@ startLevelOptions.forEach((btn) => {
 });
 
 function sentenceLevelFilterLabel(filterKey) {
-  return filterKey === "intermediate" ? "Дунд" : filterKey === "advanced" ? "Дээд" : "Анхан";
+  return filterKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : filterKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
 }
 
 function setSentencesLevelPickerOpen(isOpen) {
@@ -4784,7 +4793,7 @@ if (sentencesLevelPickerBtn) {
 
 sentencesLevelOptionButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
-    sentenceFilter = btn.dataset.filter || "beginner";
+    sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
     updateSentenceFilterActiveState();
     setSentencesLevelPickerOpen(false);
     stopSpeaking();
@@ -4857,7 +4866,7 @@ SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
   onStartGame: () => navigateTo("board-game-start"),
 });
 
-SCREEN_REGISTRY["board-game"] = initBoardScreen({
+SCREEN_REGISTRY[SCREEN_NAMES.BOARD_GAME] = initBoardScreen({
   onRollDice: () => boardGameRollDice(),
   onResizeWhileVisible: () => updateBoardGameTokenPosition(),
 });
@@ -4869,12 +4878,12 @@ SCREEN_REGISTRY.lesson = initLessonScreen({
 
 SCREEN_REGISTRY.stats = initStatsScreen({
   onPeriodChange: (btn) => {
-    statsSelectedPeriod = btn.dataset.period || "day";
+    statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
     statsPeriodButtons.forEach((item) => item.classList.toggle("active", item === btn));
     refreshTimeSummaryUI();
   },
   onRewardTabChange: (btn) => {
-    statsRewardTab = btn.dataset.rewardTab || "days";
+    statsRewardTab = btn.dataset.rewardTab || REWARD_TABS.DAYS;
     statsRewardTabButtons.forEach((item) => {
       const active = item === btn;
       item.classList.toggle("active", active);
@@ -4990,11 +4999,11 @@ const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
 if (initialVisibleScreen) {
   const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
   const isHomeVisible = initialVisibleScreen === startScreen;
-  setAppMode(isHomeVisible ? "home" : "learning");
+  setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
   startSession(initialScreenId);
   startTimeUiUpdater();
 } else {
-  setAppMode("home");
+  setAppMode(GAME_MODES.HOME);
 }
 
 loadSentences();

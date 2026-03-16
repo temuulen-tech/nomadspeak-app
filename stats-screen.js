@@ -1,3 +1,5 @@
+import { SCREEN_NAMES } from "./constants.js";
+
 /**
  * stats-screen.js
  * Owns stats/performance screen controls and stats-specific UI interactions.
@@ -17,7 +19,7 @@ export function initStatsScreen(handlers = {}) {
   });
 
   return {
-    id: "stats",
+    id: SCREEN_NAMES.STATS,
     element: statsScreenEl,
     activate: () => handlers.onActivate?.(),
     deactivate: () => handlers.onDeactivate?.(),

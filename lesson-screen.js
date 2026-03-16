@@ -4,6 +4,7 @@
  */
 
 import { renderLessonScreen } from "./render-lesson.js";
+import { SCREEN_NAMES } from "./constants.js";
 
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
@@ -14,7 +15,7 @@ export function initLessonScreen(handlers = {}) {
   if (restartBtn) restartBtn.addEventListener("click", () => handlers.onRestart?.());
 
   return {
-    id: "lesson",
+    id: SCREEN_NAMES.LESSON,
     element: lessonScreenEl,
     activate: () => {
       renderLessonScreen();

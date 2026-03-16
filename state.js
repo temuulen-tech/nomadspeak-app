@@ -3,13 +3,15 @@
  * Shared runtime app state and small accessor helpers.
  */
 
+import { DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
+
 const state = {
-  currentScreen: "start",
-  level: "beginner",
+  currentScreen: SCREEN_NAMES.START,
+  level: DIFFICULTY_LEVELS.BEGINNER,
   lesson: { currentIndex: 0, score: 0, locked: false, reviewMode: false },
   progress: null,
   rewards: {},
-  difficulty: { qa: null, sentenceGame: "beginner" },
+  difficulty: { qa: null, sentenceGame: DIFFICULTY_LEVELS.BEGINNER },
   flags: {},
 };
 

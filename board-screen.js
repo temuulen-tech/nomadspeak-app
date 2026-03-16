@@ -4,6 +4,7 @@
  */
 
 import { renderBoardRollState } from "./render-board.js";
+import { SCREEN_NAMES } from "./constants.js";
 
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
@@ -19,7 +20,7 @@ export function initBoardScreen(handlers = {}) {
   });
 
   return {
-    id: "board",
+    id: SCREEN_NAMES.BOARD,
     element: boardScreenEl,
     activate: () => {
       renderBoardRollState({ enabled: true, rollBtn, diceEl });

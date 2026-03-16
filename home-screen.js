@@ -4,6 +4,7 @@
  */
 
 import { renderHomeScreen } from "./render-home.js";
+import { SCREEN_NAMES } from "./constants.js";
 
 export function initHomeScreen(handlers = {}) {
   const startScreenEl = document.getElementById("start-screen");
@@ -22,13 +23,13 @@ export function initHomeScreen(handlers = {}) {
   const startLevelDropdown = document.getElementById("start-level-dropdown");
   const startLevelPicker = document.querySelector(".start-level-picker");
 
-  if (navLessonBtn) navLessonBtn.addEventListener("click", () => handlers.onNavigate?.("lesson"));
-  if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => handlers.onNavigate?.("sentences"));
-  if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => handlers.onNavigate?.("sentence-game"));
-  if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => handlers.onNavigate?.("qa-game"));
-  if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => handlers.onNavigate?.("board-game"));
-  if (navStatsBtn) navStatsBtn.addEventListener("click", () => handlers.onNavigate?.("stats"));
-  if (navProfileBtn) navProfileBtn.addEventListener("click", () => handlers.onNavigate?.("profile"));
+  if (navLessonBtn) navLessonBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.LESSON));
+  if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCES));
+  if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCE_GAME));
+  if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.QA_GAME));
+  if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.BOARD_GAME));
+  if (navStatsBtn) navStatsBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
+  if (navProfileBtn) navProfileBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.PROFILE));
   if (navModesBtn) navModesBtn.addEventListener("click", () => handlers.onToggleModes?.());
 
   document.addEventListener("click", (event) => {
@@ -57,7 +58,7 @@ export function initHomeScreen(handlers = {}) {
   });
 
   return {
-    id: "home",
+    id: SCREEN_NAMES.HOME,
     element: startScreenEl,
     activate: () => {
       renderHomeScreen();
