@@ -2,6 +2,11 @@ import { STORAGE_KEYS } from "./storage.js";
 import { getState, setStateValue } from "./state.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
+import { initHomeScreen } from "./home-screen.js";
+import { initChapterCoverScreen } from "./chapter-cover-screen.js";
+import { initBoardScreen } from "./board-screen.js";
+import { initLessonScreen } from "./lesson-screen.js";
+import { initStatsScreen } from "./stats-screen.js";
 
 // ======================
 // NomadSpeak Quiz Engine
@@ -81,23 +86,12 @@ let resultEl = document.getElementById("result");
 const startBtn = document.getElementById("start-btn");
 const introToggleBtn = document.getElementById("intro-toggle-btn");
 const introPanel = document.getElementById("intro-panel");
-const introCloseBtn = document.getElementById("intro-close-btn");
-const nextBtn = document.getElementById("next-btn");
-const restartBtn = document.getElementById("restart-btn");
 const finalTextEl = document.getElementById("final-text");
 
-const navLessonBtn = document.getElementById("nav-lesson-btn");
-const navSentencesBtn = document.getElementById("nav-sentences-btn");
-const navSentenceGameBtn = document.getElementById("nav-sentence-game-btn");
-const navQaGameBtn = document.getElementById("nav-qa-game-btn");
-const navBoardGameBtn = document.getElementById("nav-board-game-btn");
-const navStatsBtn = document.getElementById("nav-stats-btn");
-const navProfileBtn = document.getElementById("nav-profile-btn");
 const navModesBtn = document.getElementById("nav-modes-btn");
 const homeModesPanel = document.getElementById("home-modes-panel");
 
 const startLevelDropdown = document.getElementById("start-level-dropdown");
-const startLevelPicker = document.querySelector(".start-level-picker");
 const startLevelOptions = document.querySelectorAll(".start-level-option");
 const sentencesLevelPickerEl = document.getElementById("sentences-level-picker");
 const sentencesLevelPickerBtn = document.getElementById("sentences-level-picker-btn");
@@ -240,7 +234,6 @@ const boardGameDiceEl = document.getElementById("board-game-dice");
 const boardGameXpEl = document.getElementById("board-game-xp");
 const boardGameCoinsEl = document.getElementById("board-game-coins");
 const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
-const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
 
 
 const boardGameFeedbackHubEl = document.getElementById("board-game-feedback-hub");
@@ -480,6 +473,9 @@ const SCREENS = {
   profile: profileScreen,
   end: endScreen,
 };
+
+const SCREEN_REGISTRY = {};
+let activeScreenId = null;
 
 function setAppMode(mode) {
   if (!document.body) return;
@@ -1910,19 +1906,32 @@ function getAllAnswersExcept(correct) {
 }
 
 function showScreen(screenId) {
-  if (typeof screenId === "string") setStateValue("currentScreen", screenId);
-  const targetScreen = typeof screenId === "string"
-    ? SCREENS[screenId]
-    : screenId;
+  const resolvedScreenId = typeof screenId === "string"
+    ? screenId
+    : Object.keys(SCREENS).find((id) => SCREENS[id] === screenId);
+  if (!resolvedScreenId) return;
+
+  const targetScreen = SCREENS[resolvedScreenId];
   if (!targetScreen) return;
+
+  setStateValue("currentScreen", resolvedScreenId);
 
   const wasSentenceGameVisible = sentenceGameScreenVisible();
   const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
   const wasSentencesVisible = sentencesScreen && !sentencesScreen.classList.contains("hidden");
   const wasLessonVisible = quizScreen && !quizScreen.classList.contains("hidden");
 
+  if (activeScreenId && SCREEN_REGISTRY[activeScreenId]?.deactivate) {
+    SCREEN_REGISTRY[activeScreenId].deactivate();
+  }
+
   Object.values(SCREENS).forEach((screenEl) => hide(screenEl));
   show(targetScreen);
+
+  activeScreenId = resolvedScreenId;
+  if (SCREEN_REGISTRY[resolvedScreenId]?.activate) {
+    SCREEN_REGISTRY[resolvedScreenId].activate();
+  }
 
   if (targetScreen === quizScreen) {
     show(topbar);
@@ -1966,21 +1975,21 @@ function showScreen(screenId) {
     stopSentencesTimer();
   }
 
-  const resolvedScreenId = targetScreen.id ? SCREEN_IDS[targetScreen.id] || targetScreen.id : null;
+  const domScreenId = targetScreen.id ? SCREEN_IDS[targetScreen.id] || targetScreen.id : null;
   const learningModeActive = targetScreen !== startScreen;
   setAppMode(learningModeActive ? "learning" : "home");
 
   if (document.body) {
-    document.body.dataset.activeScreen = resolvedScreenId || "home";
+    document.body.dataset.activeScreen = domScreenId || "home";
   }
 
-  const ambienceMode = resolvedScreenId === "lesson" ? "lesson" : (resolvedScreenId === "sentences" ? "sentences" : "home");
+  const ambienceMode = domScreenId === "lesson" ? "lesson" : (domScreenId === "sentences" ? "sentences" : "home");
   worldSoundscape.start(ambienceMode);
 
-  if (resolvedScreenId === "lesson") updateCompanionLine("lesson", "idle");
-  if (resolvedScreenId === "sentences") updateCompanionLine("sentences", "idle");
+  if (domScreenId === "lesson") updateCompanionLine("lesson", "idle");
+  if (domScreenId === "sentences") updateCompanionLine("sentences", "idle");
 
-  startSession(resolvedScreenId);
+  startSession(domScreenId);
   startTimeUiUpdater();
   refreshTimeSummaryUI();
 
@@ -4874,50 +4883,47 @@ playExitButtons.forEach((btn) => {
   });
 });
 
-if (navLessonBtn) navLessonBtn.addEventListener("click", () => requestNavigation("lesson"));
-if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => requestNavigation("sentences"));
-if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => requestNavigation("sentence-game"));
-if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => requestNavigation("qa-game"));
-if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => requestNavigation("board-game"));
-if (boardGameIntroContinueBtn) boardGameIntroContinueBtn.addEventListener("click", () => navigateTo("board-game-start"));
-if (navModesBtn) navModesBtn.addEventListener("click", toggleHomeModesPanel);
-if (navStatsBtn) navStatsBtn.addEventListener("click", () => requestNavigation("stats"));
-if (navProfileBtn) navProfileBtn.addEventListener("click", () => requestNavigation("profile"));
 
-document.addEventListener("click", (event) => {
-  if (!homeModesPanel || !navModesBtn) return;
-  if (homeModesPanel.classList.contains("hidden")) return;
-  const target = event.target;
-  if (homeModesPanel.contains(target) || navModesBtn.contains(target)) return;
-  closeHomeModesPanel();
+SCREEN_REGISTRY.start = initHomeScreen({
+  onNavigate: (destination) => requestNavigation(destination),
+  onToggleModes: () => toggleHomeModesPanel(),
+  onCloseModes: () => closeHomeModesPanel(),
+  onToggleIntro: () => toggleStartIntroPanel(),
+  onCloseIntro: () => hideStartIntroPanel(),
+  onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
 });
 
-
-if (introToggleBtn) {
-  introToggleBtn.addEventListener("click", toggleStartIntroPanel);
-}
-
-if (introCloseBtn) {
-  introCloseBtn.addEventListener("click", hideStartIntroPanel);
-}
-
-if (startBtn) {
-  startBtn.addEventListener("click", () => {
-    if (!startLevelDropdown) return;
-    const willOpen = startLevelDropdown.classList.contains("hidden");
-    setStartLevelMenuOpen(willOpen);
-  });
-}
-
-document.addEventListener("click", (event) => {
-  if (!startLevelDropdown || !startBtn || !startLevelPicker) return;
-  if (startLevelDropdown.classList.contains("hidden")) return;
-  if (startLevelPicker.contains(event.target)) return;
-  setStartLevelMenuOpen(false);
+SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
+  onStartGame: () => navigateTo("board-game-start"),
 });
 
-nextBtn.addEventListener("click", nextQuestion);
-restartBtn.addEventListener("click", startQuiz);
+SCREEN_REGISTRY["board-game"] = initBoardScreen({
+  onRollDice: () => boardGameRollDice(),
+  onResizeWhileVisible: () => updateBoardGameTokenPosition(),
+});
+
+SCREEN_REGISTRY.lesson = initLessonScreen({
+  onNext: () => nextQuestion(),
+  onRestart: () => startQuiz(),
+});
+
+SCREEN_REGISTRY.stats = initStatsScreen({
+  onPeriodChange: (btn) => {
+    statsSelectedPeriod = btn.dataset.period || "day";
+    statsPeriodButtons.forEach((item) => item.classList.toggle("active", item === btn));
+    refreshTimeSummaryUI();
+  },
+  onRewardTabChange: (btn) => {
+    statsRewardTab = btn.dataset.rewardTab || "days";
+    statsRewardTabButtons.forEach((item) => {
+      const active = item === btn;
+      item.classList.toggle("active", active);
+      item.setAttribute("aria-selected", active ? "true" : "false");
+    });
+    renderRewardsTab();
+  },
+});
+
 sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
 sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
 sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
@@ -4977,25 +4983,6 @@ if (upgradePremiumBtn) {
   });
 }
 
-statsPeriodButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    statsSelectedPeriod = btn.dataset.period || "day";
-    statsPeriodButtons.forEach((item) => item.classList.toggle("active", item === btn));
-    refreshTimeSummaryUI();
-  });
-});
-
-statsRewardTabButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    statsRewardTab = btn.dataset.rewardTab || "days";
-    statsRewardTabButtons.forEach((item) => {
-      const active = item === btn;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-selected", active ? "true" : "false");
-    });
-    renderRewardsTab();
-  });
-});
 
 if (premiumOkBtn) {
   premiumOkBtn.addEventListener("click", closePremiumModal);
@@ -5033,19 +5020,6 @@ if (installBtn) {
 
 updateInstallHintVisibility();
 
-if (boardGameRollBtn) {
-  boardGameRollBtn.addEventListener("click", boardGameRollDice);
-}
-
-if (boardGameDiceEl) {
-  boardGameDiceEl.addEventListener("click", boardGameRollDice);
-}
-
-window.addEventListener("resize", () => {
-  if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
-    updateBoardGameTokenPosition();
-  }
-});
 
 document.addEventListener("visibilitychange", () => {
   audioEngine.onVisibilityChange();
