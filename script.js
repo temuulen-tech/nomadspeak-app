@@ -7,6 +7,7 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { initStatsScreen } from "./stats-screen.js";
+import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
   renderHomeScreen,
   setHomeModesPanelOpen,
@@ -89,9 +90,28 @@ const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
 const qaGameScreen = document.getElementById("qa-game-screen");
 const boardGameIntroScreen = document.getElementById("board-game-intro-screen");
+const boardGameIntroCoverImageEl = document.querySelector("#board-game-intro-screen .board-game-intro-cover");
 const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
+
+if (boardGameIntroCoverImageEl) {
+  boardGameIntroCoverImageEl.src = ASSETS.chapterCovers.columbusNewWorld;
+}
+
+
+const rewardImageElsByLevel = document.querySelectorAll(".reward-img[data-level]");
+rewardImageElsByLevel.forEach((imgEl) => {
+  const level = Number(imgEl.dataset.level);
+  if (!Number.isFinite(level) || level < 1 || level > REWARD_ICON_SEQUENCE.length) return;
+  imgEl.src = REWARD_ICON_SEQUENCE[level - 1];
+});
+
+const sentenceRewardStripImageEls = document.querySelectorAll("#sentence-game-reward-row .reward-img");
+sentenceRewardStripImageEls.forEach((imgEl, index) => {
+  if (index >= REWARD_ICON_SEQUENCE.length) return;
+  imgEl.src = REWARD_ICON_SEQUENCE[index];
+});
 
 const topbar = document.getElementById("topbar");
 const levelLabel = document.getElementById("level-label");
@@ -366,11 +386,11 @@ const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох 
 
 const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
 const QA_REWARD_STEPS = [
-  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: "assets/rewards/reward-flag.png", alt: "Асуулт-хариултын шагнал туг" },
-  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: "assets/rewards/reward-star.png", alt: "Асуулт-хариултын шагнал од" },
-  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: "assets/rewards/reward-coin.png", alt: "Асуулт-хариултын шагнал зоос" },
-  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: "assets/rewards/reward-trophy.png", alt: "Асуулт-хариултын шагнал цом" },
-  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: "assets/rewards/reward-diamond.png", alt: "Асуулт-хариултын шагнал эрдэнэ" },
+  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: ASSETS.rewardIcons.flag, alt: "Асуулт-хариултын шагнал туг" },
+  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: ASSETS.rewardIcons.star, alt: "Асуулт-хариултын шагнал од" },
+  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: ASSETS.rewardIcons.coin, alt: "Асуулт-хариултын шагнал зоос" },
+  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: ASSETS.rewardIcons.trophy, alt: "Асуулт-хариултын шагнал цом" },
+  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: ASSETS.rewardIcons.diamond, alt: "Асуулт-хариултын шагнал эрдэнэ" },
 ];
 const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
 
@@ -1441,11 +1461,11 @@ function rewardTierForDailySeconds(totalSeconds) {
 }
 
 const statsRewardDefs = [
-  { tier: 1, image: "assets/rewards/reward-flag.png", threshold: "20:00+", label: "Муу", alt: "Туг шагнал" },
-  { tier: 2, image: "assets/rewards/reward-star.png", threshold: "30:00+", label: "Дунд", alt: "Од шагнал" },
-  { tier: 3, image: "assets/rewards/reward-coin.png", threshold: "60:00+", label: "Хэвийн", alt: "Зоос шагнал" },
-  { tier: 4, image: "assets/rewards/reward-trophy.png", threshold: "90:00+", label: "Сайн", alt: "Цом шагнал" },
-  { tier: 5, image: "assets/rewards/reward-diamond.png", threshold: "120:00+", label: "Онц сайн", alt: "Эрдэнэ шагнал" },
+  { tier: 1, image: ASSETS.rewardIcons.flag, threshold: "20:00+", label: "Муу", alt: "Туг шагнал" },
+  { tier: 2, image: ASSETS.rewardIcons.star, threshold: "30:00+", label: "Дунд", alt: "Од шагнал" },
+  { tier: 3, image: ASSETS.rewardIcons.coin, threshold: "60:00+", label: "Хэвийн", alt: "Зоос шагнал" },
+  { tier: 4, image: ASSETS.rewardIcons.trophy, threshold: "90:00+", label: "Сайн", alt: "Цом шагнал" },
+  { tier: 5, image: ASSETS.rewardIcons.diamond, threshold: "120:00+", label: "Онц сайн", alt: "Эрдэнэ шагнал" },
 ];
 
 function rewardTierByPercent(percent) {
