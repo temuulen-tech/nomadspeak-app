@@ -61,6 +61,9 @@ export const REWARD_TABS = {
   MONTHS: "months",
 };
 
+// Increment this when the persisted save shape changes in a backwards-compatible migration.
+export const CURRENT_SAVE_VERSION = 1;
+
 export const STORAGE_KEYS = {
   TTS_SETTINGS: "nomadspeak:tts:v1",
   LEGACY_TTS_RATE: "ttsRate",
