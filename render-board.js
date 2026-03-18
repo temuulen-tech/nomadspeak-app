@@ -3,6 +3,8 @@
  * Renders and updates only board gameplay UI (board tiles, token/dice visuals, board panels, feedback DOM).
  */
 
+import { setDisabledState, toggleClass } from "./ui.js";
+
 export function renderBoardScreen({
   tiles = [],
   currentTile = 1,
@@ -34,8 +36,8 @@ export function updateBoardToken({ boardEl, tokenEl, currentTile, tokenStepClass
   boardEl.querySelectorAll(".board-game-tile").forEach((tileEl) => {
     const tileNumber = Number(tileEl.dataset.tile || 0);
     const isActive = tileNumber === currentTile;
-    tileEl.classList.toggle("active", isActive);
-    tileEl.classList.toggle("gf-tile-pulse", isActive);
+    toggleClass(tileEl, "active", isActive);
+    toggleClass(tileEl, "gf-tile-pulse", isActive);
   });
 
   if (animate && tokenStepClass) animate(tokenEl, tokenStepClass, tokenStepDuration || 600);
@@ -72,11 +74,8 @@ export function renderBoardMeta({
 }
 
 export function renderBoardRollState({ enabled, rollBtn, diceEl } = {}) {
-  if (rollBtn) rollBtn.disabled = !enabled;
-  if (diceEl) {
-    diceEl.disabled = !enabled;
-    diceEl.setAttribute("aria-disabled", enabled ? "false" : "true");
-  }
+  setDisabledState(rollBtn, !enabled);
+  setDisabledState(diceEl, !enabled);
 }
 
 export function renderBoardChallenge({ challenge, titleEl, textEl, optionsEl, panelEl, onSelectOption } = {}) {
@@ -92,7 +91,7 @@ export function renderBoardChallenge({ challenge, titleEl, textEl, optionsEl, pa
       : "Өгүүлэмж, шагнал, торгууль, шалган нэвтрэх нүдний нөлөө автоматаар хэрэгжинэ.";
   }
 
-  if (panelEl) panelEl.classList.toggle("show", Boolean(challenge));
+  toggleClass(panelEl, "show", Boolean(challenge));
   if (!optionsEl) return;
 
   optionsEl.innerHTML = "";
