@@ -85,7 +85,6 @@ import {
   QA_ROUNDS,
   QA_WORD_BANK_BASE,
   formatQaBuiltLine,
-  qaLevelLabel,
   qaRoundPoolForLevel,
   qaShuffle,
 } from "./qa-game.js";
