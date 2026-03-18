@@ -1159,6 +1159,7 @@ function syncProgressForToday() {
 }
 
 function persistProgressState() {
+  syncCoreStateReferences();
   const weeklyMinutes = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice() : [];
   if (weeklyMinutes.length) {
     weeklyMinutes[weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
@@ -1258,7 +1259,7 @@ function awardXP(amount, reason = "") {
     ? sentenceGameRewardLevelFromSeconds((progressState.todayMinutes || 0) * 60)
     : null;
 
-  completeLesson({
+  const nextProgress = completeLesson({
     xpEarned: earned,
     today,
     yesterday,
@@ -1266,7 +1267,9 @@ function awardXP(amount, reason = "") {
     rewardTierUnlocked: rewardFromTime,
   });
 
-  if (!wasDailyCompleted && progressState.dailyCompleted) playDailyGoalSuccessChime();
+  syncCoreStateReferences();
+
+  if (!wasDailyCompleted && nextProgress?.dailyCompleted) playDailyGoalSuccessChime();
 
   persistProgressState();
 
@@ -4662,7 +4665,9 @@ function initializeAudioAndSentenceControls() {
 
   soundToggleButtons.forEach((toggleBtn) => {
     toggleBtn.addEventListener("click", () => {
-      appSettings.soundEnabled = !appSettings.soundEnabled;
+      const nextSoundEnabled = !appSettings.soundEnabled;
+      updateSettings({ soundEnabled: nextSoundEnabled });
+      syncCoreStateReferences();
       setGlobalSoundEnabled(appSettings.soundEnabled);
       if (!appSettings.soundEnabled) {
         stopSpeaking();
@@ -4675,7 +4680,6 @@ function initializeAudioAndSentenceControls() {
         worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
       }
       updateSoundToggleState();
-      persistSoundSettings();
     });
   });
 }
