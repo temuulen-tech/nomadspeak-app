@@ -5,7 +5,7 @@
 
 import { BOARD_SELECTOR_STEPS, CURRENT_SAVE_VERSION, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
 import { getDefaultChapterForWorld } from "./chapters.js";
-import { DEFAULT_WORLD_ID } from "./worlds.js";
+import { DEFAULT_WORLD_ID, getSelectableBoardWorlds } from "./worlds.js";
 
 export const DEFAULT_DAILY_GOAL = 10;
 
@@ -136,6 +136,7 @@ export function createDefaultCoreState() {
 export function normalizeCoreState(rawCore = {}) {
   const source = toPlainObject(rawCore);
   const defaults = createDefaultCoreState();
+  const selectableWorldIds = new Set(getSelectableBoardWorlds().map((world) => world.id));
   const rawSettings = source.settings && typeof source.settings === "object" ? source.settings : {};
   const learnedWords = Array.isArray(source.learnedWords)
     ? [...new Set(source.learnedWords.map((word) => String(word || "").trim()).filter(Boolean))]
@@ -155,7 +156,9 @@ export function normalizeCoreState(rawCore = {}) {
     rewardsWallet: normalizeRewardsWallet(source.rewardsWallet),
     learnedWords,
     unlockedChapterIds,
-    selectedWorldId: typeof source.selectedWorldId === "string" && source.selectedWorldId ? source.selectedWorldId : defaults.selectedWorldId,
+    selectedWorldId: typeof source.selectedWorldId === "string" && selectableWorldIds.has(source.selectedWorldId)
+      ? source.selectedWorldId
+      : defaults.selectedWorldId,
     selectedDifficultyId: Object.values(DIFFICULTY_LEVELS).includes(source.selectedDifficultyId) ? source.selectedDifficultyId : defaults.selectedDifficultyId,
   };
 }

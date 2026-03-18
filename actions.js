@@ -190,3 +190,21 @@ export function updateSettings(patch = {}) {
   saveAppState(getCoreState());
   return getCoreState().settings;
 }
+
+export function updateSelections(patch = {}) {
+  updateCoreState((core) => {
+    if (typeof patch.selectedWorldId === "string" && patch.selectedWorldId) {
+      core.selectedWorldId = patch.selectedWorldId;
+    }
+
+    if (typeof patch.selectedDifficultyId === "string" && patch.selectedDifficultyId) {
+      core.selectedDifficultyId = patch.selectedDifficultyId;
+    }
+  }, "selections");
+
+  saveAppState(getCoreState());
+  return {
+    selectedWorldId: getCoreState().selectedWorldId,
+    selectedDifficultyId: getCoreState().selectedDifficultyId,
+  };
+}
