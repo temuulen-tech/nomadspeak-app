@@ -3,7 +3,7 @@
  * Shared runtime app state and small accessor helpers.
  */
 
-import { BOARD_SELECTOR_STEPS, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
+import { BOARD_SELECTOR_STEPS, CURRENT_SAVE_VERSION, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
 import { getDefaultChapterForWorld } from "./chapters.js";
 import { DEFAULT_WORLD_ID } from "./worlds.js";
 
@@ -32,6 +32,7 @@ export function createDefaultProgressState() {
     streakDays: 1,
     dailyXP: 0,
     dailyCompleted: false,
+    saveVersion: CURRENT_SAVE_VERSION,
   };
 }
 
@@ -75,6 +76,7 @@ export function normalizeProgressState(raw = {}) {
     streakDays: streak,
     dailyXP: Number.isFinite(Number(raw.dailyXP)) ? Math.max(0, Number(raw.dailyXP)) : defaults.dailyXP,
     dailyCompleted: Boolean(raw.dailyCompleted),
+    saveVersion: CURRENT_SAVE_VERSION,
   };
 }
 
@@ -89,6 +91,13 @@ export function normalizeTtsSettings(rawSettings = {}) {
     : DEFAULT_TTS_SETTINGS.rate;
 
   return { voice, rate };
+}
+
+export function normalizeRewardsWallet(rawWallet = {}) {
+  return {
+    coins: Math.max(0, Math.floor(Number(rawWallet.coins) || 0)),
+    gems: Math.max(0, Math.floor(Number(rawWallet.gems) || 0)),
+  };
 }
 
 export function createDefaultBoardEntryState() {
@@ -109,6 +118,7 @@ export function createDefaultCoreState() {
       premium: false,
       profileName: "",
     },
+    rewardsWallet: normalizeRewardsWallet(),
     learnedWords: [],
     unlockedChapterIds: [],
     selectedWorldId: DEFAULT_WORLD_ID,
@@ -134,11 +144,58 @@ export function normalizeCoreState(rawCore = {}) {
       premium: typeof rawSettings.premium === "boolean" ? rawSettings.premium : defaults.settings.premium,
       profileName: typeof rawSettings.profileName === "string" ? rawSettings.profileName.trim() : defaults.settings.profileName,
     },
+    rewardsWallet: normalizeRewardsWallet(rawCore.rewardsWallet),
     learnedWords,
     unlockedChapterIds,
     selectedWorldId: typeof rawCore.selectedWorldId === "string" && rawCore.selectedWorldId ? rawCore.selectedWorldId : defaults.selectedWorldId,
     selectedDifficultyId: Object.values(DIFFICULTY_LEVELS).includes(rawCore.selectedDifficultyId) ? rawCore.selectedDifficultyId : defaults.selectedDifficultyId,
   };
+}
+
+export function buildCoreStateFromStorage(rawSave = {}) {
+  const defaults = createDefaultCoreState();
+  const rawProgress = rawSave.progress && typeof rawSave.progress === "object" ? rawSave.progress : {};
+  const detectedVersion = Number.isFinite(Number(rawProgress.saveVersion))
+    ? Math.max(0, Math.floor(Number(rawProgress.saveVersion)))
+    : 0;
+
+  let progress = normalizeProgressState(rawProgress);
+  if (detectedVersion < 1) {
+    progress = normalizeProgressState({
+      ...defaults.progress,
+      ...rawProgress,
+      xp: rawProgress.xp ?? rawProgress.xpTotal ?? defaults.progress.xp,
+      streak: rawProgress.streak ?? rawProgress.streakDays ?? defaults.progress.streak,
+      dailyGoalXP: rawProgress.dailyGoalXP ?? defaults.progress.dailyGoalXP,
+      dailyGoalCount: rawProgress.dailyGoalCount ?? defaults.progress.dailyGoalCount,
+      rewardTierUnlocked: rawProgress.rewardTierUnlocked ?? defaults.progress.rewardTierUnlocked,
+      weeklyMinutes: Array.isArray(rawProgress.weeklyMinutes) ? rawProgress.weeklyMinutes : defaults.progress.weeklyMinutes,
+      dailyXP: rawProgress.dailyXP ?? defaults.progress.dailyXP,
+      dailyCompleted: rawProgress.dailyCompleted ?? defaults.progress.dailyCompleted,
+    });
+  }
+
+  const rawSettings = rawSave.settings && typeof rawSave.settings === "object" ? rawSave.settings : {};
+  const legacyRate = Number(rawSettings.legacyTtsRate);
+  const ttsSettings = rawSettings.ttsSettings
+    ? normalizeTtsSettings(rawSettings.ttsSettings)
+    : normalizeTtsSettings(Number.isFinite(legacyRate) ? { ...DEFAULT_TTS_SETTINGS, rate: legacyRate } : DEFAULT_TTS_SETTINGS);
+
+  return normalizeCoreState({
+    ...defaults,
+    ...rawSave,
+    progress,
+    settings: {
+      ...defaults.settings,
+      ...rawSettings,
+      ttsSettings,
+    },
+    rewardsWallet: rawSave.rewardsWallet,
+    learnedWords: rawSave.learnedWords,
+    unlockedChapterIds: rawSave.unlockedChapterIds,
+    selectedWorldId: rawSave.selectedWorldId,
+    selectedDifficultyId: rawSave.selectedDifficultyId,
+  });
 }
 
 const state = {
@@ -173,11 +230,11 @@ export function subscribeState(listener) {
   return () => stateListeners.delete(listener);
 }
 
+
 export function getState() { return state; }
 export function getStateValue(key) { return state[key]; }
 export function setStateValue(key, value) { state[key] = value; return state[key]; }
 export function updateState(mutator) { if (typeof mutator === "function") mutator(state); return state; }
-
 
 export function getBoardEntryState() { return state.flow.boardEntry; }
 
@@ -195,7 +252,6 @@ export function resetBoardEntryState() {
   return state.flow.boardEntry;
 }
 
-
 export function getCoreState() {
   return state.core;
 }
@@ -205,6 +261,7 @@ export function initializeCoreState(coreState = {}) {
     ...coreState,
     progress: coreState.progress ?? state.core.progress,
     settings: coreState.settings ?? state.core.settings,
+    rewardsWallet: coreState.rewardsWallet ?? state.core.rewardsWallet,
     learnedWords: coreState.learnedWords ?? state.core.learnedWords,
     unlockedChapterIds: coreState.unlockedChapterIds ?? state.core.unlockedChapterIds,
     selectedWorldId: coreState.selectedWorldId ?? state.core.selectedWorldId,
@@ -214,84 +271,20 @@ export function initializeCoreState(coreState = {}) {
   return state.core;
 }
 
-export function updateCoreState(mutator) {
+export function updateCoreState(mutator, scope = "core") {
   if (typeof mutator === "function") mutator(state.core);
   state.core = normalizeCoreState(state.core);
-  notifyStateListeners("core");
+  notifyStateListeners(scope);
   return state.core;
 }
 
-export function replaceProgressState(progressState) {
+export function replaceProgressState(progressState, scope = "progress") {
   state.core.progress = normalizeProgressState(progressState);
-  notifyStateListeners("progress");
+  notifyStateListeners(scope);
   return state.core.progress;
 }
 
-export function completeLesson({ xpEarned = 0, today = null, yesterday = null, countLesson = false, countDailyProgress = false, rewardTierUnlocked = null } = {}) {
-  const earned = Number(xpEarned);
-  if (!Number.isFinite(earned) || earned <= 0) return state.core.progress;
-  const progress = state.core.progress;
-  const firstActivityToday = today && progress.lastActiveDate !== today;
-
-  progress.xp += earned;
-  progress.xpTotal = progress.xp;
-  progress.dailyXP += earned;
-  progress.level = Math.floor(progress.xp / 100) + 1;
-
-  if (progress.dailyXP >= progress.dailyGoalXP) {
-    progress.dailyCompleted = true;
-  }
-
-  if (today && firstActivityToday) {
-    progress.streak = progress.lastActiveDate === yesterday ? progress.streak + 1 : 1;
-    progress.streakDays = progress.streak;
-  }
-
-  if (countLesson || countDailyProgress) {
-    progress.todayCount += 1;
-  }
-
-  if (Number.isFinite(Number(rewardTierUnlocked))) {
-    progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, Math.floor(Number(rewardTierUnlocked)));
-  }
-
-  if (today) {
-    progress.lastActiveDate = today;
-    progress.lastStatsDate = today;
-  }
-
-  notifyStateListeners("progress");
-  return progress;
-}
-
-export function claimReward({ rewardTierUnlocked = null, coins = 0, gems = 0 } = {}) {
-  if (!state.core.rewardsWallet) state.core.rewardsWallet = { coins: 0, gems: 0 };
-  if (Number.isFinite(Number(rewardTierUnlocked))) {
-    state.core.progress.rewardTierUnlocked = Math.max(state.core.progress.rewardTierUnlocked || 1, Math.floor(Number(rewardTierUnlocked)));
-  }
-  state.core.rewardsWallet.coins = Math.max(0, Math.floor((state.core.rewardsWallet.coins || 0) + Number(coins || 0)));
-  state.core.rewardsWallet.gems = Math.max(0, Math.floor((state.core.rewardsWallet.gems || 0) + Number(gems || 0)));
-  notifyStateListeners("core");
-  return state.core;
-}
-
-export function unlockChapter(chapterId) {
-  const id = String(chapterId || "").trim();
-  if (!id) return state.core.unlockedChapterIds;
-  if (!state.core.unlockedChapterIds.includes(id)) state.core.unlockedChapterIds.push(id);
-  notifyStateListeners("core");
-  return state.core.unlockedChapterIds;
-}
-
-export function markWordLearned(word) {
-  const learnedWord = String(word || "").trim();
-  if (!learnedWord) return state.core.learnedWords;
-  if (!state.core.learnedWords.includes(learnedWord)) state.core.learnedWords.push(learnedWord);
-  notifyStateListeners("core");
-  return state.core.learnedWords;
-}
-
-export function updateSettings(patch = {}) {
+export function updateSettingsState(patch = {}) {
   const nextSettings = { ...state.core.settings, ...patch };
   nextSettings.ttsSettings = normalizeTtsSettings(nextSettings.ttsSettings);
   if (typeof nextSettings.profileName === "string") nextSettings.profileName = nextSettings.profileName.trim();

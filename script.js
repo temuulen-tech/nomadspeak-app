@@ -1,32 +1,30 @@
 import {
   STORAGE_KEYS,
-  buildCoreStateFromSave,
-  loadAppSaveData,
-  persistCoreState,
-  persistPremiumStatus,
-  persistProfileName,
-  clearAppSaveData,
-  persistSoundSetting,
-  persistTtsSettings as saveTtsSettings,
 } from "./storage.js";
 import {
-  completeLesson,
-  createDefaultProgressState,
+  createDefaultCoreState,
   DEFAULT_TTS_SETTINGS,
   getBoardEntryState,
   getCoreState,
   getState,
-  initializeCoreState,
-  markWordLearned,
-  normalizeTtsSettings,
-  replaceProgressState,
   resetBoardEntryState,
   setStateValue,
-  unlockChapter,
   updateBoardEntryState,
-  updateSettings,
   updateState,
 } from "./state.js";
+import {
+  applyProgressPatch,
+  clearPersistedCoreState,
+  completeLesson,
+  loadCoreState,
+  markWordLearned,
+  replaceProgress,
+  resetCoreState,
+  saveCoreState,
+  unlockChapter,
+  updateSettings,
+  updateStreak,
+} from "./actions.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
@@ -416,15 +414,6 @@ let audioPrimed = false;
 let audioInteractionUnlocked = false;
 const BACKGROUND_AUDIO_ENABLED = true;
 let completionBannerTimer = null;
-let migratedSaveData = null;
-
-
-function getMigratedSaveData() {
-  if (!migratedSaveData) migratedSaveData = loadAppSaveData();
-  return migratedSaveData;
-}
-
-
 function syncCoreStateReferences() {
   const coreState = getCoreState();
   progressState = coreState.progress;
@@ -434,7 +423,7 @@ function syncCoreStateReferences() {
 
 function persistCoreAppState() {
   syncCoreStateReferences();
-  persistCoreState(getCoreState());
+  saveCoreState();
 }
 
 const SOUND_EVENT_HOOKS = {
@@ -1150,58 +1139,51 @@ function rewardForStreak(streak) {
 function syncProgressForToday() {
   const today = getTodayKey();
   const aggregates = getAggregates(new Date());
-  progressState.todayMinutes = Math.floor(aggregates.today / 60);
   const dailyTotals = getAppTimeDailyTotals();
-  progressState.weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
+  const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
     const dt = new Date();
     dt.setDate(dt.getDate() - (6 - index));
     const key = getLocalDateKey(dt);
     return Math.floor((Number(dailyTotals[key]) || 0) / 60);
   });
   const lastStatsDate = progressState.lastStatsDate || progressState.lastActiveDate;
-  if (!lastStatsDate || lastStatsDate === today) return;
-  const yesterday = previousDayKey(today);
-  if (progressState.lastActiveDate !== yesterday) {
-    progressState.streak = 0;
-    progressState.streakDays = 0;
-  }
-  const weekly = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice(-7) : [0, 0, 0, 0, 0, 0, 0];
-  while (weekly.length < 7) weekly.unshift(0);
-  weekly.shift();
-  weekly.push(Math.max(0, Math.floor(progressState.todayMinutes || 0)));
-  progressState.weeklyMinutes = weekly;
-  progressState.todayCount = 0;
-  progressState.todayMinutes = 0;
-  progressState.todaySecondsRemainder = 0;
-  progressState.dailyXP = 0;
-  progressState.dailyCompleted = false;
-  progressState.lastStatsDate = today;
+  const shouldResetDaily = Boolean(lastStatsDate && lastStatsDate !== today);
+  updateStreak({
+    today,
+    yesterday: previousDayKey(today),
+    todayMinutes: Math.floor(aggregates.today / 60),
+    weeklyMinutes,
+    resetDaily: shouldResetDaily,
+  });
+  syncCoreStateReferences();
 }
 
 function persistProgressState() {
-  progressState.xpTotal = progressState.xp;
-  progressState.streakDays = progressState.streak;
-  progressState.level = Math.floor(progressState.xp / 100) + 1;
-  if (Array.isArray(progressState.weeklyMinutes) && progressState.weeklyMinutes.length) {
-    progressState.weeklyMinutes[progressState.weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
+  const weeklyMinutes = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice() : [];
+  if (weeklyMinutes.length) {
+    weeklyMinutes[weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
   }
-  replaceProgressState(progressState);
-  persistCoreAppState();
+  replaceProgress({
+    ...progressState,
+    xpTotal: progressState.xp,
+    streakDays: progressState.streak,
+    level: Math.floor(progressState.xp / 100) + 1,
+    weeklyMinutes,
+  });
+  syncCoreStateReferences();
 }
 
 function loadProgressState() {
-  initializeCoreState(buildCoreStateFromSave(getMigratedSaveData()));
+  loadCoreState();
   syncCoreStateReferences();
   syncProgressForToday();
 }
 
 function loadPremiumStatus() {
-  updateSettings({ premium: Boolean(getMigratedSaveData().settings.premium) });
   syncCoreStateReferences();
 }
 
 function loadProfileName() {
-  updateSettings({ profileName: getMigratedSaveData().settings.profileName });
   syncCoreStateReferences();
 }
 
@@ -2615,11 +2597,13 @@ function giveDebugRewards() {
   qaUnlockedRewards = Math.max(qaUnlockedRewards, REWARD_ICON_SEQUENCE.length);
   sentencesUnlockedRewards = Math.max(sentencesUnlockedRewards, REWARD_ICON_SEQUENCE.length);
   loadProgressState();
-  progressState.rewardTierUnlocked = 5;
-  progressState.todayMinutes = Math.max(progressState.todayMinutes || 0, 120);
-  progressState.dailyCompleted = true;
+  applyProgressPatch((progress) => {
+    progress.rewardTierUnlocked = 5;
+    progress.todayMinutes = Math.max(progress.todayMinutes || 0, 120);
+    progress.dailyCompleted = true;
+  }, "progress");
+  syncCoreStateReferences();
   persistSentenceGameRewardState();
-  persistProgressState();
   renderSentenceGameClimb(sentenceGameClimbLevel);
   renderSentenceGameRewardState();
   renderSentencesRewards();
@@ -2631,7 +2615,7 @@ function giveDebugRewards() {
 }
 
 function resetDebugProgress() {
-  clearAppSaveData();
+  clearPersistedCoreState();
   [
     SENTENCE_GAME_CLIMB_STORAGE_KEY,
     SENTENCE_GAME_ACTIVE_SECONDS_KEY,
@@ -2640,16 +2624,7 @@ function resetDebugProgress() {
     SENTENCE_GAME_DIFFICULTY_KEY,
   ].forEach((key) => localStorage.removeItem(key));
 
-  migratedSaveData = null;
-  initializeCoreState(buildCoreStateFromSave({
-    progress: createDefaultProgressState(),
-    settings: {
-      ttsSettings: DEFAULT_TTS_SETTINGS,
-      soundEnabled: true,
-      premium: false,
-      profileName: "",
-    },
-  }));
+  resetCoreState(createDefaultCoreState());
   syncCoreStateReferences();
   sentenceGameClimbLevel = 0;
   sentenceGameRewardLevel = 0;
@@ -2658,12 +2633,14 @@ function resetDebugProgress() {
   lessonUnlockedRewards = 0;
   qaUnlockedRewards = 0;
   sentencesUnlockedRewards = 0;
-  persistPremiumStatus(false);
-  persistProfileName("");
-  saveTtsSettings(DEFAULT_TTS_SETTINGS);
-  persistSoundSetting(true);
-  replaceProgressState(progressState);
-  persistCoreAppState();
+  updateSettings({
+    premium: false,
+    profileName: "",
+    soundEnabled: true,
+    ttsSettings: DEFAULT_TTS_SETTINGS,
+  });
+  replaceProgress(progressState);
+  syncCoreStateReferences();
   loadTtsSettings();
   loadSoundSettings();
   loadPremiumStatus();
@@ -2707,7 +2684,6 @@ function toggleStartIntroPanel() {
 }
 
 function loadSoundSettings() {
-  updateSettings({ soundEnabled: Boolean(getMigratedSaveData().settings.soundEnabled) });
   syncCoreStateReferences();
 }
 
@@ -3038,15 +3014,17 @@ function flushSentenceGameActiveTimeTick() {
 
   loadProgressState();
   syncProgressForToday();
-  progressState.todaySecondsRemainder = (progressState.todaySecondsRemainder || 0) + addSeconds;
-  if (progressState.todaySecondsRemainder >= 60) {
-    const gainedMinutes = Math.floor(progressState.todaySecondsRemainder / 60);
-    progressState.todayMinutes += gainedMinutes;
-    progressState.todaySecondsRemainder = progressState.todaySecondsRemainder % 60;
-  }
-  progressState.rewardTierUnlocked = Math.max(progressState.rewardTierUnlocked || 1, sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds) || 1);
-  progressState.lastStatsDate = getTodayKey();
-  persistProgressState();
+  applyProgressPatch((progress) => {
+    progress.todaySecondsRemainder = (progress.todaySecondsRemainder || 0) + addSeconds;
+    if (progress.todaySecondsRemainder >= 60) {
+      const gainedMinutes = Math.floor(progress.todaySecondsRemainder / 60);
+      progress.todayMinutes += gainedMinutes;
+      progress.todaySecondsRemainder = progress.todaySecondsRemainder % 60;
+    }
+    progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds) || 1);
+    progress.lastStatsDate = getTodayKey();
+  }, "progress");
+  syncCoreStateReferences();
 
   updateSentenceGameRewardLevel({ allowBanner: true });
   persistSentenceGameRewardState();
@@ -3179,7 +3157,6 @@ function selectedEnglishVoice() {
 }
 
 function loadTtsSettings() {
-  updateSettings({ ttsSettings: normalizeTtsSettings(getMigratedSaveData().settings.ttsSettings) });
   syncCoreStateReferences();
 }
 
