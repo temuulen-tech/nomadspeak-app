@@ -154,6 +154,22 @@ export function initChapterCoverScreen(handlers = {}) {
       state.isWorldSelectionVisible = false;
       syncSelectorUi();
     },
+    showSelectorFlow: () => {
+      state.isWorldSelectionVisible = true;
+      syncSelectorUi();
+    },
+    setSelection: ({ worldId, difficultyId, selectorVisible } = {}) => {
+      if (worldId) state.selectedWorldId = worldId;
+      if (difficultyId) state.selectedDifficultyId = difficultyId;
+      if (typeof selectorVisible === "boolean") state.isWorldSelectionVisible = selectorVisible;
+      syncSelectorUi();
+    },
+    getSelectionSnapshot: () => ({
+      previewChapterId: state.previewChapterId,
+      worldId: state.selectedWorldId,
+      difficultyId: state.selectedDifficultyId,
+      selectorVisible: state.isWorldSelectionVisible,
+    }),
     getAvailableDebugChapters: (unlockedIds = []) => {
       const allowedIds = unlockedIds.length ? unlockedIds : [state.previewChapterId].filter(Boolean);
       return BOARD_WORLD_CHAPTERS.filter((chapter) => allowedIds.includes(chapter.id));
