@@ -138,7 +138,9 @@ const boardGameIntroCoverImageEl = document.querySelector("#board-game-intro-scr
 const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
-let debugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
+const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
+const initialDebugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
+let debugChapterPreviewId = initialDebugChapterPreviewId;
 let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
 let debugChapterPreviewMetaEl = null;
 
@@ -181,8 +183,7 @@ function setChapterCoverPreview(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
   return chapter;
 }
 
-const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
-setChapterCoverPreview(debugChapterPreviewId);
+setChapterCoverPreview(initialDebugChapterPreviewId);
 
 const rewardImageElsByLevel = document.querySelectorAll(".reward-img[data-level]");
 rewardImageElsByLevel.forEach((imgEl) => {
