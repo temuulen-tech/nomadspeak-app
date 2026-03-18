@@ -3,7 +3,9 @@
  * Shared runtime app state and small accessor helpers.
  */
 
-import { DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
+import { BOARD_SELECTOR_STEPS, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
+import { getDefaultChapterForWorld } from "./chapters.js";
+import { DEFAULT_WORLD_ID } from "./worlds.js";
 
 export const DEFAULT_DAILY_GOAL = 10;
 
@@ -89,17 +91,21 @@ export function normalizeTtsSettings(rawSettings = {}) {
   return { voice, rate };
 }
 
+export function createDefaultBoardEntryState() {
+  return {
+    step: BOARD_SELECTOR_STEPS.ENTRY,
+    worldId: DEFAULT_WORLD_ID,
+    difficultyId: DIFFICULTY_LEVELS.BEGINNER,
+    chapterId: getDefaultChapterForWorld(DEFAULT_WORLD_ID)?.id || null,
+  };
+}
+
 const state = {
   currentScreen: SCREEN_NAMES.START,
   level: DIFFICULTY_LEVELS.BEGINNER,
   flow: {
     lastRequestedScreen: SCREEN_NAMES.START,
-    boardEntry: {
-      step: "entry",
-      worldId: null,
-      difficultyId: DIFFICULTY_LEVELS.BEGINNER,
-      chapterId: null,
-    },
+    boardEntry: createDefaultBoardEntryState(),
   },
   lesson: { currentIndex: 0, score: 0, locked: false, reviewMode: false },
   progress: null,
@@ -112,3 +118,20 @@ export function getState() { return state; }
 export function getStateValue(key) { return state[key]; }
 export function setStateValue(key, value) { state[key] = value; return state[key]; }
 export function updateState(mutator) { if (typeof mutator === "function") mutator(state); return state; }
+
+
+export function getBoardEntryState() { return state.flow.boardEntry; }
+
+export function updateBoardEntryState(patch = {}) {
+  const nextEntry = { ...state.flow.boardEntry, ...patch };
+  if (!nextEntry.chapterId) {
+    nextEntry.chapterId = getDefaultChapterForWorld(nextEntry.worldId)?.id || null;
+  }
+  state.flow.boardEntry = nextEntry;
+  return state.flow.boardEntry;
+}
+
+export function resetBoardEntryState() {
+  state.flow.boardEntry = createDefaultBoardEntryState();
+  return state.flow.boardEntry;
+}

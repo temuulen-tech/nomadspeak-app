@@ -11,17 +11,20 @@ import {
 import {
   createDefaultProgressState,
   DEFAULT_TTS_SETTINGS,
+  getBoardEntryState,
   getState,
   normalizeProgressState,
   normalizeTtsSettings,
+  resetBoardEntryState,
   setStateValue,
+  updateBoardEntryState,
   updateState,
 } from "./state.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
 import { initChapterCoverScreen } from "./chapter-cover-screen.js";
-import { BOARD_WORLD_CHAPTERS, getChapterConfig } from "./chapters.js";
+import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { BANK, LESSON_TRANSLATIONS, buildOptions, levelName } from "./lesson.js";
@@ -95,8 +98,9 @@ import {
   qaShuffle,
 } from "./qa-game.js";
 import { initDebugTools } from "./debug-tools.js";
-import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
+import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import {
+  BOARD_SELECTOR_STEPS,
   DIFFICULTY_LEVELS,
   DIFFICULTY_LEVEL_LIST,
   FLOW_DESTINATIONS,
@@ -104,6 +108,7 @@ import {
   REWARD_TABS,
   SCREEN_NAMES,
   STATS_PERIODS,
+  getDifficultyOption,
   WORLD_IDS,
 } from "./constants.js";
 
@@ -390,9 +395,6 @@ let lessonTimerStartedAt = null;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
-let boardGameSelectedWorldLabel = "Колумб ба Шинэ тивийнхэн";
-let boardGameSelectedDifficultyLabel = "Анхан";
-
 
 const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
 
@@ -1895,18 +1897,23 @@ function showScreen(screenId) {
 }
 
 function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}) {
-  const boardCoverScreen = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER];
-  const selection = boardCoverScreen?.getSelectionSnapshot?.() || {};
+  const currentEntry = getBoardEntryState();
+  const nextWorldId = worldId || currentEntry.worldId;
+  const nextChapterId = chapterId || currentEntry.chapterId || getDefaultChapterForWorld(nextWorldId)?.id || null;
+
+  updateBoardEntryState({
+    ...(step ? { step } : {}),
+    ...(worldId ? { worldId } : {}),
+    ...(difficultyId ? { difficultyId } : {}),
+    chapterId: nextChapterId,
+  });
 
   updateState((state) => {
-    const nextEntry = { ...state.flow.boardEntry };
-    if (step) nextEntry.step = step;
-    nextEntry.worldId = worldId || selection.worldId || nextEntry.worldId;
-    nextEntry.difficultyId = difficultyId || selection.difficultyId || nextEntry.difficultyId;
-    nextEntry.chapterId = chapterId || selection.previewChapterId || nextEntry.chapterId;
-    state.flow.lastRequestedScreen = step === "play" ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
-    state.flow.boardEntry = nextEntry;
+    state.flow.lastRequestedScreen = step === BOARD_SELECTOR_STEPS.PLAY ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
   });
+
+  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.refresh?.();
+  return getBoardEntryState();
 }
 
 const NAVIGATION_HANDLERS = {
@@ -1938,20 +1945,18 @@ const NAVIGATION_HANDLERS = {
   },
   [FLOW_DESTINATIONS.BOARD_ENTRY]: () => {
     stopSpeaking();
-    const boardCoverScreen = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER];
-    boardCoverScreen?.setPreview();
-    boardCoverScreen?.resetSelection?.();
-    syncBoardEntryFlowState({ step: "entry" });
+    resetBoardEntryState();
+    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.ENTRY });
     showScreen(SCREEN_NAMES.CHAPTER_COVER);
   },
   [FLOW_DESTINATIONS.BOARD_COVER]: () => {
     stopSpeaking();
-    syncBoardEntryFlowState({ step: "cover" });
+    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.COVER });
     showScreen(SCREEN_NAMES.CHAPTER_COVER);
   },
   [FLOW_DESTINATIONS.BOARD_PLAY]: () => {
     stopSpeaking();
-    syncBoardEntryFlowState({ step: "play" });
+    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.PLAY });
     showScreen(SCREEN_NAMES.BOARD);
     initBoardGameMvp();
   },
@@ -2367,7 +2372,10 @@ function updateBoardGameMetaUi() {
 
 function updateBoardGameScreenTitle() {
   if (!boardGameScreenTitleEl) return;
-  boardGameScreenTitleEl.textContent = `Та битгий уурлаарай · ${boardGameSelectedWorldLabel} · ${boardGameSelectedDifficultyLabel}`;
+  const route = resolveBoardSelectionRoute(getBoardEntryState());
+  const worldLabel = route.selectedWorld?.title || getSelectableBoardWorlds()[0]?.label || "Колумб ба Шинэ тивийнхэн";
+  const difficultyLabel = getDifficultyOption(route.difficultyId)?.label || "Анхан";
+  boardGameScreenTitleEl.textContent = `Та битгий уурлаарай · ${worldLabel} · ${difficultyLabel}`;
 }
 
 function setBoardGameRollEnabled(enabled) {
@@ -4713,13 +4721,31 @@ function initializeScreenRegistry() {
   });
 
   SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER] = initChapterCoverScreen({
-    onStartGame: ({ worldId, difficultyId } = {}) => {
-      const worldMeta = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getSelectedWorld?.();
-      const difficultyMeta = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getSelectedDifficulty?.();
-      boardGameSelectedWorldLabel = worldMeta?.label
-        || (worldId === "world2" ? "Эртний Хятад ба Торгоны зам" : worldId === "world3" ? "Ромын эзэнт гүрэн ба Гладиаторууд" : "Колумб ба Шинэ тивийнхэн");
-      boardGameSelectedDifficultyLabel = difficultyMeta?.label
-        || (difficultyId === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : difficultyId === DIFFICULTY_LEVELS.ADVANCED ? "Ахисан" : "Анхан");
+    getSelectionState: () => getBoardEntryState(),
+    onAdvanceSelectorStep: (step) => {
+      syncBoardEntryFlowState({ step });
+    },
+    onSelectWorld: (worldId) => {
+      syncBoardEntryFlowState({
+        step: BOARD_SELECTOR_STEPS.DIFFICULTY,
+        worldId,
+        chapterId: getDefaultChapterForWorld(worldId)?.id || null,
+      });
+    },
+    onSelectDifficulty: (difficultyId) => {
+      syncBoardEntryFlowState({
+        step: BOARD_SELECTOR_STEPS.READY,
+        difficultyId,
+      });
+    },
+    onStartGame: (selection = {}) => {
+      const route = resolveBoardSelectionRoute(selection);
+      syncBoardEntryFlowState({
+        step: BOARD_SELECTOR_STEPS.PLAY,
+        worldId: route.worldId,
+        difficultyId: route.difficultyId,
+        chapterId: route.chapterId,
+      });
       navigateTo(FLOW_DESTINATIONS.BOARD_PLAY);
     },
   });
