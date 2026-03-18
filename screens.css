@@ -821,8 +821,6 @@
 
   .app{
     max-width:390px;
-    min-height:auto;
-    max-height:none;
   }
 
   .header-right,
@@ -1632,6 +1630,9 @@ body[data-active-screen="board-game"] .app{
 
 
 #board-game-screen{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
   padding:0;
   border:none;
   border-radius:0;
@@ -1641,8 +1642,11 @@ body[data-active-screen="board-game"] .app{
 }
 
 #board-game-screen .learning-screen-shell{
+  display:flex;
+  flex:1 1 auto;
+  flex-direction:column;
   gap:0;
-  min-height:100dvh;
+  min-height:100%;
 }
 
 .learning-screen-shell{
@@ -2013,7 +2017,11 @@ body[data-active-screen="board-game"] .app{
   border:1px solid rgba(255,225,148,.24);
 }
 
-.board-game-layout{ display:block; }
+.board-game-layout{
+  display:flex;
+  flex:1 1 auto;
+  min-height:100%;
+}
 
 .board-game-board-panel{
   --board-safe-top:max(env(safe-area-inset-top), 8px);
@@ -2023,7 +2031,8 @@ body[data-active-screen="board-game"] .app{
   overflow:hidden;
   border:1px solid rgba(255,229,161,.18);
   border-radius:0;
-  min-height:100dvh;
+  flex:1 1 auto;
+  min-height:100%;
   padding:12px;
   background:
     radial-gradient(120% 100% at 55% -18%, rgba(255,232,173,.18), transparent 58%),
@@ -2504,4 +2513,3 @@ body[data-active-screen="board-game"] .app{
 .tile-type-checkpoint{ background:radial-gradient(90% 100% at 30% 22%, rgba(199,245,255,.44), rgba(95,170,195,.65) 56%, rgba(36,82,95,.95)); color:#e9faff; }
 .tile-type-story{ background:radial-gradient(90% 100% at 30% 22%, rgba(220,233,255,.4), rgba(104,133,186,.62) 56%, rgba(45,58,107,.95)); color:#ecf0ff; }
 .tile-type-finish{ background:radial-gradient(90% 100% at 30% 22%, rgba(255,244,186,.5), rgba(224,176,71,.66) 56%, rgba(119,84,20,.96)); color:#fff4d4; }
-
