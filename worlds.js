@@ -9,8 +9,8 @@ import { GAME_MODES, WORLD_IDS } from "./constants.js";
 export const WORLD_CONFIGS = {
   [WORLD_IDS.WORLD_1]: {
     id: WORLD_IDS.WORLD_1,
-    title: "Далайн цаадах ертөнц",
-    subtitle: "Самбарт аялал",
+    title: "Колумб ба Шинэ тивийнхэн",
+    subtitle: "Та битгий уурлаарай",
     introCoverImage: ASSETS.chapterCovers.columbusNewWorld,
     backgroundImage: ASSETS.worldBackgrounds.sailorsDeck,
     ambienceWorldId: WORLD_IDS.SEA,
