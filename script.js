@@ -4,6 +4,7 @@ import {
   persistPremiumStatus,
   persistProfileName,
   persistProgressState as saveProgressState,
+  clearAppSaveData,
   persistSoundSetting,
   persistTtsSettings as saveTtsSettings,
 } from "./storage.js";
@@ -19,6 +20,7 @@ import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
 import { initChapterCoverScreen } from "./chapter-cover-screen.js";
+import { BOARD_WORLD_CHAPTERS, getChapterConfig } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { initStatsScreen } from "./stats-screen.js";
@@ -58,6 +60,7 @@ import {
 import { bindModalBackdropClose, closeModal, openModal } from "./modal.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
 import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
+import { initDebugTools } from "./debug-tools.js";
 import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import {
   DIFFICULTY_LEVELS,
@@ -142,6 +145,41 @@ if (boardGameIntroCoverImageEl && boardWorldConfig?.introCoverImage) {
   boardGameIntroCoverImageEl.src = boardWorldConfig.introCoverImage;
 }
 
+function ensureDebugChapterPreviewMeta() {
+  if (debugChapterPreviewMetaEl || !boardGameIntroScreen) return debugChapterPreviewMetaEl;
+  debugChapterPreviewMetaEl = document.createElement("div");
+  debugChapterPreviewMetaEl.className = "debug-chapter-preview hidden";
+  boardGameIntroScreen.appendChild(debugChapterPreviewMetaEl);
+  return debugChapterPreviewMetaEl;
+}
+
+function setChapterCoverPreview(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
+  const chapter = getChapterConfig(chapterId) || BOARD_WORLD_CHAPTERS[0] || null;
+  if (!chapter) return null;
+
+  debugChapterPreviewId = chapter.id;
+  if (boardGameIntroCoverImageEl && chapter.coverImage) {
+    boardGameIntroCoverImageEl.src = chapter.coverImage;
+    boardGameIntroCoverImageEl.alt = `${chapter.title} cover`;
+  }
+
+  boardGameIntroScreen?.setAttribute("data-debug-chapter-id", chapter.id);
+
+  const previewMetaEl = ensureDebugChapterPreviewMeta();
+  if (previewMetaEl) {
+    previewMetaEl.innerHTML = `<strong>${chapter.title}</strong><span>${chapter.story}</span>`;
+    previewMetaEl.classList.toggle("hidden", !window.NomadSpeakDebug);
+  }
+
+  if (boardGameIntroContinueBtn) {
+    boardGameIntroContinueBtn.dataset.debugChapterId = chapter.id;
+  }
+
+  return chapter;
+}
+
+const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
+setChapterCoverPreview(debugChapterPreviewId);
 
 const rewardImageElsByLevel = document.querySelectorAll(".reward-img[data-level]");
 rewardImageElsByLevel.forEach((imgEl) => {
@@ -477,6 +515,10 @@ let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
 let migratedSaveData = null;
+let debugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
+let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
+let debugChapterPreviewMetaEl = null;
+
 
 function getMigratedSaveData() {
   if (!migratedSaveData) migratedSaveData = loadAppSaveData();
@@ -2013,6 +2055,7 @@ function navigateTo(destination) {
 
   if (destination === SCREEN_NAMES.BOARD_GAME) {
     stopSpeaking();
+    setChapterCoverPreview(debugChapterPreviewId);
     showScreen("board-game-intro");
   }
 
@@ -2613,6 +2656,109 @@ function initBoardGameMvp() {
   if (boardGameDiceEl) boardGameDiceEl.dataset.face = "1";
   if (boardGameFeedbackHubEl) boardGameFeedbackHubEl.innerHTML = "";
   gameFeelSoundManager.startAmbient();
+}
+
+function syncBoardGameDebugState(tileNumber, message = "Debug jump completed.") {
+  const nextTile = Math.max(1, Math.min(boardLevelConfig().totalTiles, Math.floor(Number(tileNumber) || 1)));
+  boardGameState.player.currentTile = nextTile;
+  boardGameState.dice.lastRoll = null;
+  boardGameState.challenge.activeChallenge = null;
+  boardGameState.feedback.message = message;
+  renderBoardGameTiles();
+  updateBoardGameChapterPanel();
+  renderBoardGameChallenge();
+  updateBoardGameMetaUi();
+  updateBoardGameTokenPosition();
+  setBoardGameRollEnabled(true);
+}
+
+function jumpToBoardChapter(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
+  const chapter = getChapterConfig(chapterId) || BOARD_WORLD_CHAPTERS[0] || null;
+  if (!chapter) return;
+  setChapterCoverPreview(chapter.id);
+  navigateTo("board-game-start");
+  syncBoardGameDebugState(chapter.startTile, `${chapter.title} · chapter start preview.`);
+}
+
+function previewChapterCover(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
+  setChapterCoverPreview(chapterId);
+  showScreen("board-game-intro");
+}
+
+function giveDebugXp(amount = 10) {
+  awardXP(amount, "debug_reward");
+  showWorldFeedbackChip(`🧪 Debug XP +${amount}`, "reward");
+}
+
+function giveDebugRewards() {
+  sentenceGameClimbLevel = 5;
+  sentenceGameRewardLevel = 5;
+  sentenceGameActiveSeconds = Math.max(sentenceGameActiveSeconds, 120 * 60);
+  lessonUnlockedRewards = Math.max(lessonUnlockedRewards, REWARD_ICON_SEQUENCE.length);
+  qaUnlockedRewards = Math.max(qaUnlockedRewards, REWARD_ICON_SEQUENCE.length);
+  sentencesUnlockedRewards = Math.max(sentencesUnlockedRewards, REWARD_ICON_SEQUENCE.length);
+  loadProgressState();
+  progressState.rewardTierUnlocked = 5;
+  progressState.todayMinutes = Math.max(progressState.todayMinutes || 0, 120);
+  progressState.dailyCompleted = true;
+  persistSentenceGameRewardState();
+  persistProgressState();
+  renderSentenceGameClimb(sentenceGameClimbLevel);
+  renderSentenceGameRewardState();
+  renderSentencesRewards();
+  renderLessonRewards();
+  renderQaRewards();
+  updateProfileUI();
+  updateStatsUI();
+  showWorldFeedbackChip("🧪 Debug rewards applied.", "reward");
+}
+
+function resetDebugProgress() {
+  clearAppSaveData();
+  [
+    SENTENCE_GAME_CLIMB_STORAGE_KEY,
+    SENTENCE_GAME_ACTIVE_SECONDS_KEY,
+    SENTENCE_GAME_REWARD_LEVEL_KEY,
+    SENTENCE_GAME_LAST_TICK_KEY,
+    SENTENCE_GAME_DIFFICULTY_KEY,
+  ].forEach((key) => localStorage.removeItem(key));
+
+  migratedSaveData = null;
+  progressState = createDefaultProgressState();
+  sentenceGameClimbLevel = 0;
+  sentenceGameRewardLevel = 0;
+  sentenceGameActiveSeconds = 0;
+  sentenceGameLastTick = Date.now();
+  lessonUnlockedRewards = 0;
+  qaUnlockedRewards = 0;
+  sentencesUnlockedRewards = 0;
+  persistPremiumStatus(false);
+  persistProfileName("");
+  saveTtsSettings(DEFAULT_TTS_SETTINGS);
+  persistSoundSetting(true);
+  saveProgressState(progressState);
+  loadTtsSettings();
+  loadSoundSettings();
+  loadPremiumStatus();
+  loadProfileName();
+  loadProgressState();
+  updateSoundToggleState();
+  renderSentenceGameClimb(sentenceGameClimbLevel);
+  renderSentenceGameRewardState();
+  renderSentencesRewards();
+  renderLessonRewards();
+  renderQaRewards();
+  updateHeaderStatus();
+  updateProfileUI();
+  updateStatsUI();
+  refreshTimeSummaryUI();
+  showWorldFeedbackChip("🧪 Debug reset complete.", "warning");
+}
+
+function unlockAllDebugChapters() {
+  debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS.map((chapter) => chapter.id);
+  setStateValue("flags", { ...getState().flags, debugUnlockedChapterIds: [...debugUnlockedChapterIds] });
+  showWorldFeedbackChip(`🧪 ${debugUnlockedChapterIds.length} chapters unlocked for preview.`, "reward");
 }
 
 // 4 option хийх: 1 зөв + 3 буруу
@@ -4447,6 +4593,20 @@ updateStatsUI();
 refreshTimeSummaryUI();
 persistPremiumStatus();
 persistProgressState();
+
+// Debug tools stay fully hidden unless debug mode is explicitly enabled.
+initDebugTools({
+  getChapterOptions: () => BOARD_WORLD_CHAPTERS.filter((chapter) => debugUnlockedChapterIds.includes(chapter.id)),
+  navigateTo: (screenId) => requestNavigation(screenId),
+  previewChapterCover: (chapterId) => previewChapterCover(chapterId),
+  jumpToBoard: () => requestNavigation(SCREEN_NAMES.BOARD_GAME),
+  jumpToBoardChapter: (chapterId) => jumpToBoardChapter(chapterId),
+  unlockAllChapters: () => unlockAllDebugChapters(),
+  giveXp: (amount) => giveDebugXp(amount),
+  giveRewards: () => giveDebugRewards(),
+  resetProgress: () => resetDebugProgress(),
+});
+setChapterCoverPreview(debugChapterPreviewId);
 
 renderSentencesRewards();
 updateSentencesTimerUI();

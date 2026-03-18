@@ -73,4 +73,5 @@ export const STORAGE_KEYS = {
   APP_TIME_ACTIVE_SESSION: "appTimeActiveSession",
   PROFILE_NAME: "nomadProfileName",
   PREMIUM: "isPremium",
+  DEBUG_MODE: "nomadspeak:debug-mode",
 };
