@@ -2907,9 +2907,12 @@ body[data-active-screen="board-game"] .app{
     gap:14px;
   }
 
-  .header-nav--compact,
-  .home-header-actions .header-nav{
+  .header-nav--compact{
     grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+
+  .home-header-actions .header-nav{
+    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
   }
 }
 
@@ -2938,13 +2941,19 @@ body[data-active-screen="board-game"] .app{
   }
 
   .home-header-actions .header-nav{
-    grid-template-columns:1fr;
+    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
     gap:8px;
     padding:8px;
   }
 
   .start-intro-panel{
     padding:14px;
+  }
+}
+
+@media (max-width:360px){
+  .home-header-actions .header-nav{
+    grid-template-columns:1fr;
   }
 }
 
