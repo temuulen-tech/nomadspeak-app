@@ -3,4 +3,6 @@
  * Main bootstrap/controller that starts the existing app flow.
  */
 
-import "./script.js";
+import { initializeApp } from "./script.js";
+
+initializeApp();

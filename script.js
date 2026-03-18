@@ -58,7 +58,7 @@ import {
   syncToggleButtons,
   toggleClass,
 } from "./ui.js";
-import { bindModalBackdropClose, closeModal, openModal } from "./modal.js";
+import { bindModalDismissal, closeModal, openModal } from "./modal.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
 import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
 import {
@@ -276,9 +276,6 @@ const statsThermometerTierEl = document.getElementById("stats-thermometer-tier")
 const statsRewardTabButtons = document.querySelectorAll(".stats-reward-tab");
 const statsRewardCardsEl = document.getElementById("stats-reward-cards");
 const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
-const timeDetailsButtons = document.querySelectorAll(".time-details-btn");
-const timeDetailsModalEl = document.getElementById("time-details-modal");
-const timeDetailsCloseBtn = document.getElementById("time-details-close-btn");
 const timeDetailsYesterdayEl = document.getElementById("time-details-yesterday");
 const timeDetailsThisWeekEl = document.getElementById("time-details-this-week");
 const timeDetailsLastWeekEl = document.getElementById("time-details-last-week");
@@ -538,14 +535,14 @@ function updateInstallHintVisibility() {
   if (!installHintEl) return;
   const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
   if (standalone) {
-    hide(installHintEl);
+    hideElement(installHintEl);
     return;
   }
 
   if (deferredInstallPrompt) {
-    show(installHintEl);
+    showElement(installHintEl);
   } else {
-    hide(installHintEl);
+    hideElement(installHintEl);
   }
 }
 
@@ -4463,170 +4460,426 @@ function resetQaGameScreen() {
   startQaTimer();
 }
 
-// ---- Events ----
-loadTtsSettings();
-updateTtsControlState();
-loadSoundSettings();
-updateSoundToggleState();
-ensureAudioUnlocked();
-loadSentenceGameClimbLevel();
-renderSentenceGameClimb(sentenceGameClimbLevel);
-loadSentenceGameRewardState();
-updateSentenceGameRewardLevel({ allowBanner: false });
-persistSentenceGameRewardState();
-loadPremiumStatus();
-loadProfileName();
-loadProgressState();
-updateHeaderStatus();
-updateProfileUI();
-updateStatsUI();
-refreshTimeSummaryUI();
-persistPremiumStatus();
-persistProgressState();
-
-// Debug tools stay fully hidden unless debug mode is explicitly enabled.
-initDebugTools({
-  getChapterOptions: () => BOARD_WORLD_CHAPTERS.filter((chapter) => debugUnlockedChapterIds.includes(chapter.id)),
-  navigateTo: (screenId) => requestNavigation(screenId),
-  previewChapterCover: (chapterId) => previewChapterCover(chapterId),
-  jumpToBoard: () => requestNavigation(SCREEN_NAMES.BOARD_GAME),
-  jumpToBoardChapter: (chapterId) => jumpToBoardChapter(chapterId),
-  unlockAllChapters: () => unlockAllDebugChapters(),
-  giveXp: (amount) => giveDebugXp(amount),
-  giveRewards: () => giveDebugRewards(),
-  resetProgress: () => resetDebugProgress(),
-});
-setChapterCoverPreview(debugChapterPreviewId);
-
-renderSentencesRewards();
-updateSentencesTimerUI();
-renderLessonRewards();
-updateLessonTimerUI();
-
-if (sentenceGameTipTextEl) {
-  sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
+function initializeAppState() {
+  loadTtsSettings();
+  updateTtsControlState();
+  loadSoundSettings();
+  updateSoundToggleState();
+  ensureAudioUnlocked();
+  loadSentenceGameClimbLevel();
+  renderSentenceGameClimb(sentenceGameClimbLevel);
+  loadSentenceGameRewardState();
+  updateSentenceGameRewardLevel({ allowBanner: false });
+  persistSentenceGameRewardState();
+  loadSentenceGameDifficulty();
+  loadPremiumStatus();
+  loadProfileName();
+  loadProgressState();
+  updateHeaderStatus();
+  updateProfileUI();
+  updateStatsUI();
+  refreshTimeSummaryUI();
+  persistPremiumStatus();
+  persistProgressState();
 }
 
-if (sentenceGameTipToggleBtn) {
-  sentenceGameTipToggleBtn.addEventListener("click", toggleSentenceGameTipPanel);
+function initializeDebugMode() {
+  initDebugTools({
+    getChapterOptions: () => BOARD_WORLD_CHAPTERS.filter((chapter) => debugUnlockedChapterIds.includes(chapter.id)),
+    navigateTo: (screenId) => requestNavigation(screenId),
+    previewChapterCover: (chapterId) => previewChapterCover(chapterId),
+    jumpToBoard: () => requestNavigation(SCREEN_NAMES.BOARD_GAME),
+    jumpToBoardChapter: (chapterId) => jumpToBoardChapter(chapterId),
+    unlockAllChapters: () => unlockAllDebugChapters(),
+    giveXp: (amount) => giveDebugXp(amount),
+    giveRewards: () => giveDebugRewards(),
+    resetProgress: () => resetDebugProgress(),
+  });
+  setChapterCoverPreview(debugChapterPreviewId);
 }
 
-if (sentenceGameTipSpeakBtn) {
-  sentenceGameTipSpeakBtn.addEventListener("click", speakSentenceGameTip);
+function initializeRewardUi() {
+  renderSentencesRewards();
+  updateSentencesTimerUI();
+  renderLessonRewards();
+  updateLessonTimerUI();
 }
 
-if (sentenceGameTipStopBtn) {
-  sentenceGameTipStopBtn.addEventListener("click", stopSentenceGameTipSpeech);
+function initializeSentenceGameControls() {
+  if (sentenceGameTipTextEl) {
+    sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
+  }
+
+  if (sentenceGameTipToggleBtn) {
+    sentenceGameTipToggleBtn.addEventListener("click", toggleSentenceGameTipPanel);
+  }
+
+  if (sentenceGameTipSpeakBtn) {
+    sentenceGameTipSpeakBtn.addEventListener("click", speakSentenceGameTip);
+  }
+
+  if (sentenceGameTipStopBtn) {
+    sentenceGameTipStopBtn.addEventListener("click", stopSentenceGameTipSpeech);
+  }
+
+  if (sentenceGameTipReadBtn) {
+    sentenceGameTipReadBtn.addEventListener("click", showSentenceGameTipText);
+  }
+
+  if (sentenceGameTipCloseBtn) {
+    sentenceGameTipCloseBtn.addEventListener("click", closeSentenceGameTipPanel);
+  }
+
+  if (sentenceGameDifficultyToggleBtn) {
+    sentenceGameDifficultyToggleBtn.addEventListener("click", () => {
+      const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
+      setSentenceGameDifficultyPanelOpen(nextOpen);
+    });
+  }
+
+  sentenceGameDifficultyButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
+    });
+  });
+
+  if (sentenceGameUndoBtn) sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
+  if (sentenceGameShowCorrectBtn) sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
+  if (sentenceGameRetryBtn) sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
+  if (sentenceGamePrevBtn) sentenceGamePrevBtn.addEventListener("click", prevSentenceGameRound);
+  if (sentenceGameNextBtn) sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
+
+  setSentenceGameDifficultyPanelOpen(false);
+  updateSentenceGameTipControls();
 }
 
-if (sentenceGameTipReadBtn) {
-  sentenceGameTipReadBtn.addEventListener("click", showSentenceGameTipText);
+function initializeVaultControls() {
+  if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
+  if (sentencesSaveBtn) sentencesSaveBtn.addEventListener("click", saveCurrentSentencesItem);
+  if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
+  if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
+
+  if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
+  if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
+  if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
+  if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
+
+  bindModalDismissal({
+    modalEl: vaultModalEl,
+    closeBtn: vaultModalCloseBtn,
+  });
+
+  Object.keys(VAULT_KEY_BY_SCREEN).forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
 }
 
-if (sentenceGameTipCloseBtn) {
-  sentenceGameTipCloseBtn.addEventListener("click", closeSentenceGameTipPanel);
-}
+function initializeQaControls() {
+  resetQaGameScreen();
 
-if (sentenceGameDifficultyToggleBtn) {
-  sentenceGameDifficultyToggleBtn.addEventListener("click", () => {
-    const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
-    setSentenceGameDifficultyPanelOpen(nextOpen);
+  if (qaLevelSelectBtn) {
+    qaLevelSelectBtn.addEventListener("click", () => {
+      setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
+    });
+  }
+
+  qaLevelButtons.forEach((btn) => {
+    btn.addEventListener("click", () => selectQaLevel(btn.dataset.qaLevel));
+  });
+
+  if (qaCheckBtn) qaCheckBtn.addEventListener("click", checkQaAnswer);
+
+  if (qaToggleQuestionBtn) {
+    qaToggleQuestionBtn.addEventListener("click", () => {
+      const willShow = isHidden(qaEnQuestionWrap);
+      setHidden(qaEnQuestionWrap, !willShow);
+      qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
+    });
+  }
+
+  if (qaToggleAnswerBtn) {
+    qaToggleAnswerBtn.addEventListener("click", () => {
+      const willShow = isHidden(qaEnAnswerWrap);
+      setHidden(qaEnAnswerWrap, !willShow);
+      qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
+    });
+  }
+
+  if (qaShowSentencesBtn) {
+    qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
+  }
+
+  if (qaShowHelpBtn) {
+    qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
+  }
+
+  bindModalDismissal({
+    modalEl: qaModalEl,
+    closeBtn: qaModalCloseBtn,
+    onClose: closeQaModal,
   });
 }
 
-sentenceGameDifficultyButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
+function initializeSentenceFilterControls() {
+  updateSentenceFilterActiveState();
+  setSentencesLevelPickerOpen(false);
+
+  if (sentencesLevelPickerBtn) {
+    sentencesLevelPickerBtn.addEventListener("click", () => {
+      const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
+      setSentencesLevelPickerOpen(nextOpen);
+    });
+  }
+
+  sentencesLevelOptionButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
+      updateSentenceFilterActiveState();
+      setSentencesLevelPickerOpen(false);
+      stopSpeaking();
+      renderSentences();
+      updateHeaderStatus();
+    });
   });
-});
 
-updateSentenceGameTipControls();
-resetQaGameScreen();
-
-if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
-if (sentencesSaveBtn) sentencesSaveBtn.addEventListener("click", saveCurrentSentencesItem);
-if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
-if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
-
-if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
-if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
-if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
-if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
-if (vaultModalCloseBtn) vaultModalCloseBtn.addEventListener("click", () => closeModal(vaultModalEl));
-bindModalBackdropClose(vaultModalEl);
-
-Object.keys(VAULT_KEY_BY_SCREEN).forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
-
-if (qaLevelSelectBtn) {
-  qaLevelSelectBtn.addEventListener("click", () => {
-    setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
-  });
-}
-
-qaLevelButtons.forEach((btn) => {
-  btn.addEventListener("click", () => selectQaLevel(btn.dataset.qaLevel));
-});
-
-if (qaCheckBtn) qaCheckBtn.addEventListener("click", checkQaAnswer);
-if (qaToggleQuestionBtn) {
-  qaToggleQuestionBtn.addEventListener("click", () => {
-    const willShow = isHidden(qaEnQuestionWrap);
-    setHidden(qaEnQuestionWrap, !willShow);
-    qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
-  });
-}
-if (qaToggleAnswerBtn) {
-  qaToggleAnswerBtn.addEventListener("click", () => {
-    const willShow = isHidden(qaEnAnswerWrap);
-    setHidden(qaEnAnswerWrap, !willShow);
-    qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
-  });
-}
-if (qaShowSentencesBtn) {
-  qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
-}
-if (qaShowHelpBtn) {
-  qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
-}
-if (qaModalCloseBtn) qaModalCloseBtn.addEventListener("click", closeQaModal);
-bindModalBackdropClose(qaModalEl, closeQaModal);
-
-timeDetailsButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    refreshTimeSummaryUI();
-    openModal(timeDetailsModalEl);
-  });
-});
-
-if (timeDetailsCloseBtn) {
-  timeDetailsCloseBtn.addEventListener("click", () => {
-    closeModal(timeDetailsModalEl);
+  document.addEventListener("click", (event) => {
+    if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
+    if (!sentencesLevelPickerEl.contains(event.target)) {
+      setSentencesLevelPickerOpen(false);
+    }
   });
 }
 
-bindModalBackdropClose(timeDetailsModalEl);
-
-loadSentenceGameDifficulty();
-setSentenceGameDifficultyPanelOpen(false);
-updateSentenceFilterActiveState();
-setSentencesLevelPickerOpen(false);
-setStartLevelMenuOpen(false);
-updateStartButtonLabel();
-setAppMode(GAME_MODES.HOME);
-
-syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
-
-startLevelOptions.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    syncToggleButtons(startLevelOptions, (option) => option === btn, { pressed: false });
-    level = btn.dataset.level;
-    hasExplicitStartLevelSelection = true;
-    updateStartButtonLabel();
-    setStartLevelMenuOpen(false);
-    updateHeaderStatus();
-    startQuiz();
+function initializeAudioAndSentenceControls() {
+  voiceOptionButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      ttsSettings.voice = btn.dataset.voice;
+      updateTtsControlState();
+      persistTtsSettings();
+    });
   });
-});
+
+  if (ttsRateSlider) {
+    ttsRateSlider.addEventListener("input", () => {
+      ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
+      updateTtsControlState();
+      persistTtsSettings();
+    });
+  }
+
+  soundToggleButtons.forEach((toggleBtn) => {
+    toggleBtn.addEventListener("click", () => {
+      soundEnabled = !soundEnabled;
+      setGlobalSoundEnabled(soundEnabled);
+      if (!soundEnabled) {
+        stopSpeaking();
+        gameFeelSoundManager.stopAmbient();
+        worldSoundscape.stop();
+      } else if (boardGameScreen && !isHidden(boardGameScreen)) {
+        gameFeelSoundManager.startAmbient();
+      } else {
+        const activeScreen = document.body?.dataset.activeScreen || "home";
+        worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
+      }
+      updateSoundToggleState();
+      persistSoundSettings();
+    });
+  });
+}
+
+function initializePlayExitControls() {
+  playExitButtons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      gameFeelSoundManager.stopAmbient();
+      worldSoundscape.stop();
+      exitPlayModeToHome();
+    });
+  });
+}
+
+function handleStartLevelSelection(button) {
+  if (!button) return;
+  syncToggleButtons(startLevelOptions, (option) => option === button, { pressed: false });
+  level = button.dataset.level;
+  hasExplicitStartLevelSelection = true;
+  updateStartButtonLabel();
+  setStartLevelMenuOpen(false);
+  updateHeaderStatus();
+  startQuiz();
+}
+
+function initializeScreenRegistry() {
+  setStartLevelMenuOpen(false);
+  updateStartButtonLabel();
+  setAppMode(GAME_MODES.HOME);
+  syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
+
+  SCREEN_REGISTRY.start = initHomeScreen({
+    onNavigate: (destination) => requestNavigation(destination),
+    onToggleModes: () => toggleHomeModesPanel(),
+    onCloseModes: () => closeHomeModesPanel(),
+    onToggleIntro: () => toggleStartIntroPanel(),
+    onCloseIntro: () => hideStartIntroPanel(),
+    onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
+    onSelectStartLevel: (button) => handleStartLevelSelection(button),
+  });
+
+  SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
+    onStartGame: () => navigateTo("board-game-start"),
+  });
+
+  SCREEN_REGISTRY[SCREEN_NAMES.BOARD_GAME] = initBoardScreen({
+    onRollDice: () => boardGameRollDice(),
+    onResizeWhileVisible: () => updateBoardGameTokenPosition(),
+  });
+
+  SCREEN_REGISTRY.lesson = initLessonScreen({
+    onNext: () => nextQuestion(),
+    onRestart: () => startQuiz(),
+  });
+
+  SCREEN_REGISTRY.stats = initStatsScreen({
+    onBeforeOpenTimeDetails: () => refreshTimeSummaryUI(),
+    onPeriodChange: (btn) => {
+      statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
+      syncToggleButtons(statsPeriodButtons, (item) => item === btn, { pressed: false });
+      refreshTimeSummaryUI();
+    },
+    onRewardTabChange: (btn) => {
+      statsRewardTab = btn.dataset.rewardTab || REWARD_TABS.DAYS;
+      statsRewardTabButtons.forEach((item) => {
+        const active = item === btn;
+        setActiveState(item, active);
+        setSelectedState(item, active);
+      });
+      renderRewardsTab();
+    },
+  });
+}
+
+function initializeLifecycleEvents() {
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) {
+      persistAllActiveTime();
+      ensureStoppedIfHidden();
+      stopTimeUiUpdater();
+      return;
+    }
+
+    if (sentenceGameScreenVisible()) {
+      beginSentenceGameSession();
+    }
+
+    const visibleScreen = document.querySelector(".card:not(.hidden)");
+    if (visibleScreen) {
+      const screenId = SCREEN_IDS[visibleScreen.id] || visibleScreen.id;
+      startSession(screenId);
+      startTimeUiUpdater();
+      refreshTimeSummaryUI();
+    }
+  });
+
+  window.addEventListener("pagehide", () => {
+    persistAllActiveTime();
+    stopTimeUiUpdater();
+  });
+
+  window.addEventListener("beforeunload", () => {
+    persistAllActiveTime();
+    stopTimeUiUpdater();
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    audioEngine.onVisibilityChange();
+  });
+}
+
+function initializeSpeechAndProfileControls() {
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+  }
+
+  if (profileNameInput) {
+    profileNameInput.addEventListener("input", () => {
+      profileName = profileNameInput.value.trim();
+      persistProfileName();
+      updateProfileUI();
+    });
+  }
+}
+
+function initializePremiumControls() {
+  if (upgradePremiumBtn) {
+    upgradePremiumBtn.addEventListener("click", () => {
+      openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
+    });
+  }
+
+  bindModalDismissal({
+    modalEl: premiumOverlay,
+    closeBtn: premiumOkBtn,
+    onClose: closePremiumModal,
+  });
+}
+
+function initializeInstallPrompt() {
+  registerServiceWorker();
+
+  window.addEventListener("beforeinstallprompt", (event) => {
+    event.preventDefault();
+    deferredInstallPrompt = event;
+    updateInstallHintVisibility();
+  });
+
+  window.addEventListener("appinstalled", () => {
+    deferredInstallPrompt = null;
+    updateInstallHintVisibility();
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener("click", async () => {
+      if (!deferredInstallPrompt) return;
+      deferredInstallPrompt.prompt();
+      await deferredInstallPrompt.userChoice;
+      deferredInstallPrompt = null;
+      updateInstallHintVisibility();
+    });
+  }
+
+  updateInstallHintVisibility();
+}
+
+function initializeActiveScreenTracking() {
+  const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
+  if (initialVisibleScreen) {
+    const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
+    const isHomeVisible = initialVisibleScreen === startScreen;
+    setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
+    startSession(initialScreenId);
+    startTimeUiUpdater();
+  } else {
+    setAppMode(GAME_MODES.HOME);
+  }
+}
+
+export function initializeApp() {
+  initializeAppState();
+  initializeDebugMode();
+  initializeRewardUi();
+  initializeSentenceGameControls();
+  initializeVaultControls();
+  initializeQaControls();
+  initializeSentenceFilterControls();
+  initializeAudioAndSentenceControls();
+  initializePlayExitControls();
+  initializeScreenRegistry();
+  initializeLifecycleEvents();
+  initializeSpeechAndProfileControls();
+  initializePremiumControls();
+  initializeInstallPrompt();
+  initializeActiveScreenTracking();
+  loadSentences();
+  initBoardGameMvp();
+}
 
 function sentenceLevelFilterLabel(filterKey) {
   return filterKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : filterKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
@@ -4648,224 +4901,3 @@ function updateSentenceFilterActiveState() {
     setCheckedState(btn, isActive);
   });
 }
-
-if (sentencesLevelPickerBtn) {
-  sentencesLevelPickerBtn.addEventListener("click", () => {
-    const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
-    setSentencesLevelPickerOpen(nextOpen);
-  });
-}
-
-sentencesLevelOptionButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
-    updateSentenceFilterActiveState();
-    setSentencesLevelPickerOpen(false);
-    stopSpeaking();
-    renderSentences();
-    updateHeaderStatus();
-  });
-});
-
-document.addEventListener("click", (event) => {
-  if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
-  if (!sentencesLevelPickerEl.contains(event.target)) {
-    setSentencesLevelPickerOpen(false);
-  }
-});
-
-voiceOptionButtons.forEach(btn => {
-  btn.addEventListener("click", () => {
-    ttsSettings.voice = btn.dataset.voice;
-    updateTtsControlState();
-    persistTtsSettings();
-  });
-});
-
-if (ttsRateSlider) {
-  ttsRateSlider.addEventListener("input", () => {
-    ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
-    updateTtsControlState();
-    persistTtsSettings();
-  });
-}
-
-soundToggleButtons.forEach(toggleBtn => {
-  toggleBtn.addEventListener("click", () => {
-    soundEnabled = !soundEnabled;
-    setGlobalSoundEnabled(soundEnabled);
-    if (!soundEnabled) {
-      stopSpeaking();
-      gameFeelSoundManager.stopAmbient();
-      worldSoundscape.stop();
-    } else if (boardGameScreen && !isHidden(boardGameScreen)) {
-      gameFeelSoundManager.startAmbient();
-    } else {
-      const activeScreen = document.body?.dataset.activeScreen || "home";
-      worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
-    }
-    updateSoundToggleState();
-    persistSoundSettings();
-  });
-});
-
-playExitButtons.forEach((btn) => {
-  btn.addEventListener("click", () => {
-    gameFeelSoundManager.stopAmbient();
-    worldSoundscape.stop();
-    exitPlayModeToHome();
-  });
-});
-
-
-SCREEN_REGISTRY.start = initHomeScreen({
-  onNavigate: (destination) => requestNavigation(destination),
-  onToggleModes: () => toggleHomeModesPanel(),
-  onCloseModes: () => closeHomeModesPanel(),
-  onToggleIntro: () => toggleStartIntroPanel(),
-  onCloseIntro: () => hideStartIntroPanel(),
-  onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
-});
-
-SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
-  onStartGame: () => navigateTo("board-game-start"),
-});
-
-SCREEN_REGISTRY[SCREEN_NAMES.BOARD_GAME] = initBoardScreen({
-  onRollDice: () => boardGameRollDice(),
-  onResizeWhileVisible: () => updateBoardGameTokenPosition(),
-});
-
-SCREEN_REGISTRY.lesson = initLessonScreen({
-  onNext: () => nextQuestion(),
-  onRestart: () => startQuiz(),
-});
-
-SCREEN_REGISTRY.stats = initStatsScreen({
-  onPeriodChange: (btn) => {
-    statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
-    syncToggleButtons(statsPeriodButtons, (item) => item === btn, { pressed: false });
-    refreshTimeSummaryUI();
-  },
-  onRewardTabChange: (btn) => {
-    statsRewardTab = btn.dataset.rewardTab || REWARD_TABS.DAYS;
-    statsRewardTabButtons.forEach((item) => {
-      const active = item === btn;
-      setActiveState(item, active);
-      setSelectedState(item, active);
-    });
-    renderRewardsTab();
-  },
-});
-
-sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
-sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
-sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
-if (sentenceGamePrevBtn) {
-  sentenceGamePrevBtn.addEventListener("click", prevSentenceGameRound);
-}
-sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    persistAllActiveTime();
-    ensureStoppedIfHidden();
-    stopTimeUiUpdater();
-    return;
-  }
-
-  if (sentenceGameScreenVisible()) {
-    beginSentenceGameSession();
-  }
-
-  const visibleScreen = document.querySelector(".card:not(.hidden)");
-  if (visibleScreen) {
-    const screenId = SCREEN_IDS[visibleScreen.id] || visibleScreen.id;
-    startSession(screenId);
-    startTimeUiUpdater();
-    refreshTimeSummaryUI();
-  }
-});
-
-window.addEventListener("pagehide", () => {
-  persistAllActiveTime();
-  stopTimeUiUpdater();
-});
-
-window.addEventListener("beforeunload", () => {
-  persistAllActiveTime();
-  stopTimeUiUpdater();
-});
-
-if ("speechSynthesis" in window) {
-  loadVoices();
-  window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
-}
-
-
-if (profileNameInput) {
-  profileNameInput.addEventListener("input", () => {
-    profileName = profileNameInput.value.trim();
-    persistProfileName();
-    updateProfileUI();
-  });
-}
-
-if (upgradePremiumBtn) {
-  upgradePremiumBtn.addEventListener("click", () => {
-    openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
-  });
-}
-
-
-if (premiumOkBtn) {
-  premiumOkBtn.addEventListener("click", closePremiumModal);
-}
-
-bindModalBackdropClose(premiumOverlay, closePremiumModal);
-
-
-registerServiceWorker();
-
-window.addEventListener('beforeinstallprompt', (event) => {
-  event.preventDefault();
-  deferredInstallPrompt = event;
-  updateInstallHintVisibility();
-});
-
-window.addEventListener('appinstalled', () => {
-  deferredInstallPrompt = null;
-  updateInstallHintVisibility();
-});
-
-if (installBtn) {
-  installBtn.addEventListener('click', async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    updateInstallHintVisibility();
-  });
-}
-
-updateInstallHintVisibility();
-
-
-document.addEventListener("visibilitychange", () => {
-  audioEngine.onVisibilityChange();
-});
-
-const _sharedState = getState();
-const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
-if (initialVisibleScreen) {
-  const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
-  const isHomeVisible = initialVisibleScreen === startScreen;
-  setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
-  startSession(initialScreenId);
-  startTimeUiUpdater();
-} else {
-  setAppMode(GAME_MODES.HOME);
-}
-
-loadSentences();
-initBoardGameMvp();

@@ -22,6 +22,7 @@ export function initHomeScreen(handlers = {}) {
   const startBtn = document.getElementById("start-btn");
   const startLevelDropdown = document.getElementById("start-level-dropdown");
   const startLevelPicker = document.querySelector(".start-level-picker");
+  const startLevelOptions = Array.from(document.querySelectorAll(".start-level-option"));
 
   if (navLessonBtn) navLessonBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.LESSON));
   if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCES));
@@ -55,6 +56,12 @@ export function initHomeScreen(handlers = {}) {
     if (startLevelDropdown.classList.contains("hidden")) return;
     if (startLevelPicker.contains(event.target)) return;
     handlers.onSetStartLevelMenuOpen?.(false);
+  });
+
+  startLevelOptions.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      handlers.onSelectStartLevel?.(btn);
+    });
   });
 
   return {
