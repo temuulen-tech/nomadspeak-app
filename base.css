@@ -1,0 +1,312 @@
+/* Base: design tokens, reset, shell, and global responsive foundations */
+
+/* Tokens */
+:root{
+  --bg1:#0d2a2f;
+  --bg2:#0b1f24;
+  --card:#0f2f35cc;
+  --text:#e9fbff;
+  --muted:#b7d9df;
+  --accent:#00f0d2;
+  --accent2:#00c7b3;
+  --danger:#ff5a7a;
+  --ok:#2dff8f;
+  --shadow: 0 24px 80px rgba(0,0,0,.35);
+  --btn-text:#eafff5;
+  --btn-border-a:#96ff66;
+  --btn-border-b:#53ffd2;
+  --btn-border-c:#46c8ff;
+  --chip-text:#111;
+  --chip-border:rgba(255,221,135,.96);
+  --chip-bg:linear-gradient(155deg, rgba(255,236,168,.96), rgba(205,144,47,.97));
+}
+
+/* Reset and global elements */
+*{box-sizing:border-box}
+
+img{
+  max-width:100%;
+  height:auto;
+}
+html,
+body{
+  max-width:100%;
+  overflow-x:hidden;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
+  color:var(--text);
+  background:
+    radial-gradient(1200px 700px at 50% 35%, rgba(0,240,210,.18), transparent 55%),
+    linear-gradient(180deg, var(--bg1), var(--bg2));
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+
+.phone-preview-shell{
+  width:min(100%, 430px);
+  margin-inline:auto;
+  border-radius:36px;
+  padding:14px;
+  background:linear-gradient(145deg, #0b0f13, #1a232c 48%, #0b1219);
+  border:1px solid rgba(255,255,255,.24);
+  box-shadow:0 28px 60px rgba(0,0,0,.6), 0 0 0 2px rgba(255,255,255,.08) inset;
+  position:relative;
+  overflow:hidden;
+}
+
+.phone-preview-shell::-webkit-scrollbar{
+  width:0;
+  height:0;
+}
+
+.phone-frame{
+  position:absolute;
+  top:14px;
+  left:50%;
+  transform:translateX(-50%);
+  width:38%;
+  height:20px;
+  border-radius:0 0 12px 12px;
+  background:rgba(0,0,0,.55);
+  display:flex;
+  justify-content:center;
+  pointer-events:none;
+  z-index:3;
+}
+
+.phone-notch{
+  width:36%;
+  height:6px;
+  border-radius:999px;
+  margin-top:6px;
+  background:rgba(170,190,210,.4);
+}
+
+.app{
+  width:100%;
+  max-width:100%;
+  margin-inline:auto;
+  border-radius:28px;
+  padding:20px 14px 16px;
+  background:rgba(3,16,22,.88);
+  min-height:min(844px, calc(100vh - 64px));
+  max-height:calc(100vh - 64px);
+  overflow-y:auto;
+  overflow-x:hidden;
+  overscroll-behavior:contain;
+  position:relative;
+  isolation:isolate;
+}
+
+.app,
+.sentences-list,
+.stats-reward-cards,
+.stats-reward-tabs,
+.vault-body{
+  -ms-overflow-style:none;
+  scrollbar-width:none;
+}
+
+.app::-webkit-scrollbar,
+.sentences-list::-webkit-scrollbar,
+.stats-reward-cards::-webkit-scrollbar,
+.stats-reward-tabs::-webkit-scrollbar,
+.vault-body::-webkit-scrollbar{
+  width:0;
+  height:0;
+}
+
+
+.world-atmosphere{
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+
+.world-mist,
+.world-stars,
+.world-path-glow{
+  position:absolute;
+  inset:-8%;
+}
+
+.world-mist-a{
+  background:radial-gradient(45% 36% at 22% 20%, rgba(84,174,140,.16), transparent 72%);
+  animation:world-drift 16s ease-in-out infinite alternate;
+}
+
+.world-mist-b{
+  background:radial-gradient(40% 34% at 78% 82%, rgba(255,201,102,.11), transparent 72%);
+  animation:world-drift 18s ease-in-out infinite alternate-reverse;
+}
+
+.world-stars{
+  background-image:radial-gradient(circle, rgba(255,237,173,.44) 1px, transparent 1.8px);
+  background-size:62px 62px;
+  opacity:.42;
+  animation:world-stars 28s linear infinite;
+}
+
+.world-path-glow{
+  inset:auto -10% 8%;
+  height:140px;
+  background:radial-gradient(56% 95% at 50% 100%, rgba(255,208,109,.2), transparent 70%);
+  filter:blur(3px);
+  animation:world-path 4.8s ease-in-out infinite;
+}
+
+.world-feedback-hub{
+  position:sticky;
+  top:10px;
+  z-index:12;
+  display:grid;
+  gap:8px;
+  pointer-events:none;
+}
+
+.world-feedback-chip{
+  justify-self:center;
+  background:rgba(8,26,20,.88);
+  border:1px solid rgba(255,223,132,.66);
+  color:#f9f4cf;
+  border-radius:999px;
+  padding:6px 14px;
+  font-size:.76rem;
+  font-weight:800;
+  box-shadow:0 0 18px rgba(255,207,102,.25);
+  opacity:0;
+  transform:translateY(-4px);
+  transition:opacity .26s ease, transform .26s ease;
+}
+
+.world-feedback-chip.show{
+  opacity:1;
+  transform:translateY(0);
+}
+
+.world-feedback-reward{
+  border-color:rgba(255,223,132,.68);
+}
+
+.world-feedback-warning{
+  border-color:rgba(255,139,147,.74);
+  color:#ffe6e9;
+  box-shadow:0 0 14px rgba(255,109,132,.2);
+}
+
+#home-shell,
+.card{
+  position:relative;
+  z-index:1;
+}
+
+
+/* Brand typography */
+.logo-dot{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:var(--accent);
+  box-shadow: 0 0 25px rgba(0,240,210,.8);
+}
+
+.logo{
+  margin:0;
+  font-size:32px;
+  letter-spacing:.5px;
+  color:var(--accent);
+  text-shadow: 0 0 28px rgba(0,240,210,.35);
+  display:inline-flex;
+  align-items:center;
+  gap:10px;
+}
+
+.logo-mark{
+  width:56px;
+  height:56px;
+  filter: drop-shadow(0 0 14px rgba(111,255,247,.52));
+  transform: translateY(1px);
+}
+
+.subtitle{
+  margin:2px 0 0 0;
+  color:var(--muted);
+}
+
+/* Foundational responsive shell rules */
+@media (min-width:700px){
+  .phone-preview-shell{
+    width:min(100%, 440px);
+  }
+
+  .app{
+    padding:24px 16px 18px;
+  }
+}
+
+@media (max-width:700px){
+  .lesson-question-row{
+    flex-direction:column;
+    align-items:stretch;
+    gap:12px;
+  }
+
+  .lesson-left-cluster{
+    position:static;
+    top:auto;
+    left:auto;
+    transform:none;
+    width:100%;
+    min-width:0;
+  }
+
+  .question-row{
+    min-width:0;
+  }
+
+  .lesson-question-controls{
+    width:100%;
+    justify-content:flex-start;
+  }
+
+  #lesson-save-btn{
+    width:100%;
+    text-align:center;
+    margin-left:0;
+  }
+  .logo{font-size:34px;}
+  .header{
+    padding-right:56px;
+  }
+
+  .profile-icon-btn{
+    width:44px;
+    min-height:44px;
+    height:44px;
+    font-size:20px;
+  }
+  .lesson-answers-grid{grid-template-columns: 1fr;}
+  .header-nav{
+    width:100%;
+    grid-template-columns:1fr;
+  }
+  .status-bar{
+    width:100%;
+    justify-content:flex-start;
+  }
+  .profile-grid{
+    grid-template-columns:1fr;
+  }
+  .premium-features{
+    grid-template-columns:1fr;
+  }
+
+}
