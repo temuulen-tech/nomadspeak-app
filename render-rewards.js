@@ -41,3 +41,18 @@ export function renderRewardStripTiles({ containerEl, rewards = [], unlockedRewa
     `;
   }).join("");
 }
+
+export function hydrateRewardImagesByLevel({ imageEls, rewardIcons } = {}) {
+  imageEls?.forEach((imgEl) => {
+    const level = Number(imgEl.dataset.level);
+    if (!Number.isFinite(level) || level < 1 || level > rewardIcons.length) return;
+    imgEl.src = rewardIcons[level - 1];
+  });
+}
+
+export function hydrateRewardStripImages({ imageEls, rewardIcons } = {}) {
+  imageEls?.forEach((imgEl, index) => {
+    if (index >= rewardIcons.length) return;
+    imgEl.src = rewardIcons[index];
+  });
+}

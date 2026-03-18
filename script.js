@@ -59,7 +59,12 @@ import {
   toggleClass,
 } from "./ui.js";
 import { bindModalDismissal, closeModal, openModal } from "./modal.js";
-import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
+import {
+  hydrateRewardImagesByLevel,
+  hydrateRewardStripImages,
+  renderRewards,
+  renderRewardStripTiles,
+} from "./render-rewards.js";
 import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
 import {
   SENTENCE_GAME_CLIMB_POSITIONS,
@@ -115,68 +120,19 @@ const statsScreen = document.getElementById("stats-screen");
 const sentenceGameScreen = document.getElementById("sentence-game-screen");
 const qaGameScreen = document.getElementById("qa-game-screen");
 const boardGameIntroScreen = document.getElementById("board-game-intro-screen");
-const boardGameIntroCoverImageEl = document.querySelector("#board-game-intro-screen .board-game-intro-cover");
 const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
-const boardGameIntroContinueBtn = document.getElementById("board-game-intro-continue-btn");
-const initialDebugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
-let debugChapterPreviewId = initialDebugChapterPreviewId;
 let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
-let debugChapterPreviewMetaEl = null;
 
-const boardWorldConfig = getWorldConfig(WORLD_IDS.WORLD_1);
-
-if (boardGameIntroCoverImageEl && boardWorldConfig?.introCoverImage) {
-  boardGameIntroCoverImageEl.src = boardWorldConfig.introCoverImage;
-}
-
-function ensureDebugChapterPreviewMeta() {
-  if (debugChapterPreviewMetaEl || !boardGameIntroScreen) return debugChapterPreviewMetaEl;
-  debugChapterPreviewMetaEl = document.createElement("div");
-  debugChapterPreviewMetaEl.className = "debug-chapter-preview hidden";
-  boardGameIntroScreen.appendChild(debugChapterPreviewMetaEl);
-  return debugChapterPreviewMetaEl;
-}
-
-function setChapterCoverPreview(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
-  const chapter = getChapterConfig(chapterId) || BOARD_WORLD_CHAPTERS[0] || null;
-  if (!chapter) return null;
-
-  debugChapterPreviewId = chapter.id;
-  if (boardGameIntroCoverImageEl && chapter.coverImage) {
-    boardGameIntroCoverImageEl.src = chapter.coverImage;
-    boardGameIntroCoverImageEl.alt = `${chapter.title} cover`;
-  }
-
-  boardGameIntroScreen?.setAttribute("data-debug-chapter-id", chapter.id);
-
-  const previewMetaEl = ensureDebugChapterPreviewMeta();
-  if (previewMetaEl) {
-    previewMetaEl.innerHTML = `<strong>${chapter.title}</strong><span>${chapter.story}</span>`;
-    previewMetaEl.classList.toggle("hidden", !window.NomadSpeakDebug);
-  }
-
-  if (boardGameIntroContinueBtn) {
-    boardGameIntroContinueBtn.dataset.debugChapterId = chapter.id;
-  }
-
-  return chapter;
-}
-
-setChapterCoverPreview(initialDebugChapterPreviewId);
-
-const rewardImageElsByLevel = document.querySelectorAll(".reward-img[data-level]");
-rewardImageElsByLevel.forEach((imgEl) => {
-  const level = Number(imgEl.dataset.level);
-  if (!Number.isFinite(level) || level < 1 || level > REWARD_ICON_SEQUENCE.length) return;
-  imgEl.src = REWARD_ICON_SEQUENCE[level - 1];
+hydrateRewardImagesByLevel({
+  imageEls: document.querySelectorAll(".reward-img[data-level]"),
+  rewardIcons: REWARD_ICON_SEQUENCE,
 });
 
-const sentenceRewardStripImageEls = document.querySelectorAll("#sentence-game-reward-row .reward-img");
-sentenceRewardStripImageEls.forEach((imgEl, index) => {
-  if (index >= REWARD_ICON_SEQUENCE.length) return;
-  imgEl.src = REWARD_ICON_SEQUENCE[index];
+hydrateRewardStripImages({
+  imageEls: document.querySelectorAll("#sentence-game-reward-row .reward-img"),
+  rewardIcons: REWARD_ICON_SEQUENCE,
 });
 
 const topbar = document.getElementById("topbar");
@@ -1967,7 +1923,7 @@ function navigateTo(destination) {
 
   if (destination === SCREEN_NAMES.BOARD_GAME) {
     stopSpeaking();
-    setChapterCoverPreview(debugChapterPreviewId);
+    SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview();
     showScreen("board-game-intro");
   }
 
@@ -2587,13 +2543,13 @@ function syncBoardGameDebugState(tileNumber, message = "Debug jump completed.") 
 function jumpToBoardChapter(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
   const chapter = getChapterConfig(chapterId) || BOARD_WORLD_CHAPTERS[0] || null;
   if (!chapter) return;
-  setChapterCoverPreview(chapter.id);
+  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview(chapter.id);
   navigateTo("board-game-start");
   syncBoardGameDebugState(chapter.startTile, `${chapter.title} · chapter start preview.`);
 }
 
 function previewChapterCover(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
-  setChapterCoverPreview(chapterId);
+  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview(chapterId);
   showScreen("board-game-intro");
 }
 
@@ -4485,7 +4441,7 @@ function initializeAppState() {
 
 function initializeDebugMode() {
   initDebugTools({
-    getChapterOptions: () => BOARD_WORLD_CHAPTERS.filter((chapter) => debugUnlockedChapterIds.includes(chapter.id)),
+    getChapterOptions: () => SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getAvailableDebugChapters(debugUnlockedChapterIds) || [],
     navigateTo: (screenId) => requestNavigation(screenId),
     previewChapterCover: (chapterId) => previewChapterCover(chapterId),
     jumpToBoard: () => requestNavigation(SCREEN_NAMES.BOARD_GAME),
@@ -4495,7 +4451,7 @@ function initializeDebugMode() {
     giveRewards: () => giveDebugRewards(),
     resetProgress: () => resetDebugProgress(),
   });
-  setChapterCoverPreview(debugChapterPreviewId);
+  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview();
 }
 
 function initializeRewardUi() {
@@ -4863,6 +4819,7 @@ function initializeActiveScreenTracking() {
 
 export function initializeApp() {
   initializeAppState();
+  initializeScreenRegistry();
   initializeDebugMode();
   initializeRewardUi();
   initializeSentenceGameControls();
@@ -4871,7 +4828,6 @@ export function initializeApp() {
   initializeSentenceFilterControls();
   initializeAudioAndSentenceControls();
   initializePlayExitControls();
-  initializeScreenRegistry();
   initializeLifecycleEvents();
   initializeSpeechAndProfileControls();
   initializePremiumControls();
