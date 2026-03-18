@@ -2,6 +2,7 @@ import { BOARD_SELECTOR_STEPS, SCREEN_NAMES, getDifficultyOption } from "./const
 import { getDefaultChapterForWorld, getChapterConfig } from "./chapters.js";
 import { getBoardEntryState } from "./state.js";
 import { getSelectableBoardWorlds, getWorldConfig } from "./worlds.js";
+import { bindClickOnce } from "./ui.js";
 
 /**
  * chapter-cover-screen.js
@@ -110,21 +111,19 @@ export function initChapterCoverScreen(handlers = {}) {
     return chapter;
   };
 
-  if (continueBtn) {
-    continueBtn.addEventListener("click", () => {
-      const selection = getSelectionState();
-      if (selection.step === BOARD_SELECTOR_STEPS.ENTRY) {
-        handlers.onAdvanceSelectorStep?.(BOARD_SELECTOR_STEPS.WORLD);
-        syncSelectorUi();
-        return;
-      }
+  bindClickOnce(continueBtn, "board-entry:continue", () => {
+    const selection = getSelectionState();
+    if (selection.step === BOARD_SELECTOR_STEPS.ENTRY) {
+      handlers.onAdvanceSelectorStep?.(BOARD_SELECTOR_STEPS.WORLD);
+      syncSelectorUi();
+      return;
+    }
 
-      handlers.onStartGame?.(selection);
-    });
-  }
+    handlers.onStartGame?.(selection);
+  });
 
   worldButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `board-entry:world:${btn.dataset.boardWorld || btn.textContent}`, () => {
       const worldId = btn.dataset.boardWorld || worldOptions[0]?.id || null;
       handlers.onSelectWorld?.(worldId);
       setPreview(getDefaultChapterForWorld(worldId)?.id || null);
@@ -133,7 +132,7 @@ export function initChapterCoverScreen(handlers = {}) {
   });
 
   difficultyButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `board-entry:difficulty:${btn.dataset.boardDifficulty || btn.textContent}`, () => {
       handlers.onSelectDifficulty?.(btn.dataset.boardDifficulty);
       syncSelectorUi();
     });

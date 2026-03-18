@@ -54,6 +54,8 @@ import {
 } from "./render-board.js";
 import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
 import {
+  bindClickOnce,
+  hasClickBinding,
   hideElement,
   isHidden,
   setActiveState,
@@ -4648,7 +4650,7 @@ function initializeSentenceFilterControls() {
 
 function initializeAudioAndSentenceControls() {
   voiceOptionButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `tts:voice:${btn.dataset.voice || btn.textContent}`, () => {
       appSettings.ttsSettings.voice = btn.dataset.voice;
       updateTtsControlState();
       persistTtsSettings();
@@ -4664,7 +4666,7 @@ function initializeAudioAndSentenceControls() {
   }
 
   soundToggleButtons.forEach((toggleBtn) => {
-    toggleBtn.addEventListener("click", () => {
+    bindClickOnce(toggleBtn, `app:sound-toggle:${toggleBtn.id || toggleBtn.className}`, () => {
       const nextSoundEnabled = !appSettings.soundEnabled;
       updateSettings({ soundEnabled: nextSoundEnabled });
       syncCoreStateReferences();
@@ -4686,7 +4688,7 @@ function initializeAudioAndSentenceControls() {
 
 function initializePlayExitControls() {
   playExitButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `app:play-exit:${btn.id || btn.className}`, () => {
       gameFeelSoundManager.stopAmbient();
       worldSoundscape.stop();
       exitPlayModeToHome();
@@ -4886,6 +4888,44 @@ function initializeActiveScreenTracking() {
   }
 }
 
+function auditPrimaryButtonWiring() {
+  const buttonAudit = [
+    { name: "home modes", element: navModesBtn, key: "home:toggle-modes" },
+    { name: "home lesson", element: document.getElementById("nav-lesson-btn"), key: "home:navigate-lesson" },
+    { name: "home sentences", element: document.getElementById("nav-sentences-btn"), key: "home:navigate-sentences" },
+    { name: "home sentence game", element: document.getElementById("nav-sentence-game-btn"), key: "home:navigate-sentence-game" },
+    { name: "home q&a", element: document.getElementById("nav-qa-game-btn"), key: "home:navigate-qa-game" },
+    { name: "home board game", element: document.getElementById("nav-board-game-btn"), key: "home:navigate-board-game" },
+    { name: "home stats", element: document.getElementById("nav-stats-btn"), key: "home:navigate-stats" },
+    { name: "home profile", element: document.getElementById("nav-profile-btn"), key: "home:navigate-profile" },
+    { name: "lesson start level", element: startBtn, key: "lesson:start-level-menu-toggle" },
+    { name: "board continue", element: document.getElementById("board-game-intro-continue-btn"), key: "board-entry:continue" },
+    { name: "board roll", element: boardGameRollBtn, key: "board:roll-button" },
+    { name: "lesson next", element: document.getElementById("next-btn"), key: "lesson:next" },
+  ];
+
+  soundToggleButtons.forEach((button, index) => {
+    buttonAudit.push({
+      name: `sound toggle ${index + 1}`,
+      element: button,
+      key: `app:sound-toggle:${button.id || button.className}`,
+    });
+  });
+
+  playExitButtons.forEach((button, index) => {
+    buttonAudit.push({
+      name: `play exit ${index + 1}`,
+      element: button,
+      key: `app:play-exit:${button.id || button.className}`,
+    });
+  });
+
+  const missingBindings = buttonAudit.filter(({ element, key }) => !hasClickBinding(element, key));
+  if (missingBindings.length) {
+    console.warn("[NomadSpeak] Missing primary button click wiring:", missingBindings.map(({ name }) => name));
+  }
+}
+
 export function initializeApp() {
   initializeAppState();
   initializeScreenRegistry();
@@ -4902,6 +4942,7 @@ export function initializeApp() {
   initializePremiumControls();
   initializeInstallPrompt();
   initializeActiveScreenTracking();
+  auditPrimaryButtonWiring();
   loadSentences();
   initBoardGameMvp();
 }

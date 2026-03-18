@@ -5,14 +5,15 @@
 
 import { renderBoardRollState } from "./render-board.js";
 import { SCREEN_NAMES } from "./constants.js";
+import { bindClickOnce } from "./ui.js";
 
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
   const rollBtn = document.getElementById("board-game-roll-btn");
   const diceEl = document.getElementById("board-game-dice");
 
-  if (rollBtn) rollBtn.addEventListener("click", () => handlers.onRollDice?.());
-  if (diceEl) diceEl.addEventListener("click", () => handlers.onRollDice?.());
+  bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
+  bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
 
   window.addEventListener("resize", () => {
     if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;

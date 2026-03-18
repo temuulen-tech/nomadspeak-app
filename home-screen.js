@@ -5,6 +5,7 @@
 
 import { renderHomeScreen } from "./render-home.js";
 import { SCREEN_NAMES } from "./constants.js";
+import { bindClickOnce } from "./ui.js";
 
 export function initHomeScreen(handlers = {}) {
   const startScreenEl = document.getElementById("start-screen");
@@ -24,34 +25,32 @@ export function initHomeScreen(handlers = {}) {
   const startLevelPicker = document.querySelector(".start-level-picker");
   const startLevelOptions = Array.from(document.querySelectorAll(".start-level-option"));
 
-  if (navLessonBtn) navLessonBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.LESSON));
-  if (navSentencesBtn) navSentencesBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCES));
-  if (navSentenceGameBtn) navSentenceGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCE_GAME));
-  if (navQaGameBtn) navQaGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.QA_GAME));
-  if (navBoardGameBtn) navBoardGameBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.BOARD_GAME));
-  if (navStatsBtn) navStatsBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
-  if (navProfileBtn) navProfileBtn.addEventListener("click", () => handlers.onNavigate?.(SCREEN_NAMES.PROFILE));
-  if (navModesBtn) navModesBtn.addEventListener("click", () => handlers.onToggleModes?.());
+  bindClickOnce(navLessonBtn, "home:navigate-lesson", () => handlers.onNavigate?.(SCREEN_NAMES.LESSON));
+  bindClickOnce(navSentencesBtn, "home:navigate-sentences", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCES));
+  bindClickOnce(navSentenceGameBtn, "home:navigate-sentence-game", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCE_GAME));
+  bindClickOnce(navQaGameBtn, "home:navigate-qa-game", () => handlers.onNavigate?.(SCREEN_NAMES.QA_GAME));
+  bindClickOnce(navBoardGameBtn, "home:navigate-board-game", () => handlers.onNavigate?.(SCREEN_NAMES.BOARD_GAME));
+  bindClickOnce(navStatsBtn, "home:navigate-stats", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
+  bindClickOnce(navProfileBtn, "home:navigate-profile", () => handlers.onNavigate?.(SCREEN_NAMES.PROFILE));
+  bindClickOnce(navModesBtn, "home:toggle-modes", () => handlers.onToggleModes?.());
 
-  document.addEventListener("click", (event) => {
+  bindClickOnce(document, "home:close-modes-outside-click", (event) => {
     if (!homeModesPanel || !navModesBtn) return;
     if (homeModesPanel.classList.contains("hidden")) return;
     if (homeModesPanel.contains(event.target) || navModesBtn.contains(event.target)) return;
     handlers.onCloseModes?.();
   });
 
-  if (introToggleBtn) introToggleBtn.addEventListener("click", () => handlers.onToggleIntro?.());
-  if (introCloseBtn) introCloseBtn.addEventListener("click", () => handlers.onCloseIntro?.());
+  bindClickOnce(introToggleBtn, "home:toggle-intro", () => handlers.onToggleIntro?.());
+  bindClickOnce(introCloseBtn, "home:close-intro", () => handlers.onCloseIntro?.());
 
-  if (startBtn) {
-    startBtn.addEventListener("click", () => {
-      if (!startLevelDropdown) return;
-      const willOpen = startLevelDropdown.classList.contains("hidden");
-      handlers.onSetStartLevelMenuOpen?.(willOpen);
-    });
-  }
+  bindClickOnce(startBtn, "lesson:start-level-menu-toggle", () => {
+    if (!startLevelDropdown) return;
+    const willOpen = startLevelDropdown.classList.contains("hidden");
+    handlers.onSetStartLevelMenuOpen?.(willOpen);
+  });
 
-  document.addEventListener("click", (event) => {
+  bindClickOnce(document, "lesson:close-start-level-menu-outside-click", (event) => {
     if (!startLevelDropdown || !startBtn || !startLevelPicker) return;
     if (startLevelDropdown.classList.contains("hidden")) return;
     if (startLevelPicker.contains(event.target)) return;
@@ -59,7 +58,7 @@ export function initHomeScreen(handlers = {}) {
   });
 
   startLevelOptions.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `lesson:start-level-option:${btn.dataset.level || btn.textContent}`, () => {
       handlers.onSelectStartLevel?.(btn);
     });
   });
