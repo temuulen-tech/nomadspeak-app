@@ -2891,3 +2891,73 @@ body[data-active-screen="board-game"] .app{
     padding:14px;
   }
 }
+
+
+@media (max-width:900px){
+  #home-shell{
+    gap:18px;
+  }
+
+  .home-hero-copy-shell{
+    gap:14px;
+  }
+
+  .home-hero-meta{
+    grid-template-columns:1fr;
+  }
+}
+
+@media (max-width:600px){
+  .header{
+    margin-bottom:8px;
+    padding-right:56px;
+  }
+
+  #home-shell{
+    gap:16px;
+  }
+
+  #start-screen{
+    gap:16px;
+  }
+
+  .home-action-card{
+    gap:10px;
+  }
+
+  .home-nav-group{
+    gap:6px;
+  }
+
+  .home-modes-panel{
+    top:calc(100% + 8px);
+  }
+
+  .home-hero-copy-shell{
+    gap:12px;
+  }
+
+  .home-hero-meta{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
+  .home-hero-stat{
+    padding:11px 12px;
+  }
+
+  .home-hero-aside{
+    padding:15px;
+  }
+}
+
+@media (max-width:420px){
+  .home-nav-group-label,
+  .home-hero-stat-label{
+    font-size:10px;
+  }
+
+  .home-hero-title{
+    line-height:1.14;
+  }
+}
