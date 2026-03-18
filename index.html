@@ -414,20 +414,27 @@
         alt="Columbus New World cover"
       />
       <div class="board-game-intro-selector" aria-label="Тоглоомын сонголтууд">
-        <p class="chip-label">Та битгий уурлаарай</p>
-        <h2 id="board-game-selector-title">Ертөнц / тоглоомоо сонгох</h2>
-        <div class="board-game-world-options" id="board-game-world-options" role="menu" aria-label="Ертөнц сонгох">
-          <button class="secondary board-game-world-option" type="button" data-board-world="world1" role="menuitem">Колумб ба Шинэ тивийнхэн</button>
-          <button class="secondary board-game-world-option" type="button" data-board-world="world2" role="menuitem">Эртний Хятад ба Торгоны зам</button>
-          <button class="secondary board-game-world-option" type="button" data-board-world="world3" role="menuitem">Ромын эзэнт гүрэн ба Гладиаторууд</button>
+        <div class="board-game-entry-panel" id="board-game-entry-panel">
+          <p class="chip-label">Ерөнхий тоглоом</p>
+          <h2 id="board-game-selector-title">Та битгий уурлаарай</h2>
+          <p class="board-game-entry-copy">Эхлээд ерөнхий тоглоомын хэсэгт орж, дараа нь өөрийн аяллын ертөнцөө сонгоно.</p>
         </div>
-        <div class="board-game-difficulty-selector hidden" id="board-game-difficulty-selector">
-          <p class="chip-label" id="board-game-selected-world-label">Сонгосон ертөнц:</p>
-          <h3 id="board-game-difficulty-title">Тоглоомын ангилал сонгох</h3>
-          <div class="board-game-difficulty-options" id="board-game-difficulty-options" role="menu" aria-label="Тоглоомын ангилал сонгох">
-            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="beginner" role="menuitem">Анхан</button>
-            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="intermediate" role="menuitem">Дунд</button>
-            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="advanced" role="menuitem">Ахисан</button>
+        <div class="board-game-world-selection hidden" id="board-game-world-selection">
+          <p class="chip-label">Ертөнц сонголт</p>
+          <h3 class="board-game-selection-heading">Ертөнц / тоглоомоо сонгох</h3>
+          <div class="board-game-world-options" id="board-game-world-options" role="menu" aria-label="Ертөнц сонгох">
+            <button class="secondary board-game-world-option" type="button" data-board-world="world1" role="menuitem">Колумб ба Шинэ тивийнхэн</button>
+            <button class="secondary board-game-world-option" type="button" data-board-world="world2" role="menuitem">Эртний Хятад ба Торгоны зам</button>
+            <button class="secondary board-game-world-option" type="button" data-board-world="world3" role="menuitem">Ромын эзэнт гүрэн ба Гладиаторууд</button>
+          </div>
+          <div class="board-game-difficulty-selector hidden" id="board-game-difficulty-selector">
+            <p class="chip-label" id="board-game-selected-world-label">Сонгосон ертөнц:</p>
+            <h3 id="board-game-difficulty-title">Тоглоомын ангилал сонгох</h3>
+            <div class="board-game-difficulty-options" id="board-game-difficulty-options" role="menu" aria-label="Тоглоомын ангилал сонгох">
+              <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="beginner" role="menuitem">Анхан</button>
+              <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="intermediate" role="menuitem">Дунд</button>
+              <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="advanced" role="menuitem">Ахисан</button>
+            </div>
           </div>
         </div>
       </div>

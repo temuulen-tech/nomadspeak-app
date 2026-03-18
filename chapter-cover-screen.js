@@ -31,6 +31,8 @@ export function initChapterCoverScreen(handlers = {}) {
   const chapterCoverScreenEl = document.getElementById("board-game-intro-screen");
   const continueBtn = document.getElementById("board-game-intro-continue-btn");
   const coverImageEl = document.querySelector("#board-game-intro-screen .board-game-intro-cover");
+  const entryPanelEl = document.getElementById("board-game-entry-panel");
+  const worldSelectionEl = document.getElementById("board-game-world-selection");
   const worldButtons = Array.from(document.querySelectorAll(".board-game-world-option"));
   const difficultySelectorEl = document.getElementById("board-game-difficulty-selector");
   const selectedWorldLabelEl = document.getElementById("board-game-selected-world-label");
@@ -41,9 +43,12 @@ export function initChapterCoverScreen(handlers = {}) {
     debugMetaEl: null,
     selectedWorldId: BOARD_WORLD_OPTIONS[0]?.id || null,
     selectedDifficultyId: BOARD_DIFFICULTY_OPTIONS[0]?.id || null,
+    isWorldSelectionVisible: false,
   };
 
   const syncSelectorUi = () => {
+    entryPanelEl?.classList.toggle("hidden", state.isWorldSelectionVisible);
+    worldSelectionEl?.classList.toggle("hidden", !state.isWorldSelectionVisible);
     worldButtons.forEach((btn) => {
       btn.classList.toggle("active", btn.dataset.boardWorld === state.selectedWorldId);
       btn.setAttribute("aria-pressed", btn.dataset.boardWorld === state.selectedWorldId ? "true" : "false");
@@ -64,7 +69,8 @@ export function initChapterCoverScreen(handlers = {}) {
     }
 
     if (continueBtn) {
-      continueBtn.disabled = !state.selectedWorldId || !state.selectedDifficultyId;
+      continueBtn.textContent = state.isWorldSelectionVisible ? "Тоглож эхлэх" : "Үргэлжлүүлэх";
+      continueBtn.disabled = state.isWorldSelectionVisible && (!state.selectedWorldId || !state.selectedDifficultyId);
     }
   };
 
@@ -99,10 +105,18 @@ export function initChapterCoverScreen(handlers = {}) {
   };
 
   if (continueBtn) {
-    continueBtn.addEventListener("click", () => handlers.onStartGame?.({
-      worldId: state.selectedWorldId,
-      difficultyId: state.selectedDifficultyId,
-    }));
+    continueBtn.addEventListener("click", () => {
+      if (!state.isWorldSelectionVisible) {
+        state.isWorldSelectionVisible = true;
+        syncSelectorUi();
+        return;
+      }
+
+      handlers.onStartGame?.({
+        worldId: state.selectedWorldId,
+        difficultyId: state.selectedDifficultyId,
+      });
+    });
   }
 
   worldButtons.forEach((btn) => {
@@ -137,6 +151,7 @@ export function initChapterCoverScreen(handlers = {}) {
     resetSelection: () => {
       state.selectedWorldId = BOARD_WORLD_OPTIONS[0]?.id || null;
       state.selectedDifficultyId = BOARD_DIFFICULTY_OPTIONS[0]?.id || null;
+      state.isWorldSelectionVisible = false;
       syncSelectorUi();
     },
     getAvailableDebugChapters: (unlockedIds = []) => {
