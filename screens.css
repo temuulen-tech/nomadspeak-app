@@ -1969,8 +1969,8 @@ body[data-active-screen="board-game"] .app{
   --board-safe-top:max(env(safe-area-inset-top), 8px);
   --board-safe-bottom:max(env(safe-area-inset-bottom), 10px);
   display:grid;
-  grid-template-rows:auto auto minmax(0, 1fr) auto;
-  gap:10px;
+  grid-template-rows:auto minmax(0, 1fr) auto;
+  gap:12px;
   position:relative;
   z-index:1;
   min-height:100%;
@@ -1978,53 +1978,91 @@ body[data-active-screen="board-game"] .app{
   padding-bottom:var(--board-safe-bottom);
 }
 
-.board-game-topbar{
+.board-game-top-cluster{
   position:relative;
   z-index:10;
+  display:grid;
+  gap:8px;
+}
+
+.board-game-topbar{
+  position:relative;
   min-height:0;
-  padding:10px 10px 9px;
+  padding:10px;
   margin:0;
   display:grid;
   grid-template-columns:auto minmax(0, 1fr) auto;
-  align-items:start;
-  gap:8px;
-  border-radius:16px;
-  background:linear-gradient(160deg, rgba(8,27,35,.78), rgba(10,40,34,.62));
+  align-items:stretch;
+  gap:10px;
+  border-radius:18px;
+  background:linear-gradient(160deg, rgba(8,27,35,.82), rgba(10,40,34,.66));
   border:1px solid rgba(229,207,141,.24);
-  backdrop-filter:blur(4px);
+  backdrop-filter:blur(6px);
   box-shadow:0 14px 32px rgba(0,0,0,.2);
+}
+
+.board-game-topbar::after{
+  content:"";
+  position:absolute;
+  inset:1px;
+  border-radius:inherit;
+  border:1px solid rgba(255,255,255,.04);
+  pointer-events:none;
+}
+
+.board-game-topbar-side{
+  display:flex;
+  align-items:flex-start;
+}
+
+.board-game-topbar-side-end{
+  justify-content:flex-end;
 }
 
 .board-topbar-exit,
 .board-topbar-sound{
-  min-width:40px;
-  height:34px;
+  min-width:42px;
+  min-height:36px;
   padding:0 10px;
-  border-radius:10px;
+  border-radius:12px;
 }
 
-.board-game-topbar-center{
-  display:flex;
-  flex-direction:column;
-  gap:7px;
-  flex:1;
+.board-game-topbar-main{
+  display:grid;
+  gap:8px;
   min-width:0;
-  padding-top:2px;
+  align-content:start;
 }
 
-#board-game-screen .board-game-topbar-center .screen-title-chip{
+.board-game-topbar-title-block{
+  display:grid;
+  gap:4px;
+  min-width:0;
+}
+
+.board-game-topbar-kicker{
   margin:0;
-  font-size:.8rem;
-  line-height:1.24;
+  opacity:.9;
+  letter-spacing:.04em;
+}
+
+#board-game-screen .board-game-topbar-main .screen-title-chip{
+  margin:0;
+  padding:8px 12px;
+  font-size:.84rem;
+  line-height:1.3;
   overflow:hidden;
   text-overflow:ellipsis;
   display:-webkit-box;
   -webkit-line-clamp:2;
   -webkit-box-orient:vertical;
   white-space:normal;
+  background:linear-gradient(160deg, rgba(14,42,50,.88), rgba(10,30,38,.74));
+  border-color:rgba(255,225,148,.22);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
 
-.board-game-topbar-status{ margin-top:0; margin-bottom:0; gap:5px; }
+.board-game-topbar-status{ margin-top:0; margin-bottom:0; gap:6px; }
 
 .board-game-meta-row{ display:flex; gap:6px; flex-wrap:wrap; margin:0; }
 
@@ -2032,11 +2070,38 @@ body[data-active-screen="board-game"] .app{
   display:inline-flex;
   gap:4px;
   align-items:center;
-  padding:3px 7px;
+  padding:4px 8px;
   border-radius:999px;
   font-size:.64rem;
-  background:rgba(8,20,26,.52);
+  background:rgba(8,20,26,.58);
   border:1px solid rgba(255,225,148,.24);
+}
+
+.board-game-scene-story{
+  display:grid;
+  gap:6px;
+  padding:10px 12px;
+  border-radius:16px;
+  background:linear-gradient(160deg, rgba(7,24,32,.72), rgba(9,33,41,.48));
+  border:1px solid rgba(229,207,141,.18);
+  backdrop-filter:blur(3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
+}
+
+.board-game-story-copy{
+  display:grid;
+  gap:4px;
+}
+
+.board-game-story-label,
+#board-game-chapter-title,
+#board-game-chapter-text{
+  margin:0;
+}
+
+.board-game-story-label{
+  opacity:.82;
+  letter-spacing:.04em;
 }
 
 .board-game-layout{
@@ -2563,24 +2628,33 @@ body[data-active-screen="board-game"] .app{
 
 @media (max-width:520px){
   .board-game-content-shell{
-    gap:8px;
+    gap:10px;
+  }
+
+  .board-game-top-cluster{
+    gap:7px;
   }
 
   .board-game-topbar{
     grid-template-columns:auto minmax(0, 1fr) auto;
-    gap:6px;
-    padding:9px 8px 8px;
+    gap:7px;
+    padding:9px 8px;
   }
 
   .board-topbar-exit,
   .board-topbar-sound{
     min-width:38px;
-    height:34px;
+    min-height:34px;
     padding:0 8px;
   }
 
-  #board-game-screen .board-game-topbar-center .screen-title-chip{
-    font-size:.72rem;
+  .board-game-topbar-main{
+    gap:7px;
+  }
+
+  #board-game-screen .board-game-topbar-main .screen-title-chip{
+    font-size:.74rem;
+    padding:7px 10px;
   }
 
   .board-game-meta-row{
@@ -2589,6 +2663,10 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-meta-chip{
     font-size:.58rem;
+  }
+
+  .board-game-scene-story{
+    padding:9px 10px;
   }
 
   .board-game-scene-story{
