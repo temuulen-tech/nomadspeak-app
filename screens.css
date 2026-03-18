@@ -2267,20 +2267,33 @@ body[data-active-screen="board-game"] .app{
   min-height:0;
   display:grid;
   grid-template-columns:minmax(0, 1fr) auto;
-  gap:10px;
+  gap:12px;
   align-items:stretch;
 }
 
 .board-game-board-frame{
   position:relative;
   min-height:0;
-  border-radius:20px;
-  padding:12px 12px 14px;
-  background:linear-gradient(180deg, rgba(9,30,40,.16), rgba(9,20,30,.08));
-  border:1px solid rgba(255,233,168,.16);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
+  min-width:0;
+  border-radius:24px;
+  padding:16px 16px 18px;
+  background:linear-gradient(180deg, rgba(9,30,40,.3), rgba(9,20,30,.14));
+  border:1px solid rgba(255,233,168,.2);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px rgba(0,0,0,.18);
+  overflow:hidden;
 }
 
+
+.board-game-board-frame-glow{
+  position:absolute;
+  inset:10px;
+  border-radius:20px;
+  pointer-events:none;
+  background:
+    radial-gradient(110% 90% at 50% 0%, rgba(255,237,184,.12), transparent 48%),
+    linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,0));
+  border:1px solid rgba(255,244,214,.08);
+}
 .board-game-voyager{
   position:absolute;
   z-index:4;
@@ -2320,9 +2333,10 @@ body[data-active-screen="board-game"] .app{
   display:flex;
   flex-wrap:wrap;
   align-content:flex-start;
-  gap:9px 7px;
-  padding:4px 2px 2px 28px;
-  border-radius:16px;
+  justify-content:center;
+  gap:10px 8px;
+  padding:12px 10px 10px 34px;
+  border-radius:18px;
 }
 
 .board-game-token{
@@ -2345,11 +2359,11 @@ body[data-active-screen="board-game"] .app{
 .board-game-feedback-hub{
   position:relative;
   z-index:7;
-  align-self:start;
+  align-self:center;
   display:grid;
-  gap:6px;
+  gap:8px;
   max-height:100%;
-  width:min(100%, 210px);
+  width:min(100%, 216px);
   overflow:hidden;
 }
 
@@ -2357,53 +2371,73 @@ body[data-active-screen="board-game"] .app{
   position:relative;
   z-index:8;
   display:grid;
-  grid-template-columns:minmax(0, 1fr) auto;
+  grid-template-columns:minmax(0, 1fr) minmax(150px, 180px);
   grid-template-areas:
     "feedback controls"
-    "challenge challenge";
-  gap:10px;
-  align-items:end;
+    "challenge controls";
+  gap:12px;
+  align-items:stretch;
 }
 
 .board-game-feedback-strip{
   grid-area:feedback;
   position:relative;
-  min-height:72px;
-  border-radius:14px;
-  padding:10px 12px;
+  min-height:88px;
+  border-radius:18px;
+  padding:12px 14px;
   border:1px solid rgba(255,229,164,.35);
-  background:linear-gradient(160deg, rgba(7,18,25,.76), rgba(8,26,32,.54));
+  background:linear-gradient(160deg, rgba(7,18,25,.82), rgba(8,26,32,.58));
   backdrop-filter:blur(2px);
+  display:grid;
+  align-content:start;
+  gap:6px;
 }
 
-.board-game-feedback-strip p{margin:0;font-size:.76rem;line-height:1.42;}
+.board-game-feedback-label,
+.board-game-dice-label,
+.board-game-helper-label{
+  margin:0;
+  opacity:.82;
+  letter-spacing:.04em;
+}
+
+.board-game-feedback-strip p{margin:0;font-size:.8rem;line-height:1.46;}
 
 .board-game-controls-panel{
   grid-area:controls;
   position:relative;
   display:grid;
   justify-items:center;
-  align-content:end;
-  gap:6px;
+  align-content:center;
+  align-self:stretch;
+  gap:8px;
+  padding:12px 10px;
+  border-radius:18px;
+  border:1px solid rgba(255,232,172,.26);
+  background:linear-gradient(180deg, rgba(6,18,24,.82), rgba(12,31,40,.7));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
 }
 
 .board-game-mini-status{
   margin:0;
   font-size:.64rem;
-  padding:4px 8px;
-  border-radius:999px;
+  padding:6px 8px;
+  border-radius:12px;
   background:rgba(3,16,22,.68);
   border:1px solid rgba(255,223,145,.24);
   text-align:center;
+  width:100%;
+  max-width:132px;
+  line-height:1.45;
 }
 
 .board-game-challenge-panel{
   grid-area:challenge;
   position:relative;
   border:1px solid rgba(255,233,168,.26);
-  border-radius:14px;
+  border-radius:18px;
   background:linear-gradient(160deg, rgba(8,20,28,.92), rgba(8,32,35,.89));
-  padding:0 10px;
+  padding:0 14px;
   max-height:0;
   overflow:hidden;
   opacity:0;
@@ -2413,21 +2447,22 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-challenge-panel.show{
-  padding:10px;
-  max-height:240px;
+  padding:12px 14px 14px;
+  max-height:260px;
   opacity:1;
   pointer-events:auto;
 }
 .board-game-challenge-panel p{margin:0;}
+.board-game-helper-copy{display:grid;gap:4px;}
 #board-game-challenge-title{font-weight:800;font-size:.84rem;}
-#board-game-challenge-text{margin-top:4px;font-size:.72rem;line-height:1.35;}
+#board-game-challenge-text{margin-top:2px;font-size:.72rem;line-height:1.4;}
 
-.board-game-options{ margin-top:8px; display:grid; gap:6px; }
+.board-game-options{ margin-top:10px; display:grid; gap:6px; }
 
 .board-game-tile{
-  width:31px;
-  height:31px;
-  min-height:31px;
+  width:32px;
+  height:32px;
+  min-height:32px;
   border-radius:999px;
   border:1px solid rgba(250,221,150,.45);
   background:radial-gradient(90% 100% at 32% 24%, rgba(255,241,190,.45), rgba(212,171,91,.52) 55%, rgba(101,74,30,.92));
@@ -2447,7 +2482,7 @@ body[data-active-screen="board-game"] .app{
   width:20px;
   height:3px;
   right:-16px;
-  top:14px;
+  top:15px;
   border-radius:999px;
   background:linear-gradient(90deg, rgba(255,219,133,.76), rgba(255,239,203,.2));
   pointer-events:none;
@@ -2472,8 +2507,8 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-dice{
   margin-top:0;
-  width:64px;
-  height:64px;
+  width:72px;
+  height:72px;
   border-radius:16px;
   border:none;
   padding:0;
@@ -2499,7 +2534,7 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-dice::before{
-  width:56px;
+  width:62px;
   height:14px;
   bottom:-8px;
   background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.48), rgba(0,0,0,0));
@@ -2525,8 +2560,8 @@ body[data-active-screen="board-game"] .app{
 
 .dice-cube{
   position:relative;
-  width:52px;
-  height:52px;
+  width:58px;
+  height:58px;
   transform-style:preserve-3d;
   transform:rotateX(14deg) rotateY(-18deg);
 }
@@ -2629,6 +2664,7 @@ body[data-active-screen="board-game"] .app{
 @media (max-width:520px){
   .board-game-content-shell{
     gap:10px;
+    grid-template-rows:auto minmax(0, 1fr) auto;
   }
 
   .board-game-top-cluster{
@@ -2676,6 +2712,7 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-stage{
     grid-template-columns:minmax(0, 1fr);
+    gap:10px;
   }
 
   .board-game-feedback-hub{
@@ -2690,13 +2727,28 @@ body[data-active-screen="board-game"] .app{
       "feedback"
       "controls"
       "challenge";
+    gap:10px;
   }
 
   .board-game-controls-panel{
     justify-items:stretch;
+    padding:10px 12px;
   }
 
   .board-game-dice{
     justify-self:center;
+    width:68px;
+    height:68px;
+  }
+
+  .dice-cube{
+    width:54px;
+    height:54px;
+  }
+
+  .board-game-feedback-strip,
+  .board-game-challenge-panel.show{
+    padding-left:12px;
+    padding-right:12px;
   }
 }
