@@ -1,5 +1,20 @@
-import { STORAGE_KEYS } from "./storage.js";
-import { getState, setStateValue } from "./state.js";
+import {
+  STORAGE_KEYS,
+  loadAppSaveData,
+  persistPremiumStatus,
+  persistProfileName,
+  persistProgressState as saveProgressState,
+  persistSoundSetting,
+  persistTtsSettings as saveTtsSettings,
+} from "./storage.js";
+import {
+  createDefaultProgressState,
+  DEFAULT_TTS_SETTINGS,
+  getState,
+  normalizeProgressState,
+  normalizeTtsSettings,
+  setStateValue,
+} from "./state.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
@@ -449,21 +464,9 @@ let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
 
 
-const TTS_SETTINGS_KEY = STORAGE_KEYS.ttsSettings;
-const LEGACY_TTS_RATE_KEY = STORAGE_KEYS.legacyTtsRate;
-const SOUND_SETTINGS_KEY = STORAGE_KEYS.soundEnabled;
-const PROGRESS_SETTINGS_KEY = STORAGE_KEYS.progressSettings;
 const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
 const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
-const PROFILE_NAME_STORAGE_KEY = STORAGE_KEYS.profileName;
-const PREMIUM_STORAGE_KEY = STORAGE_KEYS.premium;
 const FREE_DAILY_XP_LIMIT = 10;
-const DEFAULT_DAILY_GOAL = 10;
-const DEFAULT_TTS_SETTINGS = {
-  voice: "auto",
-  rate: 0.85,
-};
-
 let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
 let soundEnabled = true;
 let audioContext = null;
@@ -473,6 +476,12 @@ const BACKGROUND_AUDIO_ENABLED = true;
 let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
+let migratedSaveData = null;
+
+function getMigratedSaveData() {
+  if (!migratedSaveData) migratedSaveData = loadAppSaveData();
+  return migratedSaveData;
+}
 
 const SOUND_EVENT_HOOKS = {
   diceRoll: "dice-roll",
@@ -482,24 +491,7 @@ const SOUND_EVENT_HOOKS = {
   progression: "progression",
 };
 
-let progressState = {
-  xp: 35,
-  level: 1,
-  streak: 1,
-  lastActiveDate: null,
-  lastStatsDate: null,
-  dailyGoalXP: DEFAULT_DAILY_GOAL,
-  dailyGoalCount: 10,
-  todayCount: 2,
-  todayMinutes: 8,
-  todaySecondsRemainder: 0,
-  weeklyMinutes: [12, 18, 9, 16, 20, 11, 8],
-  rewardTierUnlocked: 1,
-  xpTotal: 35,
-  streakDays: 1,
-  dailyXP: 0,
-  dailyCompleted: false,
-};
+let progressState = createDefaultProgressState();
 
 
 let deferredInstallPrompt = null;
@@ -1207,47 +1199,6 @@ function rewardForStreak(streak) {
   return "⭐ Таван хошуу";
 }
 
-function normalizeProgressState(raw = {}) {
-  const configuredDailyGoal = Number.isFinite(Number(raw.dailyGoalXP)) && Number(raw.dailyGoalXP) > 0
-    ? Math.floor(Number(raw.dailyGoalXP))
-    : DEFAULT_DAILY_GOAL;
-  const xp = Number.isFinite(Number(raw.xp))
-    ? Math.max(0, Math.floor(Number(raw.xp)))
-    : (Number.isFinite(Number(raw.xpTotal)) ? Math.max(0, Math.floor(Number(raw.xpTotal))) : 35);
-  const streak = Number.isFinite(Number(raw.streak))
-    ? Math.max(0, Math.floor(Number(raw.streak)))
-    : (Number.isFinite(Number(raw.streakDays)) ? Math.max(0, Math.floor(Number(raw.streakDays))) : 1);
-  const todayCount = Number.isFinite(Number(raw.todayCount)) ? Math.max(0, Math.floor(Number(raw.todayCount))) : 2;
-  const todayMinutes = Number.isFinite(Number(raw.todayMinutes)) ? Math.max(0, Math.floor(Number(raw.todayMinutes))) : 8;
-  const todaySecondsRemainder = Number.isFinite(Number(raw.todaySecondsRemainder)) ? Math.max(0, Math.floor(Number(raw.todaySecondsRemainder))) : 0;
-  const weeklyRaw = Array.isArray(raw.weeklyMinutes) ? raw.weeklyMinutes : [];
-  const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
-    const source = weeklyRaw[index];
-    const fallback = [12, 18, 9, 16, 20, 11, todayMinutes][index];
-    return Number.isFinite(Number(source)) ? Math.max(0, Math.floor(Number(source))) : fallback;
-  });
-  const rewardTierUnlocked = Number.isFinite(Number(raw.rewardTierUnlocked)) ? Math.max(1, Math.min(5, Math.floor(Number(raw.rewardTierUnlocked)))) : 1;
-  const level = Math.floor(xp / 100) + 1;
-  return {
-    xp,
-    level,
-    streak,
-    lastActiveDate: typeof raw.lastActiveDate === "string" ? raw.lastActiveDate : null,
-    lastStatsDate: typeof raw.lastStatsDate === "string" ? raw.lastStatsDate : null,
-    dailyGoalXP: configuredDailyGoal,
-    dailyGoalCount: Number.isFinite(Number(raw.dailyGoalCount)) && Number(raw.dailyGoalCount) > 0 ? Math.floor(Number(raw.dailyGoalCount)) : 10,
-    todayCount,
-    todayMinutes,
-    todaySecondsRemainder,
-    weeklyMinutes,
-    rewardTierUnlocked,
-    xpTotal: xp,
-    streakDays: streak,
-    dailyXP: Number.isFinite(Number(raw.dailyXP)) ? Math.max(0, Number(raw.dailyXP)) : 0,
-    dailyCompleted: Boolean(raw.dailyCompleted),
-  };
-}
-
 function syncProgressForToday() {
   const today = getTodayKey();
   const aggregates = getAggregates(new Date());
@@ -1286,42 +1237,21 @@ function persistProgressState() {
   if (Array.isArray(progressState.weeklyMinutes) && progressState.weeklyMinutes.length) {
     progressState.weeklyMinutes[progressState.weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
   }
-  localStorage.setItem(PROGRESS_SETTINGS_KEY, JSON.stringify(progressState));
+  saveProgressState(progressState);
 }
 
 function loadProgressState() {
-  try {
-    const raw = localStorage.getItem(PROGRESS_SETTINGS_KEY);
-    progressState = raw ? normalizeProgressState(JSON.parse(raw)) : normalizeProgressState();
-  } catch (error) {
-    progressState = normalizeProgressState();
-  }
-
+  const { progress } = getMigratedSaveData();
+  progressState = normalizeProgressState(progress);
   syncProgressForToday();
 }
 
 function loadPremiumStatus() {
-  try {
-    isPremium = localStorage.getItem(PREMIUM_STORAGE_KEY) === "true";
-  } catch (error) {
-    isPremium = false;
-  }
-}
-
-function persistPremiumStatus() {
-  localStorage.setItem(PREMIUM_STORAGE_KEY, isPremium ? "true" : "false");
+  isPremium = Boolean(getMigratedSaveData().settings.premium);
 }
 
 function loadProfileName() {
-  try {
-    profileName = (localStorage.getItem(PROFILE_NAME_STORAGE_KEY) || "").trim();
-  } catch (error) {
-    profileName = "";
-  }
-}
-
-function persistProfileName() {
-  localStorage.setItem(PROFILE_NAME_STORAGE_KEY, profileName);
+  profileName = getMigratedSaveData().settings.profileName;
 }
 
 function openPremiumModal(message, title = "Дээд багц") {
@@ -2711,21 +2641,11 @@ function toggleStartIntroPanel() {
 }
 
 function loadSoundSettings() {
-  try {
-    const raw = localStorage.getItem(SOUND_SETTINGS_KEY);
-    if (raw === null) {
-      soundEnabled = true;
-      return;
-    }
-
-    soundEnabled = raw === "true" || raw === "on";
-  } catch (error) {
-    soundEnabled = true;
-  }
+  soundEnabled = Boolean(getMigratedSaveData().settings.soundEnabled);
 }
 
 function persistSoundSettings() {
-  localStorage.setItem(SOUND_SETTINGS_KEY, soundEnabled ? "true" : "false");
+  persistSoundSetting(soundEnabled);
 }
 
 function updateSoundToggleState() {
@@ -3191,42 +3111,12 @@ function selectedEnglishVoice() {
   return bestEnglishVoice();
 }
 
-function normalizeTtsSettings(rawSettings = {}) {
-  const voice = ["auto", "male", "female"].includes(rawSettings.voice)
-    ? rawSettings.voice
-    : DEFAULT_TTS_SETTINGS.voice;
-
-  const rateCandidate = Number(rawSettings.rate);
-  const rate = Number.isFinite(rateCandidate) && rateCandidate >= 0.45 && rateCandidate <= 1.4
-    ? Math.round(rateCandidate * 20) / 20
-    : DEFAULT_TTS_SETTINGS.rate;
-
-  return { voice, rate };
-}
-
 function loadTtsSettings() {
-  try {
-    const raw = localStorage.getItem(TTS_SETTINGS_KEY);
-    if (raw) {
-      ttsSettings = normalizeTtsSettings(JSON.parse(raw));
-      return;
-    }
-
-    const legacyRate = Number(localStorage.getItem(LEGACY_TTS_RATE_KEY));
-    if (Number.isFinite(legacyRate) && legacyRate >= 0.45 && legacyRate <= 1.4) {
-      ttsSettings = { ...DEFAULT_TTS_SETTINGS, rate: Math.round(legacyRate * 20) / 20 };
-      return;
-    }
-
-    ttsSettings = { ...DEFAULT_TTS_SETTINGS };
-  } catch (error) {
-    ttsSettings = { ...DEFAULT_TTS_SETTINGS };
-  }
+  ttsSettings = normalizeTtsSettings(getMigratedSaveData().settings.ttsSettings);
 }
 
 function persistTtsSettings() {
-  localStorage.setItem(TTS_SETTINGS_KEY, JSON.stringify(ttsSettings));
-  localStorage.setItem(LEGACY_TTS_RATE_KEY, String(ttsSettings.rate));
+  saveTtsSettings(ttsSettings);
 }
 
 function updateTtsControlState() {
