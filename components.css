@@ -77,6 +77,11 @@ button,
 .nav-btn,
 .sentence-game-tile{
   min-height:40px;
+  min-width:0;
+  line-height:1.25;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:break-word;
 }
 
 .install-hint{
@@ -285,7 +290,9 @@ button,
   border-radius:999px;
   font-size:13px;
   font-weight:700;
-  white-space:nowrap;
+  white-space:normal;
+  line-height:1.3;
+  overflow-wrap:anywhere;
   box-shadow:0 0 0 1px rgba(255,255,255,.18) inset, 0 6px 14px rgba(29,16,2,.24), 0 0 18px rgba(255,200,96,.2);
 }
 
@@ -441,15 +448,16 @@ button,
   padding:10px 12px;
   font-size:14px;
   color:#f8fffb;
+  text-wrap:balance;
 }
 
 #nav-modes-btn,
 #nav-stats-btn{
-  white-space:nowrap;
-  line-height:1.1;
+  white-space:normal;
+  line-height:1.22;
   text-align:center;
-  font-size:10px;
-  padding:6px 4px;
+  font-size:11px;
+  padding:7px 8px;
 }
 
 
@@ -506,12 +514,17 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  max-width:100%;
   font-weight:800;
   padding:14px 20px;
   border-radius:14px;
   border:1px solid var(--chip-border);
   background:var(--chip-bg);
   color:var(--chip-text);
+  text-align:center;
+  line-height:1.25;
+  white-space:normal;
+  overflow-wrap:anywhere;
   box-shadow:0 0 0 1px rgba(255,255,255,.24) inset, 0 10px 20px rgba(29,16,2,.35), 0 0 24px rgba(255,200,96,.35);
 }
 
@@ -520,12 +533,17 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  max-width:100%;
   padding:4px 10px;
   border-radius:10px;
   border:1px solid var(--chip-border);
   background:var(--chip-bg);
   color:var(--chip-text);
   font-weight:700;
+  text-align:center;
+  line-height:1.28;
+  white-space:normal;
+  overflow-wrap:anywhere;
   box-shadow:0 0 0 1px rgba(255,255,255,.18) inset, 0 6px 14px rgba(29,16,2,.24), 0 0 18px rgba(255,200,96,.2);
 }
 
@@ -534,11 +552,16 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  max-width:100%;
   padding:6px 12px;
   border-radius:999px;
   border:1px solid var(--chip-border);
   background:var(--chip-bg);
   color:var(--chip-text);
+  text-align:center;
+  line-height:1.3;
+  white-space:normal;
+  overflow-wrap:anywhere;
   box-shadow:0 0 0 1px rgba(255,255,255,.18) inset, 0 6px 14px rgba(29,16,2,.24), 0 0 18px rgba(255,200,96,.2);
 }
 
@@ -696,6 +719,7 @@ button,
   color:rgba(241,247,255,.88);
   line-height:1.5;
   max-width:28ch;
+  overflow-wrap:anywhere;
 }
 
 .board-game-selection-heading,
@@ -729,6 +753,14 @@ button,
   text-align:left;
   padding:13px 14px;
   border-radius:16px;
+  align-items:flex-start;
+  line-height:1.3;
+}
+
+#board-game-selected-world-label{
+  align-self:flex-start;
+  text-align:left;
+  line-height:1.3;
 }
 
 .board-game-intro-continue-btn{
@@ -800,6 +832,7 @@ button,
   gap:2px;
   width:100%;
   min-height:72px;
+  line-height:1.28;
 }
 
 .intro-btn-line{
@@ -834,6 +867,7 @@ button,
   border:1px solid rgba(255,255,255,.14);
   border-radius:14px;
   background:rgba(4,18,27,.56);
+  overflow-wrap:anywhere;
 }
 
 .start-intro-panel-head{
@@ -850,11 +884,11 @@ button,
   align-self:flex-start;
   flex-shrink:0;
   width:220px;
+  max-width:100%;
 }
 
 #start-btn{
-  width:auto;
-  white-space:nowrap;
+  width:100%;
 }
 
 .start-level-dropdown{
