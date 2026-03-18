@@ -2266,17 +2266,20 @@ body[data-active-screen="board-game"] .app{
   z-index:2;
   min-height:0;
   display:grid;
-  grid-template-columns:minmax(0, 1fr) auto;
-  gap:12px;
+  grid-template-columns:minmax(0, 1fr) minmax(120px, 216px);
+  gap:14px;
   align-items:stretch;
 }
 
 .board-game-board-frame{
   position:relative;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   min-height:0;
   min-width:0;
   border-radius:24px;
-  padding:16px 16px 18px;
+  padding:18px 20px 22px;
   background:linear-gradient(180deg, rgba(9,30,40,.3), rgba(9,20,30,.14));
   border:1px solid rgba(255,233,168,.2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px rgba(0,0,0,.18);
@@ -2329,13 +2332,15 @@ body[data-active-screen="board-game"] .app{
 .board-game-board{
   position:relative;
   z-index:2;
+  width:min(100%, 336px);
   min-height:100%;
   display:flex;
   flex-wrap:wrap;
   align-content:flex-start;
   justify-content:center;
-  gap:10px 8px;
-  padding:12px 10px 10px 34px;
+  gap:12px 10px;
+  margin:0 auto;
+  padding:16px 14px 14px 40px;
   border-radius:18px;
 }
 
@@ -2359,11 +2364,12 @@ body[data-active-screen="board-game"] .app{
 .board-game-feedback-hub{
   position:relative;
   z-index:7;
-  align-self:center;
+  align-self:stretch;
+  align-content:center;
   display:grid;
   gap:8px;
   max-height:100%;
-  width:min(100%, 216px);
+  width:min(100%, 100%);
   overflow:hidden;
 }
 
@@ -2371,26 +2377,29 @@ body[data-active-screen="board-game"] .app{
   position:relative;
   z-index:8;
   display:grid;
-  grid-template-columns:minmax(0, 1fr) minmax(150px, 180px);
-  grid-template-areas:
-    "feedback controls"
-    "challenge controls";
+  grid-template-columns:minmax(0, 1.2fr) minmax(168px, 208px);
+  gap:14px;
+  align-items:start;
+}
+
+.board-game-info-stack{
+  min-width:0;
+  display:grid;
   gap:12px;
-  align-items:stretch;
 }
 
 .board-game-feedback-strip{
-  grid-area:feedback;
   position:relative;
-  min-height:88px;
+  min-height:94px;
   border-radius:18px;
-  padding:12px 14px;
+  padding:14px 16px;
   border:1px solid rgba(255,229,164,.35);
   background:linear-gradient(160deg, rgba(7,18,25,.82), rgba(8,26,32,.58));
   backdrop-filter:blur(2px);
   display:grid;
   align-content:start;
   gap:6px;
+  box-shadow:0 10px 24px rgba(0,0,0,.16);
 }
 
 .board-game-feedback-label,
@@ -2404,24 +2413,23 @@ body[data-active-screen="board-game"] .app{
 .board-game-feedback-strip p{margin:0;font-size:.8rem;line-height:1.46;}
 
 .board-game-controls-panel{
-  grid-area:controls;
   position:relative;
   display:grid;
   justify-items:center;
   align-content:center;
-  align-self:stretch;
-  gap:8px;
-  padding:12px 10px;
-  border-radius:18px;
+  gap:10px;
+  padding:14px 12px 16px;
+  border-radius:20px;
   border:1px solid rgba(255,232,172,.26);
   background:linear-gradient(180deg, rgba(6,18,24,.82), rgba(12,31,40,.7));
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05), 0 12px 26px rgba(0,0,0,.16);
+  min-height:100%;
 }
 
 .board-game-mini-status{
   margin:0;
   font-size:.64rem;
-  padding:6px 8px;
+  padding:7px 9px;
   border-radius:12px;
   background:rgba(3,16,22,.68);
   border:1px solid rgba(255,223,145,.24);
@@ -2432,7 +2440,6 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-challenge-panel{
-  grid-area:challenge;
   position:relative;
   border:1px solid rgba(255,233,168,.26);
   border-radius:18px;
@@ -2444,6 +2451,7 @@ body[data-active-screen="board-game"] .app{
   pointer-events:none;
   transition:max-height .28s ease, opacity .28s ease, padding .28s ease;
   backdrop-filter:blur(3px);
+  box-shadow:0 10px 24px rgba(0,0,0,.14);
 }
 
 .board-game-challenge-panel.show{
@@ -2507,8 +2515,8 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-dice{
   margin-top:0;
-  width:72px;
-  height:72px;
+  width:84px;
+  height:84px;
   border-radius:16px;
   border:none;
   padding:0;
@@ -2534,9 +2542,9 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-dice::before{
-  width:62px;
-  height:14px;
-  bottom:-8px;
+  width:72px;
+  height:16px;
+  bottom:-9px;
   background:radial-gradient(circle at 50% 50%, rgba(0,0,0,.48), rgba(0,0,0,0));
   filter:blur(2px);
 }
@@ -2560,8 +2568,8 @@ body[data-active-screen="board-game"] .app{
 
 .dice-cube{
   position:relative;
-  width:58px;
-  height:58px;
+  width:66px;
+  height:66px;
   transform-style:preserve-3d;
   transform:rotateX(14deg) rotateY(-18deg);
 }
@@ -2596,21 +2604,21 @@ body[data-active-screen="board-game"] .app{
 
 .dice-pip{
   position:absolute;
-  width:8px;
-  height:8px;
+  width:9px;
+  height:9px;
   border-radius:50%;
   background:radial-gradient(circle at 30% 30%, #3e2f1f, #0d0906 72%);
   box-shadow:inset 1px 1px 1px rgba(255,247,228,.25), 0 1px 1px rgba(0,0,0,.25);
   opacity:0;
 }
 
-.dice-pip-tl{ top:11px; left:11px; }
-.dice-pip-tr{ top:11px; right:11px; }
-.dice-pip-ml{ top:22px; left:11px; }
-.dice-pip-center{ top:22px; left:22px; }
-.dice-pip-mr{ top:22px; right:11px; }
-.dice-pip-bl{ bottom:11px; left:11px; }
-.dice-pip-br{ bottom:11px; right:11px; }
+.dice-pip-tl{ top:13px; left:13px; }
+.dice-pip-tr{ top:13px; right:13px; }
+.dice-pip-ml{ top:28px; left:13px; }
+.dice-pip-center{ top:28px; left:28px; }
+.dice-pip-mr{ top:28px; right:13px; }
+.dice-pip-bl{ bottom:13px; left:13px; }
+.dice-pip-br{ bottom:13px; right:13px; }
 
 .board-game-dice[data-face="1"] .dice-pip-center,
 .board-game-dice[data-face="2"] .dice-pip-tl,
@@ -2723,16 +2731,17 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-bottom-dock{
     grid-template-columns:minmax(0, 1fr);
-    grid-template-areas:
-      "feedback"
-      "controls"
-      "challenge";
+    gap:10px;
+  }
+
+  .board-game-info-stack{
     gap:10px;
   }
 
   .board-game-controls-panel{
     justify-items:stretch;
     padding:10px 12px;
+    min-height:auto;
   }
 
   .board-game-dice{

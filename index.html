@@ -506,9 +506,19 @@
                 <div class="board-game-particles" id="board-game-particles" aria-hidden="true"></div>
               </div>
               <div class="board-game-bottom-dock">
-                <div class="board-game-feedback-strip" aria-live="polite">
-                  <p class="chip-label board-game-feedback-label">Аяллын тайлбар</p>
-                  <p id="board-game-feedback">Далай дамнасан аяллаа эхлэхийн тулд шоо шиднэ үү.</p>
+                <div class="board-game-info-stack">
+                  <div class="board-game-feedback-strip" aria-live="polite">
+                    <p class="chip-label board-game-feedback-label">Аяллын тайлбар</p>
+                    <p id="board-game-feedback">Далай дамнасан аяллаа эхлэхийн тулд шоо шиднэ үү.</p>
+                  </div>
+                  <section class="board-game-challenge-panel" aria-live="polite">
+                    <div class="board-game-helper-copy">
+                      <p class="chip-label board-game-helper-label">Туслах мэдээлэл</p>
+                      <p id="board-game-challenge-title">Эхний сорилоо нээхийн тулд шоо шиднэ үү.</p>
+                      <p class="muted" id="board-game-challenge-text">Монгол өгүүлбэрийн хамгийн зөв англи утгыг сонгоно уу.</p>
+                    </div>
+                    <div class="board-game-options" id="board-game-options"></div>
+                  </section>
                 </div>
                 <div class="board-game-controls-panel" aria-label="Тоглоомын удирдлага">
                   <p class="chip-label board-game-dice-label">Шоо</p>
@@ -528,14 +538,6 @@
                   </button>
                   <p class="chip-label board-game-mini-status">Нүүдэл <span id="board-game-position">1</span>/<span id="board-game-total-tiles">0</span> · Сүүлд <span id="board-game-last-roll">-</span></p>
                 </div>
-                <section class="board-game-challenge-panel" aria-live="polite">
-                  <div class="board-game-helper-copy">
-                    <p class="chip-label board-game-helper-label">Туслах мэдээлэл</p>
-                    <p id="board-game-challenge-title">Эхний сорилоо нээхийн тулд шоо шиднэ үү.</p>
-                    <p class="muted" id="board-game-challenge-text">Монгол өгүүлбэрийн хамгийн зөв англи утгыг сонгоно уу.</p>
-                  </div>
-                  <div class="board-game-options" id="board-game-options"></div>
-                </section>
               </div>
             </div>
           </section>
