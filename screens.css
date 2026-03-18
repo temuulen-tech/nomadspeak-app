@@ -837,7 +837,24 @@
   }
 
   .home-header-actions{
-    grid-template-columns:minmax(0, 1.24fr) minmax(0, 1.22fr);
+    grid-template-columns:1fr;
+  }
+
+  .home-action-card{
+    padding:12px;
+  }
+
+  .home-hero-block{
+    grid-template-columns:1fr;
+    gap:14px;
+  }
+
+  .home-hero-title{
+    font-size:1.42rem;
+  }
+
+  #start-screen{
+    min-height:auto;
   }
 
   .header-nav .nav-btn{
@@ -893,7 +910,16 @@
   }
 
   .home-header-actions{
-    grid-template-columns:minmax(0, 1.24fr) minmax(0, 1.22fr);
+    grid-template-columns:1fr;
+  }
+
+  .home-action-card{
+    padding:12px;
+  }
+
+  .home-hero-block{
+    grid-template-columns:1fr;
+    gap:14px;
   }
 
   .header-nav .nav-btn{
@@ -2828,5 +2854,40 @@ body[data-active-screen="board-game"] .app{
   .board-game-challenge-panel.show{
     padding-left:12px;
     padding-right:12px;
+  }
+}
+
+@media (max-width:420px){
+  .header{
+    gap:12px;
+    margin-bottom:14px;
+  }
+
+  .logo-mark{
+    width:50px;
+    height:50px;
+  }
+
+  .subtitle{
+    max-width:none;
+    font-size:13px;
+  }
+
+  .home-header-actions .header-nav .nav-btn,
+  .premium-intro-btn{
+    min-height:48px;
+  }
+
+  .home-modes-panel{
+    padding:8px;
+  }
+
+  .home-modes-option{
+    font-size:13px;
+    padding:10px;
+  }
+
+  .home-hero-aside{
+    padding:14px;
   }
 }
