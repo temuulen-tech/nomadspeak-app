@@ -15,6 +15,7 @@ export const STORAGE_KEYS = {
   appTimeActiveSession: APP_STORAGE_KEYS.APP_TIME_ACTIVE_SESSION,
   profileName: APP_STORAGE_KEYS.PROFILE_NAME,
   premium: APP_STORAGE_KEYS.PREMIUM,
+  debugMode: APP_STORAGE_KEYS.DEBUG_MODE,
 };
 
 function isRecord(value) {
@@ -168,4 +169,18 @@ export function persistPremiumStatus(isPremium) {
 
 export function persistProfileName(profileName) {
   return saveString(STORAGE_KEYS.profileName, sanitizeProfileName(profileName));
+}
+
+export function persistDebugModeSetting(enabled) {
+  return saveString(STORAGE_KEYS.debugMode, enabled ? "on" : "off");
+}
+
+export function clearAppSaveData() {
+  Object.values(STORAGE_KEYS).forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (_) {
+      // ignore private mode/storage quota issues during debug resets
+    }
+  });
 }
