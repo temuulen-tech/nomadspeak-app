@@ -36,37 +36,42 @@ export function createDefaultProgressState() {
   };
 }
 
+function toPlainObject(value) {
+  return value && typeof value === "object" ? value : {};
+}
+
 export function normalizeProgressState(raw = {}) {
+  const source = toPlainObject(raw);
   const defaults = createDefaultProgressState();
-  const configuredDailyGoal = Number.isFinite(Number(raw.dailyGoalXP)) && Number(raw.dailyGoalXP) > 0
-    ? Math.floor(Number(raw.dailyGoalXP))
+  const configuredDailyGoal = Number.isFinite(Number(source.dailyGoalXP)) && Number(source.dailyGoalXP) > 0
+    ? Math.floor(Number(source.dailyGoalXP))
     : defaults.dailyGoalXP;
-  const xp = Number.isFinite(Number(raw.xp))
-    ? Math.max(0, Math.floor(Number(raw.xp)))
-    : (Number.isFinite(Number(raw.xpTotal)) ? Math.max(0, Math.floor(Number(raw.xpTotal))) : defaults.xp);
-  const streak = Number.isFinite(Number(raw.streak))
-    ? Math.max(0, Math.floor(Number(raw.streak)))
-    : (Number.isFinite(Number(raw.streakDays)) ? Math.max(0, Math.floor(Number(raw.streakDays))) : defaults.streak);
-  const todayCount = Number.isFinite(Number(raw.todayCount)) ? Math.max(0, Math.floor(Number(raw.todayCount))) : defaults.todayCount;
-  const todayMinutes = Number.isFinite(Number(raw.todayMinutes)) ? Math.max(0, Math.floor(Number(raw.todayMinutes))) : defaults.todayMinutes;
-  const todaySecondsRemainder = Number.isFinite(Number(raw.todaySecondsRemainder)) ? Math.max(0, Math.floor(Number(raw.todaySecondsRemainder))) : defaults.todaySecondsRemainder;
-  const weeklyRaw = Array.isArray(raw.weeklyMinutes) ? raw.weeklyMinutes : [];
+  const xp = Number.isFinite(Number(source.xp))
+    ? Math.max(0, Math.floor(Number(source.xp)))
+    : (Number.isFinite(Number(source.xpTotal)) ? Math.max(0, Math.floor(Number(source.xpTotal))) : defaults.xp);
+  const streak = Number.isFinite(Number(source.streak))
+    ? Math.max(0, Math.floor(Number(source.streak)))
+    : (Number.isFinite(Number(source.streakDays)) ? Math.max(0, Math.floor(Number(source.streakDays))) : defaults.streak);
+  const todayCount = Number.isFinite(Number(source.todayCount)) ? Math.max(0, Math.floor(Number(source.todayCount))) : defaults.todayCount;
+  const todayMinutes = Number.isFinite(Number(source.todayMinutes)) ? Math.max(0, Math.floor(Number(source.todayMinutes))) : defaults.todayMinutes;
+  const todaySecondsRemainder = Number.isFinite(Number(source.todaySecondsRemainder)) ? Math.max(0, Math.floor(Number(source.todaySecondsRemainder))) : defaults.todaySecondsRemainder;
+  const weeklyRaw = Array.isArray(source.weeklyMinutes) ? source.weeklyMinutes : [];
   const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
     const source = weeklyRaw[index];
     const fallback = [...defaults.weeklyMinutes.slice(0, 6), todayMinutes][index];
     return Number.isFinite(Number(source)) ? Math.max(0, Math.floor(Number(source))) : fallback;
   });
-  const rewardTierUnlocked = Number.isFinite(Number(raw.rewardTierUnlocked)) ? Math.max(1, Math.min(5, Math.floor(Number(raw.rewardTierUnlocked)))) : defaults.rewardTierUnlocked;
+  const rewardTierUnlocked = Number.isFinite(Number(source.rewardTierUnlocked)) ? Math.max(1, Math.min(5, Math.floor(Number(source.rewardTierUnlocked)))) : defaults.rewardTierUnlocked;
   const level = Math.floor(xp / 100) + 1;
 
   return {
     xp,
     level,
     streak,
-    lastActiveDate: typeof raw.lastActiveDate === "string" ? raw.lastActiveDate : defaults.lastActiveDate,
-    lastStatsDate: typeof raw.lastStatsDate === "string" ? raw.lastStatsDate : defaults.lastStatsDate,
+    lastActiveDate: typeof source.lastActiveDate === "string" ? source.lastActiveDate : defaults.lastActiveDate,
+    lastStatsDate: typeof source.lastStatsDate === "string" ? source.lastStatsDate : defaults.lastStatsDate,
     dailyGoalXP: configuredDailyGoal,
-    dailyGoalCount: Number.isFinite(Number(raw.dailyGoalCount)) && Number(raw.dailyGoalCount) > 0 ? Math.floor(Number(raw.dailyGoalCount)) : defaults.dailyGoalCount,
+    dailyGoalCount: Number.isFinite(Number(source.dailyGoalCount)) && Number(source.dailyGoalCount) > 0 ? Math.floor(Number(source.dailyGoalCount)) : defaults.dailyGoalCount,
     todayCount,
     todayMinutes,
     todaySecondsRemainder,
@@ -74,18 +79,19 @@ export function normalizeProgressState(raw = {}) {
     rewardTierUnlocked,
     xpTotal: xp,
     streakDays: streak,
-    dailyXP: Number.isFinite(Number(raw.dailyXP)) ? Math.max(0, Number(raw.dailyXP)) : defaults.dailyXP,
-    dailyCompleted: Boolean(raw.dailyCompleted),
+    dailyXP: Number.isFinite(Number(source.dailyXP)) ? Math.max(0, Number(source.dailyXP)) : defaults.dailyXP,
+    dailyCompleted: Boolean(source.dailyCompleted),
     saveVersion: CURRENT_SAVE_VERSION,
   };
 }
 
 export function normalizeTtsSettings(rawSettings = {}) {
-  const voice = ["auto", "male", "female"].includes(rawSettings.voice)
-    ? rawSettings.voice
+  const source = toPlainObject(rawSettings);
+  const voice = ["auto", "male", "female"].includes(source.voice)
+    ? source.voice
     : DEFAULT_TTS_SETTINGS.voice;
 
-  const rateCandidate = Number(rawSettings.rate);
+  const rateCandidate = Number(source.rate);
   const rate = Number.isFinite(rateCandidate) && rateCandidate >= 0.45 && rateCandidate <= 1.4
     ? Math.round(rateCandidate * 20) / 20
     : DEFAULT_TTS_SETTINGS.rate;
@@ -94,9 +100,10 @@ export function normalizeTtsSettings(rawSettings = {}) {
 }
 
 export function normalizeRewardsWallet(rawWallet = {}) {
+  const source = toPlainObject(rawWallet);
   return {
-    coins: Math.max(0, Math.floor(Number(rawWallet.coins) || 0)),
-    gems: Math.max(0, Math.floor(Number(rawWallet.gems) || 0)),
+    coins: Math.max(0, Math.floor(Number(source.coins) || 0)),
+    gems: Math.max(0, Math.floor(Number(source.gems) || 0)),
   };
 }
 
@@ -127,34 +134,36 @@ export function createDefaultCoreState() {
 }
 
 export function normalizeCoreState(rawCore = {}) {
+  const source = toPlainObject(rawCore);
   const defaults = createDefaultCoreState();
-  const rawSettings = rawCore.settings && typeof rawCore.settings === "object" ? rawCore.settings : {};
-  const learnedWords = Array.isArray(rawCore.learnedWords)
-    ? [...new Set(rawCore.learnedWords.map((word) => String(word || "").trim()).filter(Boolean))]
+  const rawSettings = source.settings && typeof source.settings === "object" ? source.settings : {};
+  const learnedWords = Array.isArray(source.learnedWords)
+    ? [...new Set(source.learnedWords.map((word) => String(word || "").trim()).filter(Boolean))]
     : defaults.learnedWords;
-  const unlockedChapterIds = Array.isArray(rawCore.unlockedChapterIds)
-    ? [...new Set(rawCore.unlockedChapterIds.map((id) => String(id || "").trim()).filter(Boolean))]
+  const unlockedChapterIds = Array.isArray(source.unlockedChapterIds)
+    ? [...new Set(source.unlockedChapterIds.map((id) => String(id || "").trim()).filter(Boolean))]
     : defaults.unlockedChapterIds;
 
   return {
-    progress: normalizeProgressState(rawCore.progress),
+    progress: normalizeProgressState(source.progress),
     settings: {
       ttsSettings: normalizeTtsSettings(rawSettings.ttsSettings),
       soundEnabled: typeof rawSettings.soundEnabled === "boolean" ? rawSettings.soundEnabled : defaults.settings.soundEnabled,
       premium: typeof rawSettings.premium === "boolean" ? rawSettings.premium : defaults.settings.premium,
       profileName: typeof rawSettings.profileName === "string" ? rawSettings.profileName.trim() : defaults.settings.profileName,
     },
-    rewardsWallet: normalizeRewardsWallet(rawCore.rewardsWallet),
+    rewardsWallet: normalizeRewardsWallet(source.rewardsWallet),
     learnedWords,
     unlockedChapterIds,
-    selectedWorldId: typeof rawCore.selectedWorldId === "string" && rawCore.selectedWorldId ? rawCore.selectedWorldId : defaults.selectedWorldId,
-    selectedDifficultyId: Object.values(DIFFICULTY_LEVELS).includes(rawCore.selectedDifficultyId) ? rawCore.selectedDifficultyId : defaults.selectedDifficultyId,
+    selectedWorldId: typeof source.selectedWorldId === "string" && source.selectedWorldId ? source.selectedWorldId : defaults.selectedWorldId,
+    selectedDifficultyId: Object.values(DIFFICULTY_LEVELS).includes(source.selectedDifficultyId) ? source.selectedDifficultyId : defaults.selectedDifficultyId,
   };
 }
 
 export function buildCoreStateFromStorage(rawSave = {}) {
+  const source = toPlainObject(rawSave);
   const defaults = createDefaultCoreState();
-  const rawProgress = rawSave.progress && typeof rawSave.progress === "object" ? rawSave.progress : {};
+  const rawProgress = source.progress && typeof source.progress === "object" ? source.progress : {};
   const detectedVersion = Number.isFinite(Number(rawProgress.saveVersion))
     ? Math.max(0, Math.floor(Number(rawProgress.saveVersion)))
     : 0;
@@ -175,7 +184,7 @@ export function buildCoreStateFromStorage(rawSave = {}) {
     });
   }
 
-  const rawSettings = rawSave.settings && typeof rawSave.settings === "object" ? rawSave.settings : {};
+  const rawSettings = source.settings && typeof source.settings === "object" ? source.settings : {};
   const legacyRate = Number(rawSettings.legacyTtsRate);
   const ttsSettings = rawSettings.ttsSettings
     ? normalizeTtsSettings(rawSettings.ttsSettings)
@@ -183,18 +192,18 @@ export function buildCoreStateFromStorage(rawSave = {}) {
 
   return normalizeCoreState({
     ...defaults,
-    ...rawSave,
+    ...source,
     progress,
     settings: {
       ...defaults.settings,
       ...rawSettings,
       ttsSettings,
     },
-    rewardsWallet: rawSave.rewardsWallet,
-    learnedWords: rawSave.learnedWords,
-    unlockedChapterIds: rawSave.unlockedChapterIds,
-    selectedWorldId: rawSave.selectedWorldId,
-    selectedDifficultyId: rawSave.selectedDifficultyId,
+    rewardsWallet: source.rewardsWallet,
+    learnedWords: source.learnedWords,
+    unlockedChapterIds: source.unlockedChapterIds,
+    selectedWorldId: source.selectedWorldId,
+    selectedDifficultyId: source.selectedDifficultyId,
   });
 }
 
