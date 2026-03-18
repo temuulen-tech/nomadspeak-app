@@ -615,12 +615,15 @@ button,
   display:flex;
   flex:1 1 auto;
   flex-direction:column;
+  justify-content:stretch;
   overflow:hidden;
   min-height:100%;
   height:100%;
   border-radius:26px;
   padding:0;
   border:1px solid rgba(255,255,255,.2);
+  background:#020611;
+  isolation:isolate;
 }
 
 .board-game-intro-cover{
@@ -630,8 +633,21 @@ button,
   height:100%;
   display:block;
   background-color:#020611;
-  object-fit:contain;
-  object-position:center center;
+  object-fit:cover;
+  object-position:center 32%;
+  transform:scale(1.03);
+  filter:saturate(1.02) contrast(1.04) brightness(.94);
+}
+
+.board-game-intro-screen::after{
+  content:"";
+  position:absolute;
+  inset:0;
+  z-index:1;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg, rgba(1,8,20,.08) 0%, rgba(1,8,20,.16) 18%, rgba(1,8,20,.42) 48%, rgba(1,8,20,.92) 100%),
+    radial-gradient(72% 52% at 50% 18%, rgba(255,226,161,.14), transparent 70%);
 }
 
 .board-game-intro-selector{
@@ -641,28 +657,45 @@ button,
   flex:1 1 auto;
   flex-direction:column;
   justify-content:flex-end;
+  gap:14px;
   min-height:0;
-  padding:24px 16px 92px;
-  background:linear-gradient(180deg, rgba(1,8,20,.18) 0%, rgba(1,8,20,.34) 38%, rgba(1,8,20,.86) 100%);
+  padding:clamp(24px, 4vh, 40px) 16px calc(84px + env(safe-area-inset-bottom, 0px));
 }
 
 .board-game-entry-panel,
-.board-game-world-selection{
+.board-game-world-selection,
+.board-game-difficulty-selector{
   display:flex;
   flex-direction:column;
   gap:12px;
-  padding:16px;
-  border-radius:18px;
-  background:rgba(5,16,28,.72);
-  border:1px solid rgba(255,255,255,.14);
+  padding:18px;
+  border-radius:22px;
+  background:linear-gradient(180deg, rgba(7,20,34,.66), rgba(4,14,24,.84));
+  border:1px solid rgba(255,255,255,.16);
   box-shadow:0 18px 32px rgba(0,0,0,.28);
-  backdrop-filter:blur(4px);
+  backdrop-filter:blur(8px);
+}
+
+.board-game-entry-panel{
+  max-width:340px;
+  margin-top:auto;
+}
+
+.board-game-world-selection{
+  gap:16px;
+}
+
+.board-game-selection-block{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
 }
 
 .board-game-entry-copy{
   margin:0;
   color:rgba(241,247,255,.88);
-  line-height:1.45;
+  line-height:1.5;
+  max-width:28ch;
 }
 
 .board-game-selection-heading,
@@ -671,17 +704,61 @@ button,
   margin:0;
 }
 
+#board-game-selector-title{
+  font-size:clamp(1.8rem, 4.8vw, 2.35rem);
+  line-height:1.05;
+}
+
+.board-game-selection-heading,
+#board-game-difficulty-title{
+  font-size:1.02rem;
+  line-height:1.25;
+}
+
+.board-game-world-options,
+.board-game-difficulty-options{
+  display:grid;
+  gap:10px;
+}
+
+.board-game-world-option,
+.board-game-difficulty-option{
+  width:100%;
+  min-height:52px;
+  justify-content:flex-start;
+  text-align:left;
+  padding:13px 14px;
+  border-radius:16px;
+}
+
 .board-game-intro-continue-btn{
   position:absolute;
   left:16px;
   right:16px;
-  bottom:18px;
-  min-height:52px;
+  bottom:calc(18px + env(safe-area-inset-bottom, 0px));
+  min-height:56px;
   font-size:17px;
   font-weight:800;
   letter-spacing:.02em;
   z-index:3;
   box-shadow:0 14px 28px rgba(0,0,0,.35);
+}
+
+@media (max-width:520px){
+  .board-game-intro-selector{
+    padding-inline:14px;
+  }
+
+  .board-game-entry-panel,
+  .board-game-world-selection,
+  .board-game-difficulty-selector{
+    padding:16px;
+    border-radius:20px;
+  }
+
+  #board-game-selector-title{
+    font-size:1.64rem;
+  }
 }
 
 .start-main-actions{
