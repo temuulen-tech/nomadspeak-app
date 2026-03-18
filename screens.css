@@ -2907,15 +2907,16 @@ body[data-active-screen="board-game"] .app{
     gap:14px;
   }
 
-  .home-action-card{
-    gap:12px;
+  .header-nav--compact{
+    grid-template-columns:1fr;
   }
 
   .home-hero-copy-shell{
     gap:14px;
   }
 
-  .home-hero-meta{
+  .home-hero-meta,
+  .home-hero-meta--primary{
     grid-template-columns:1fr;
   }
 }
@@ -2935,12 +2936,9 @@ body[data-active-screen="board-game"] .app{
     padding:16px;
   }
 
-  .home-action-card{
-    gap:10px;
-  }
-
-  .home-nav-group{
-    gap:6px;
+  .premium-intro-btn--compact,
+  .home-hub-tile{
+    min-height:auto;
   }
 
   .home-modes-panel{
@@ -2961,7 +2959,7 @@ body[data-active-screen="board-game"] .app{
     padding:11px 12px;
   }
 
-  .home-hero-aside{
+  .home-progress-peek{
     padding:15px;
   }
 
@@ -2971,8 +2969,8 @@ body[data-active-screen="board-game"] .app{
 }
 
 @media (max-width:420px){
-  .home-nav-group-label,
-  .home-hero-stat-label{
+  .home-hero-stat-label,
+  .home-hub-tile-kicker{
     font-size:10px;
   }
 

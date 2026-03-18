@@ -20,6 +20,9 @@ export function initHomeScreen(handlers = {}) {
   const homeModesPanel = document.getElementById("home-modes-panel");
   const introToggleBtn = document.getElementById("intro-toggle-btn");
   const introCloseBtn = document.getElementById("intro-close-btn");
+  const homeModesShortcutBtn = document.getElementById("home-modes-shortcut");
+  const homeStatsShortcutBtn = document.getElementById("home-stats-shortcut");
+  const homeIntroShortcutBtn = document.getElementById("home-intro-shortcut");
   const startBtn = document.getElementById("start-btn");
   const startLevelDropdown = document.getElementById("start-level-dropdown");
   const startLevelPicker = document.querySelector(".start-level-picker");
@@ -33,6 +36,9 @@ export function initHomeScreen(handlers = {}) {
   bindClickOnce(navStatsBtn, "home:navigate-stats", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
   bindClickOnce(navProfileBtn, "home:navigate-profile", () => handlers.onNavigate?.(SCREEN_NAMES.PROFILE));
   bindClickOnce(navModesBtn, "home:toggle-modes", () => handlers.onToggleModes?.());
+  bindClickOnce(homeModesShortcutBtn, "home:toggle-modes-shortcut", () => handlers.onToggleModes?.());
+  bindClickOnce(homeStatsShortcutBtn, "home:navigate-stats-shortcut", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
+  bindClickOnce(homeIntroShortcutBtn, "home:toggle-intro-shortcut", () => handlers.onToggleIntro?.());
 
   bindClickOnce(document, "home:close-modes-outside-click", (event) => {
     if (!homeModesPanel || !navModesBtn) return;
