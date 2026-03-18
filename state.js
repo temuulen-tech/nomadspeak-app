@@ -92,6 +92,15 @@ export function normalizeTtsSettings(rawSettings = {}) {
 const state = {
   currentScreen: SCREEN_NAMES.START,
   level: DIFFICULTY_LEVELS.BEGINNER,
+  flow: {
+    lastRequestedScreen: SCREEN_NAMES.START,
+    boardEntry: {
+      step: "entry",
+      worldId: null,
+      difficultyId: DIFFICULTY_LEVELS.BEGINNER,
+      chapterId: null,
+    },
+  },
   lesson: { currentIndex: 0, score: 0, locked: false, reviewMode: false },
   progress: null,
   rewards: {},

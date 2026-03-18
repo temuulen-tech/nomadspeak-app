@@ -15,6 +15,7 @@ import {
   normalizeProgressState,
   normalizeTtsSettings,
   setStateValue,
+  updateState,
 } from "./state.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
@@ -98,6 +99,7 @@ import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import {
   DIFFICULTY_LEVELS,
   DIFFICULTY_LEVEL_LIST,
+  FLOW_DESTINATIONS,
   GAME_MODES,
   REWARD_TABS,
   SCREEN_NAMES,
@@ -436,8 +438,8 @@ const SCREEN_IDS = {
   [sentencesScreen.id]: SCREEN_NAMES.SENTENCES,
   [sentenceGameScreen.id]: SCREEN_NAMES.SENTENCE_GAME,
   [qaGameScreen.id]: SCREEN_NAMES.QA_GAME,
-  [boardGameIntroScreen.id]: "board-game-intro",
-  [boardGameScreen.id]: SCREEN_NAMES.BOARD_GAME,
+  [boardGameIntroScreen.id]: SCREEN_NAMES.CHAPTER_COVER,
+  [boardGameScreen.id]: SCREEN_NAMES.BOARD,
   [statsScreen.id]: SCREEN_NAMES.STATS,
   [profileScreen.id]: SCREEN_NAMES.PROFILE,
   [endScreen.id]: "end",
@@ -449,8 +451,8 @@ const SCREENS = {
   sentences: sentencesScreen,
   [SCREEN_NAMES.SENTENCE_GAME]: sentenceGameScreen,
   [SCREEN_NAMES.QA_GAME]: qaGameScreen,
-  "board-game-intro": boardGameIntroScreen,
-  [SCREEN_NAMES.BOARD_GAME]: boardGameScreen,
+  [SCREEN_NAMES.CHAPTER_COVER]: boardGameIntroScreen,
+  [SCREEN_NAMES.BOARD]: boardGameScreen,
   stats: statsScreen,
   profile: profileScreen,
   end: endScreen,
@@ -1892,61 +1894,81 @@ function showScreen(screenId) {
   updateHeaderStatus();
 }
 
-function navigateTo(destination) {
-  if (destination === SCREEN_NAMES.HOME) {
+function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}) {
+  const boardCoverScreen = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER];
+  const selection = boardCoverScreen?.getSelectionSnapshot?.() || {};
+
+  updateState((state) => {
+    const nextEntry = { ...state.flow.boardEntry };
+    if (step) nextEntry.step = step;
+    nextEntry.worldId = worldId || selection.worldId || nextEntry.worldId;
+    nextEntry.difficultyId = difficultyId || selection.difficultyId || nextEntry.difficultyId;
+    nextEntry.chapterId = chapterId || selection.previewChapterId || nextEntry.chapterId;
+    state.flow.lastRequestedScreen = step === "play" ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
+    state.flow.boardEntry = nextEntry;
+  });
+}
+
+const NAVIGATION_HANDLERS = {
+  [FLOW_DESTINATIONS.HOME]: () => {
     stopSpeaking();
     hideStartIntroPanel();
     showScreen(SCREEN_NAMES.START);
-  }
-
-  if (destination === SCREEN_NAMES.LESSON) {
+  },
+  [FLOW_DESTINATIONS.LESSON]: () => {
     stopSpeaking();
     hideStartIntroPanel();
     setStartLevelMenuOpen(false);
     startQuiz();
-  }
-
-  if (destination === SCREEN_NAMES.SENTENCES) {
+  },
+  [FLOW_DESTINATIONS.SENTENCES]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.SENTENCES);
-  }
-
-  if (destination === SCREEN_NAMES.SENTENCE_GAME) {
+  },
+  [FLOW_DESTINATIONS.SENTENCE_GAME]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.SENTENCE_GAME);
     initSentenceGameRound();
     enforceFreeXpGate();
-  }
-
-  if (destination === SCREEN_NAMES.QA_GAME) {
+  },
+  [FLOW_DESTINATIONS.QA_GAME]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.QA_GAME);
     resetQaGameScreen();
-  }
-
-  if (destination === SCREEN_NAMES.BOARD_GAME) {
+  },
+  [FLOW_DESTINATIONS.BOARD_ENTRY]: () => {
     stopSpeaking();
-    SCREEN_REGISTRY["board-game-intro"]?.resetSelection?.();
-    SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview();
-    showScreen("board-game-intro");
-  }
-
-  if (destination === "board-game-start") {
+    const boardCoverScreen = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER];
+    boardCoverScreen?.setPreview();
+    boardCoverScreen?.resetSelection?.();
+    syncBoardEntryFlowState({ step: "entry" });
+    showScreen(SCREEN_NAMES.CHAPTER_COVER);
+  },
+  [FLOW_DESTINATIONS.BOARD_COVER]: () => {
     stopSpeaking();
-    showScreen(SCREEN_NAMES.BOARD_GAME);
+    syncBoardEntryFlowState({ step: "cover" });
+    showScreen(SCREEN_NAMES.CHAPTER_COVER);
+  },
+  [FLOW_DESTINATIONS.BOARD_PLAY]: () => {
+    stopSpeaking();
+    syncBoardEntryFlowState({ step: "play" });
+    showScreen(SCREEN_NAMES.BOARD);
     initBoardGameMvp();
-  }
-
-  if (destination === SCREEN_NAMES.STATS) {
+  },
+  [FLOW_DESTINATIONS.STATS]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.STATS);
     updateStatsUI();
-  }
-
-  if (destination === SCREEN_NAMES.PROFILE) {
+  },
+  [FLOW_DESTINATIONS.PROFILE]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.PROFILE);
-  }
+  },
+};
+
+function navigateTo(destination) {
+  const handler = NAVIGATION_HANDLERS[destination];
+  if (handler) handler();
 }
 
 function resetLessonProgress() {
@@ -1964,8 +1986,10 @@ function resetLessonProgress() {
 
 function requestNavigation(destination) {
   closeHomeModesPanel();
-  if (destination !== SCREEN_NAMES.LESSON) resetLessonProgress();
-
+  if (destination !== FLOW_DESTINATIONS.LESSON) resetLessonProgress();
+  updateState((state) => {
+    state.flow.lastRequestedScreen = destination;
+  });
   navigateTo(destination);
 }
 
@@ -2554,13 +2578,13 @@ function jumpToBoardChapter(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
   const chapter = getChapterConfig(chapterId) || BOARD_WORLD_CHAPTERS[0] || null;
   if (!chapter) return;
   SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview(chapter.id);
-  navigateTo("board-game-start");
+  navigateTo(FLOW_DESTINATIONS.BOARD_PLAY);
   syncBoardGameDebugState(chapter.startTile, `${chapter.title} · chapter start preview.`);
 }
 
 function previewChapterCover(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
   SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview(chapterId);
-  showScreen("board-game-intro");
+  showScreen(SCREEN_NAMES.CHAPTER_COVER);
 }
 
 function giveDebugXp(amount = 10) {
@@ -4454,7 +4478,7 @@ function initializeDebugMode() {
     getChapterOptions: () => SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getAvailableDebugChapters(debugUnlockedChapterIds) || [],
     navigateTo: (screenId) => requestNavigation(screenId),
     previewChapterCover: (chapterId) => previewChapterCover(chapterId),
-    jumpToBoard: () => requestNavigation(SCREEN_NAMES.BOARD_GAME),
+    jumpToBoard: () => requestNavigation(FLOW_DESTINATIONS.BOARD_ENTRY),
     jumpToBoardChapter: (chapterId) => jumpToBoardChapter(chapterId),
     unlockAllChapters: () => unlockAllDebugChapters(),
     giveXp: (amount) => giveDebugXp(amount),
@@ -4688,19 +4712,19 @@ function initializeScreenRegistry() {
     onSelectStartLevel: (button) => handleStartLevelSelection(button),
   });
 
-  SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
+  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER] = initChapterCoverScreen({
     onStartGame: ({ worldId, difficultyId } = {}) => {
-      const worldMeta = SCREEN_REGISTRY["board-game-intro"]?.getSelectedWorld?.();
-      const difficultyMeta = SCREEN_REGISTRY["board-game-intro"]?.getSelectedDifficulty?.();
+      const worldMeta = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getSelectedWorld?.();
+      const difficultyMeta = SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getSelectedDifficulty?.();
       boardGameSelectedWorldLabel = worldMeta?.label
         || (worldId === "world2" ? "Эртний Хятад ба Торгоны зам" : worldId === "world3" ? "Ромын эзэнт гүрэн ба Гладиаторууд" : "Колумб ба Шинэ тивийнхэн");
       boardGameSelectedDifficultyLabel = difficultyMeta?.label
         || (difficultyId === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : difficultyId === DIFFICULTY_LEVELS.ADVANCED ? "Ахисан" : "Анхан");
-      navigateTo("board-game-start");
+      navigateTo(FLOW_DESTINATIONS.BOARD_PLAY);
     },
   });
 
-  SCREEN_REGISTRY[SCREEN_NAMES.BOARD_GAME] = initBoardScreen({
+  SCREEN_REGISTRY[SCREEN_NAMES.BOARD] = initBoardScreen({
     onRollDice: () => boardGameRollDice(),
     onResizeWhileVisible: () => updateBoardGameTokenPosition(),
   });
