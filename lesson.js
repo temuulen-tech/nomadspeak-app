@@ -56,7 +56,7 @@ export function levelName(levelKey) {
   return levelKey === DIFFICULTY_LEVELS.BEGINNER ? "Анхан" : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : "Дээд";
 }
 
-export function buildOptions(correct, allAnswers) {
+export function buildOptions(correct, allAnswers = Object.values(BANK).flatMap((bucket) => (bucket || []).map((item) => item.a))) {
   const others = allAnswers.filter((item) => item !== correct);
   const options = [correct];
   while (options.length < 4 && others.length > 0) {
