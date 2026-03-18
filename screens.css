@@ -526,6 +526,7 @@
   transform:translate(-50%, -20%);
   margin:0;
   padding:6px 12px;
+  max-width:min(100% - 10px, 20ch);
   border-radius:14px;
   border:1px solid var(--chip-border);
   background:var(--chip-bg);
@@ -534,7 +535,9 @@
   font-size:12px;
   font-weight:700;
   line-height:1.15;
-  white-space:nowrap;
+  white-space:normal;
+  text-align:center;
+  overflow-wrap:anywhere;
   opacity:0;
   visibility:hidden;
   pointer-events:none;
@@ -1714,7 +1717,7 @@ body[data-active-screen="board-game"] .app{
 
 .learning-header-row .learning-title-block,
 .learning-header-row .learning-today-time{
-  white-space:nowrap;
+  white-space:normal;
 }
 
 .learning-utilities-grid{
@@ -1745,12 +1748,17 @@ body[data-active-screen="board-game"] .app{
 
 .learning-title-block{
   margin:0;
+  max-width:100%;
+  line-height:1.28;
+  text-wrap:balance;
 }
 
 .learning-today-time{
   margin-left:auto;
   font-size:.72rem;
   padding:3px 8px;
+  align-self:flex-start;
+  line-height:1.32;
 }
 
 .learning-status-inline{
@@ -2453,6 +2461,7 @@ body[data-active-screen="board-game"] .app{
   min-height:var(--board-chip-height);
   padding:8px 12px;
   border-radius:12px;
+  line-height:1.28;
 }
 
 .board-game-feedback-strip p{margin:0;font-size:.82rem;line-height:1.48;}
@@ -2482,6 +2491,7 @@ body[data-active-screen="board-game"] .app{
   width:100%;
   max-width:144px;
   line-height:1.45;
+  overflow-wrap:anywhere;
 }
 
 .board-game-challenge-panel{
@@ -2507,7 +2517,7 @@ body[data-active-screen="board-game"] .app{
 }
 .board-game-challenge-panel p{margin:0;}
 .board-game-helper-copy{display:grid;gap:8px;}
-#board-game-challenge-title{font-weight:800;font-size:.84rem;}
+#board-game-challenge-title{font-weight:800;font-size:.84rem;line-height:1.35;overflow-wrap:anywhere;}
 #board-game-challenge-text{margin-top:0;font-size:.74rem;line-height:1.48;}
 
 .board-game-options{ margin-top:12px; display:grid; gap:8px; }
@@ -2762,6 +2772,10 @@ body[data-active-screen="board-game"] .app{
   .board-game-meta-chip{
     font-size:.6rem;
     padding:5px 8px;
+  }
+
+  .board-game-mini-status{
+    max-width:none;
   }
 
   .board-game-scene-story{
