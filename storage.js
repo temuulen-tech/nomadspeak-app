@@ -4,7 +4,7 @@
  */
 
 import { CURRENT_SAVE_VERSION, STORAGE_KEYS as APP_STORAGE_KEYS } from "./constants.js";
-import { createDefaultProgressState, DEFAULT_TTS_SETTINGS, normalizeProgressState, normalizeTtsSettings } from "./state.js";
+import { createDefaultProgressState, createDefaultCoreState, DEFAULT_TTS_SETTINGS, normalizeCoreState, normalizeProgressState, normalizeTtsSettings } from "./state.js";
 
 export const STORAGE_KEYS = {
   ttsSettings: APP_STORAGE_KEYS.TTS_SETTINGS,
@@ -183,4 +183,24 @@ export function clearAppSaveData() {
       // ignore private mode/storage quota issues during debug resets
     }
   });
+}
+
+
+export function buildCoreStateFromSave(saveData = {}) {
+  const defaults = createDefaultCoreState();
+  return normalizeCoreState({
+    ...defaults,
+    progress: saveData.progress,
+    settings: saveData.settings,
+  });
+}
+
+export function persistCoreState(coreState) {
+  const normalized = normalizeCoreState(coreState);
+  persistProgressState(normalized.progress);
+  persistTtsSettings(normalized.settings.ttsSettings);
+  persistSoundSetting(normalized.settings.soundEnabled);
+  persistPremiumStatus(normalized.settings.premium);
+  persistProfileName(normalized.settings.profileName);
+  return normalized;
 }
