@@ -49,3 +49,10 @@ export function bindModalBackdropClose(modalEl, onClose = () => closeModal(modal
     if (event.target === modal) onClose();
   });
 }
+
+export function bindModalDismissal({ modalEl, closeBtn, onClose = () => closeModal(modalEl) } = {}) {
+  const modal = resolveElement(modalEl);
+  const button = resolveElement(closeBtn);
+  if (button) button.addEventListener("click", onClose);
+  bindModalBackdropClose(modal, onClose);
+}
