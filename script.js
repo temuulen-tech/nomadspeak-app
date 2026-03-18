@@ -138,6 +138,9 @@ const boardGameIntroCoverImageEl = document.querySelector("#board-game-intro-scr
 const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
+let debugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
+let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
+let debugChapterPreviewMetaEl = null;
 
 const boardWorldConfig = getWorldConfig(WORLD_IDS.WORLD_1);
 
@@ -515,9 +518,6 @@ let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
 let migratedSaveData = null;
-let debugChapterPreviewId = BOARD_WORLD_CHAPTERS[0]?.id || null;
-let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
-let debugChapterPreviewMetaEl = null;
 
 
 function getMigratedSaveData() {
