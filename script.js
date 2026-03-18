@@ -24,7 +24,7 @@ import { BOARD_WORLD_CHAPTERS, getChapterConfig } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { initStatsScreen } from "./stats-screen.js";
-import { REWARD_ICON_SEQUENCE } from "./assets.js";
+import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
   renderHomeScreen,
   setHomeModesPanelOpen,
