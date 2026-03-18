@@ -7,7 +7,7 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { initStatsScreen } from "./stats-screen.js";
-import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
+import { REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
   renderHomeScreen,
   setHomeModesPanelOpen,
@@ -27,6 +27,8 @@ import {
 } from "./render-board.js";
 import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
+import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
+import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import {
   DIFFICULTY_LEVELS,
   DIFFICULTY_LEVEL_LIST,
@@ -104,8 +106,10 @@ const boardGameScreen = document.getElementById("board-game-screen");
 const profileScreen = document.getElementById("profile-screen");
 const endScreen = document.getElementById("end-screen");
 
-if (boardGameIntroCoverImageEl) {
-  boardGameIntroCoverImageEl.src = ASSETS.chapterCovers.columbusNewWorld;
+const boardWorldConfig = getWorldConfig(WORLD_IDS.WORLD_1);
+
+if (boardGameIntroCoverImageEl && boardWorldConfig?.introCoverImage) {
+  boardGameIntroCoverImageEl.src = boardWorldConfig.introCoverImage;
 }
 
 
@@ -454,16 +458,6 @@ const BACKGROUND_AUDIO_ENABLED = true;
 let completionBannerTimer = null;
 let isPremium = false;
 let profileName = "";
-
-const WORLD_AUDIO_TRACKS = {
-  sea: {
-    src: "assets/audio/sea-sailors-world.mp3",
-    volume: 0.16,
-    loop: true,
-    fadeInMs: 1800,
-    fadeOutMs: 1100,
-  },
-};
 
 const SOUND_EVENT_HOOKS = {
   diceRoll: "dice-roll",
@@ -2117,55 +2111,6 @@ function requestNavigation(destination) {
 }
 
 // ---- Board Game MVP ----
-const BOARD_GAME_CONFIG = {
-  levels: {
-    world1: {
-      id: "world1",
-      title: "Далайн цаадах ертөнц",
-      totalTiles: 26,
-      chapters: [
-        {
-          id: "ocean-crossing",
-          index: 1,
-          title: "1-р бүлэг · Далай гатлалт",
-          story: "Далайчид салхи, өлсгөлөн, айдастай нүүр тулж, алс эргийн ард түмэн өдөр тутмын амьдралаа үргэлжлүүлнэ.",
-          startTile: 1,
-          endTile: 6,
-        },
-        {
-          id: "landfall-contact",
-          index: 2,
-          title: "2-р бүлэг · Газардаж анх уулзсан нь",
-          story: "Газар харагдаж, сониуч зан нэмэгдэнэ. Анхны солилцоо бэлэг, дохио, үл ойлголцлоор өрнөнө.",
-          startTile: 7,
-          endTile: 12,
-        },
-        {
-          id: "trade-gold-tension",
-          index: 3,
-          title: "3-р бүлэг · Солилцоо, алт, хурцадмал байдал",
-          story: "Солилцоо эхлэх ч алт эрсэн шахалт нэмэгдэж, үл ойлголцол итгэлцлийг сулруулна.",
-          startTile: 13,
-          endTile: 20,
-        },
-        {
-          id: "survival-settlement",
-          index: 4,
-          title: "4-р бүлэг · Амьд үлдэхүй ба эмзэг суурьшил",
-          story: "Шуурга, хомсдол, айдас нь тодорхойгүй өдрүүдэд амьд үлдэх гэж буй суурьшигчдыг сорьно.",
-          startTile: 21,
-          endTile: 26,
-        },
-      ],
-      tileEffects: {
-        reward: { xp: 12, coins: 8 },
-        penalty: { xp: -5, coins: -4 },
-        checkpoint: { xp: 15, coins: 10 },
-        finish: { xp: 40, coins: 30 },
-      },
-    },
-  },
-};
 
 const BOARD_GAME_CHALLENGES_WORLD1 = [
   { id: "c1", tileNumber: 2, promptMn: "ЮУ", options: ["What", "Where", "When", "Why"], answer: "What", tip: "Асуух үг" },
@@ -2185,28 +2130,6 @@ const BOARD_GAME_CHALLENGES_WORLD1 = [
   { id: "c15", tileNumber: 26, promptMn: "ДУУСЛАА", options: ["Finished", "Started", "Returned", "Lost"], answer: "Finished", tip: "Дуусгах үг" },
 ];
 
-function buildBoardGameTiles(levelConfig) {
-  const typeByTile = {
-    1: "story", 5: "reward", 7: "checkpoint", 10: "penalty", 12: "story", 14: "reward", 16: "penalty", 18: "story", 20: "checkpoint", 22: "reward", 25: "penalty", 26: "finish",
-  };
-
-  return Array.from({ length: levelConfig.totalTiles }, (_, index) => {
-    const tileNumber = index + 1;
-    const chapter = levelConfig.chapters.find((item) => tileNumber >= item.startTile && tileNumber <= item.endTile) || levelConfig.chapters[0];
-    return {
-      id: `tile-${tileNumber}`,
-      tileNumber,
-      tileType: typeByTile[tileNumber] || "normal",
-      chapterId: chapter.id,
-      label: String(tileNumber),
-    };
-  });
-}
-
-function boardTileEmoji(tileType) {
-  const map = { normal: "·", reward: "💰", penalty: "⚠", story: "📜", checkpoint: "🏁", finish: "👑" };
-  return map[tileType] || "·";
-}
 
 const boardGameState = {
   levelId: WORLD_IDS.WORLD_1,
@@ -2280,7 +2203,7 @@ const audioEngine = {
   activeTrackAudio: null,
   fadeRequestId: 0,
   resolveTrack(worldId = this.worldId) {
-    return WORLD_AUDIO_TRACKS[worldId] || null;
+    return getWorldAudioTrack(worldId);
   },
   ensureTrack(worldId = this.worldId) {
     if (this.failedTracks.has(worldId)) return null;
