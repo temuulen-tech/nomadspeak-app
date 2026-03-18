@@ -2895,7 +2895,20 @@ body[data-active-screen="board-game"] .app{
 
 @media (max-width:900px){
   #home-shell{
-    gap:18px;
+    gap:20px;
+  }
+
+  .header{
+    gap:16px;
+    margin-bottom:4px;
+  }
+
+  .home-header-actions{
+    gap:14px;
+  }
+
+  .home-action-card{
+    gap:12px;
   }
 
   .home-hero-copy-shell{
@@ -2909,16 +2922,17 @@ body[data-active-screen="board-game"] .app{
 
 @media (max-width:600px){
   .header{
-    margin-bottom:8px;
+    margin-bottom:4px;
     padding-right:56px;
   }
 
   #home-shell{
-    gap:16px;
+    gap:18px;
   }
 
   #start-screen{
     gap:16px;
+    padding:16px;
   }
 
   .home-action-card{
@@ -2930,7 +2944,8 @@ body[data-active-screen="board-game"] .app{
   }
 
   .home-modes-panel{
-    top:calc(100% + 8px);
+    position:static;
+    margin-top:8px;
   }
 
   .home-hero-copy-shell{
@@ -2949,6 +2964,10 @@ body[data-active-screen="board-game"] .app{
   .home-hero-aside{
     padding:15px;
   }
+
+  .start-intro-panel{
+    padding:14px;
+  }
 }
 
 @media (max-width:420px){
@@ -2958,6 +2977,12 @@ body[data-active-screen="board-game"] .app{
   }
 
   .home-hero-title{
-    line-height:1.14;
+    max-width:100%;
+    line-height:1.16;
+  }
+
+  .start-intro-panel-head{
+    flex-direction:column;
+    align-items:flex-start;
   }
 }
