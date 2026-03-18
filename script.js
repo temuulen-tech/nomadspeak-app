@@ -286,6 +286,7 @@ const boardGameChapterTitleEl = document.getElementById("board-game-chapter-titl
 const boardGameChapterTextEl = document.getElementById("board-game-chapter-text");
 const boardGameChallengeTitleEl = document.getElementById("board-game-challenge-title");
 const boardGameChallengeTextEl = document.getElementById("board-game-challenge-text");
+const boardGameScreenTitleEl = document.getElementById("board-game-screen-title");
 const boardGameFeedbackEl = document.getElementById("board-game-feedback");
 const boardGameOptionsEl = document.getElementById("board-game-options");
 const boardGameDiceEl = document.getElementById("board-game-dice");
@@ -387,6 +388,8 @@ let lessonTimerStartedAt = null;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
+let boardGameSelectedWorldLabel = "Колумб ба Шинэ тивийнхэн";
+let boardGameSelectedDifficultyLabel = "Анхан";
 
 
 const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
@@ -1923,6 +1926,7 @@ function navigateTo(destination) {
 
   if (destination === SCREEN_NAMES.BOARD_GAME) {
     stopSpeaking();
+    SCREEN_REGISTRY["board-game-intro"]?.resetSelection?.();
     SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview();
     showScreen("board-game-intro");
   }
@@ -2337,6 +2341,11 @@ function updateBoardGameMetaUi() {
   });
 }
 
+function updateBoardGameScreenTitle() {
+  if (!boardGameScreenTitleEl) return;
+  boardGameScreenTitleEl.textContent = `Та битгий уурлаарай · ${boardGameSelectedWorldLabel} · ${boardGameSelectedDifficultyLabel}`;
+}
+
 function setBoardGameRollEnabled(enabled) {
   boardGameState.dice.canRoll = enabled;
   renderBoardRollState({ enabled, rollBtn: boardGameRollBtn, diceEl: boardGameDiceEl });
@@ -2515,6 +2524,7 @@ function initBoardGameMvp() {
   boardGameState.challenge.activeChallenge = null;
   boardGameState.feedback.message = "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.";
 
+  updateBoardGameScreenTitle();
   renderBoardGameTiles();
   updateBoardGameChapterPanel();
   renderBoardGameChallenge();
@@ -4679,7 +4689,15 @@ function initializeScreenRegistry() {
   });
 
   SCREEN_REGISTRY["board-game-intro"] = initChapterCoverScreen({
-    onStartGame: () => navigateTo("board-game-start"),
+    onStartGame: ({ worldId, difficultyId } = {}) => {
+      const worldMeta = SCREEN_REGISTRY["board-game-intro"]?.getSelectedWorld?.();
+      const difficultyMeta = SCREEN_REGISTRY["board-game-intro"]?.getSelectedDifficulty?.();
+      boardGameSelectedWorldLabel = worldMeta?.label
+        || (worldId === "world2" ? "Эртний Хятад ба Торгоны зам" : worldId === "world3" ? "Ромын эзэнт гүрэн ба Гладиаторууд" : "Колумб ба Шинэ тивийнхэн");
+      boardGameSelectedDifficultyLabel = difficultyMeta?.label
+        || (difficultyId === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : difficultyId === DIFFICULTY_LEVELS.ADVANCED ? "Ахисан" : "Анхан");
+      navigateTo("board-game-start");
+    },
   });
 
   SCREEN_REGISTRY[SCREEN_NAMES.BOARD_GAME] = initBoardScreen({

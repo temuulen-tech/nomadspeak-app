@@ -78,7 +78,7 @@
                 <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
                 <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэр бүтээж сурцгаая</button>
                 <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">Асуулт & Хариулт бүтээцгээе</button>
-                <button class="home-modes-option" id="nav-board-game-btn" type="button" role="menuitem">Самбарт аялал: Далайн цаадах ертөнц</button>
+                <button class="home-modes-option" id="nav-board-game-btn" type="button" role="menuitem">Та битгий уурлаарай</button>
               </div>
             </div>
             <button class="secondary nav-btn" id="nav-stats-btn" type="button" aria-label="Миний ахиц &amp; Амжилт" title="Миний ахиц &amp; Амжилт">Миний ахиц &amp; Амжилт</button>
@@ -413,6 +413,24 @@
         src="assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png"
         alt="Columbus New World cover"
       />
+      <div class="board-game-intro-selector" aria-label="Тоглоомын сонголтууд">
+        <p class="chip-label">Та битгий уурлаарай</p>
+        <h2 id="board-game-selector-title">Ертөнц / тоглоомоо сонгох</h2>
+        <div class="board-game-world-options" id="board-game-world-options" role="menu" aria-label="Ертөнц сонгох">
+          <button class="secondary board-game-world-option" type="button" data-board-world="world1" role="menuitem">Колумб ба Шинэ тивийнхэн</button>
+          <button class="secondary board-game-world-option" type="button" data-board-world="world2" role="menuitem">Эртний Хятад ба Торгоны зам</button>
+          <button class="secondary board-game-world-option" type="button" data-board-world="world3" role="menuitem">Ромын эзэнт гүрэн ба Гладиаторууд</button>
+        </div>
+        <div class="board-game-difficulty-selector hidden" id="board-game-difficulty-selector">
+          <p class="chip-label" id="board-game-selected-world-label">Сонгосон ертөнц:</p>
+          <h3 id="board-game-difficulty-title">Тоглоомын ангилал сонгох</h3>
+          <div class="board-game-difficulty-options" id="board-game-difficulty-options" role="menu" aria-label="Тоглоомын ангилал сонгох">
+            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="beginner" role="menuitem">Анхан</button>
+            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="intermediate" role="menuitem">Дунд</button>
+            <button class="secondary board-game-difficulty-option" type="button" data-board-difficulty="advanced" role="menuitem">Ахисан</button>
+          </div>
+        </div>
+      </div>
       <button class="primary board-game-intro-continue-btn" id="board-game-intro-continue-btn" type="button">Үргэлжлүүлэх</button>
     </section>
 
@@ -425,7 +443,7 @@
             <div class="board-game-topbar" aria-live="polite">
               <button class="primary play-exit-btn game-exit-btn learning-exit-btn board-topbar-exit" type="button">Гарах</button>
               <div class="board-game-topbar-center">
-                <h2 class="screen-title-chip chip-title learning-title-block">1-р ертөнц · Далайн цаадах ертөнц</h2>
+                <h2 class="screen-title-chip chip-title learning-title-block" id="board-game-screen-title">Та битгий уурлаарай · Колумб ба Шинэ тивийнхэн</h2>
                 <div class="board-game-meta-row board-game-topbar-status">
                   <span class="board-game-meta-chip chip-label">XP <strong id="board-game-xp">0</strong></span>
                   <span class="board-game-meta-chip chip-label">Зоос <strong id="board-game-coins">0</strong></span>
