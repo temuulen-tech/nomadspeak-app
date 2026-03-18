@@ -9,6 +9,8 @@ function resolveElement(elementOrSelector) {
   return elementOrSelector;
 }
 
+const MANAGED_CLICK_BINDINGS = new WeakMap();
+
 export function toggleClass(elementOrSelector, className, force) {
   const element = resolveElement(elementOrSelector);
   if (!element || !className) return false;
@@ -107,4 +109,27 @@ export function syncToggleButtons(buttons, isActive, options = {}) {
     if (selected) setSelectedState(button, isActive(button));
     if (checked) setCheckedState(button, isActive(button));
   });
+}
+
+export function bindClickOnce(elementOrSelector, bindingKey, handler) {
+  const element = resolveElement(elementOrSelector);
+  if (!element || !bindingKey || typeof handler !== "function") return false;
+
+  let bindingKeys = MANAGED_CLICK_BINDINGS.get(element);
+  if (!bindingKeys) {
+    bindingKeys = new Set();
+    MANAGED_CLICK_BINDINGS.set(element, bindingKeys);
+  }
+
+  if (bindingKeys.has(bindingKey)) return false;
+
+  element.addEventListener("click", handler);
+  bindingKeys.add(bindingKey);
+  return true;
+}
+
+export function hasClickBinding(elementOrSelector, bindingKey) {
+  const element = resolveElement(elementOrSelector);
+  if (!element || !bindingKey) return false;
+  return MANAGED_CLICK_BINDINGS.get(element)?.has(bindingKey) || false;
 }

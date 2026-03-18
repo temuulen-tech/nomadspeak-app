@@ -5,14 +5,15 @@
 
 import { renderLessonScreen } from "./render-lesson.js";
 import { SCREEN_NAMES } from "./constants.js";
+import { bindClickOnce } from "./ui.js";
 
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
   const nextBtn = document.getElementById("next-btn");
   const restartBtn = document.getElementById("restart-btn");
 
-  if (nextBtn) nextBtn.addEventListener("click", () => handlers.onNext?.());
-  if (restartBtn) restartBtn.addEventListener("click", () => handlers.onRestart?.());
+  bindClickOnce(nextBtn, "lesson:next", () => handlers.onNext?.());
+  bindClickOnce(restartBtn, "lesson:restart", () => handlers.onRestart?.());
 
   return {
     id: SCREEN_NAMES.LESSON,
