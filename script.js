@@ -1,23 +1,30 @@
 import {
   STORAGE_KEYS,
+  buildCoreStateFromSave,
   loadAppSaveData,
+  persistCoreState,
   persistPremiumStatus,
   persistProfileName,
-  persistProgressState as saveProgressState,
   clearAppSaveData,
   persistSoundSetting,
   persistTtsSettings as saveTtsSettings,
 } from "./storage.js";
 import {
+  completeLesson,
   createDefaultProgressState,
   DEFAULT_TTS_SETTINGS,
   getBoardEntryState,
+  getCoreState,
   getState,
-  normalizeProgressState,
+  initializeCoreState,
+  markWordLearned,
   normalizeTtsSettings,
+  replaceProgressState,
   resetBoardEntryState,
   setStateValue,
+  unlockChapter,
   updateBoardEntryState,
+  updateSettings,
   updateState,
 } from "./state.js";
 import { formatHHMMSS as formatDuration } from "./stats.js";
@@ -403,21 +410,31 @@ const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
 const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
 const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
 const FREE_DAILY_XP_LIMIT = 10;
-let ttsSettings = { ...DEFAULT_TTS_SETTINGS };
-let soundEnabled = true;
+let appSettings = getCoreState().settings;
 let audioContext = null;
 let audioPrimed = false;
 let audioInteractionUnlocked = false;
 const BACKGROUND_AUDIO_ENABLED = true;
 let completionBannerTimer = null;
-let isPremium = false;
-let profileName = "";
 let migratedSaveData = null;
 
 
 function getMigratedSaveData() {
   if (!migratedSaveData) migratedSaveData = loadAppSaveData();
   return migratedSaveData;
+}
+
+
+function syncCoreStateReferences() {
+  const coreState = getCoreState();
+  progressState = coreState.progress;
+  appSettings = coreState.settings;
+  return coreState;
+}
+
+function persistCoreAppState() {
+  syncCoreStateReferences();
+  persistCoreState(getCoreState());
 }
 
 const SOUND_EVENT_HOOKS = {
@@ -428,7 +445,7 @@ const SOUND_EVENT_HOOKS = {
   progression: "progression",
 };
 
-let progressState = createDefaultProgressState();
+let progressState = getCoreState().progress;
 
 
 let deferredInstallPrompt = null;
@@ -692,7 +709,7 @@ function focusSentenceFromVault(savedItem) {
   targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
   targetRow.querySelector(".speak-btn")?.focus();
 
-  if (soundEnabled) {
+  if (appSettings.soundEnabled) {
     const sourceItem = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === targetSentence)
       || { id: Number(targetRow.querySelector(".speak-btn")?.dataset.id || 0), en: savedItem.enSentence };
     setTimeout(() => speakSentence(sourceItem), 120);
@@ -855,7 +872,12 @@ function renderVaultModal(key) {
   };
 
   if (vaultDeleteBtn) vaultDeleteBtn.onclick = removeSelected;
-  if (vaultLearnedBtn) vaultLearnedBtn.onclick = removeSelected;
+  if (vaultLearnedBtn) vaultLearnedBtn.onclick = () => {
+    const learnedEntry = list.find((entry) => entry.id === selectedId);
+    const learnedWord = learnedEntry?.enSentence || learnedEntry?.correctAnswer || learnedEntry?.enAnswer || learnedEntry?.questionText;
+    if (learnedWord) markWordLearned(learnedWord);
+    removeSelected();
+  };
 }
 
 function saveCurrentLessonItem() {
@@ -943,7 +965,7 @@ function saveSentenceListItem(item) {
     id: `sentences:${String(item.en || "").toLowerCase().trim()}`,
     enSentence: item.en,
     mnTranslation: item.mn || "",
-    voiceSetting: ttsSettings.voice,
+    voiceSetting: appSettings.ttsSettings.voice,
     timestamp: Date.now(),
   };
   const key = vaultKeyForScreen(SCREEN_NAMES.SENTENCES);
@@ -1163,21 +1185,24 @@ function persistProgressState() {
   if (Array.isArray(progressState.weeklyMinutes) && progressState.weeklyMinutes.length) {
     progressState.weeklyMinutes[progressState.weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
   }
-  saveProgressState(progressState);
+  replaceProgressState(progressState);
+  persistCoreAppState();
 }
 
 function loadProgressState() {
-  const { progress } = getMigratedSaveData();
-  progressState = normalizeProgressState(progress);
+  initializeCoreState(buildCoreStateFromSave(getMigratedSaveData()));
+  syncCoreStateReferences();
   syncProgressForToday();
 }
 
 function loadPremiumStatus() {
-  isPremium = Boolean(getMigratedSaveData().settings.premium);
+  updateSettings({ premium: Boolean(getMigratedSaveData().settings.premium) });
+  syncCoreStateReferences();
 }
 
 function loadProfileName() {
-  profileName = getMigratedSaveData().settings.profileName;
+  updateSettings({ profileName: getMigratedSaveData().settings.profileName });
+  syncCoreStateReferences();
 }
 
 function openPremiumModal(message, title = "Дээд багц") {
@@ -1193,14 +1218,14 @@ function closePremiumModal() {
 }
 
 function canEarnMoreSentenceGameXp(amount = 0) {
-  if (isPremium) return true;
+  if (appSettings.premium) return true;
   loadProgressState();
   syncProgressForToday();
   return progressState.dailyXP + amount <= FREE_DAILY_XP_LIMIT;
 }
 
 function enforceFreeXpGate() {
-  if (isPremium) return false;
+  if (appSettings.premium) return false;
   loadProgressState();
   syncProgressForToday();
   if (progressState.dailyXP >= FREE_DAILY_XP_LIMIT) {
@@ -1213,18 +1238,18 @@ function enforceFreeXpGate() {
 function updateProfileUI() {
   loadProgressState();
   syncProgressForToday();
-  if (profileNameInput) profileNameInput.value = profileName;
-  if (profileNameSaved) profileNameSaved.textContent = `Хадгалагдсан нэр: ${profileName || "—"}`;
+  if (profileNameInput) profileNameInput.value = appSettings.profileName;
+  if (profileNameSaved) profileNameSaved.textContent = `Хадгалагдсан нэр: ${appSettings.profileName || "—"}`;
   if (profileTotalXpEl) profileTotalXpEl.textContent = String(progressState.xp);
   if (profileLevelEl) profileLevelEl.textContent = String(progressState.level);
   if (profileStreakDaysEl) profileStreakDaysEl.textContent = `${progressState.streak} өдөр`;
   if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
   if (profileRewardStageEl) profileRewardStageEl.textContent = `Tier ${progressState.rewardTierUnlocked}`;
-  if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${isPremium ? "Дээд багц" : "Үнэгүй"}`;
+  if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${appSettings.premium ? "Дээд багц" : "Үнэгүй"}`;
 }
 
 function playDailyGoalSuccessChime() {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   [988, 1319].forEach((frequency, index) => {
     setTimeout(() => {
       playTone({ frequency, type: "triangle", duration: 0.08, volume: 0.09, attack: 0.006, release: 0.08 });
@@ -1246,40 +1271,22 @@ function awardXP(amount, reason = "") {
 
   const today = getTodayKey();
   const yesterday = previousDayKey(today);
-  const firstActivityToday = progressState.lastActiveDate !== today;
-
-  progressState.xp += earned;
-  progressState.xpTotal = progressState.xp;
-  progressState.dailyXP += earned;
-  progressState.level = Math.floor(progressState.xp / 100) + 1;
-
   const wasDailyCompleted = progressState.dailyCompleted;
-  if (progressState.dailyXP >= progressState.dailyGoalXP) {
-    progressState.dailyCompleted = true;
-    if (!wasDailyCompleted) playDailyGoalSuccessChime();
-  }
+  const rewardFromTime = reason.startsWith("sentence_game")
+    ? sentenceGameRewardLevelFromSeconds((progressState.todayMinutes || 0) * 60)
+    : null;
 
-  if (firstActivityToday) {
-    progressState.streak = progressState.lastActiveDate === yesterday
-      ? progressState.streak + 1
-      : 1;
-    progressState.streakDays = progressState.streak;
-  }
+  completeLesson({
+    xpEarned: earned,
+    today,
+    yesterday,
+    countDailyProgress: reason === "sentence_game_success",
+    rewardTierUnlocked: rewardFromTime,
+  });
 
-  if (reason === "sentence_game_success") {
-    progressState.todayCount += 1;
-  }
+  if (!wasDailyCompleted && progressState.dailyCompleted) playDailyGoalSuccessChime();
 
-  if (reason.startsWith("sentence_game")) {
-    const rewardFromTime = sentenceGameRewardLevelFromSeconds((progressState.todayMinutes || 0) * 60);
-    progressState.rewardTierUnlocked = Math.max(progressState.rewardTierUnlocked || 1, rewardFromTime || 1);
-  }
-
-  progressState.lastActiveDate = today;
-  progressState.lastStatsDate = today;
   persistProgressState();
-  updateHeaderStatus();
-  updateStatsUI();
 
   if (SENTENCE_GAME_DEBUG) {
     console.log("[Progress] awardXP", { amount: earned, reason, ...progressState });
@@ -1730,7 +1737,7 @@ function showCompletionBanner(showDailyGoalUpgrade = false) {
 }
 
 function playCompletionBannerSound() {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   const notes = [523.25, 659.25, 783.99];
   notes.forEach((frequency, index) => {
     setTimeout(() => {
@@ -1747,7 +1754,7 @@ function playCompletionBannerSound() {
 }
 
 function playDailyVictoryChime() {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   const notes = [587.33, 783.99, 987.77, 1174.66];
   notes.forEach((frequency, index) => {
     setTimeout(() => {
@@ -1789,7 +1796,7 @@ function toastTypeFromMessage(message = "") {
 }
 
 function speakBannerText(text) {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
 
   window.speechSynthesis.cancel();
@@ -1800,7 +1807,7 @@ function speakBannerText(text) {
   const utterance = new SpeechSynthesisUtterance(text);
   utterance.lang = mnVoice.lang || "mn-MN";
   utterance.voice = mnVoice;
-  utterance.rate = ttsSettings.rate;
+  utterance.rate = appSettings.ttsSettings.rate;
   utterance.pitch = 1;
   window.speechSynthesis.speak(utterance);
 }
@@ -2138,7 +2145,7 @@ const audioEngine = {
   start(worldId = WORLD_IDS.SEA, mode = GAME_MODES.LESSON) {
     this.worldId = worldId;
     this.activeMode = mode;
-    if (!soundEnabled || !audioInteractionUnlocked || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
+    if (!appSettings.soundEnabled || !audioInteractionUnlocked || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
       this.stop(true);
       return;
     }
@@ -2203,7 +2210,7 @@ const worldSoundscape = {
     audioEngine.stop();
   },
   play(eventName) {
-    if (!soundEnabled) return;
+    if (!appSettings.soundEnabled) return;
     if (eventName === "reward") {
       playTone({ frequency: 1046, type: "sine", duration: 0.08, volume: 0.09, attack: 0.003, release: 0.06 });
       setTimeout(() => playTone({ frequency: 1318, type: "triangle", duration: 0.1, volume: 0.08, attack: 0.004, release: 0.08 }), 55);
@@ -2217,7 +2224,7 @@ const worldSoundscape = {
 
 const gameFeelSoundManager = {
   playSoundHook(eventName) {
-    if (!soundEnabled) return;
+    if (!appSettings.soundEnabled) return;
     if (eventName === SOUND_EVENT_HOOKS.diceRoll) {
       playTone({ frequency: 420, type: "triangle", duration: 0.06, volume: 0.08, attack: 0.003, release: 0.05 });
       setTimeout(() => playTone({ frequency: 260, type: "triangle", duration: 0.08, volume: 0.07, attack: 0.004, release: 0.06 }), 70);
@@ -2634,7 +2641,16 @@ function resetDebugProgress() {
   ].forEach((key) => localStorage.removeItem(key));
 
   migratedSaveData = null;
-  progressState = createDefaultProgressState();
+  initializeCoreState(buildCoreStateFromSave({
+    progress: createDefaultProgressState(),
+    settings: {
+      ttsSettings: DEFAULT_TTS_SETTINGS,
+      soundEnabled: true,
+      premium: false,
+      profileName: "",
+    },
+  }));
+  syncCoreStateReferences();
   sentenceGameClimbLevel = 0;
   sentenceGameRewardLevel = 0;
   sentenceGameActiveSeconds = 0;
@@ -2646,7 +2662,8 @@ function resetDebugProgress() {
   persistProfileName("");
   saveTtsSettings(DEFAULT_TTS_SETTINGS);
   persistSoundSetting(true);
-  saveProgressState(progressState);
+  replaceProgressState(progressState);
+  persistCoreAppState();
   loadTtsSettings();
   loadSoundSettings();
   loadPremiumStatus();
@@ -2667,6 +2684,7 @@ function resetDebugProgress() {
 
 function unlockAllDebugChapters() {
   debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS.map((chapter) => chapter.id);
+  debugUnlockedChapterIds.forEach((chapterId) => unlockChapter(chapterId));
   setStateValue("flags", { ...getState().flags, debugUnlockedChapterIds: [...debugUnlockedChapterIds] });
   showWorldFeedbackChip(`🧪 ${debugUnlockedChapterIds.length} chapters unlocked for preview.`, "reward");
 }
@@ -2689,17 +2707,18 @@ function toggleStartIntroPanel() {
 }
 
 function loadSoundSettings() {
-  soundEnabled = Boolean(getMigratedSaveData().settings.soundEnabled);
+  updateSettings({ soundEnabled: Boolean(getMigratedSaveData().settings.soundEnabled) });
+  syncCoreStateReferences();
 }
 
 function persistSoundSettings() {
-  persistSoundSetting(soundEnabled);
+  persistCoreAppState();
 }
 
 function updateSoundToggleState() {
   soundToggleButtons.forEach(toggleBtn => {
-    toggleBtn.textContent = soundEnabled ? "🔊 Дуу: АСААЛТТАЙ" : "🔇 Дуу: УНТРААЛТТАЙ";
-    setPressedState(toggleBtn, soundEnabled);
+    toggleBtn.textContent = appSettings.soundEnabled ? "🔊 Дуу: АСААЛТТАЙ" : "🔇 Дуу: УНТРААЛТТАЙ";
+    setPressedState(toggleBtn, appSettings.soundEnabled);
   });
 }
 
@@ -2728,7 +2747,7 @@ function ensureAudioUnlocked() {
     audioInteractionUnlocked = true;
     primeAudioContext();
     const activeScreen = document.body?.dataset.activeScreen || "home";
-    if (soundEnabled) {
+    if (appSettings.soundEnabled) {
       if (boardGameScreen && !isHidden(boardGameScreen)) gameFeelSoundManager.startAmbient();
       else worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
     }
@@ -2741,7 +2760,7 @@ function ensureAudioUnlocked() {
 }
 
 function playTone({ frequency, type, duration, volume, attack = 0.005, release = 0.05 }) {
-  if (!soundEnabled || !audioInteractionUnlocked) return;
+  if (!appSettings.soundEnabled || !audioInteractionUnlocked) return;
   const ctx = getAudioContext();
   if (!ctx) return;
 
@@ -2863,7 +2882,7 @@ function renderSentenceGameClimb(level = 0, options = {}) {
 }
 
 function playSentenceGameLevelUpSound(stage) {
-  if (!soundEnabled || stage < 1 || stage > 5) return;
+  if (!appSettings.soundEnabled || stage < 1 || stage > 5) return;
   gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.progression);
   const stagePatterns = {
     1: [620, 740, 930],
@@ -2881,7 +2900,7 @@ function playSentenceGameLevelUpSound(stage) {
 }
 
 function playSentenceGameLevelDownSound() {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.answerWrong);
   [300, 230, 170].forEach((freq, index) => {
     setTimeout(() => {
@@ -2946,7 +2965,7 @@ function renderSentenceGameRewardState() {
 }
 
 function playSentenceGameUnlockChime(level) {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   const patterns = {
     1: [660, 792, 990],
     2: [740, 932, 1175],
@@ -3151,8 +3170,8 @@ function selectedEnglishVoice() {
   const voices = englishVoices();
   if (!voices.length) return null;
 
-  if (ttsSettings.voice === "male" || ttsSettings.voice === "female") {
-    const hinted = voices.find(v => voiceMatchesHint(v, ttsSettings.voice));
+  if (appSettings.ttsSettings.voice === "male" || appSettings.ttsSettings.voice === "female") {
+    const hinted = voices.find(v => voiceMatchesHint(v, appSettings.ttsSettings.voice));
     if (hinted) return hinted;
   }
 
@@ -3160,26 +3179,27 @@ function selectedEnglishVoice() {
 }
 
 function loadTtsSettings() {
-  ttsSettings = normalizeTtsSettings(getMigratedSaveData().settings.ttsSettings);
+  updateSettings({ ttsSettings: normalizeTtsSettings(getMigratedSaveData().settings.ttsSettings) });
+  syncCoreStateReferences();
 }
 
 function persistTtsSettings() {
-  saveTtsSettings(ttsSettings);
+  persistCoreAppState();
 }
 
 function updateTtsControlState() {
   voiceOptionButtons.forEach(btn => {
-    const isActive = btn.dataset.voice === ttsSettings.voice;
+    const isActive = btn.dataset.voice === appSettings.ttsSettings.voice;
     setActiveState(btn, isActive);
     setPressedState(btn, isActive);
   });
 
   if (ttsRateSlider) {
-    ttsRateSlider.value = ttsSettings.rate.toFixed(2);
+    ttsRateSlider.value = appSettings.ttsSettings.rate.toFixed(2);
   }
 
   if (ttsRateValueEl) {
-    ttsRateValueEl.textContent = `${ttsSettings.rate.toFixed(2)}x`;
+    ttsRateValueEl.textContent = `${appSettings.ttsSettings.rate.toFixed(2)}x`;
   }
 }
 
@@ -3239,7 +3259,7 @@ function showSentenceGameTipText() {
 
 function speakSentenceGameTip() {
   markSentenceGameActivity();
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
   stopSentenceGameTipSpeech();
 
@@ -3251,7 +3271,7 @@ function speakSentenceGameTip() {
   } else {
     utterance.lang = "mn-MN";
   }
-  utterance.rate = ttsSettings.rate;
+  utterance.rate = appSettings.ttsSettings.rate;
   utterance.onstart = () => {
     sentenceGameTipSpeaking = true;
     updateSentenceGameTipControls();
@@ -3278,7 +3298,7 @@ function stopSpeaking() {
 }
 
 function speakSentence(item) {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
   updateCompanionLine("sentences", "success");
   showWorldFeedbackChip("🗣️ Амилуулж уншлаа!", "reward");
@@ -3292,7 +3312,7 @@ function speakSentence(item) {
   utterance.lang = selectedVoice && selectedVoice.lang
     ? selectedVoice.lang
     : "en-US";
-  utterance.rate = ttsSettings.rate;
+  utterance.rate = appSettings.ttsSettings.rate;
 
   if (selectedVoice) utterance.voice = selectedVoice;
 
@@ -3758,7 +3778,7 @@ function clearSentenceGameToastTimers() {
 }
 
 function speakSentenceGameToast(message, handlers = {}) {
-  if (!soundEnabled) return;
+  if (!appSettings.soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
 
   const textToSpeak = toastSpeechText(message);
@@ -3775,7 +3795,7 @@ function speakSentenceGameToast(message, handlers = {}) {
   } else {
     utterance.lang = "mn";
   }
-  utterance.rate = ttsSettings.rate;
+  utterance.rate = appSettings.ttsSettings.rate;
   utterance.pitch = 1;
   utterance.onstart = () => {
     console.log(`[SentenceGameToast][${toastType}] speech start`);
@@ -4477,7 +4497,7 @@ function initializeAppState() {
   updateProfileUI();
   updateStatsUI();
   refreshTimeSummaryUI();
-  persistPremiumStatus();
+  persistCoreAppState();
   persistProgressState();
 }
 
@@ -4649,7 +4669,7 @@ function initializeSentenceFilterControls() {
 function initializeAudioAndSentenceControls() {
   voiceOptionButtons.forEach((btn) => {
     btn.addEventListener("click", () => {
-      ttsSettings.voice = btn.dataset.voice;
+      appSettings.ttsSettings.voice = btn.dataset.voice;
       updateTtsControlState();
       persistTtsSettings();
     });
@@ -4657,7 +4677,7 @@ function initializeAudioAndSentenceControls() {
 
   if (ttsRateSlider) {
     ttsRateSlider.addEventListener("input", () => {
-      ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
+      appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
       updateTtsControlState();
       persistTtsSettings();
     });
@@ -4665,9 +4685,9 @@ function initializeAudioAndSentenceControls() {
 
   soundToggleButtons.forEach((toggleBtn) => {
     toggleBtn.addEventListener("click", () => {
-      soundEnabled = !soundEnabled;
-      setGlobalSoundEnabled(soundEnabled);
-      if (!soundEnabled) {
+      appSettings.soundEnabled = !appSettings.soundEnabled;
+      setGlobalSoundEnabled(appSettings.soundEnabled);
+      if (!appSettings.soundEnabled) {
         stopSpeaking();
         gameFeelSoundManager.stopAmbient();
         worldSoundscape.stop();
@@ -4824,8 +4844,8 @@ function initializeSpeechAndProfileControls() {
 
   if (profileNameInput) {
     profileNameInput.addEventListener("input", () => {
-      profileName = profileNameInput.value.trim();
-      persistProfileName();
+      updateSettings({ profileName: profileNameInput.value.trim() });
+      persistCoreAppState();
       updateProfileUI();
     });
   }
