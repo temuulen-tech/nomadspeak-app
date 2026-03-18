@@ -23,6 +23,7 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { BOARD_WORLD_CHAPTERS, getChapterConfig } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
+import { BANK, LESSON_TRANSLATIONS, buildOptions, levelName } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
 import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
@@ -60,6 +61,34 @@ import {
 import { bindModalBackdropClose, closeModal, openModal } from "./modal.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
 import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
+import {
+  SENTENCE_GAME_CLIMB_POSITIONS,
+  SENTENCE_GAME_CORRECT_TOAST,
+  SENTENCE_GAME_DEBUG,
+  SENTENCE_GAME_DIFFICULTY_LABELS,
+  SENTENCE_GAME_IDLE_TIMEOUT_SECONDS,
+  SENTENCE_GAME_INCORRECT_TOAST,
+  SENTENCE_GAME_REWARD_BANNERS,
+  SENTENCE_GAME_REWARD_THRESHOLDS,
+  SENTENCE_GAME_SHOW_CORRECT_TOAST,
+  SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS,
+  SENTENCE_GAME_TIP_TEXT,
+  SENTENCE_GAME_TOAST_DURATION,
+  SENTENCE_GAME_TOAST_MAX_DURATION,
+  SENTENCE_GAME_TOAST_SPEECH_DELAY,
+  SENTENCE_GAME_TOAST_SPEECH_END_BUFFER,
+  tokenizeSentence,
+} from "./sentence-game.js";
+import {
+  QA_LONG_EXPLANATION_TEXT,
+  QA_REWARD_STEPS,
+  QA_ROUNDS,
+  QA_WORD_BANK_BASE,
+  formatQaBuiltLine,
+  qaLevelLabel,
+  qaRoundPoolForLevel,
+  qaShuffle,
+} from "./qa-game.js";
 import { initDebugTools } from "./debug-tools.js";
 import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import {
@@ -77,54 +106,7 @@ import {
 // 4 options • 3 levels • score • end screen
 // ======================
 
-// ---- Question bank (эхний багц). Дараа нь бид үүнийг олон болгоно. ----
-const BANK = {
-  beginner: [
-    { q: "What month is it now?", qMn: "Одоо хэдэн сар вэ?", a: "It is September now.", aMn: "Одоо есдүгээр сар байна." },
-    { q: "What day is it today?", qMn: "Өнөөдөр ямар гараг вэ?", a: "Today is Monday", aMn: "Өнөөдөр Даваа гараг." },
-    { q: "What is your name?", qMn: "Таны нэрийг хэн гэдэг вэ?", a: "My name is Nasaa", aMn: "Миний нэрийг Насаа гэдэг." },
-    { q: "Where do you live?", qMn: "Та хаана амьдардаг вэ?", a: "I live in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод амьдардаг." },
-    { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I from Mongolia", aMn: "Би Монголоос ирсэн." },
-    { q: "Where are you going?", qMn: "Та хаашаа явж байна вэ?", a: "I am going to Shanghai.", aMn: "Би Шанхай руу явж байна." },
-    { q: "Are you hungry?", qMn: "Та өлсөж байна уу?", a: "Yes, I'm a little hungry.", aMn: "Тийм ээ, би бага зэрэг өлсөж байна." },
-    { q: "Have you eaten dinner?", qMn: "Та оройн хоолоо идсэн үү?", a: "I ate dinner.", aMn: "Би оройн хоолоо идсэн." },
-    { q: "What is your hobby?", qMn: "Таны хобби юу вэ?", a: "My hobby is roller skating.", aMn: "Миний хобби бол дугуйт тэшүүр." },
-    { q: "What is your favourite fruit?", qMn: "Таны дуртай жимс юу вэ?", a: "I like to eat apples.", aMn: "Би алим идэх дуртай." },
-  ],
-  intermediate: [
-    { q: "When were you born?", qMn: "Та хэзээ төрсөн бэ?", a: "I was born on September 8", aMn: "Би есдүгээр сарын 8-нд төрсөн." },
-    { q: "Where were you born?", qMn: "Та хаана төрсөн бэ?", a: "I was born in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод төрсөн." },
-    { q: "What do you do in your free time?", qMn: "Та чөлөөт цагаараа юу хийдэг вэ?", a: "I read books in my free time.", aMn: "Би чөлөөт цагаараа ном уншдаг." },
-    { q: "What is your dream?", qMn: "Таны мөрөөдөл юу вэ?", a: "I will be a great businessman.", aMn: "Би агуу бизнесмен болно." },
-    { q: "What color do you like?", qMn: "Та ямар өнгөнд дуртай вэ?", a: "I like the color red.", aMn: "Би улаан өнгөнд дуртай." },
-    { q: "When did you wake up?", qMn: "Та хэзээ сэрсэн бэ?", a: "I woke up at 8 in the morning.", aMn: "Би өглөө 8 цагт сэрсэн." },
-    { q: "When did you go to sleep?", qMn: "Та хэзээ унтсан бэ?", a: "I went to bed at 10 o'clock yesterday.", aMn: "Би өчигдөр 10 цагт унтсан." },
-    { q: "How old are you?", qMn: "Та хэдэн настай вэ?", a: "I am thirty years old.", aMn: "Би гучин настай." },
-  ],
-  advanced: [
-    { q: "Where was his/her father born?", qMn: "Түүний аав хаана төрсөн бэ?", a: "His father was born in America.", aMn: "Түүний аав Америкт төрсөн." },
-    { q: "Where was his/her mother born?", qMn: "Түүний ээж хаана төрсөн бэ?", a: "Her mother was born in France", aMn: "Түүний ээж Францад төрсөн." },
-    { q: "How often do you meet him?", qMn: "Та түүнтэй хэр олон уулздаг вэ?", a: "I meet him 3 times a week.", aMn: "Би түүнтэй долоо хоногт 3 удаа уулздаг." },
-    { q: "How many books does he have?", qMn: "Түүнд хэдэн ном байдаг вэ?", a: "He has 1000 books.", aMn: "Түүнд 1000 ном бий." },
-    { q: "How long will we travel?", qMn: "Бид хэр удаан аялах вэ?", a: "Both will travel for 3 months.", aMn: "Хоёул 3 сарын турш аялна." },
-    { q: "Where is their home?", qMn: "Тэдний гэр хаана байдаг вэ?", a: "Their home is in Berlin.", aMn: "Тэдний гэр Берлинд байдаг." },
-    { q: "Do you remember her?", qMn: "Та түүнийг санаж байна уу?", a: "I miss her very much.", aMn: "Би түүнийг маш их санаж байна." },
-  ],
-};
-
-function buildLessonTranslationMaps() {
-  const questionMnByEn = {};
-  const answerMnByEn = {};
-  Object.values(BANK).forEach((bucket) => {
-    (bucket || []).forEach((entry) => {
-      if (entry.q) questionMnByEn[entry.q] = entry.qMn || "";
-      if (entry.a) answerMnByEn[entry.a] = entry.aMn || "";
-    });
-  });
-  return { questionMnByEn, answerMnByEn };
-}
-
-const LESSON_TRANSLATIONS = buildLessonTranslationMaps();
+// ---- Lesson content lives in lesson.js; script.js keeps orchestration only. ----
 
 // ---- DOM ----
 const startScreen = document.getElementById("start-screen");
@@ -429,61 +411,10 @@ let sentenceGameActiveTimer = null;
 let sentenceGameRewardBannerTimer = null;
 let sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
 
-const SENTENCE_GAME_TOAST_DURATION = 8000;
-const SENTENCE_GAME_TOAST_SPEECH_END_BUFFER = 800;
-const SENTENCE_GAME_TOAST_SPEECH_DELAY = 350;
-const SENTENCE_GAME_TOAST_MAX_DURATION = 12000;
-const SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS = 1000;
-
-const SENTENCE_GAME_CORRECT_TOAST = "Чи уулын оргилд гарлаа.";
-const SENTENCE_GAME_INCORRECT_TOAST = "Өөө.. Гэхдээ зүгээрээ, Андаа.";
-const SENTENCE_GAME_SHOW_CORRECT_TOAST = "Өөө.. Яагаад бэлэнчлээд байна аа, Андаа.";
-const SENTENCE_GAME_DEBUG = false;
-const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
 const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
 const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
 const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
 const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
-const SENTENCE_GAME_IDLE_TIMEOUT_SECONDS = 60;
-const SENTENCE_GAME_DIFFICULTY_LABELS = {
-  beginner: "Анхан шат",
-  intermediate: "Дунд шат",
-  advanced: "Дээд түвшин",
-};
-const SENTENCE_GAME_REWARD_THRESHOLDS = [1200, 1800, 3000, 3600, 5400];
-const SENTENCE_GAME_REWARD_BANNERS = [
-  "Эхлэл амжилттай!",
-  "Улаан одын Эзэн",
-  "Алтан зоос Чинийх",
-  "Алтан цомын Эзэн",
-  "Алмөөз эрдэнэ Чинийх",
-];
-const SENTENCE_GAME_CLIMB_POSITIONS = [
-  { x: 14, y: 102 },
-  { x: 62, y: 88 },
-  { x: 138, y: 72 },
-  { x: 208, y: 57 },
-  { x: 286, y: 38 },
-  { x: 362, y: 20 },
-];
-
-const SENTENCE_GAME_TIP_TEXT = "ТАЙЛБАР: Найзаа, чи тоглох явцдаа зөвхөн оноо авах, хөгжилдөхдөө  бус Өгүүлбэрийн бүтэцийг, үгс өнгөрсөн,одоо, ирээдүй цагуудад хэрхэн өөрчлөгдөж байгааг сайн ажиглаарай. Энэ нь, чиний өгүүлбэр зохиож ярьж сурахд тус болно шүү. Анхандаа маш богино энгийн асуулт, хариултууд бүтээж өөрөөсөө асууж өөртөө хариулаарай-ярилцах хүнтэй бол бүр сайн маш багаас л, эхлээрэй. Хэт их дүрэм уншиж сурах урам зоригоо бүү унтраа маш багаар хүнтэй ойлголцож эхлэх нь, урам өгч суралцах хүсэл бадараадаг. Тоглоом нь, чамайг ядаргаатай дүрэмүүдээс ангид өгүүлбэр зохиож, ярьж сургахад гол зорилго нь, байгаа шдэ… Мундагууд тийм төрдөггүй тэд өөрсдийгөө бүтээдэг шдэ. Чи ч, бас бүтээгээрэй.";
-
-const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
-const QA_REWARD_STEPS = [
-  { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, image: ASSETS.rewardIcons.flag, alt: "Асуулт-хариултын шагнал туг" },
-  { icon: "⭐", label: "Улаан одын Эзэн", seconds: 30 * 60, image: ASSETS.rewardIcons.star, alt: "Асуулт-хариултын шагнал од" },
-  { icon: "🪙", label: "Алтан зоос Чинийх", seconds: 50 * 60, image: ASSETS.rewardIcons.coin, alt: "Асуулт-хариултын шагнал зоос" },
-  { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, image: ASSETS.rewardIcons.trophy, alt: "Асуулт-хариултын шагнал цом" },
-  { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, image: ASSETS.rewardIcons.diamond, alt: "Асуулт-хариултын шагнал эрдэнэ" },
-];
-const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
-
-const QA_WORD_BANK_BASE = ["I","China","from","?","arrived","Where","to","yesterday","did","you","are","come","Mongolia","from","I","When","in","you","am","China","?"];
-const QA_ROUNDS = [
-  { id: "A", mnQuestion: "Чи хаанаас ирсэн бэ ?", mnAnswer: "Би Монголоос ирсэн.", enQuestion: "Where are you from ?", enAnswer: "I am from Mongolia ." },
-  { id: "B", mnQuestion: "Чи хэзээ ирсэн бэ ?", mnAnswer: "Би өчигдөр Хятадад ирсэн.", enQuestion: "When did you come to China ?", enAnswer: "I arrived in China yesterday ." },
-];
 
 let qaGameLevel = null;
 let qaRoundPool = [];
@@ -505,6 +436,14 @@ let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
 
+
+const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
+
+const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
+const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
+const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
+const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
+const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
 
 const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
 const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
@@ -627,17 +566,6 @@ function shuffle(arr) {
 
 function unique(array) {
   return [...new Set(array)];
-}
-
-function tokenizeSentence(sentence = "") {
-  const tokens = sentence.match(/[A-Za-z0-9']+|[^\sA-Za-z0-9']/g);
-  return tokens ? tokens.filter(Boolean) : [];
-}
-
-function levelName(lv) {
-  if (lv === DIFFICULTY_LEVELS.BEGINNER) return "Анхан";
-  if (lv === DIFFICULTY_LEVELS.INTERMEDIATE) return "Дунд";
-  return "Дээд";
 }
 
 function escapeHtml(value) {
@@ -1922,15 +1850,6 @@ function speakBannerText(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-function getAllAnswersExcept(correct) {
-  const all = [
-    ...BANK.beginner.map(x => x.a),
-    ...BANK.intermediate.map(x => x.a),
-    ...BANK.advanced.map(x => x.a),
-  ];
-  return all.filter(a => a !== correct);
-}
-
 function showScreen(screenId) {
   const resolvedScreenId = typeof screenId === "string"
     ? screenId
@@ -2760,14 +2679,6 @@ function unlockAllDebugChapters() {
   debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS.map((chapter) => chapter.id);
   setStateValue("flags", { ...getState().flags, debugUnlockedChapterIds: [...debugUnlockedChapterIds] });
   showWorldFeedbackChip(`🧪 ${debugUnlockedChapterIds.length} chapters unlocked for preview.`, "reward");
-}
-
-// 4 option хийх: 1 зөв + 3 буруу
-function buildOptions(correct) {
-  const pool = shuffle(unique(getAllAnswersExcept(correct)));
-  const wrongs = pool.slice(0, 3);
-  const mixed = shuffle([correct, ...wrongs]);
-  return mixed;
 }
 
 function updateTopbar() {
@@ -4250,10 +4161,6 @@ function exitPlayModeToHome() {
   navigateTo(SCREEN_NAMES.HOME);
 }
 
-function formatQaBuiltLine(tokens) {
-  return tokens.join(" ").replace(/\s+([?.])/g, "$1");
-}
-
 function renderSentencesRewards() {
   renderRewardStripTiles({
     containerEl: sentencesRewardStripEl,
@@ -4285,15 +4192,6 @@ function startSentencesTimer() {
     sentencesElapsedSeconds += 1;
     updateSentencesTimerUI();
   }, 1000);
-}
-
-function qaShuffle(array) {
-  const cloned = [...array];
-  for (let i = cloned.length - 1; i > 0; i -= 1) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [cloned[i], cloned[j]] = [cloned[j], cloned[i]];
-  }
-  return cloned;
 }
 
 function getQaCurrentRound() {
@@ -4534,10 +4432,6 @@ function buildQaSentencesModalHtml() {
 
 function qaLevelLabel(levelKey) {
   return levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : levelKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
-}
-
-function qaRoundPoolForLevel(levelKey) {
-  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
 }
 
 function selectQaLevel(levelKey) {
