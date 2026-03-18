@@ -39,7 +39,6 @@ export const CHAPTER_IDS = {
   CH2: "ch2",
   CH3: "ch3",
   CH4: "ch4",
-  CH5: "ch5",
 };
 
 export const GAME_MODES = {
