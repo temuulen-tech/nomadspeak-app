@@ -22,6 +22,7 @@ import {
   resetCoreState,
   saveCoreState,
   unlockChapter,
+  updateSelections,
   updateSettings,
   updateStreak,
 } from "./actions.js";
@@ -441,6 +442,7 @@ let progressState = getCoreState().progress;
 
 let deferredInstallPrompt = null;
 let appTimeUiInterval = null;
+let appInitialized = false;
 
 const SCREEN_IDS = {
   [startScreen.id]: SCREEN_NAMES.START,
@@ -1893,6 +1895,7 @@ function showScreen(screenId) {
 function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}) {
   const currentEntry = getBoardEntryState();
   const nextWorldId = worldId || currentEntry.worldId;
+  const nextDifficultyId = difficultyId || currentEntry.difficultyId;
   const nextChapterId = chapterId || currentEntry.chapterId || getDefaultChapterForWorld(nextWorldId)?.id || null;
 
   updateBoardEntryState({
@@ -1900,6 +1903,11 @@ function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}
     ...(worldId ? { worldId } : {}),
     ...(difficultyId ? { difficultyId } : {}),
     chapterId: nextChapterId,
+  });
+
+  updateSelections({
+    selectedWorldId: nextWorldId,
+    selectedDifficultyId: nextDifficultyId,
   });
 
   updateState((state) => {
@@ -4479,6 +4487,11 @@ function initializeAppState() {
   updateProfileUI();
   updateStatsUI();
   refreshTimeSummaryUI();
+  const { selectedWorldId, selectedDifficultyId } = getCoreState();
+  syncBoardEntryFlowState({
+    worldId: selectedWorldId,
+    difficultyId: selectedDifficultyId,
+  });
   persistCoreAppState();
   persistProgressState();
 }
@@ -4927,6 +4940,12 @@ function auditPrimaryButtonWiring() {
 }
 
 export function initializeApp() {
+  if (appInitialized) {
+    auditPrimaryButtonWiring();
+    return;
+  }
+
+  appInitialized = true;
   initializeAppState();
   initializeScreenRegistry();
   initializeDebugMode();
