@@ -26,6 +26,21 @@ import {
   renderBoardPopup,
 } from "./render-board.js";
 import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
+import {
+  hideElement,
+  isHidden,
+  setActiveState,
+  setCheckedState,
+  setDisabledState,
+  setExpandedState,
+  setHidden,
+  setPressedState,
+  setSelectedState,
+  showElement,
+  syncToggleButtons,
+  toggleClass,
+} from "./ui.js";
+import { bindModalBackdropClose, closeModal, openModal } from "./modal.js";
 import { renderRewards, renderRewardStripTiles } from "./render-rewards.js";
 import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
 import { getWorldAudioTrack, getWorldConfig } from "./worlds.js";
@@ -790,8 +805,8 @@ function loadQaRoundFromVault(savedItem) {
   qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
   qaRoundPool = [round];
   qaRoundIndex = 0;
-  qaRoundPanelEl.classList.remove("hidden");
-  qaLevelOptionsEl.classList.add("hidden");
+  setHidden(qaRoundPanelEl, false);
+  setHidden(qaLevelOptionsEl, true);
   qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
 
   const questionTokens = round.enQuestion.split(" ").filter(Boolean);
@@ -808,7 +823,7 @@ function repeatFromVault(sectionKey, itemId) {
     return;
   }
 
-  if (vaultModalEl) vaultModalEl.classList.add("hidden");
+  closeModal(vaultModalEl);
 
   if (sectionKey === SCREEN_NAMES.LESSON) {
     startLessonFromSaved(itemId);
@@ -849,33 +864,32 @@ function renderVaultModal(key) {
   const setSelectedEntry = (entryId) => {
     selectedId = entryId || "";
     vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
-      entry.classList.toggle("is-selected", entry.dataset.id === selectedId);
+      toggleClass(entry, "is-selected", entry.dataset.id === selectedId);
     });
   };
 
   if (vaultReplayBtn) {
-    vaultReplayBtn.disabled = !list.length;
+    setDisabledState(vaultReplayBtn, !list.length);
   }
   if (vaultDeleteBtn) {
-    vaultDeleteBtn.disabled = !list.length;
+    setDisabledState(vaultDeleteBtn, !list.length);
   }
   if (vaultLearnedBtn) {
-    vaultLearnedBtn.disabled = !list.length;
+    setDisabledState(vaultLearnedBtn, !list.length);
   }
 
   if (!list.length) {
     vaultModalBodyEl.innerHTML = '<div class="vault-list"><p>Одоогоор хадгалсан зүйл алга.</p></div>';
-    vaultModalEl.classList.remove("hidden");
+    openModal(vaultModalEl);
     return;
   }
 
   const renderItem = VAULT_ITEM_RENDERERS[screenId] || ((item) => `<p>${item.id}</p>`);
-  vaultModalBodyEl.innerHTML = `<div class="vault-list">${list.map((item) => `
+  openModal(vaultModalEl, { titleEl: vaultModalTitleEl, title: meta.title, bodyEl: vaultModalBodyEl, bodyHtml: `<div class="vault-list">${list.map((item) => `
     <article class="vault-entry" data-id="${item.id}">
       ${renderItem(item)}
     </article>
-  `).join("")}</div>`;
-  vaultModalEl.classList.remove("hidden");
+  `).join("")}</div>` });
   setSelectedEntry(selectedId);
 
   vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
@@ -965,7 +979,7 @@ function startLessonFromSaved(itemId) {
   currentIndex = 0;
   locked = false;
 
-  if (vaultModalEl) vaultModalEl.classList.add("hidden");
+  closeModal(vaultModalEl);
   stopSpeaking();
   showScreen(quizScreen);
   renderQuestion();
@@ -1314,12 +1328,12 @@ function openPremiumModal(message, title = "Дээд багц") {
   if (!premiumOverlay || !premiumMessageEl) return;
   premiumTitleEl.textContent = title;
   premiumMessageEl.textContent = message;
-  show(premiumOverlay);
+  openModal(premiumOverlay, { titleEl: premiumTitleEl, title, bodyEl: premiumMessageEl, body: message });
 }
 
 function closePremiumModal() {
   if (!premiumOverlay) return;
-  hide(premiumOverlay);
+  closeModal(premiumOverlay);
 }
 
 function canEarnMoreSentenceGameXp(amount = 0) {
@@ -1731,7 +1745,7 @@ function closeHomeModesPanel() {
 
 function toggleHomeModesPanel() {
   if (!homeModesPanel) return;
-  const shouldOpen = homeModesPanel.classList.contains("hidden");
+  const shouldOpen = isHidden(homeModesPanel);
   setHomeModesPanelOpen(shouldOpen);
 }
 
@@ -1956,16 +1970,16 @@ function showScreen(screenId) {
   setStateValue("currentScreen", resolvedScreenId);
 
   const wasSentenceGameVisible = sentenceGameScreenVisible();
-  const wasQaGameVisible = qaGameScreen && !qaGameScreen.classList.contains("hidden");
-  const wasSentencesVisible = sentencesScreen && !sentencesScreen.classList.contains("hidden");
-  const wasLessonVisible = quizScreen && !quizScreen.classList.contains("hidden");
+  const wasQaGameVisible = qaGameScreen && !isHidden(qaGameScreen);
+  const wasSentencesVisible = sentencesScreen && !isHidden(sentencesScreen);
+  const wasLessonVisible = quizScreen && !isHidden(quizScreen);
 
   if (activeScreenId && SCREEN_REGISTRY[activeScreenId]?.deactivate) {
     SCREEN_REGISTRY[activeScreenId].deactivate();
   }
 
-  Object.values(SCREENS).forEach((screenEl) => hide(screenEl));
-  show(targetScreen);
+  Object.values(SCREENS).forEach((screenEl) => hideElement(screenEl));
+  showElement(targetScreen);
 
   activeScreenId = resolvedScreenId;
   if (SCREEN_REGISTRY[resolvedScreenId]?.activate) {
@@ -1973,9 +1987,9 @@ function showScreen(screenId) {
   }
 
   if (targetScreen === quizScreen) {
-    show(topbar);
+    showElement(topbar);
   } else {
-    hide(topbar);
+    hideElement(topbar);
   }
 
   if (targetScreen === profileScreen) {
@@ -2686,16 +2700,13 @@ function updateTopbar() {
 }
 
 // ---- UI switch ----
-function show(el) { el.classList.remove("hidden"); }
-function hide(el) { el.classList.add("hidden"); }
-
 function hideStartIntroPanel() {
   setStartIntroOpen(false);
 }
 
 function toggleStartIntroPanel() {
   if (!introPanel) return;
-  const willOpen = introPanel.classList.contains("hidden");
+  const willOpen = isHidden(introPanel);
   setStartIntroOpen(willOpen);
 }
 
@@ -2720,7 +2731,7 @@ function persistSoundSettings() {
 function updateSoundToggleState() {
   soundToggleButtons.forEach(toggleBtn => {
     toggleBtn.textContent = soundEnabled ? "🔊 Дуу: АСААЛТТАЙ" : "🔇 Дуу: УНТРААЛТТАЙ";
-    toggleBtn.setAttribute("aria-pressed", soundEnabled ? "true" : "false");
+    setPressedState(toggleBtn, soundEnabled);
   });
 }
 
@@ -2750,7 +2761,7 @@ function ensureAudioUnlocked() {
     primeAudioContext();
     const activeScreen = document.body?.dataset.activeScreen || "home";
     if (soundEnabled) {
-      if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) gameFeelSoundManager.startAmbient();
+      if (boardGameScreen && !isHidden(boardGameScreen)) gameFeelSoundManager.startAmbient();
       else worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
     }
     window.removeEventListener("pointerdown", unlock, true);
@@ -3054,7 +3065,7 @@ function flushSentenceGameActiveTimeTick() {
   persistSentenceGameRewardState();
   renderSentenceGameRewardState();
   updateHeaderStatus();
-  if (!statsScreen.classList.contains("hidden")) updateStatsUI();
+  if (!isHidden(statsScreen)) updateStatsUI();
   return true;
 }
 
@@ -3072,7 +3083,7 @@ function stopSentenceGameActiveTimer() {
 }
 
 function sentenceGameScreenVisible() {
-  return sentenceGameScreen && !sentenceGameScreen.classList.contains("hidden");
+  return sentenceGameScreen && !isHidden(sentenceGameScreen);
 }
 
 function markSentenceGameActivity() {
@@ -3221,8 +3232,8 @@ function persistTtsSettings() {
 function updateTtsControlState() {
   voiceOptionButtons.forEach(btn => {
     const isActive = btn.dataset.voice === ttsSettings.voice;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    setActiveState(btn, isActive);
+    setPressedState(btn, isActive);
   });
 
   if (ttsRateSlider) {
@@ -3243,12 +3254,12 @@ function stopSentenceGameTipSpeech() {
 
 function updateSentenceGameTipControls() {
   if (sentenceGameTipSpeakBtn) {
-    sentenceGameTipSpeakBtn.disabled = sentenceGameTipSpeaking;
+    setDisabledState(sentenceGameTipSpeakBtn, sentenceGameTipSpeaking);
   }
 
   if (sentenceGameTipStopBtn) {
     sentenceGameTipStopBtn.hidden = !sentenceGameTipSpeaking;
-    sentenceGameTipStopBtn.disabled = !sentenceGameTipSpeaking;
+    setDisabledState(sentenceGameTipStopBtn, !sentenceGameTipSpeaking);
   }
 }
 
@@ -3256,23 +3267,21 @@ function closeSentenceGameTipPanel() {
   markSentenceGameActivity();
   if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
   stopSentenceGameTipSpeech();
-  sentenceGameTipPanelEl.classList.add("hidden");
-  sentenceGameTipToggleBtn.setAttribute("aria-expanded", "false");
+  setExpandedState(sentenceGameTipToggleBtn, sentenceGameTipPanelEl, false);
 
   if (sentenceGameTipTextEl) {
-    sentenceGameTipTextEl.classList.add("hidden");
+    setHidden(sentenceGameTipTextEl, true);
   }
   if (sentenceGameTipCloseRowEl) {
-    sentenceGameTipCloseRowEl.classList.add("hidden");
+    setHidden(sentenceGameTipCloseRowEl, true);
   }
 }
 
 function toggleSentenceGameTipPanel() {
   markSentenceGameActivity();
   if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
-  const willOpen = sentenceGameTipPanelEl.classList.contains("hidden");
-  sentenceGameTipPanelEl.classList.toggle("hidden", !willOpen);
-  sentenceGameTipToggleBtn.setAttribute("aria-expanded", willOpen ? "true" : "false");
+  const willOpen = isHidden(sentenceGameTipPanelEl);
+  setExpandedState(sentenceGameTipToggleBtn, sentenceGameTipPanelEl, willOpen);
   if (!willOpen) {
     closeSentenceGameTipPanel();
     return;
@@ -3283,10 +3292,10 @@ function toggleSentenceGameTipPanel() {
 function showSentenceGameTipText() {
   markSentenceGameActivity();
   if (sentenceGameTipTextEl) {
-    sentenceGameTipTextEl.classList.remove("hidden");
+    setHidden(sentenceGameTipTextEl, false);
   }
   if (sentenceGameTipCloseRowEl) {
-    sentenceGameTipCloseRowEl.classList.remove("hidden");
+    setHidden(sentenceGameTipCloseRowEl, false);
   }
 }
 
@@ -3374,7 +3383,7 @@ function updateSpeakingState() {
   allButtons.forEach(btn => {
     const isPlaying = Number(btn.dataset.id) === speakingSentenceId;
     btn.classList.toggle("playing", isPlaying);
-    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    setPressedState(btn, isPlaying);
     btn.setAttribute("aria-label", isPlaying ? "Уншиж байна" : "Дуу сонсох");
   });
 
@@ -3383,7 +3392,7 @@ function updateSpeakingState() {
   vaultButtons.forEach((btn) => {
     const isPlaying = String(btn.dataset.id || "") === String(speakingSentenceId || "");
     btn.classList.toggle("playing", isPlaying);
-    btn.setAttribute("aria-pressed", isPlaying ? "true" : "false");
+    setPressedState(btn, isPlaying);
     btn.textContent = isPlaying ? "⏸ Зогсоох" : "▶ Дараад сонс";
   });
 }
@@ -3454,7 +3463,7 @@ async function loadSentences() {
     renderSentences();
     sentenceGameHistory = [];
     sentenceGameIndex = -1;
-    if (!sentenceGameScreen.classList.contains("hidden")) initSentenceGameRound();
+    if (!isHidden(sentenceGameScreen)) initSentenceGameRound();
   } catch (error) {
     sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
   }
@@ -3527,15 +3536,14 @@ function updateSentenceGameDifficultyUI() {
 
   sentenceGameDifficultyButtons.forEach((btn) => {
     const isActive = btn.dataset.difficulty === sentenceGameDifficulty;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-pressed", isActive ? "true" : "false");
+    setActiveState(btn, isActive);
+    setPressedState(btn, isActive);
   });
 }
 
 function setSentenceGameDifficultyPanelOpen(isOpen) {
   if (!sentenceGameDifficultyPanelEl || !sentenceGameDifficultyToggleBtn) return;
-  sentenceGameDifficultyPanelEl.classList.toggle("hidden", !isOpen);
-  sentenceGameDifficultyToggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  setExpandedState(sentenceGameDifficultyToggleBtn, sentenceGameDifficultyPanelEl, isOpen);
 }
 
 function loadSentenceGameDifficulty() {
@@ -3934,7 +3942,7 @@ function showSentenceGameToast(message) {
 
 function hideSentenceGameCorrectPanel() {
   sentenceGameCorrectVisible = false;
-  if (sentenceGameCorrectPanelEl) sentenceGameCorrectPanelEl.classList.add("hidden");
+  setHidden(sentenceGameCorrectPanelEl, true);
 }
 
 function renderSentenceGameCorrectPanel() {
@@ -3942,7 +3950,7 @@ function renderSentenceGameCorrectPanel() {
   if (!current || !sentenceGameCorrectPanelEl || !sentenceGameCorrectEnEl || !sentenceGameCorrectMnEl) return;
   sentenceGameCorrectEnEl.textContent = current.en || "";
   sentenceGameCorrectMnEl.textContent = current.mn || "";
-  sentenceGameCorrectPanelEl.classList.remove("hidden");
+  showElement(sentenceGameCorrectPanelEl);
 }
 
 function showSentenceGameCorrectAnswer() {
@@ -4312,12 +4320,12 @@ function startLessonTimer() {
 function showQaToast(message) {
   if (!qaToastEl) return;
   qaToastEl.textContent = message;
-  qaToastEl.classList.remove("hidden");
-  qaToastEl.classList.add("show");
+  setHidden(qaToastEl, false);
+  toggleClass(qaToastEl, "show", true);
   clearTimeout(qaToastTimer);
   qaToastTimer = setTimeout(() => {
-    qaToastEl.classList.remove("show");
-    qaToastEl.classList.add("hidden");
+    toggleClass(qaToastEl, "show", false);
+    setHidden(qaToastEl, true);
   }, 2200);
 }
 
@@ -4369,7 +4377,7 @@ function renderQaBuilder() {
     ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
     : '<span class="qa-placeholder">Хариултын мөрөнд үгсээ байрлуулна.</span>';
 
-  qaAnswerLineEl.classList.toggle("locked", !qaQuestionSolved);
+  toggleClass(qaAnswerLineEl, "locked", !qaQuestionSolved);
 
   qaWordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
 
@@ -4423,8 +4431,8 @@ function setupQaRound(options = {}) {
   qaMnAnswerEl.textContent = round.mnAnswer;
   qaEnQuestionEl.textContent = round.enQuestion;
   qaEnAnswerEl.textContent = round.enAnswer;
-  qaEnQuestionWrap.classList.add("hidden");
-  qaEnAnswerWrap.classList.add("hidden");
+  setHidden(qaEnQuestionWrap, true);
+  setHidden(qaEnAnswerWrap, true);
   if (qaToggleQuestionBtn) qaToggleQuestionBtn.textContent = "Асуултыг харах";
   if (qaToggleAnswerBtn) qaToggleAnswerBtn.textContent = "Хариултыг харах";
 
@@ -4472,14 +4480,12 @@ function checkQaAnswer() {
 
 function openQaModal(title, htmlBody) {
   if (!qaModalEl || !qaModalTitleEl || !qaModalBodyEl) return;
-  qaModalTitleEl.textContent = title;
-  qaModalBodyEl.innerHTML = htmlBody;
-  qaModalEl.classList.remove("hidden");
+  openModal(qaModalEl, { titleEl: qaModalTitleEl, title, bodyEl: qaModalBodyEl, bodyHtml: htmlBody });
 }
 
 function closeQaModal() {
   if (!qaModalEl) return;
-  qaModalEl.classList.add("hidden");
+  closeModal(qaModalEl);
 }
 
 function buildQaSentencesModalHtml() {
@@ -4501,8 +4507,8 @@ function selectQaLevel(levelKey) {
   qaGameLevel = levelKey;
   qaRoundPool = qaRoundPoolForLevel(levelKey);
   qaRoundIndex = 0;
-  qaRoundPanelEl.classList.remove("hidden");
-  qaLevelOptionsEl.classList.add("hidden");
+  setHidden(qaRoundPanelEl, false);
+  setHidden(qaLevelOptionsEl, true);
   qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
   setupQaRound();
   startQaTimer();
@@ -4523,8 +4529,8 @@ function resetQaGameScreen() {
   stopQaTimer();
   updateQaTimerUI();
   renderQaRewards();
-  qaRoundPanelEl.classList.remove("hidden");
-  qaLevelOptionsEl.classList.add("hidden");
+  setHidden(qaRoundPanelEl, false);
+  setHidden(qaLevelOptionsEl, true);
   qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
   qaFeedbackEl.textContent = "";
   setupQaRound();
@@ -4583,7 +4589,7 @@ if (sentenceGameTipCloseBtn) {
 
 if (sentenceGameDifficultyToggleBtn) {
   sentenceGameDifficultyToggleBtn.addEventListener("click", () => {
-    const nextOpen = sentenceGameDifficultyPanelEl ? sentenceGameDifficultyPanelEl.classList.contains("hidden") : false;
+    const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
     setSentenceGameDifficultyPanelOpen(nextOpen);
   });
 }
@@ -4606,14 +4612,14 @@ if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultMo
 if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
 if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
 if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
-if (vaultModalCloseBtn) vaultModalCloseBtn.addEventListener("click", () => vaultModalEl && vaultModalEl.classList.add("hidden"));
-if (vaultModalEl) vaultModalEl.addEventListener("click", (event) => { if (event.target === vaultModalEl) vaultModalEl.classList.add("hidden"); });
+if (vaultModalCloseBtn) vaultModalCloseBtn.addEventListener("click", () => closeModal(vaultModalEl));
+bindModalBackdropClose(vaultModalEl);
 
 Object.keys(VAULT_KEY_BY_SCREEN).forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
 
 if (qaLevelSelectBtn) {
   qaLevelSelectBtn.addEventListener("click", () => {
-    qaLevelOptionsEl.classList.toggle("hidden");
+    setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
   });
 }
 
@@ -4624,15 +4630,15 @@ qaLevelButtons.forEach((btn) => {
 if (qaCheckBtn) qaCheckBtn.addEventListener("click", checkQaAnswer);
 if (qaToggleQuestionBtn) {
   qaToggleQuestionBtn.addEventListener("click", () => {
-    const willShow = qaEnQuestionWrap.classList.contains("hidden");
-    qaEnQuestionWrap.classList.toggle("hidden", !willShow);
+    const willShow = isHidden(qaEnQuestionWrap);
+    setHidden(qaEnQuestionWrap, !willShow);
     qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
   });
 }
 if (qaToggleAnswerBtn) {
   qaToggleAnswerBtn.addEventListener("click", () => {
-    const willShow = qaEnAnswerWrap.classList.contains("hidden");
-    qaEnAnswerWrap.classList.toggle("hidden", !willShow);
+    const willShow = isHidden(qaEnAnswerWrap);
+    setHidden(qaEnAnswerWrap, !willShow);
     qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
   });
 }
@@ -4643,26 +4649,22 @@ if (qaShowHelpBtn) {
   qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
 }
 if (qaModalCloseBtn) qaModalCloseBtn.addEventListener("click", closeQaModal);
-if (qaModalEl) qaModalEl.addEventListener("click", (event) => { if (event.target === qaModalEl) closeQaModal(); });
+bindModalBackdropClose(qaModalEl, closeQaModal);
 
 timeDetailsButtons.forEach((btn) => {
   btn.addEventListener("click", () => {
     refreshTimeSummaryUI();
-    if (timeDetailsModalEl) timeDetailsModalEl.classList.remove("hidden");
+    openModal(timeDetailsModalEl);
   });
 });
 
 if (timeDetailsCloseBtn) {
   timeDetailsCloseBtn.addEventListener("click", () => {
-    if (timeDetailsModalEl) timeDetailsModalEl.classList.add("hidden");
+    closeModal(timeDetailsModalEl);
   });
 }
 
-if (timeDetailsModalEl) {
-  timeDetailsModalEl.addEventListener("click", (event) => {
-    if (event.target === timeDetailsModalEl) timeDetailsModalEl.classList.add("hidden");
-  });
-}
+bindModalBackdropClose(timeDetailsModalEl);
 
 loadSentenceGameDifficulty();
 setSentenceGameDifficultyPanelOpen(false);
@@ -4672,10 +4674,11 @@ setStartLevelMenuOpen(false);
 updateStartButtonLabel();
 setAppMode(GAME_MODES.HOME);
 
+syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
+
 startLevelOptions.forEach((btn) => {
   btn.addEventListener("click", () => {
-    startLevelOptions.forEach((option) => option.classList.remove("active"));
-    btn.classList.add("active");
+    syncToggleButtons(startLevelOptions, (option) => option === btn, { pressed: false });
     level = btn.dataset.level;
     hasExplicitStartLevelSelection = true;
     updateStartButtonLabel();
@@ -4691,8 +4694,7 @@ function sentenceLevelFilterLabel(filterKey) {
 
 function setSentencesLevelPickerOpen(isOpen) {
   if (!sentencesLevelOptionsEl || !sentencesLevelPickerBtn) return;
-  sentencesLevelOptionsEl.classList.toggle("hidden", !isOpen);
-  sentencesLevelPickerBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  setExpandedState(sentencesLevelPickerBtn, sentencesLevelOptionsEl, isOpen);
 }
 
 function updateSentenceFilterActiveState() {
@@ -4702,14 +4704,14 @@ function updateSentenceFilterActiveState() {
 
   sentencesLevelOptionButtons.forEach((btn) => {
     const isActive = btn.dataset.filter === sentenceFilter;
-    btn.classList.toggle("active", isActive);
-    btn.setAttribute("aria-checked", isActive ? "true" : "false");
+    setActiveState(btn, isActive);
+    setCheckedState(btn, isActive);
   });
 }
 
 if (sentencesLevelPickerBtn) {
   sentencesLevelPickerBtn.addEventListener("click", () => {
-    const nextOpen = sentencesLevelOptionsEl ? sentencesLevelOptionsEl.classList.contains("hidden") : false;
+    const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
     setSentencesLevelPickerOpen(nextOpen);
   });
 }
@@ -4726,7 +4728,7 @@ sentencesLevelOptionButtons.forEach((btn) => {
 });
 
 document.addEventListener("click", (event) => {
-  if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || sentencesLevelOptionsEl.classList.contains("hidden")) return;
+  if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
   if (!sentencesLevelPickerEl.contains(event.target)) {
     setSentencesLevelPickerOpen(false);
   }
@@ -4756,7 +4758,7 @@ soundToggleButtons.forEach(toggleBtn => {
       stopSpeaking();
       gameFeelSoundManager.stopAmbient();
       worldSoundscape.stop();
-    } else if (boardGameScreen && !boardGameScreen.classList.contains("hidden")) {
+    } else if (boardGameScreen && !isHidden(boardGameScreen)) {
       gameFeelSoundManager.startAmbient();
     } else {
       const activeScreen = document.body?.dataset.activeScreen || "home";
@@ -4802,15 +4804,15 @@ SCREEN_REGISTRY.lesson = initLessonScreen({
 SCREEN_REGISTRY.stats = initStatsScreen({
   onPeriodChange: (btn) => {
     statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
-    statsPeriodButtons.forEach((item) => item.classList.toggle("active", item === btn));
+    syncToggleButtons(statsPeriodButtons, (item) => item === btn, { pressed: false });
     refreshTimeSummaryUI();
   },
   onRewardTabChange: (btn) => {
     statsRewardTab = btn.dataset.rewardTab || REWARD_TABS.DAYS;
     statsRewardTabButtons.forEach((item) => {
       const active = item === btn;
-      item.classList.toggle("active", active);
-      item.setAttribute("aria-selected", active ? "true" : "false");
+      setActiveState(item, active);
+      setSelectedState(item, active);
     });
     renderRewardsTab();
   },
@@ -4880,11 +4882,7 @@ if (premiumOkBtn) {
   premiumOkBtn.addEventListener("click", closePremiumModal);
 }
 
-if (premiumOverlay) {
-  premiumOverlay.addEventListener("click", (event) => {
-    if (event.target === premiumOverlay) closePremiumModal();
-  });
-}
+bindModalBackdropClose(premiumOverlay, closePremiumModal);
 
 
 registerServiceWorker();

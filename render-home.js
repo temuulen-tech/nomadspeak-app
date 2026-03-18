@@ -3,6 +3,8 @@
  * Renders and updates only the home screen UI state (menus, intro, start-level controls).
  */
 
+import { setExpandedState, setText } from "./ui.js";
+
 function homeEls() {
   return {
     navModesBtn: document.getElementById("nav-modes-btn"),
@@ -21,26 +23,23 @@ export function renderHomeScreen({ levelLabel } = {}) {
 export function updateStartButtonLabel(label) {
   const { startBtn } = homeEls();
   if (!startBtn) return;
-  startBtn.textContent = `Түвшин сонгох: ${label}`;
+  setText(startBtn, `Түвшин сонгох: ${label}`);
 }
 
 export function setStartLevelMenuOpen(isOpen) {
   const { startBtn, startLevelDropdown } = homeEls();
   if (!startBtn || !startLevelDropdown) return;
-  startLevelDropdown.classList.toggle("hidden", !isOpen);
-  startBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  setExpandedState(startBtn, startLevelDropdown, isOpen);
 }
 
 export function setHomeModesPanelOpen(isOpen) {
   const { navModesBtn, homeModesPanel } = homeEls();
   if (!navModesBtn || !homeModesPanel) return;
-  homeModesPanel.classList.toggle("hidden", !isOpen);
-  navModesBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  setExpandedState(navModesBtn, homeModesPanel, isOpen);
 }
 
 export function setStartIntroOpen(isOpen) {
   const { introPanel, introToggleBtn } = homeEls();
   if (!introPanel || !introToggleBtn) return;
-  introPanel.classList.toggle("hidden", !isOpen);
-  introToggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  setExpandedState(introToggleBtn, introPanel, isOpen);
 }
