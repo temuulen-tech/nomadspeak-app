@@ -440,10 +440,6 @@ let sentencesTimerInterval = null;
 const SENTENCES_REWARD_STEPS = [...QA_REWARD_STEPS];
 
 const SENTENCE_GAME_CLIMB_STORAGE_KEY = "sentenceGameClimbLevel";
-const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
-const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
-const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
-const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
 
 const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
 const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
