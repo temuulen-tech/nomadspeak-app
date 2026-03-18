@@ -42,9 +42,26 @@ export const DIFFICULTY_LEVEL_LIST = [
   DIFFICULTY_LEVELS.ADVANCED,
 ];
 
+export const DIFFICULTY_OPTION_CONFIGS = [
+  { id: DIFFICULTY_LEVELS.BEGINNER, label: "Анхан" },
+  { id: DIFFICULTY_LEVELS.INTERMEDIATE, label: "Дунд" },
+  { id: DIFFICULTY_LEVELS.ADVANCED, label: "Ахисан" },
+];
+
 export const WORLD_IDS = {
   WORLD_1: "world1",
+  WORLD_2: "world2",
+  WORLD_3: "world3",
   SEA: "sea",
+};
+
+export const BOARD_SELECTOR_STEPS = {
+  ENTRY: "entry",
+  WORLD: "world",
+  DIFFICULTY: "difficulty",
+  READY: "ready",
+  COVER: "cover",
+  PLAY: "play",
 };
 
 export const CHAPTER_IDS = {
@@ -88,3 +105,7 @@ export const STORAGE_KEYS = {
   PREMIUM: "isPremium",
   DEBUG_MODE: "nomadspeak:debug-mode",
 };
+
+export function getDifficultyOption(difficultyId = DIFFICULTY_LEVELS.BEGINNER) {
+  return DIFFICULTY_OPTION_CONFIGS.find((option) => option.id === difficultyId) || DIFFICULTY_OPTION_CONFIGS[0];
+}

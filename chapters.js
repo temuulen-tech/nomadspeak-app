@@ -4,7 +4,7 @@
  */
 
 import { CHAPTER_IDS, SCREEN_NAMES, WORLD_IDS } from "./constants.js";
-import { getWorldConfig } from "./worlds.js";
+import { getWorldConfig, resolveBoardWorld } from "./worlds.js";
 
 const boardWorld = getWorldConfig(WORLD_IDS.WORLD_1);
 
@@ -71,4 +71,28 @@ export function getChaptersByWorld(worldId) {
   return Object.values(CHAPTER_CONFIGS)
     .filter((chapter) => chapter.worldId === worldId)
     .sort((a, b) => a.index - b.index);
+}
+
+export function getDefaultChapterForWorld(worldId) {
+  const { effectiveBoardWorldId } = resolveBoardWorld(worldId);
+  return getChaptersByWorld(effectiveBoardWorldId)[0] || BOARD_WORLD_CHAPTERS[0] || null;
+}
+
+export function resolveBoardSelectionRoute({ worldId, difficultyId, chapterId } = {}) {
+  const { selectedWorld, effectiveBoardWorldId, effectiveBoardWorld } = resolveBoardWorld(worldId);
+  const resolvedChapter = getChapterConfig(chapterId)
+    || getDefaultChapterForWorld(selectedWorld?.id || effectiveBoardWorldId)
+    || null;
+
+  return {
+    worldId: selectedWorld?.id || effectiveBoardWorldId,
+    effectiveBoardWorldId,
+    difficultyId: difficultyId || null,
+    chapterId: resolvedChapter?.id || null,
+    nextScreen: SCREEN_NAMES.BOARD,
+    previewScreen: SCREEN_NAMES.CHAPTER_COVER,
+    selectedWorld,
+    effectiveBoardWorld,
+    chapter: resolvedChapter,
+  };
 }
