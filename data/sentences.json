@@ -148,5 +148,225 @@
     "bankId": "sentence-bank-world1-ch1-first-steps",
     "worldId": "world1",
     "chapterId": "ch1"
+  },
+  {
+    "id": 16,
+    "level": "beginner",
+    "topic": "Greetings",
+    "en": "Good afternoon.",
+    "mn": "Өдрийн мэнд.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 17,
+    "level": "beginner",
+    "topic": "Greetings",
+    "en": "Good evening.",
+    "mn": "Оройн мэнд.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 18,
+    "level": "beginner",
+    "topic": "Greetings",
+    "en": "Goodbye.",
+    "mn": "Баяртай.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 19,
+    "level": "beginner",
+    "topic": "Greetings",
+    "en": "See you later.",
+    "mn": "Дараа уулзъя.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 20,
+    "level": "beginner",
+    "topic": "Simple QA",
+    "en": "Who are you?",
+    "mn": "Та хэн бэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 21,
+    "level": "beginner",
+    "topic": "Simple QA",
+    "en": "I am Sara.",
+    "mn": "Би Сара байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 22,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "What is this?",
+    "mn": "Энэ юу вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 23,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "This is a book.",
+    "mn": "Энэ бол ном.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 24,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "Who is he?",
+    "mn": "Тэр хэн бэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 25,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "He is my friend.",
+    "mn": "Тэр бол миний найз.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 26,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "Where is the school?",
+    "mn": "Сургууль хаана байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 27,
+    "level": "beginner",
+    "topic": "Question words",
+    "en": "The school is here.",
+    "mn": "Сургууль энд байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 28,
+    "level": "beginner",
+    "topic": "Daily conversation",
+    "en": "I want tea.",
+    "mn": "Би цай хүсэж байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 29,
+    "level": "beginner",
+    "topic": "Daily conversation",
+    "en": "Here is tea.",
+    "mn": "Энд цай байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 30,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "When do you study?",
+    "mn": "Та хэзээ хичээллэдэг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 31,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "I study in the morning.",
+    "mn": "Би өглөө хичээллэдэг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 32,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "What do you do every day?",
+    "mn": "Та өдөр бүр юу хийдэг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 33,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "I study every day.",
+    "mn": "Би өдөр бүр хичээллэдэг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 34,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "When do you sleep?",
+    "mn": "Та хэзээ унтдаг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 35,
+    "level": "beginner",
+    "topic": "Daily routine",
+    "en": "I sleep at night.",
+    "mn": "Би шөнө унтдаг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 36,
+    "level": "beginner",
+    "topic": "Daily conversation",
+    "en": "Where is your home?",
+    "mn": "Таны гэр хаана байдаг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 37,
+    "level": "beginner",
+    "topic": "Daily conversation",
+    "en": "My home is near the park.",
+    "mn": "Миний гэр цэцэрлэгт хүрээлэнгийн ойролцоо байдаг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
   }
 ]

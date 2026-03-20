@@ -27,14 +27,26 @@ import { CONTENT_GROUPS, getChapterContentRefs } from "./content-registry.js";
 const BEGINNER_PACK_ENTRIES = [
   { q: "Hello!", qMn: "Сайн уу!", a: "Hello!", aMn: "Сайн уу!" },
   { q: "Good morning.", qMn: "Өглөөний мэнд.", a: "Good morning.", aMn: "Өглөөний мэнд." },
+  { q: "Good afternoon.", qMn: "Өдрийн мэнд.", a: "Good afternoon.", aMn: "Өдрийн мэнд." },
+  { q: "Good evening.", qMn: "Оройн мэнд.", a: "Good evening.", aMn: "Оройн мэнд." },
+  { q: "Goodbye.", qMn: "Баяртай.", a: "Goodbye.", aMn: "Баяртай." },
+  { q: "See you later.", qMn: "Дараа уулзъя.", a: "See you later.", aMn: "Дараа уулзъя." },
   { q: "What is your name?", qMn: "Таныг хэн гэдэг вэ?", a: "My name is Sara.", aMn: "Миний нэр Сара." },
+  { q: "Who are you?", qMn: "Та хэн бэ?", a: "I am Sara.", aMn: "Би Сара байна." },
   { q: "How are you?", qMn: "Сайн байна уу?", a: "I am fine, thank you.", aMn: "Би сайн байна, баярлалаа." },
   { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I am from Mongolia.", aMn: "Би Монголоос ирсэн." },
-  { q: "Nice to meet you.", qMn: "Танилцахад таатай байна.", a: "Nice to meet you too.", aMn: "Надад ч бас таатай байна." },
+  { q: "Where is the school?", qMn: "Сургууль хаана байна вэ?", a: "The school is here.", aMn: "Сургууль энд байна." },
+  { q: "When do you study?", qMn: "Та хэзээ хичээллэдэг вэ?", a: "I study in the morning.", aMn: "Би өглөө хичээллэдэг." },
+  { q: "What is this?", qMn: "Энэ юу вэ?", a: "This is a book.", aMn: "Энэ бол ном." },
+  { q: "Who is he?", qMn: "Тэр хэн бэ?", a: "He is my friend.", aMn: "Тэр бол миний найз." },
   { q: "This is my friend.", qMn: "Энэ бол миний найз.", a: "Hello, friend.", aMn: "Сайн уу, найз аа." },
   { q: "Do you speak English?", qMn: "Та англиар ярьдаг уу?", a: "A little.", aMn: "Бага зэрэг." },
   { q: "I want water.", qMn: "Би ус хүсэж байна.", a: "Here is water.", aMn: "Энд ус байна." },
+  { q: "I want tea.", qMn: "Би цай хүсэж байна.", a: "Here is tea.", aMn: "Энд цай байна." },
   { q: "Are you ready?", qMn: "Та бэлэн үү?", a: "Yes, I am ready.", aMn: "Тийм ээ, би бэлэн байна." },
+  { q: "Where is your home?", qMn: "Таны гэр хаана байдаг вэ?", a: "My home is near the park.", aMn: "Миний гэр цэцэрлэгт хүрээлэнгийн ойролцоо байдаг." },
+  { q: "What do you do every day?", qMn: "Та өдөр бүр юу хийдэг вэ?", a: "I study every day.", aMn: "Би өдөр бүр хичээллэдэг." },
+  { q: "When do you sleep?", qMn: "Та хэзээ унтдаг вэ?", a: "I sleep at night.", aMn: "Би шөнө унтдаг." },
 ];
 
 const INTERMEDIATE_FALLBACK_ENTRIES = [
@@ -207,7 +219,7 @@ export const LESSON_WORD_BANKS = {
     id: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
-    tokens: ["hello", "good morning", "name", "fine", "Mongolia", "friend", "English", "a little", "water", "ready", "nice to meet you"],
+    tokens: ["hello", "good morning", "good afternoon", "good evening", "goodbye", "see you later", "name", "who", "fine", "from Mongolia", "school", "here", "morning", "book", "friend", "English", "a little", "water", "tea", "ready", "home", "park", "every day", "night", "nice to meet you"],
   }),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
     const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
