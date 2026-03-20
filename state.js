@@ -9,7 +9,7 @@
  */
 
 import { BOARD_SELECTOR_STEPS, CURRENT_SAVE_VERSION, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
-import { getDefaultChapterForWorld } from "./chapters.js";
+import { getChapterConfig, getDefaultChapterForWorld } from "./chapters.js";
 import { DEFAULT_WORLD_ID, getSelectableBoardWorlds } from "./worlds.js";
 
 export const DEFAULT_DAILY_GOAL = 10;
@@ -134,14 +134,20 @@ function normalizeBoardEntryState(rawEntry = {}) {
   const step = Object.values(BOARD_SELECTOR_STEPS).includes(source.step)
     ? source.step
     : defaults.step;
+  const defaultChapterId = getDefaultChapterForWorld(worldId)?.id || defaults.chapterId;
+  const rawChapterId = typeof source.chapterId === "string" && source.chapterId.trim()
+    ? source.chapterId.trim()
+    : defaultChapterId;
+  const chapterConfig = getChapterConfig(rawChapterId);
+  const chapterId = chapterConfig && chapterConfig.worldId === worldId
+    ? chapterConfig.id
+    : defaultChapterId;
 
   return {
     step,
     worldId,
     difficultyId,
-    chapterId: typeof source.chapterId === "string" && source.chapterId.trim()
-      ? source.chapterId.trim()
-      : getDefaultChapterForWorld(worldId)?.id || defaults.chapterId,
+    chapterId,
   };
 }
 

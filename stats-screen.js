@@ -1,5 +1,6 @@
 import { SCREEN_NAMES } from "./constants.js";
 import { bindModalDismissal, openModal } from "./modal.js";
+import { bindClickOnce } from "./ui.js";
 
 /**
  * stats-screen.js
@@ -15,15 +16,15 @@ export function initStatsScreen(handlers = {}) {
   const timeDetailsCloseBtn = document.getElementById("time-details-close-btn");
 
   statsPeriodButtons.forEach((btn) => {
-    btn.addEventListener("click", () => handlers.onPeriodChange?.(btn));
+    bindClickOnce(btn, `stats:period:${btn.dataset.period || btn.textContent}`, () => handlers.onPeriodChange?.(btn));
   });
 
   statsRewardTabButtons.forEach((btn) => {
-    btn.addEventListener("click", () => handlers.onRewardTabChange?.(btn));
+    bindClickOnce(btn, `stats:reward-tab:${btn.dataset.rewardTab || btn.textContent}`, () => handlers.onRewardTabChange?.(btn));
   });
 
-  timeDetailsButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+  timeDetailsButtons.forEach((btn, index) => {
+    bindClickOnce(btn, `stats:time-details:${btn.id || index}`, () => {
       handlers.onBeforeOpenTimeDetails?.();
       openModal(timeDetailsModalEl);
     });

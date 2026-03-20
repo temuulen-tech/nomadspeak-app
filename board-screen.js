@@ -7,6 +7,8 @@ import { renderBoardRollState } from "./render-board.js";
 import { SCREEN_NAMES } from "./constants.js";
 import { bindClickOnce } from "./ui.js";
 
+let boardResizeBindingInitialized = false;
+
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
   const rollBtn = document.getElementById("board-game-roll-btn");
@@ -15,10 +17,13 @@ export function initBoardScreen(handlers = {}) {
   bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
   bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
 
-  window.addEventListener("resize", () => {
-    if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;
-    handlers.onResizeWhileVisible?.();
-  });
+  if (!boardResizeBindingInitialized) {
+    boardResizeBindingInitialized = true;
+    window.addEventListener("resize", () => {
+      if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;
+      handlers.onResizeWhileVisible?.();
+    });
+  }
 
   return {
     id: SCREEN_NAMES.BOARD,

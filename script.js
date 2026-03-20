@@ -629,6 +629,24 @@ function vaultKeyForScreen(screenId) {
   return VAULT_KEY_BY_SCREEN[screenId] || `repeatVault_${screenId}`;
 }
 
+function safeLocalStorageSet(key, value) {
+  try {
+    localStorage.setItem(key, value);
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
+function safeLocalStorageRemove(key) {
+  try {
+    localStorage.removeItem(key);
+    return true;
+  } catch (_error) {
+    return false;
+  }
+}
+
 function loadVault(key) {
   try {
     const raw = localStorage.getItem(key);
@@ -645,7 +663,7 @@ function loadVault(key) {
     });
 
     if (changed) {
-      localStorage.setItem(key, JSON.stringify(normalized));
+      safeLocalStorageSet(key, JSON.stringify(normalized));
     }
     return normalized;
   } catch (error) {
@@ -659,14 +677,16 @@ function saveToVault(key, item) {
   const exists = list.some((entry) => entry.id === item.id);
   if (exists) return { ok: false, reason: "duplicate" };
   list.unshift(item);
-  localStorage.setItem(key, JSON.stringify(list));
+  if (!safeLocalStorageSet(key, JSON.stringify(list))) {
+    return { ok: false, reason: "storage" };
+  }
   return { ok: true, reason: "saved", count: list.length };
 }
 
 function removeFromVault(key, id) {
   const list = loadVault(key);
   const next = list.filter((entry) => entry.id !== id);
-  localStorage.setItem(key, JSON.stringify(next));
+  safeLocalStorageSet(key, JSON.stringify(next));
   return next;
 }
 
@@ -680,6 +700,20 @@ function updateVaultBadge(key) {
 
 function showVaultToast(message) {
   showQaToast(message);
+}
+
+function showVaultSaveResult(result = {}) {
+  if (result.reason === "duplicate") {
+    showVaultToast("Өмнө нь хадгалсан байна");
+    return;
+  }
+
+  if (result.reason === "storage") {
+    showVaultToast("Хадгалах үед алдаа гарлаа. Дахин оролдоно уу.");
+    return;
+  }
+
+  showVaultToast("Хадгаллаа ✅");
 }
 
 function findVaultItem(sectionKey, itemId) {
@@ -905,7 +939,7 @@ function saveCurrentLessonItem() {
   const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+  showVaultSaveResult(result);
 }
 
 function startLessonFromSaved(itemId) {
@@ -943,7 +977,7 @@ function saveCurrentQaRound() {
   const key = vaultKeyForScreen("qna");
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+  showVaultSaveResult(result);
 }
 
 function saveCurrentSentenceGameItem() {
@@ -959,7 +993,7 @@ function saveCurrentSentenceGameItem() {
   const key = vaultKeyForScreen("sentenceGame");
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+  showVaultSaveResult(result);
 }
 
 function saveSentenceListItem(item) {
@@ -974,7 +1008,7 @@ function saveSentenceListItem(item) {
   const key = vaultKeyForScreen(SCREEN_NAMES.SENTENCES);
   const result = saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultToast(result.reason === "duplicate" ? "Өмнө нь хадгалсан байна" : "Хадгаллаа ✅");
+  showVaultSaveResult(result);
 }
 
 function saveCurrentSentencesItem() {
@@ -1006,7 +1040,7 @@ function getAppTimeDailyTotals() {
 }
 
 function setAppTimeDailyTotals(totals) {
-  localStorage.setItem(APP_TIME_DAILY_TOTALS_KEY, JSON.stringify(totals));
+  safeLocalStorageSet(APP_TIME_DAILY_TOTALS_KEY, JSON.stringify(totals));
 }
 
 function addSecondsToDate(dateKey, seconds) {
@@ -1053,10 +1087,10 @@ function readActiveSession() {
 
 function writeActiveSession(session) {
   if (!session) {
-    localStorage.removeItem(APP_TIME_ACTIVE_SESSION_KEY);
+    safeLocalStorageRemove(APP_TIME_ACTIVE_SESSION_KEY);
     return;
   }
-  localStorage.setItem(APP_TIME_ACTIVE_SESSION_KEY, JSON.stringify(session));
+  safeLocalStorageSet(APP_TIME_ACTIVE_SESSION_KEY, JSON.stringify(session));
 }
 
 function stopSession() {
@@ -2649,7 +2683,7 @@ function resetDebugProgress() {
     SENTENCE_GAME_REWARD_LEVEL_KEY,
     SENTENCE_GAME_LAST_TICK_KEY,
     SENTENCE_GAME_DIFFICULTY_KEY,
-  ].forEach((key) => localStorage.removeItem(key));
+  ].forEach((key) => safeLocalStorageRemove(key));
 
   resetCoreState(createDefaultCoreState());
   syncCoreStateReferences();
