@@ -122,8 +122,19 @@ export function prepareSentenceItems(items = []) {
   return items.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
 }
 
+export const SENTENCE_CONTENT_BANK_INDEX = SENTENCE_CONTENT_BANKS.reduce((acc, bank) => ({ ...acc, [bank.id]: bank }), {});
+
 export function getSentenceContentBank(bankId = "sentence-bank-shared-default") {
-  return SENTENCE_CONTENT_BANKS.find((bank) => bank.id === bankId) || SENTENCE_CONTENT_BANKS[0] || null;
+  return SENTENCE_CONTENT_BANK_INDEX[bankId] || SENTENCE_CONTENT_BANKS[0] || null;
+}
+
+export function resolveSentenceContentBank({ bankId = null, worldId = null, difficulty = DIFFICULTY_LEVELS.BEGINNER } = {}) {
+  if (bankId) return getSentenceContentBank(bankId);
+  return SENTENCE_CONTENT_BANKS.find((bank) => (
+    (!worldId || bank.worldId === worldId)
+    && bank.difficulty === difficulty
+    && bank.state === PLACEHOLDER_STATES.READY
+  )) || SENTENCE_CONTENT_BANKS.find((bank) => (!worldId || bank.worldId === worldId) && bank.difficulty === difficulty) || SENTENCE_CONTENT_BANKS[0] || null;
 }
 
 export const SENTENCE_GAME_TOAST_DURATION = 8000;

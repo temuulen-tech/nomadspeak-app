@@ -15,25 +15,69 @@ import {
   createPlaceholderMeta,
 } from "./constants.js";
 
+function createWorldDefinition({
+  id,
+  title,
+  subtitle,
+  selectable = true,
+  content = {},
+  visuals = {},
+  audio = {},
+  board = {},
+  expansion = {},
+} = {}) {
+  return {
+    id,
+    title,
+    subtitle,
+    selectable,
+    content: {
+      pilotLessonPackId: content.pilotLessonPackId || null,
+      lessonContentMap: { ...(content.lessonContentMap || {}) },
+      sentenceBankId: content.sentenceBankId || null,
+      qaSetId: content.qaSetId || null,
+    },
+    visuals: {
+      coverAssetId: visuals.coverAssetId || null,
+      backgroundAssetId: visuals.backgroundAssetId || null,
+      rewardVisualThemeId: visuals.rewardVisualThemeId || null,
+    },
+    audio: {
+      ambienceWorldId: audio.ambienceWorldId || null,
+    },
+    board: {
+      configId: board.configId || id || null,
+    },
+    expansion,
+  };
+}
+
 const SELECTABLE_WORLD_CONTENT = [
-  {
+  createWorldDefinition({
     id: WORLD_IDS.WORLD_1,
     title: "Колумб ба Шинэ тивийнхэн",
     subtitle: "Та битгий уурлаарай",
-    pilotContentPackId: "world1-ch1-beginner-landing-kit",
-    lessonContentMap: {
-      [DIFFICULTY_LEVELS.BEGINNER]: "world1-ch1-beginner-landing-kit",
-      [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
-      [DIFFICULTY_LEVELS.ADVANCED]: null,
+    content: {
+      pilotLessonPackId: "world1-ch1-beginner-landing-kit",
+      lessonContentMap: {
+        [DIFFICULTY_LEVELS.BEGINNER]: "world1-ch1-beginner-landing-kit",
+        [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
+        [DIFFICULTY_LEVELS.ADVANCED]: null,
+      },
+      sentenceBankId: "sentence-bank-shared-default",
+      qaSetId: "qa-set-shared-core",
     },
-    sentenceBankId: "sentence-bank-shared-default",
-    qaSetId: "qa-set-shared-core",
-    introCoverAssetId: "world1-cover",
-    backgroundAssetId: "sailors-deck",
-    rewardVisualThemeId: "reward-theme-shared-core",
-    ambienceWorldId: WORLD_IDS.SEA,
-    selectable: true,
-    boardConfigId: WORLD_IDS.WORLD_1,
+    visuals: {
+      coverAssetId: "world1-cover",
+      backgroundAssetId: "sailors-deck",
+      rewardVisualThemeId: "reward-theme-shared-core",
+    },
+    audio: {
+      ambienceWorldId: WORLD_IDS.SEA,
+    },
+    board: {
+      configId: WORLD_IDS.WORLD_1,
+    },
     expansion: {
       coverImage: createPlaceholderMeta({
         collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
@@ -50,25 +94,31 @@ const SELECTABLE_WORLD_CONTENT = [
       }),
       animationHooks: [ANIMATION_HOOKS.WORLD_INTRO, ANIMATION_HOOKS.WORLD_REWARD],
     },
-  },
-  {
+  }),
+  createWorldDefinition({
     id: WORLD_IDS.WORLD_2,
     title: "Эртний Хятад ба Торгоны зам",
     subtitle: "Та битгий уурлаарай",
-    pilotContentPackId: null,
-    lessonContentMap: {
-      [DIFFICULTY_LEVELS.BEGINNER]: null,
-      [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
-      [DIFFICULTY_LEVELS.ADVANCED]: null,
+    content: {
+      lessonContentMap: {
+        [DIFFICULTY_LEVELS.BEGINNER]: null,
+        [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
+        [DIFFICULTY_LEVELS.ADVANCED]: null,
+      },
+      sentenceBankId: "sentence-bank-world2-placeholder",
+      qaSetId: "qa-set-world2-placeholder",
     },
-    sentenceBankId: "sentence-bank-world2-placeholder",
-    qaSetId: "qa-set-world2-placeholder",
-    introCoverAssetId: "world2-cover-placeholder",
-    backgroundAssetId: "shared-world-background-placeholder",
-    rewardVisualThemeId: "reward-theme-world2-placeholder",
-    ambienceWorldId: WORLD_IDS.SEA,
-    selectable: true,
-    boardConfigId: WORLD_IDS.WORLD_1,
+    visuals: {
+      coverAssetId: "world2-cover-placeholder",
+      backgroundAssetId: "shared-world-background-placeholder",
+      rewardVisualThemeId: "reward-theme-world2-placeholder",
+    },
+    audio: {
+      ambienceWorldId: WORLD_IDS.SEA,
+    },
+    board: {
+      configId: WORLD_IDS.WORLD_1,
+    },
     expansion: {
       coverImage: createPlaceholderMeta({
         collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
@@ -84,25 +134,31 @@ const SELECTABLE_WORLD_CONTENT = [
       }),
       animationHooks: [ANIMATION_HOOKS.WORLD_INTRO, ANIMATION_HOOKS.WORLD_REWARD],
     },
-  },
-  {
+  }),
+  createWorldDefinition({
     id: WORLD_IDS.WORLD_3,
     title: "Ромын эзэнт гүрэн ба Гладиаторууд",
     subtitle: "Та битгий уурлаарай",
-    pilotContentPackId: null,
-    lessonContentMap: {
-      [DIFFICULTY_LEVELS.BEGINNER]: null,
-      [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
-      [DIFFICULTY_LEVELS.ADVANCED]: null,
+    content: {
+      lessonContentMap: {
+        [DIFFICULTY_LEVELS.BEGINNER]: null,
+        [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
+        [DIFFICULTY_LEVELS.ADVANCED]: null,
+      },
+      sentenceBankId: "sentence-bank-world3-placeholder",
+      qaSetId: "qa-set-world3-placeholder",
     },
-    sentenceBankId: "sentence-bank-world3-placeholder",
-    qaSetId: "qa-set-world3-placeholder",
-    introCoverAssetId: "world3-cover-placeholder",
-    backgroundAssetId: "shared-world-background-placeholder",
-    rewardVisualThemeId: "reward-theme-world3-placeholder",
-    ambienceWorldId: WORLD_IDS.SEA,
-    selectable: true,
-    boardConfigId: WORLD_IDS.WORLD_1,
+    visuals: {
+      coverAssetId: "world3-cover-placeholder",
+      backgroundAssetId: "shared-world-background-placeholder",
+      rewardVisualThemeId: "reward-theme-world3-placeholder",
+    },
+    audio: {
+      ambienceWorldId: WORLD_IDS.SEA,
+    },
+    board: {
+      configId: WORLD_IDS.WORLD_1,
+    },
     expansion: {
       coverImage: createPlaceholderMeta({
         collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
@@ -118,20 +174,43 @@ const SELECTABLE_WORLD_CONTENT = [
       }),
       animationHooks: [ANIMATION_HOOKS.WORLD_INTRO, ANIMATION_HOOKS.WORLD_REWARD],
     },
-  },
+  }),
 ];
 
 function createWorldConfig(definition) {
   const coverAsset = getWorldCoverAsset(definition.id);
   const backgroundAsset = getWorldBackgroundAsset(definition.id);
+  const contentRefs = {
+    pilotLessonPackId: definition.content.pilotLessonPackId,
+    lessonContentMap: { ...definition.content.lessonContentMap },
+    sentenceBankId: definition.content.sentenceBankId,
+    qaSetId: definition.content.qaSetId,
+  };
+  const assetRefs = {
+    coverAssetId: definition.visuals.coverAssetId,
+    backgroundAssetId: definition.visuals.backgroundAssetId,
+    rewardVisualThemeId: definition.visuals.rewardVisualThemeId,
+  };
+
   return {
     ...definition,
+    contentRefs,
+    assetRefs,
+    pilotContentPackId: contentRefs.pilotLessonPackId,
+    lessonContentMap: contentRefs.lessonContentMap,
+    sentenceBankId: contentRefs.sentenceBankId,
+    qaSetId: contentRefs.qaSetId,
+    introCoverAssetId: assetRefs.coverAssetId,
+    backgroundAssetId: assetRefs.backgroundAssetId,
+    rewardVisualThemeId: assetRefs.rewardVisualThemeId,
+    ambienceWorldId: definition.audio.ambienceWorldId,
+    boardConfigId: definition.board.configId,
     introCoverImage: coverAsset?.path || null,
     backgroundImage: backgroundAsset?.path || null,
     visualAssets: {
       cover: coverAsset,
       background: backgroundAsset,
-      rewardThemeId: definition.rewardVisualThemeId || null,
+      rewardThemeId: assetRefs.rewardVisualThemeId || null,
     },
     animationHooks: (definition.expansion?.animationHooks || []).map((hookId) => getAnimationHookMeta(hookId)).filter(Boolean),
   };
@@ -177,6 +256,24 @@ export function getWorldConfig(worldId = DEFAULT_WORLD_ID) {
 
 export function getSelectableBoardWorlds() {
   return BOARD_WORLD_SELECTIONS.map((world) => ({ ...world }));
+}
+
+export function getWorldContentRefs(worldId = DEFAULT_WORLD_ID) {
+  return getWorldConfig(worldId)?.contentRefs || null;
+}
+
+export function resolveWorldContentRefs(worldId = DEFAULT_WORLD_ID, difficulty = DIFFICULTY_LEVELS.BEGINNER) {
+  const world = getWorldConfig(worldId) || getWorldConfig(DEFAULT_WORLD_ID);
+  const lessonPackId = world?.contentRefs?.lessonContentMap?.[difficulty] || world?.contentRefs?.pilotLessonPackId || null;
+
+  return {
+    world,
+    worldId: world?.id || DEFAULT_WORLD_ID,
+    difficulty,
+    lessonPackId,
+    sentenceBankId: world?.contentRefs?.sentenceBankId || null,
+    qaSetId: world?.contentRefs?.qaSetId || null,
+  };
 }
 
 export function resolveBoardWorld(worldId = DEFAULT_WORLD_ID) {

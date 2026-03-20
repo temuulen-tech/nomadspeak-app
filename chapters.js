@@ -14,17 +14,50 @@ import {
   WORLD_IDS,
   createPlaceholderMeta,
 } from "./constants.js";
-import { getWorldConfig, resolveBoardWorld } from "./worlds.js";
+import { getWorldConfig, resolveBoardWorld, resolveWorldContentRefs } from "./worlds.js";
+
+function createChapterDefinition({
+  id,
+  worldId,
+  index,
+  title,
+  story,
+  nodeCount,
+  startTile,
+  endTile,
+  content = {},
+  expansion = {},
+} = {}) {
+  return {
+    id,
+    worldId,
+    index,
+    title,
+    story,
+    nodeCount,
+    startTile,
+    endTile,
+    content: {
+      lessonPackId: content.lessonPackId || null,
+      wordBankId: content.wordBankId || null,
+      qaSetId: content.qaSetId || null,
+      sentenceBankId: content.sentenceBankId || null,
+    },
+    expansion,
+  };
+}
 
 const CHAPTER_CONTENT = [
-  {
+  createChapterDefinition({
     id: CHAPTER_IDS.CH1,
     worldId: WORLD_IDS.WORLD_1,
     index: 1,
-    lessonPackId: "world1-ch1-beginner-landing-kit",
-    wordBankId: "word-bank-world1-ch1-core",
-    qaSetId: "qa-set-shared-core",
-    sentenceBankId: "sentence-bank-shared-default",
+    content: {
+      lessonPackId: "world1-ch1-beginner-landing-kit",
+      wordBankId: "word-bank-world1-ch1-core",
+      qaSetId: "qa-set-shared-core",
+      sentenceBankId: "sentence-bank-shared-default",
+    },
     title: "1-р бүлэг · Далай гатлалт",
     story: "Далайчид салхи, өлсгөлөн, айдастай нүүр тулж, алс эргийн ард түмэн өдөр тутмын амьдралаа үргэлжлүүлнэ.",
     nodeCount: 6,
@@ -34,15 +67,17 @@ const CHAPTER_CONTENT = [
       rewardVisualId: "reward-theme-shared-core",
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
-  },
-  {
+  }),
+  createChapterDefinition({
     id: CHAPTER_IDS.CH2,
     worldId: WORLD_IDS.WORLD_1,
     index: 2,
-    lessonPackId: "world1-ch2-placeholder",
-    wordBankId: "word-bank-world1-ch2-placeholder",
-    qaSetId: "qa-set-world1-ch2-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch2-placeholder",
+    content: {
+      lessonPackId: "world1-ch2-placeholder",
+      wordBankId: "word-bank-world1-ch2-placeholder",
+      qaSetId: "qa-set-world1-ch2-placeholder",
+      sentenceBankId: "sentence-bank-world1-ch2-placeholder",
+    },
     title: "2-р бүлэг · Газардаж анх уулзсан нь",
     story: "Газар харагдаж, сониуч зан нэмэгдэнэ. Анхны солилцоо бэлэг, дохио, үл ойлголцлоор өрнөнө.",
     nodeCount: 6,
@@ -52,15 +87,17 @@ const CHAPTER_CONTENT = [
       rewardVisualId: "reward-theme-shared-core",
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
-  },
-  {
+  }),
+  createChapterDefinition({
     id: CHAPTER_IDS.CH3,
     worldId: WORLD_IDS.WORLD_1,
     index: 3,
-    lessonPackId: "world1-ch3-placeholder",
-    wordBankId: "word-bank-world1-ch3-placeholder",
-    qaSetId: "qa-set-world1-ch3-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch3-placeholder",
+    content: {
+      lessonPackId: "world1-ch3-placeholder",
+      wordBankId: "word-bank-world1-ch3-placeholder",
+      qaSetId: "qa-set-world1-ch3-placeholder",
+      sentenceBankId: "sentence-bank-world1-ch3-placeholder",
+    },
     title: "3-р бүлэг · Солилцоо, алт, хурцадмал байдал",
     story: "Солилцоо эхлэх ч алт эрсэн шахалт нэмэгдэж, үл ойлголцол итгэлцлийг сулруулна.",
     nodeCount: 8,
@@ -70,15 +107,17 @@ const CHAPTER_CONTENT = [
       rewardVisualId: "reward-theme-shared-core",
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
-  },
-  {
+  }),
+  createChapterDefinition({
     id: CHAPTER_IDS.CH4,
     worldId: WORLD_IDS.WORLD_1,
     index: 4,
-    lessonPackId: "world1-ch4-placeholder",
-    wordBankId: "word-bank-world1-ch4-placeholder",
-    qaSetId: "qa-set-world1-ch4-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch4-placeholder",
+    content: {
+      lessonPackId: "world1-ch4-placeholder",
+      wordBankId: "word-bank-world1-ch4-placeholder",
+      qaSetId: "qa-set-world1-ch4-placeholder",
+      sentenceBankId: "sentence-bank-world1-ch4-placeholder",
+    },
     title: "4-р бүлэг · Амьд үлдэхүй ба эмзэг суурьшил",
     story: "Шуурга, хомсдол, айдас нь тодорхойгүй өдрүүдэд амьд үлдэх гэж буй суурьшигчдыг сорьно.",
     nodeCount: 6,
@@ -88,33 +127,43 @@ const CHAPTER_CONTENT = [
       rewardVisualId: "reward-theme-shared-core",
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
-  },
+  }),
 ];
 
+function getChapterContentState(definition) {
+  return definition.content.lessonPackId === "world1-ch1-beginner-landing-kit"
+    ? PLACEHOLDER_STATES.READY
+    : PLACEHOLDER_STATES.PLACEHOLDER;
+}
+
 function buildChapterExpansion(definition, worldConfig) {
+  const contentState = getChapterContentState(definition);
   return {
     lessonPack: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.LESSON_PACKS,
       slot: FUTURE_CONTENT_SLOTS.LESSON_PACK,
-      id: definition.lessonPackId,
-      state: definition.lessonPackId === "world1-ch1-beginner-landing-kit" ? PLACEHOLDER_STATES.READY : PLACEHOLDER_STATES.PLACEHOLDER,
+      id: definition.content.lessonPackId,
+      state: contentState,
     }),
     wordBank: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.WORD_BANKS,
       slot: FUTURE_CONTENT_SLOTS.WORD_BANK,
-      id: definition.wordBankId,
+      id: definition.content.wordBankId,
+      state: contentState,
       notes: "Add chapter-specific word bank data later without editing screen flow.",
     }),
     qaSet: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.QA_SETS,
       slot: FUTURE_CONTENT_SLOTS.QA_SET,
-      id: definition.qaSetId,
+      id: definition.content.qaSetId,
+      state: contentState,
       notes: "Add chapter-specific QA round data later if needed.",
     }),
     sentenceBank: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
       slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-      id: definition.sentenceBankId,
+      id: definition.content.sentenceBankId,
+      state: contentState,
       notes: "Add chapter-specific sentence bank content later.",
     }),
     worldCover: createPlaceholderMeta({
@@ -135,8 +184,14 @@ function buildChapterExpansion(definition, worldConfig) {
 
 function createChapterConfig(definition) {
   const worldConfig = getWorldConfig(definition.worldId);
+  const contentRefs = { ...definition.content };
   return {
     ...definition,
+    contentRefs,
+    lessonPackId: contentRefs.lessonPackId,
+    wordBankId: contentRefs.wordBankId,
+    qaSetId: contentRefs.qaSetId,
+    sentenceBankId: contentRefs.sentenceBankId,
     coverImage: worldConfig?.introCoverImage || null,
     startScreen: SCREEN_NAMES.CHAPTER_COVER,
     expansion: buildChapterExpansion(definition, worldConfig),
@@ -167,6 +222,21 @@ export function getDefaultChapterForWorld(worldId) {
   return getChaptersByWorld(effectiveBoardWorldId)[0] || BOARD_WORLD_CHAPTERS[0] || null;
 }
 
+export function resolveChapterContent({ chapterId = null, worldId = null, difficultyId = null } = {}) {
+  const chapter = getChapterConfig(chapterId) || getDefaultChapterForWorld(worldId);
+  const worldContent = resolveWorldContentRefs(chapter?.worldId || worldId, difficultyId);
+
+  return {
+    chapter,
+    worldId: chapter?.worldId || worldContent.worldId,
+    difficultyId: difficultyId || null,
+    lessonPackId: chapter?.contentRefs?.lessonPackId || worldContent.lessonPackId || null,
+    wordBankId: chapter?.contentRefs?.wordBankId || null,
+    qaSetId: chapter?.contentRefs?.qaSetId || worldContent.qaSetId || null,
+    sentenceBankId: chapter?.contentRefs?.sentenceBankId || worldContent.sentenceBankId || null,
+  };
+}
+
 export function resolveBoardSelectionRoute({ worldId, difficultyId, chapterId } = {}) {
   const { selectedWorld, effectiveBoardWorldId, effectiveBoardWorld } = resolveBoardWorld(worldId);
   const resolvedChapter = getChapterConfig(chapterId)
@@ -183,5 +253,10 @@ export function resolveBoardSelectionRoute({ worldId, difficultyId, chapterId } 
     selectedWorld,
     effectiveBoardWorld,
     chapter: resolvedChapter,
+    content: resolveChapterContent({
+      chapterId: resolvedChapter?.id || null,
+      worldId: selectedWorld?.id || effectiveBoardWorldId,
+      difficultyId,
+    }),
   };
 }

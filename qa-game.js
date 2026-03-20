@@ -88,6 +88,8 @@ const QA_CONTENT_SETS = [
   },
 ];
 
+export const QA_CONTENT_SET_INDEX = QA_CONTENT_SETS.reduce((acc, set) => ({ ...acc, [set.id]: set }), {});
+
 const sharedCoreRounds = QA_CONTENT_SETS[0].rounds;
 
 export const QA_ROUNDS = sharedCoreRounds;
@@ -95,7 +97,11 @@ export const QA_ROUNDS = sharedCoreRounds;
 export const QA_WORD_BANK_BASE = QA_ROUNDS[0].wordBankTokens;
 
 export function getQaContentSet(setId = "qa-set-shared-core") {
-  return QA_CONTENT_SETS.find((set) => set.id === setId) || QA_CONTENT_SETS[0] || null;
+  return QA_CONTENT_SET_INDEX[setId] || QA_CONTENT_SETS[0] || null;
+}
+
+export function getQaRounds(setId = "qa-set-shared-core") {
+  return getQaContentSet(setId)?.rounds?.slice() || QA_ROUNDS.slice();
 }
 
 export function getQaWordBankTokens(round = QA_ROUNDS[0]) {
@@ -123,8 +129,9 @@ export function qaLevelLabel(levelKey) {
 
 export const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
 
-export function qaRoundPoolForLevel(levelKey) {
-  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? [QA_ROUNDS[0]] : [QA_ROUNDS[0], QA_ROUNDS[1]];
+export function qaRoundPoolForLevel(levelKey, setId = "qa-set-shared-core") {
+  const rounds = getQaRounds(setId);
+  return levelKey === DIFFICULTY_LEVELS.BEGINNER ? rounds.slice(0, 1) : rounds.slice(0, 2);
 }
 
 export function getQaExpansionManifest() {
