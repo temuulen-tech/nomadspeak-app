@@ -34,7 +34,7 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
-import { BANK, LESSON_TRANSLATIONS, buildOptions, levelName } from "./lesson.js";
+import { LESSON_TRANSLATIONS, buildOptions, getLessonEntries, levelName } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
 import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
@@ -96,14 +96,16 @@ import {
   SENTENCE_GAME_TOAST_MAX_DURATION,
   SENTENCE_GAME_TOAST_SPEECH_DELAY,
   SENTENCE_GAME_TOAST_SPEECH_END_BUFFER,
+  SENTENCE_GAME_DATA_PATH,
+  prepareSentenceItems,
   tokenizeSentence,
 } from "./sentence-game.js";
 import {
   QA_LONG_EXPLANATION_TEXT,
   QA_REWARD_STEPS,
   QA_ROUNDS,
-  QA_WORD_BANK_BASE,
   formatQaBuiltLine,
+  getQaWordBankTokens,
   qaRoundPoolForLevel,
   qaShuffle,
 } from "./qa-game.js";
@@ -3463,10 +3465,9 @@ function renderSentences() {
 
 async function loadSentences() {
   try {
-    const response = await fetch("data/sentences.json");
+    const response = await fetch(SENTENCE_GAME_DATA_PATH);
     if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
-    sentenceItems = await response.json();
-    sentenceItems = sentenceItems.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
+    sentenceItems = prepareSentenceItems(await response.json());
     renderSentences();
     sentenceGameHistory = [];
     sentenceGameIndex = -1;
@@ -4108,7 +4109,7 @@ function retrySentenceGameRound() {
 
 // ---- Quiz logic ----
 function startQuiz() {
-  questions = shuffle(BANK[level]).slice(0); // бүгдийг
+  questions = shuffle(getLessonEntries(level)).slice(0); // бүгдийг
   currentIndex = 0;
   score = 0;
   locked = false;
@@ -4414,7 +4415,7 @@ function setupQaRound(options = {}) {
   const round = options.round || getQaCurrentRound();
   const sourceTokens = Array.isArray(options.wordBankTokens) && options.wordBankTokens.length
     ? options.wordBankTokens
-    : QA_WORD_BANK_BASE;
+    : getQaWordBankTokens(round);
 
   qaQuestionSolved = false;
   qaQuestionBuilt = [];

@@ -1,6 +1,6 @@
 /**
  * sentence-game.js
- * Sentence-building game specific constants and string helpers.
+ * Sentence-building game specific constants, content loading helpers, and string helpers.
  */
 
 import { DIFFICULTY_LEVELS } from "./constants.js";
@@ -11,9 +11,15 @@ export const SENTENCE_GAME_DIFFICULTY_LABELS = {
   [DIFFICULTY_LEVELS.ADVANCED]: "Дээд түвшин",
 };
 
+export const SENTENCE_GAME_DATA_PATH = "data/sentences.json";
+
 export function tokenizeSentence(sentence = "") {
   const tokens = sentence.match(/[A-Za-z0-9']+|[^\sA-Za-z0-9']/g);
   return tokens ? tokens.filter(Boolean) : [];
+}
+
+export function prepareSentenceItems(items = []) {
+  return items.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
 }
 
 export const SENTENCE_GAME_TOAST_DURATION = 8000;
