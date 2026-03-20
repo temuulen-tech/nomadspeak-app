@@ -37,6 +37,7 @@ This phase does **not** add the final content library yet. It keeps the current 
 When adding a new content pack, **reuse the existing ids and placeholders where possible** instead of creating a new flow path. That keeps the current UI, buttons, progress handling, and gameplay route unchanged.
 
 See `docs/content-insertion-handoff.md` for the step-by-step handoff checklist used for future real content drops. Copyable prep templates now live in `content-packs/templates/` so real content can be drafted separately from the starter/demo packs before final insertion.
+For a dry-run status snapshot of which chapters are starter-ready vs still placeholder-only, use `content-readiness.js` and its matching test coverage in `tests/content-readiness.test.mjs`.
 
 ## Phase 54 baseline sign-off
 

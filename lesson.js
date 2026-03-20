@@ -275,13 +275,18 @@ export function resolveLessonContent({ packId = null, worldId = null, chapterId 
   const pack = (packId && getLessonContentPackById(packId))
     || findLessonContentPack({ worldId, chapterId, difficulty })
     || null;
-  const entries = pack?.entries?.length ? pack.entries : (LESSON_BANK[difficulty] || []);
+  const hasScopedRequest = Boolean(packId || worldId || chapterId);
+  const usesDifficultyFallback = !pack?.entries?.length;
+  const entries = usesDifficultyFallback && !hasScopedRequest
+    ? (LESSON_BANK[difficulty] || [])
+    : (pack?.entries?.length ? pack.entries : []);
   const wordBank = getLessonWordBank({ packId: pack?.id || packId, worldId, chapterId });
 
   return {
     pack,
     entries,
     wordBank,
+    usesDifficultyFallback,
     worldId: pack?.worldId || worldId || null,
     chapterId: pack?.chapterId || chapterId || null,
     difficulty,
