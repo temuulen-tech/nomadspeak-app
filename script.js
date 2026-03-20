@@ -119,6 +119,7 @@ import {
   startLevelLabel,
 } from "./progress-ui.js";
 import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
+import { createAppBootstrap } from "./app-bootstrap.js";
 import {
   BOARD_SELECTOR_STEPS,
   DIFFICULTY_LEVELS,
@@ -3717,42 +3718,58 @@ function resetQaGameScreen() {
 }
 
 
-function initializeManagers() {
-  progressUi = createProgressUi({
-    getProgressState: () => progressState,
-    getProfileName: () => appSettings.profileName,
-    isPremium: () => appSettings.premium,
-    getAppTimeDailyTotals,
-    getLocalDateKey,
-    formatHHMMSS,
-    refreshTimeSummaryUI,
-    getStatsSelectedPeriod: () => statsSelectedPeriod,
-    getStatsRewardTab: () => statsRewardTab,
-    dom: {
-      profileNameInput,
-      profileNameSaved,
-      profileTotalXpEl,
-      profileLevelEl,
-      profileStreakDaysEl,
-      profileDailyProgressEl,
-      profileRewardStageEl,
-      profilePlanStatusEl,
-      statsTotalXpEl,
-      statsLevelEl,
-      statsStreakEl,
-      statsTodayProgressEl,
-      statsKpiLabelEl,
-      statsKpiValueEl,
-      statsKpiNormEl,
-      statsKpiPercentEl,
-      statsThermometerFillEl,
-      statsThermometerMarkerEl,
-      statsThermometerTierEl,
-      statsRewardCardsEl,
-    },
-  });
+function handleStartLevelSelection(button) {
+  if (!button) return;
+  syncToggleButtons(startLevelOptions, (option) => option === button, { pressed: false });
+  level = button.dataset.level;
+  hasExplicitStartLevelSelection = true;
+  updateStartButtonLabel();
+  setStartLevelMenuOpen(false);
+  updateHeaderStatus();
+  startQuiz();
+}
 
-  appTimerManager = createAppTimerManager({
+const { initializeApp } = createAppBootstrap({
+  createProgressUi,
+  createAppTimerManager,
+  createVaultManager,
+  createScreenNavigator,
+  setProgressUi: (value) => { progressUi = value; },
+  setAppTimerManager: (value) => { appTimerManager = value; },
+  setVaultManager: (value) => { vaultManager = value; },
+  setScreenNavigator: (value) => { screenNavigator = value; },
+  getProgressState: () => progressState,
+  getProfileName: () => appSettings.profileName,
+  isPremium: () => appSettings.premium,
+  getAppTimeDailyTotals,
+  getLocalDateKey,
+  formatHHMMSS,
+  refreshTimeSummaryUI,
+  getStatsSelectedPeriod: () => statsSelectedPeriod,
+  getStatsRewardTab: () => statsRewardTab,
+  profileDom: {
+    profileNameInput,
+    profileNameSaved,
+    profileTotalXpEl,
+    profileLevelEl,
+    profileStreakDaysEl,
+    profileDailyProgressEl,
+    profileRewardStageEl,
+    profilePlanStatusEl,
+    statsTotalXpEl,
+    statsLevelEl,
+    statsStreakEl,
+    statsTodayProgressEl,
+    statsKpiLabelEl,
+    statsKpiValueEl,
+    statsKpiNormEl,
+    statsKpiPercentEl,
+    statsThermometerFillEl,
+    statsThermometerMarkerEl,
+    statsThermometerTierEl,
+    statsRewardCardsEl,
+  },
+  appTimer: {
     storageKeys: {
       dailyTotalsKey: APP_TIME_DAILY_TOTALS_KEY,
       activeSessionKey: APP_TIME_ACTIVE_SESSION_KEY,
@@ -3763,11 +3780,8 @@ function initializeManagers() {
       stopQaTimer();
       stopSentencesTimer();
     },
-    syncCoreStateReferences,
-    getProgressState: () => progressState,
     replaceProgress,
     updateStreak,
-    renderCoreStateSnapshot,
     getTodayKey,
     dom: {
       todayTimeEls,
@@ -3790,9 +3804,8 @@ function initializeManagers() {
       renderStatsSnapshot: () => progressUi?.renderStatsSnapshot(),
       renderProfileSnapshot: () => progressUi?.renderProfileSnapshot(),
     },
-  });
-
-  vaultManager = createVaultManager({
+  },
+  vault: {
     badgeElsByScreen: { lesson: lessonVaultBadge, qna: qaVaultBadge, sentenceGame: sentenceGameVaultBadge, sentences: sentencesVaultBadge },
     modal: {
       modalEl: vaultModalEl,
@@ -3802,13 +3815,21 @@ function initializeManagers() {
       deleteBtn: vaultDeleteBtn,
       learnedBtn: vaultLearnedBtn,
     },
+    vaultModalCloseBtn,
+    lessonSaveBtn,
+    sentencesSaveBtn,
+    qaSaveBtn,
+    sentenceGameSaveBtn,
+    lessonVaultBtn,
+    sentencesVaultBtn,
+    qaVaultBtn,
+    sentenceGameVaultBtn,
     showVaultToast,
     lessonMnTranslation,
     sentencesListEl,
     appSettings: () => appSettings,
     sentenceItems: () => sentenceItems,
     speakingSentenceId: () => speakingSentenceId,
-    stopSpeaking,
     speakSentence,
     sentenceGame: {
       setHistory: (history) => { sentenceGameHistory = history; },
@@ -3854,318 +3875,235 @@ function initializeManagers() {
       sentenceGame: SCREEN_NAMES.SENTENCE_GAME,
       qaGame: SCREEN_NAMES.QA_GAME,
     },
-  });
-
-  screenNavigator = createScreenNavigator({
-    screens: SCREENS,
-    screenIds: SCREEN_IDS,
-    screenRegistry: SCREEN_REGISTRY,
-    getActiveScreenId: () => activeScreenId,
-    setActiveScreenId: (screenId) => { activeScreenId = screenId; },
-    setStateValue,
-    setAppMode,
-    state: {
-      topbar,
-      startScreen,
-      quizScreen,
-      sentencesScreen,
-      sentenceGameScreen,
-      qaGameScreen,
-      profileScreen,
-      destinations: FLOW_DESTINATIONS,
-      hasQaGameLevel: () => Boolean(qaGameLevel),
-    },
-    boardEntry: {
-      getState: getBoardEntryState,
-      reset: resetBoardEntryState,
-      steps: BOARD_SELECTOR_STEPS,
-    },
-    getCoreState,
-    getDefaultChapterForWorld,
-    updateBoardEntryState,
-    updateSelections,
-    updateState,
-    stopSpeaking,
-    startQuiz,
-    ensureSentenceItemsLoaded,
-    initSentenceGameRound,
-    enforceFreeXpGate,
-    resetQaGameScreen,
-    initBoardGameMvp,
-    updateStatsUI,
-    updateProfileUI,
-    updateHeaderStatus,
-    hideStartIntroPanel,
-    setStartLevelMenuOpen,
-    resetLessonProgress,
-    closeHomeModesPanel,
-    worldSoundscape,
-    updateCompanionLine,
-    startSession,
-    startTimeUiUpdater,
-    refreshTimeSummaryUI,
-    screenVisibility: {
-      sentenceGameVisible: sentenceGameScreenVisible,
-      qaVisible: () => qaGameScreen && !isHidden(qaGameScreen),
-      sentencesVisible: () => sentencesScreen && !isHidden(sentencesScreen),
-      lessonVisible: () => quizScreen && !isHidden(quizScreen),
-    },
-    timers: {
-      beginSentenceGameSession,
-      endSentenceGameSession,
-      startLessonTimer,
-      stopLessonTimer,
-      startQaTimer,
-      stopQaTimer,
-      startSentencesTimer,
-      stopSentencesTimer,
-    },
-  });
-}
-
-function initializeStateSubscriptions() {
-  if (stateSubscriptionsInitialized) return;
-  stateSubscriptionsInitialized = true;
-
-  subscribeState((_state, scope) => {
-    if (["core", "progress", "settings", "rewards", "learnedWords", "chapters", "selectedWorld", "selectedDifficulty", "selections"].includes(scope)) {
-      renderCoreStateSnapshot();
+  },
+  screens: SCREENS,
+  screenIds: SCREEN_IDS,
+  screenRegistry: SCREEN_REGISTRY,
+  getActiveScreenId: () => activeScreenId,
+  setActiveScreenId: (screenId) => { activeScreenId = screenId; },
+  setStateValue,
+  setAppMode,
+  navigationState: {
+    topbar,
+    startScreen,
+    quizScreen,
+    sentencesScreen,
+    sentenceGameScreen,
+    qaGameScreen,
+    profileScreen,
+    destinations: FLOW_DESTINATIONS,
+    hasQaGameLevel: () => Boolean(qaGameLevel),
+  },
+  boardEntry: {
+    getState: getBoardEntryState,
+    reset: resetBoardEntryState,
+    steps: BOARD_SELECTOR_STEPS,
+  },
+  getCoreState,
+  getDefaultChapterForWorld,
+  updateBoardEntryState,
+  updateSelections,
+  updateState,
+  stopSpeaking,
+  startQuiz,
+  ensureSentenceItemsLoaded,
+  initSentenceGameRound,
+  enforceFreeXpGate,
+  resetQaGameScreen,
+  initBoardGameMvp,
+  updateStatsUI,
+  updateProfileUI,
+  updateHeaderStatus,
+  hideStartIntroPanel,
+  setStartLevelMenuOpen,
+  resetLessonProgress,
+  closeHomeModesPanel,
+  worldSoundscape,
+  updateCompanionLine,
+  startSession,
+  startTimeUiUpdater,
+  screenVisibility: {
+    sentenceGameVisible: sentenceGameScreenVisible,
+    qaVisible: () => qaGameScreen && !isHidden(qaGameScreen),
+    sentencesVisible: () => sentencesScreen && !isHidden(sentencesScreen),
+    lessonVisible: () => quizScreen && !isHidden(quizScreen),
+  },
+  timers: {
+    beginSentenceGameSession,
+    endSentenceGameSession,
+    startLessonTimer,
+    stopLessonTimer,
+    startQaTimer,
+    stopQaTimer,
+    startSentencesTimer,
+    stopSentencesTimer,
+  },
+  subscribeState,
+  renderCoreStateSnapshot,
+  loadCoreState,
+  syncCoreStateReferences,
+  syncProgressForToday,
+  persistProgressState,
+  updateTtsControlState,
+  updateSoundToggleState,
+  ensureAudioUnlocked,
+  loadSentenceGameClimbLevel,
+  renderSentenceGameClimb,
+  getSentenceGameClimbLevel: () => sentenceGameClimbLevel,
+  loadSentenceGameRewardState,
+  updateSentenceGameRewardLevel,
+  reconcileRewardTierProgress,
+  persistSentenceGameRewardState,
+  loadSentenceGameDifficulty,
+  syncBoardEntryFlowState,
+  initDebugTools,
+  getDebugChapterOptions: () => SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getAvailableDebugChapters(debugUnlockedChapterIds) || [],
+  requestNavigation,
+  previewChapterCover,
+  jumpToBoardChapter,
+  unlockAllDebugChapters,
+  giveDebugXp,
+  giveDebugRewards,
+  resetDebugProgress,
+  renderSentencesRewards,
+  updateSentencesTimerUI,
+  renderLessonRewards,
+  updateLessonTimerUI,
+  sentenceGameControls: () => {
+    if (sentenceGameTipTextEl) {
+      sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
     }
-  });
-}
-
-function initializeAppState() {
-  loadCoreState({ persist: false });
-  syncCoreStateReferences();
-  syncProgressForToday();
-  persistProgressState();
-
-  updateTtsControlState();
-  updateSoundToggleState();
-  ensureAudioUnlocked();
-  loadSentenceGameClimbLevel();
-  renderSentenceGameClimb(sentenceGameClimbLevel);
-  loadSentenceGameRewardState();
-  updateSentenceGameRewardLevel({ allowBanner: false });
-  reconcileRewardTierProgress();
-  persistSentenceGameRewardState();
-  loadSentenceGameDifficulty();
-  updateHeaderStatus();
-  updateProfileUI();
-  updateStatsUI();
-  refreshTimeSummaryUI();
-  const { selectedWorldId, selectedDifficultyId } = getCoreState();
-  syncBoardEntryFlowState({
-    worldId: selectedWorldId,
-    difficultyId: selectedDifficultyId,
-  });
-}
-
-function initializeDebugMode() {
-  initDebugTools({
-    getChapterOptions: () => SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.getAvailableDebugChapters(debugUnlockedChapterIds) || [],
-    navigateTo: (screenId) => requestNavigation(screenId),
-    previewChapterCover: (chapterId) => previewChapterCover(chapterId),
-    jumpToBoard: () => requestNavigation(FLOW_DESTINATIONS.BOARD_ENTRY),
-    jumpToBoardChapter: (chapterId) => jumpToBoardChapter(chapterId),
-    unlockAllChapters: () => unlockAllDebugChapters(),
-    giveXp: (amount) => giveDebugXp(amount),
-    giveRewards: () => giveDebugRewards(),
-    resetProgress: () => resetDebugProgress(),
-  });
-  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.setPreview();
-}
-
-function initializeRewardUi() {
-  renderSentencesRewards();
-  updateSentencesTimerUI();
-  renderLessonRewards();
-  updateLessonTimerUI();
-}
-
-function initializeSentenceGameControls() {
-  if (sentenceGameTipTextEl) {
-    sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
-  }
-
-  bindClickOnce(sentenceGameTipToggleBtn, "sentence-game:tip-toggle", toggleSentenceGameTipPanel);
-
-  bindClickOnce(sentenceGameTipSpeakBtn, "sentence-game:tip-speak", speakSentenceGameTip);
-
-  bindClickOnce(sentenceGameTipStopBtn, "sentence-game:tip-stop", stopSentenceGameTipSpeech);
-
-  bindClickOnce(sentenceGameTipReadBtn, "sentence-game:tip-read", showSentenceGameTipText);
-
-  bindClickOnce(sentenceGameTipCloseBtn, "sentence-game:tip-close", closeSentenceGameTipPanel);
-
-  bindClickOnce(sentenceGameDifficultyToggleBtn, "sentence-game:difficulty-toggle", () => {
-    const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
-    setSentenceGameDifficultyPanelOpen(nextOpen);
-  });
-
-  sentenceGameDifficultyButtons.forEach((btn) => {
-    bindClickOnce(btn, `sentence-game:difficulty:${btn.dataset.difficulty || btn.textContent}`, () => {
-      selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
+    bindClickOnce(sentenceGameTipToggleBtn, "sentence-game:tip-toggle", toggleSentenceGameTipPanel);
+    bindClickOnce(sentenceGameTipSpeakBtn, "sentence-game:tip-speak", speakSentenceGameTip);
+    bindClickOnce(sentenceGameTipStopBtn, "sentence-game:tip-stop", stopSentenceGameTipSpeech);
+    bindClickOnce(sentenceGameTipReadBtn, "sentence-game:tip-read", showSentenceGameTipText);
+    bindClickOnce(sentenceGameTipCloseBtn, "sentence-game:tip-close", closeSentenceGameTipPanel);
+    bindClickOnce(sentenceGameDifficultyToggleBtn, "sentence-game:difficulty-toggle", () => {
+      const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
+      setSentenceGameDifficultyPanelOpen(nextOpen);
     });
-  });
-
-  bindClickOnce(sentenceGameUndoBtn, "sentence-game:undo", undoSentenceGameMove);
-  bindClickOnce(sentenceGameShowCorrectBtn, "sentence-game:show-correct", showSentenceGameCorrectAnswer);
-  bindClickOnce(sentenceGameRetryBtn, "sentence-game:retry", retrySentenceGameRound);
-  bindClickOnce(sentenceGamePrevBtn, "sentence-game:prev", prevSentenceGameRound);
-  bindClickOnce(sentenceGameNextBtn, "sentence-game:next", nextSentenceGameRound);
-
-  setSentenceGameDifficultyPanelOpen(false);
-  updateSentenceGameTipControls();
-}
-
-function initializeVaultControls() {
-  bindClickOnce(lessonSaveBtn, "vault:save-lesson", saveCurrentLessonItem);
-  bindClickOnce(sentencesSaveBtn, "vault:save-sentences", saveCurrentSentencesItem);
-  bindClickOnce(qaSaveBtn, "vault:save-qa", saveCurrentQaRound);
-  bindClickOnce(sentenceGameSaveBtn, "vault:save-sentence-game", saveCurrentSentenceGameItem);
-
-  bindClickOnce(lessonVaultBtn, "vault:open-lesson", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
-  bindClickOnce(qaVaultBtn, "vault:open-qa", () => renderVaultModal(vaultKeyForScreen("qna")));
-  bindClickOnce(sentenceGameVaultBtn, "vault:open-sentence-game", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
-  bindClickOnce(sentencesVaultBtn, "vault:open-sentences", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
-
-  bindModalDismissal({
-    modalEl: vaultModalEl,
-    closeBtn: vaultModalCloseBtn,
-  });
-
-  [SCREEN_NAMES.LESSON, "qna", "sentenceGame", SCREEN_NAMES.SENTENCES].forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
-}
-
-function initializeQaControls() {
-  resetQaGameScreen();
-
-  bindClickOnce(qaLevelSelectBtn, "qa:level-toggle", () => {
-    setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
-  });
-
-  qaLevelButtons.forEach((btn) => {
-    bindClickOnce(btn, `qa:level:${btn.dataset.qaLevel || btn.textContent}`, () => selectQaLevel(btn.dataset.qaLevel));
-  });
-
-  bindClickOnce(qaCheckBtn, "qa:check", checkQaAnswer);
-
-  bindClickOnce(qaToggleQuestionBtn, "qa:toggle-question", () => {
-    const willShow = isHidden(qaEnQuestionWrap);
-    setHidden(qaEnQuestionWrap, !willShow);
-    qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
-  });
-
-  bindClickOnce(qaToggleAnswerBtn, "qa:toggle-answer", () => {
-    const willShow = isHidden(qaEnAnswerWrap);
-    setHidden(qaEnAnswerWrap, !willShow);
-    qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
-  });
-
-  bindClickOnce(qaShowSentencesBtn, "qa:show-sentences", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
-
-  bindClickOnce(qaShowHelpBtn, "qa:show-help", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
-
-  bindModalDismissal({
-    modalEl: qaModalEl,
-    closeBtn: qaModalCloseBtn,
-    onClose: closeQaModal,
-  });
-}
-
-function initializeSentenceFilterControls() {
-  updateSentenceFilterActiveState();
-  setSentencesLevelPickerOpen(false);
-
-  bindClickOnce(sentencesLevelPickerBtn, "sentences:filter-toggle", () => {
-    const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
-    setSentencesLevelPickerOpen(nextOpen);
-  });
-
-  sentencesLevelOptionButtons.forEach((btn) => {
-    bindClickOnce(btn, `sentences:filter:${btn.dataset.filter || btn.textContent}`, () => {
-      sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
-      updateSentenceFilterActiveState();
-      setSentencesLevelPickerOpen(false);
-      stopSpeaking();
-      renderSentences();
-      updateHeaderStatus();
+    sentenceGameDifficultyButtons.forEach((btn) => {
+      bindClickOnce(btn, `sentence-game:difficulty:${btn.dataset.difficulty || btn.textContent}`, () => {
+        selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
+      });
     });
-  });
-
-  bindManagedEvent(document, "click", "sentences:filter-close-outside", (event) => {
-    if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
-    if (!sentencesLevelPickerEl.contains(event.target)) {
-      setSentencesLevelPickerOpen(false);
-    }
-  });
-}
-
-function initializeAudioAndSentenceControls() {
-  voiceOptionButtons.forEach((btn) => {
-    bindClickOnce(btn, `tts:voice:${btn.dataset.voice || btn.textContent}`, () => {
-      appSettings.ttsSettings.voice = btn.dataset.voice;
+    bindClickOnce(sentenceGameUndoBtn, "sentence-game:undo", undoSentenceGameMove);
+    bindClickOnce(sentenceGameShowCorrectBtn, "sentence-game:show-correct", showSentenceGameCorrectAnswer);
+    bindClickOnce(sentenceGameRetryBtn, "sentence-game:retry", retrySentenceGameRound);
+    bindClickOnce(sentenceGamePrevBtn, "sentence-game:prev", prevSentenceGameRound);
+    bindClickOnce(sentenceGameNextBtn, "sentence-game:next", nextSentenceGameRound);
+    setSentenceGameDifficultyPanelOpen(false);
+    updateSentenceGameTipControls();
+  },
+  bindClickOnce,
+  bindModalDismissal,
+  updateVaultBadge,
+  vaultKeyForScreen,
+  renderVaultModal,
+  saveCurrentLessonItem,
+  saveCurrentSentencesItem,
+  saveCurrentQaRound,
+  saveCurrentSentenceGameItem,
+  screenNames: SCREEN_NAMES,
+  qaControls: () => {
+    resetQaGameScreen();
+    bindClickOnce(qaLevelSelectBtn, "qa:level-toggle", () => {
+      setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
+    });
+    qaLevelButtons.forEach((btn) => {
+      bindClickOnce(btn, `qa:level:${btn.dataset.qaLevel || btn.textContent}`, () => selectQaLevel(btn.dataset.qaLevel));
+    });
+    bindClickOnce(qaCheckBtn, "qa:check", checkQaAnswer);
+    bindClickOnce(qaToggleQuestionBtn, "qa:toggle-question", () => {
+      const willShow = isHidden(qaEnQuestionWrap);
+      setHidden(qaEnQuestionWrap, !willShow);
+      qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
+    });
+    bindClickOnce(qaToggleAnswerBtn, "qa:toggle-answer", () => {
+      const willShow = isHidden(qaEnAnswerWrap);
+      setHidden(qaEnAnswerWrap, !willShow);
+      qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
+    });
+    bindClickOnce(qaShowSentencesBtn, "qa:show-sentences", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
+    bindClickOnce(qaShowHelpBtn, "qa:show-help", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
+    bindModalDismissal({
+      modalEl: qaModalEl,
+      closeBtn: qaModalCloseBtn,
+      onClose: closeQaModal,
+    });
+  },
+  sentenceFilterControls: () => {
+    updateSentenceFilterActiveState();
+    setSentencesLevelPickerOpen(false);
+    bindClickOnce(sentencesLevelPickerBtn, "sentences:filter-toggle", () => {
+      const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
+      setSentencesLevelPickerOpen(nextOpen);
+    });
+    sentencesLevelOptionButtons.forEach((btn) => {
+      bindClickOnce(btn, `sentences:filter:${btn.dataset.filter || btn.textContent}`, () => {
+        sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
+        updateSentenceFilterActiveState();
+        setSentencesLevelPickerOpen(false);
+        stopSpeaking();
+        renderSentences();
+        updateHeaderStatus();
+      });
+    });
+    bindManagedEvent(document, "click", "sentences:filter-close-outside", (event) => {
+      if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
+      if (!sentencesLevelPickerEl.contains(event.target)) {
+        setSentencesLevelPickerOpen(false);
+      }
+    });
+  },
+  audioControls: () => {
+    voiceOptionButtons.forEach((btn) => {
+      bindClickOnce(btn, `tts:voice:${btn.dataset.voice || btn.textContent}`, () => {
+        appSettings.ttsSettings.voice = btn.dataset.voice;
+        updateTtsControlState();
+        persistTtsSettings();
+      });
+    });
+    bindManagedEvent(ttsRateSlider, "input", "tts:rate", () => {
+      appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
       updateTtsControlState();
       persistTtsSettings();
     });
-  });
-
-  bindManagedEvent(ttsRateSlider, "input", "tts:rate", () => {
-    appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
-    updateTtsControlState();
-    persistTtsSettings();
-  });
-
-  soundToggleButtons.forEach((toggleBtn) => {
-    bindClickOnce(toggleBtn, `app:sound-toggle:${toggleBtn.id || toggleBtn.className}`, () => {
-      const nextSoundEnabled = !appSettings.soundEnabled;
-      updateSettings({ soundEnabled: nextSoundEnabled });
-      syncCoreStateReferences();
-      setGlobalSoundEnabled(appSettings.soundEnabled);
-      if (!appSettings.soundEnabled) {
-        stopSpeaking();
+    soundToggleButtons.forEach((toggleBtn) => {
+      bindClickOnce(toggleBtn, `app:sound-toggle:${toggleBtn.id || toggleBtn.className}`, () => {
+        const nextSoundEnabled = !appSettings.soundEnabled;
+        updateSettings({ soundEnabled: nextSoundEnabled });
+        syncCoreStateReferences();
+        setGlobalSoundEnabled(appSettings.soundEnabled);
+        if (!appSettings.soundEnabled) {
+          stopSpeaking();
+          gameFeelSoundManager.stopAmbient();
+          worldSoundscape.stop();
+        } else if (boardGameScreen && !isHidden(boardGameScreen)) {
+          gameFeelSoundManager.startAmbient();
+        } else {
+          const activeScreen = document.body?.dataset.activeScreen || "home";
+          worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
+        }
+        updateSoundToggleState();
+      });
+    });
+  },
+  playExitControls: () => {
+    playExitButtons.forEach((btn) => {
+      bindClickOnce(btn, `app:play-exit:${btn.id || btn.className}`, () => {
         gameFeelSoundManager.stopAmbient();
         worldSoundscape.stop();
-      } else if (boardGameScreen && !isHidden(boardGameScreen)) {
-        gameFeelSoundManager.startAmbient();
-      } else {
-        const activeScreen = document.body?.dataset.activeScreen || "home";
-        worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
-      }
-      updateSoundToggleState();
+        exitPlayModeToHome();
+      });
     });
-  });
-}
-
-function initializePlayExitControls() {
-  playExitButtons.forEach((btn) => {
-    bindClickOnce(btn, `app:play-exit:${btn.id || btn.className}`, () => {
-      gameFeelSoundManager.stopAmbient();
-      worldSoundscape.stop();
-      exitPlayModeToHome();
-    });
-  });
-}
-
-function handleStartLevelSelection(button) {
-  if (!button) return;
-  syncToggleButtons(startLevelOptions, (option) => option === button, { pressed: false });
-  level = button.dataset.level;
-  hasExplicitStartLevelSelection = true;
-  updateStartButtonLabel();
-  setStartLevelMenuOpen(false);
-  updateHeaderStatus();
-  startQuiz();
-}
-
-function initializeScreenRegistry() {
-  setStartLevelMenuOpen(false);
-  updateStartButtonLabel();
-  setAppMode(GAME_MODES.HOME);
-  syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
-
-  SCREEN_REGISTRY.start = initHomeScreen({
+  },
+  homeScreen: initHomeScreen,
+  chapterCoverScreen: initChapterCoverScreen,
+  boardScreen: initBoardScreen,
+  lessonScreen: initLessonScreen,
+  statsScreen: initStatsScreen,
+  homeHandlers: {
     onNavigate: (destination) => requestNavigation(destination),
     onToggleModes: () => toggleHomeModesPanel(),
     onCloseModes: () => closeHomeModesPanel(),
@@ -4173,9 +4111,9 @@ function initializeScreenRegistry() {
     onCloseIntro: () => hideStartIntroPanel(),
     onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
     onSelectStartLevel: (button) => handleStartLevelSelection(button),
-  });
-
-  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER] = initChapterCoverScreen({
+    destinations: FLOW_DESTINATIONS,
+  },
+  chapterCoverHandlers: {
     getSelectionState: () => getBoardEntryState(),
     onAdvanceSelectorStep: (step) => {
       syncBoardEntryFlowState({ step });
@@ -4203,24 +4141,21 @@ function initializeScreenRegistry() {
       });
       navigateTo(FLOW_DESTINATIONS.BOARD_PLAY);
     },
-  });
-
-  SCREEN_REGISTRY[SCREEN_NAMES.BOARD] = initBoardScreen({
+  },
+  boardHandlers: {
     onRollDice: () => boardGameRollDice(),
     onResizeWhileVisible: () => updateBoardGameTokenPosition(),
     onActivate: () => {
       if (!boardGameBootstrapped) initBoardGameMvp();
     },
-  });
-
-  SCREEN_REGISTRY.lesson = initLessonScreen({
+  },
+  lessonHandlers: {
     onNext: () => nextQuestion(),
     onRestart: () => startQuiz(),
     onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
     onSelectStartLevel: (button) => handleStartLevelSelection(button),
-  });
-
-  SCREEN_REGISTRY.stats = initStatsScreen({
+  },
+  statsHandlers: {
     onBeforeOpenTimeDetails: () => refreshTimeSummaryUI(),
     onPeriodChange: (btn) => {
       statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
@@ -4236,180 +4171,96 @@ function initializeScreenRegistry() {
       });
       progressUi?.renderRewardsTab();
     },
-  });
-}
-
-function initializeLifecycleEvents() {
-  bindManagedEvent(document, "visibilitychange", "app:lifecycle:persist-visibility", () => {
-    if (document.hidden) {
-      persistAllActiveTime();
-      ensureStoppedIfHidden();
-      stopTimeUiUpdater();
-      return;
+  },
+  bindManagedEvent,
+  persistAllActiveTime,
+  ensureStoppedIfHidden,
+  stopTimeUiUpdater,
+  audioEngine,
+  speechControls: () => {
+    if ("speechSynthesis" in window) {
+      loadVoices();
+      bindManagedEvent(window.speechSynthesis, "voiceschanged", "tts:voiceschanged", loadVoices);
     }
-
-    if (sentenceGameScreenVisible()) {
-      beginSentenceGameSession();
-    }
-
-    const visibleScreen = document.querySelector(".card:not(.hidden)");
-    if (visibleScreen) {
-      const screenId = SCREEN_IDS[visibleScreen.id] || visibleScreen.id;
-      startSession(screenId);
+    bindManagedEvent(profileNameInput, "input", "profile:name-input", () => {
+      updateSettings({ profileName: profileNameInput.value.trim() });
+      persistCoreAppState();
+      updateProfileUI();
+    });
+  },
+  premiumControls: () => {
+    bindClickOnce(upgradePremiumBtn, "premium:upgrade", () => {
+      openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
+    });
+    bindModalDismissal({
+      modalEl: premiumOverlay,
+      closeBtn: premiumOkBtn,
+      onClose: closePremiumModal,
+    });
+  },
+  installPrompt: {
+    installHintEl,
+    installBtn,
+    setVisibility: (isVisible) => {
+      if (isVisible) showElement(installHintEl);
+      else hideElement(installHintEl);
+    },
+  },
+  activeScreenTracking: () => {
+    const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
+    if (initialVisibleScreen) {
+      const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
+      const isHomeVisible = initialVisibleScreen === startScreen;
+      activeScreenId = initialScreenId;
+      SCREEN_REGISTRY[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
+      setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
+      startSession(initialScreenId);
       startTimeUiUpdater();
-      refreshTimeSummaryUI();
+    } else {
+      setAppMode(GAME_MODES.HOME);
     }
-  });
-
-  bindManagedEvent(window, "pagehide", "app:lifecycle:pagehide", () => {
-    persistAllActiveTime();
-    stopTimeUiUpdater();
-  });
-
-  bindManagedEvent(window, "beforeunload", "app:lifecycle:beforeunload", () => {
-    persistAllActiveTime();
-    stopTimeUiUpdater();
-  });
-
-  bindManagedEvent(document, "visibilitychange", "app:lifecycle:audio-visibility", () => {
-    audioEngine.onVisibilityChange();
-  });
-}
-
-function initializeSpeechAndProfileControls() {
-  if ("speechSynthesis" in window) {
-    loadVoices();
-    bindManagedEvent(window.speechSynthesis, "voiceschanged", "tts:voiceschanged", loadVoices);
-  }
-
-  bindManagedEvent(profileNameInput, "input", "profile:name-input", () => {
-    updateSettings({ profileName: profileNameInput.value.trim() });
-    persistCoreAppState();
-    updateProfileUI();
-  });
-}
-
-function initializePremiumControls() {
-  bindClickOnce(upgradePremiumBtn, "premium:upgrade", () => {
-    openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
-  });
-
-  bindModalDismissal({
-    modalEl: premiumOverlay,
-    closeBtn: premiumOkBtn,
-    onClose: closePremiumModal,
-  });
-}
-
-function initializeInstallPrompt() {
-  schedulePostStartupTask(() => registerServiceWorker(), { timeout: 3000 });
-
-  bindManagedEvent(window, "beforeinstallprompt", "app:install:beforeinstallprompt", (event) => {
-    event.preventDefault();
-    deferredInstallPrompt = event;
-    updateInstallHintVisibility();
-  });
-
-  bindManagedEvent(window, "appinstalled", "app:install:installed", () => {
-    deferredInstallPrompt = null;
-    updateInstallHintVisibility();
-  });
-
-  bindClickOnce(installBtn, "app:install:prompt", async () => {
-    if (!deferredInstallPrompt) return;
-    deferredInstallPrompt.prompt();
-    await deferredInstallPrompt.userChoice;
-    deferredInstallPrompt = null;
-    updateInstallHintVisibility();
-  });
-
-  updateInstallHintVisibility();
-}
-
-function initializeActiveScreenTracking() {
-  const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
-  if (initialVisibleScreen) {
-    const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
-    const isHomeVisible = initialVisibleScreen === startScreen;
-    activeScreenId = initialScreenId;
-    SCREEN_REGISTRY[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
-    setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
-    startSession(initialScreenId);
-    startTimeUiUpdater();
-  } else {
+  },
+  hasClickBinding,
+  primaryButtonAudit: () => {
+    const buttonAudit = [
+      { name: "home modes", element: navModesBtn, key: "home:toggle-modes" },
+      { name: "home lesson", element: document.getElementById("nav-lesson-btn"), key: "home:navigate-lesson" },
+      { name: "home sentences", element: document.getElementById("nav-sentences-btn"), key: "home:navigate-sentences" },
+      { name: "home sentence game", element: document.getElementById("nav-sentence-game-btn"), key: "home:navigate-sentence-game" },
+      { name: "home q&a", element: document.getElementById("nav-qa-game-btn"), key: "home:navigate-qa-game" },
+      { name: "home board game", element: document.getElementById("nav-board-game-btn"), key: "home:navigate-board-game" },
+      { name: "home stats", element: document.getElementById("nav-stats-btn"), key: "home:navigate-stats" },
+      { name: "home profile", element: document.getElementById("nav-profile-btn"), key: "home:navigate-profile" },
+      { name: "lesson start level", element: startBtn, key: "lesson:start-level-menu-toggle" },
+      { name: "board continue", element: document.getElementById("board-game-intro-continue-btn"), key: "board-entry:continue" },
+      { name: "board roll", element: boardGameRollBtn, key: "board:roll-button" },
+      { name: "lesson next", element: document.getElementById("next-btn"), key: "lesson:next" },
+    ];
+    soundToggleButtons.forEach((button, index) => {
+      buttonAudit.push({
+        name: `sound toggle ${index + 1}`,
+        element: button,
+        key: `app:sound-toggle:${button.id || button.className}`,
+      });
+    });
+    playExitButtons.forEach((button, index) => {
+      buttonAudit.push({
+        name: `play exit ${index + 1}`,
+        element: button,
+        key: `app:play-exit:${button.id || button.className}`,
+      });
+    });
+    return buttonAudit;
+  },
+  setInitialHomeUi: () => {
+    setStartLevelMenuOpen(false);
+    updateStartButtonLabel();
     setAppMode(GAME_MODES.HOME);
-  }
-}
+    syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
+  },
+});
 
-function auditPrimaryButtonWiring() {
-  const buttonAudit = [
-    { name: "home modes", element: navModesBtn, key: "home:toggle-modes" },
-    { name: "home lesson", element: document.getElementById("nav-lesson-btn"), key: "home:navigate-lesson" },
-    { name: "home sentences", element: document.getElementById("nav-sentences-btn"), key: "home:navigate-sentences" },
-    { name: "home sentence game", element: document.getElementById("nav-sentence-game-btn"), key: "home:navigate-sentence-game" },
-    { name: "home q&a", element: document.getElementById("nav-qa-game-btn"), key: "home:navigate-qa-game" },
-    { name: "home board game", element: document.getElementById("nav-board-game-btn"), key: "home:navigate-board-game" },
-    { name: "home stats", element: document.getElementById("nav-stats-btn"), key: "home:navigate-stats" },
-    { name: "home profile", element: document.getElementById("nav-profile-btn"), key: "home:navigate-profile" },
-    { name: "lesson start level", element: startBtn, key: "lesson:start-level-menu-toggle" },
-    { name: "board continue", element: document.getElementById("board-game-intro-continue-btn"), key: "board-entry:continue" },
-    { name: "board roll", element: boardGameRollBtn, key: "board:roll-button" },
-    { name: "lesson next", element: document.getElementById("next-btn"), key: "lesson:next" },
-  ];
-
-  soundToggleButtons.forEach((button, index) => {
-    buttonAudit.push({
-      name: `sound toggle ${index + 1}`,
-      element: button,
-      key: `app:sound-toggle:${button.id || button.className}`,
-    });
-  });
-
-  playExitButtons.forEach((button, index) => {
-    buttonAudit.push({
-      name: `play exit ${index + 1}`,
-      element: button,
-      key: `app:play-exit:${button.id || button.className}`,
-    });
-  });
-
-  const missingBindings = buttonAudit.filter(({ element, key }) => !hasClickBinding(element, key));
-  if (missingBindings.length) {
-    console.warn("[NomadSpeak] Missing primary button click wiring:", missingBindings.map(({ name }) => name));
-  }
-}
-
-export function initializeApp() {
-  if (appInitialized) {
-    auditPrimaryButtonWiring();
-    return;
-  }
-
-  appInitialized = true;
-  initializeManagers();
-  initializeAppState();
-  renderCoreStateSnapshot();
-  initializeStateSubscriptions();
-  initializeScreenRegistry();
-  initializeDebugMode();
-  initializeRewardUi();
-  initializeSentenceGameControls();
-  initializeVaultControls();
-  initializeQaControls();
-  initializeSentenceFilterControls();
-  initializeAudioAndSentenceControls();
-  initializePlayExitControls();
-  initializeLifecycleEvents();
-  initializeSpeechAndProfileControls();
-  initializePremiumControls();
-  initializeInstallPrompt();
-  initializeActiveScreenTracking();
-  auditPrimaryButtonWiring();
-
-  schedulePostStartupTask(() => {
-    ensureSentenceItemsLoaded().catch(() => {});
-  });
-}
+export { initializeApp };
 
 function sentenceLevelFilterLabel(filterKey) {
   return filterKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : filterKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
