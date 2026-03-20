@@ -493,35 +493,52 @@ function setAppMode(mode) {
   document.body.classList.toggle("mode-learning", resolvedMode === GAME_MODES.LEARNING);
 }
 
+function unregisterServiceWorkers() {
+  if (!("serviceWorker" in navigator) || typeof navigator.serviceWorker.getRegistrations !== "function") return;
+
+  navigator.serviceWorker.getRegistrations().then((registrations) => {
+    registrations.forEach((registration) => {
+      registration.unregister();
+    });
+  }).catch(() => {
+    // silent fail in unsupported/private contexts
+  });
+}
+
+function isWrapperLikeRuntime() {
+  const protocol = window.location.protocol;
+  if (!["http:", "https:"].includes(protocol)) return true;
+
+  const userAgent = navigator.userAgent || "";
+  return /Android.*Version\/|\bwv\)|WebView|; wv\b|FBAN|FBAV|Instagram|Line\//i.test(userAgent);
+}
+
 function registerServiceWorker() {
-  if (!('serviceWorker' in navigator)) return;
+  if (!("serviceWorker" in navigator)) return;
 
   const host = window.location.hostname;
-  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  const isSecureContext = window.location.protocol === 'https:';
+  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+  const isSecureContext = window.location.protocol === "https:";
+  const shouldAvoidServiceWorker = isLocal || !isSecureContext || isWrapperLikeRuntime();
 
-  if (isLocal || !isSecureContext) {
-    navigator.serviceWorker.getRegistrations().then((registrations) => {
-      registrations.forEach((registration) => {
-        registration.unregister();
-      });
-    }).catch(() => {
-      // silent fail in unsupported/private contexts
-    });
+  if (shouldAvoidServiceWorker) {
+    unregisterServiceWorkers();
     return;
   }
 
-  const serviceWorkerUrl = new URL('./service-worker.js', window.location.href);
+  const serviceWorkerUrl = new URL("./service-worker.js", window.location.href);
 
-  navigator.serviceWorker.register(serviceWorkerUrl, { scope: './' }).catch(() => {
+  navigator.serviceWorker.register(serviceWorkerUrl, { scope: "./" }).catch(() => {
     // silent fail in unsupported/private contexts
   });
 }
 
 function updateInstallHintVisibility() {
   if (!installHintEl) return;
-  const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-  if (standalone) {
+
+  const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+  const shouldHideInstallHint = standalone || isWrapperLikeRuntime();
+  if (shouldHideInstallHint) {
     hideElement(installHintEl);
     return;
   }
