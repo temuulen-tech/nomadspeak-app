@@ -191,8 +191,8 @@ export const FIRST_REAL_CONTENT_INSERTION_TARGET = {
 };
 
 export const CONTENT_READY_BASELINE = {
-  phase: 46,
-  name: "final baseline locked + content-ready milestone",
+  phase: 54,
+  name: "final stable baseline sign-off",
   status: "content-ready",
   architecturePolicy: {
     baselineLocked: true,
