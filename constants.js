@@ -91,6 +91,44 @@ export const REWARD_TABS = {
   MONTHS: "months",
 };
 
+export const CONTENT_COLLECTIONS = {
+  LESSON_PACKS: "lesson-packs",
+  WORD_BANKS: "word-banks",
+  QA_SETS: "qa-sets",
+  SENTENCE_BANKS: "sentence-banks",
+  WORLD_VISUALS: "world-visuals",
+  REWARD_VISUALS: "reward-visuals",
+  ANIMATION_HOOKS: "animation-hooks",
+};
+
+export const PLACEHOLDER_STATES = {
+  READY: "ready",
+  PLACEHOLDER: "placeholder",
+};
+
+export const FUTURE_CONTENT_SLOTS = {
+  LESSON_PACK: "lessonPack",
+  WORD_BANK: "wordBank",
+  QA_SET: "qaSet",
+  SENTENCE_BANK: "sentenceBank",
+  WORLD_COVER: "worldCover",
+  WORLD_REWARD_VISUAL: "worldRewardVisual",
+  WORLD_BACKGROUND: "worldBackground",
+  AMBIENCE_TRACK: "ambienceTrack",
+  INTRO_ANIMATION: "introAnimation",
+  REWARD_ANIMATION: "rewardAnimation",
+  GAMEPLAY_ANIMATION: "gameplayAnimation",
+};
+
+export const ANIMATION_HOOKS = {
+  WORLD_INTRO: "world-intro",
+  CHAPTER_REVEAL: "chapter-reveal",
+  LESSON_SUCCESS: "lesson-success",
+  QA_REWARD: "qa-reward",
+  SENTENCE_SUCCESS: "sentence-success",
+  WORLD_REWARD: "world-reward",
+};
+
 // Increment this when the persisted save shape changes in a backwards-compatible migration.
 export const CURRENT_SAVE_VERSION = 1;
 
@@ -108,4 +146,20 @@ export const STORAGE_KEYS = {
 
 export function getDifficultyOption(difficultyId = DIFFICULTY_LEVELS.BEGINNER) {
   return DIFFICULTY_OPTION_CONFIGS.find((option) => option.id === difficultyId) || DIFFICULTY_OPTION_CONFIGS[0];
+}
+
+export function createPlaceholderMeta({
+  collection,
+  slot,
+  state = PLACEHOLDER_STATES.PLACEHOLDER,
+  id = null,
+  notes = "",
+} = {}) {
+  return {
+    collection: collection || null,
+    slot: slot || null,
+    state,
+    id,
+    notes,
+  };
 }

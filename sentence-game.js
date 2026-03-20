@@ -3,7 +3,14 @@
  * Sentence-building game specific constants, content loading helpers, and string helpers.
  */
 
-import { DIFFICULTY_LEVELS } from "./constants.js";
+import {
+  CONTENT_COLLECTIONS,
+  DIFFICULTY_LEVELS,
+  FUTURE_CONTENT_SLOTS,
+  PLACEHOLDER_STATES,
+  WORLD_IDS,
+  createPlaceholderMeta,
+} from "./constants.js";
 
 export const SENTENCE_GAME_DIFFICULTY_LABELS = {
   [DIFFICULTY_LEVELS.BEGINNER]: "Анхан шат",
@@ -13,6 +20,99 @@ export const SENTENCE_GAME_DIFFICULTY_LABELS = {
 
 export const SENTENCE_GAME_DATA_PATH = "data/sentences.json";
 
+export const SENTENCE_CONTENT_BANKS = [
+  {
+    id: "sentence-bank-shared-default",
+    worldId: WORLD_IDS.WORLD_1,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.READY,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-shared-default",
+        state: PLACEHOLDER_STATES.READY,
+      }),
+    },
+  },
+  {
+    id: "sentence-bank-world1-ch2-placeholder",
+    worldId: WORLD_IDS.WORLD_1,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-world1-ch2-placeholder",
+        notes: "Insert Chapter 2 sentence data later, keeping the same JSON loading flow.",
+      }),
+    },
+  },
+  {
+    id: "sentence-bank-world1-ch3-placeholder",
+    worldId: WORLD_IDS.WORLD_1,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-world1-ch3-placeholder",
+        notes: "Insert Chapter 3 sentence data later, keeping the same JSON loading flow.",
+      }),
+    },
+  },
+  {
+    id: "sentence-bank-world1-ch4-placeholder",
+    worldId: WORLD_IDS.WORLD_1,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-world1-ch4-placeholder",
+        notes: "Insert Chapter 4 sentence data later, keeping the same JSON loading flow.",
+      }),
+    },
+  },
+  {
+    id: "sentence-bank-world2-placeholder",
+    worldId: WORLD_IDS.WORLD_2,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-world2-placeholder",
+        notes: "Insert World 2 sentence data later.",
+      }),
+    },
+  },
+  {
+    id: "sentence-bank-world3-placeholder",
+    worldId: WORLD_IDS.WORLD_3,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    dataPath: SENTENCE_GAME_DATA_PATH,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id: "sentence-bank-world3-placeholder",
+        notes: "Insert World 3 sentence data later.",
+      }),
+    },
+  },
+];
+
 export function tokenizeSentence(sentence = "") {
   const tokens = sentence.match(/[A-Za-z0-9']+|[^\sA-Za-z0-9']/g);
   return tokens ? tokens.filter(Boolean) : [];
@@ -20,6 +120,10 @@ export function tokenizeSentence(sentence = "") {
 
 export function prepareSentenceItems(items = []) {
   return items.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
+}
+
+export function getSentenceContentBank(bankId = "sentence-bank-shared-default") {
+  return SENTENCE_CONTENT_BANKS.find((bank) => bank.id === bankId) || SENTENCE_CONTENT_BANKS[0] || null;
 }
 
 export const SENTENCE_GAME_TOAST_DURATION = 8000;
