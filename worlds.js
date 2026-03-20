@@ -6,6 +6,10 @@
  * - Keep only world-level routing metadata here: titles, subtitles, difficulty-to-lesson pack refs, shared world QA/sentence defaults, and asset ids.
  * - Do not place full lesson entries, QA rounds, or sentence rows in this file. Those live in their dedicated content modules.
  * - When adding a new world, register asset ids here only after adding the asset records in assets.js.
+ * Quick drop-in order for a future pack:
+ * 1) add/update world-level ids here,
+ * 2) mirror chapter-level ids in chapters.js,
+ * 3) fill the referenced content in lesson.js / qa-game.js / sentence-game.js / assets.js.
  */
 
 import {

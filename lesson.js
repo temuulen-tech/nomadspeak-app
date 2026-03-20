@@ -20,6 +20,7 @@ import {
  * - Store full lesson prompt/answer rows here.
  * - Store lesson-side word bank tokens here when they are learned/reviewed alongside the lesson pack.
  * - Keep ids aligned with worlds.js and chapters.js so routing stays data-driven.
+ * - Prefer filling placeholder packs instead of adding special-case lesson flow elsewhere.
  */
 
 const BEGINNER_PACK_ENTRIES = [

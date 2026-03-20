@@ -142,14 +142,35 @@ export const CONTENT_INSERTION_OWNERSHIP = {
   animationHooks: "assets.js",
 };
 
+export const CONTENT_DROP_IN_FILES = {
+  worldMetadata: "worlds.js",
+  chapterMetadata: "chapters.js",
+  lessonContent: "lesson.js",
+  qaContent: "qa-game.js",
+  sentenceContent: "sentence-game.js",
+  assetReferences: "assets.js",
+  sharedWorkflowConstants: "constants.js",
+};
+
+export const CONTENT_ID_PATTERNS = {
+  lessonPack: "world{n}-ch{n}-{difficulty}-{descriptor}",
+  lessonWordBank: "word-bank-world{n}-ch{n}-{descriptor}",
+  qaSet: "qa-set-world{n}-ch{n}-{descriptor}",
+  qaWordBank: "qa-word-bank-world{n}-ch{n}-{descriptor}",
+  sentenceBank: "sentence-bank-world{n}-ch{n}-{descriptor}",
+  worldCoverAsset: "world{n}-cover",
+  worldBackgroundAsset: "world{n}-background",
+  rewardThemeAsset: "reward-theme-world{n}",
+};
+
 export const REAL_CONTENT_INSERTION_SEQUENCE = [
-  "1. Register or confirm world-level metadata and world-to-difficulty content refs in worlds.js.",
-  "2. Register chapter-level metadata and per-chapter content ids in chapters.js.",
-  "3. Add the lesson pack and lesson word bank in lesson.js using the same ids.",
-  "4. Add QA rounds in qa-game.js using the qaSetId referenced by world/chapter content.",
-  "5. Add the sentence bank registration in sentence-game.js using the sentenceBankId referenced by world/chapter content.",
-  "6. Add cover/background/audio asset references in assets.js, then point worlds.js to those asset ids.",
-  "7. Attach future animation hook metadata in assets.js and reference those hook ids from worlds.js/chapters.js when motion is ready.",
+  "1. Update worlds.js with world metadata plus world-level default content and asset ids.",
+  "2. Update chapters.js with chapter order/story metadata and per-chapter lesson/word-bank/QA/sentence ids.",
+  "3. Update lesson.js with the lesson pack entries and the matching lesson word bank using the same ids from chapters.js/worlds.js.",
+  "4. Update qa-game.js with QA rounds for the qaSetId referenced by the world/chapter config.",
+  "5. Update sentence-game.js with the sentence bank registration that points to the intended sentence dataset path.",
+  "6. Update assets.js with cover/background/audio/image references before wiring those ids back into worlds.js or chapters.js.",
+  "7. Update assets.js with animation hook metadata only when the related motion asset/config is ready, then reference those hook ids from worlds.js/chapters.js.",
 ];
 
 export const FIRST_REAL_CONTENT_INSERTION_TARGET = {
@@ -233,5 +254,56 @@ export function createStarterTemplateManifest({
     assetIds: { ...assetIds },
     animationHooks: [...animationHooks],
     notes,
+  };
+}
+
+export function buildChapterScopedContentId({
+  type = "content",
+  worldNumber = "1",
+  chapterNumber = "1",
+  difficulty = null,
+  descriptor = "core",
+} = {}) {
+  const chapterStem = `world${worldNumber}-ch${chapterNumber}`;
+  const normalizedDescriptor = descriptor || "core";
+
+  switch (type) {
+    case "lessonPack":
+      return [chapterStem, difficulty || DIFFICULTY_LEVELS.BEGINNER, normalizedDescriptor].join("-");
+    case "lessonWordBank":
+      return `word-bank-${chapterStem}-${normalizedDescriptor}`;
+    case "qaSet":
+      return `qa-set-${chapterStem}-${normalizedDescriptor}`;
+    case "qaWordBank":
+      return `qa-word-bank-${chapterStem}-${normalizedDescriptor}`;
+    case "sentenceBank":
+      return `sentence-bank-${chapterStem}-${normalizedDescriptor}`;
+    default:
+      return `${chapterStem}-${normalizedDescriptor}`;
+  }
+}
+
+export function buildWorldAssetId({
+  worldNumber = "1",
+  assetType = "cover",
+  descriptor = null,
+} = {}) {
+  const worldStem = `world${worldNumber}`;
+  const suffix = descriptor ? `-${descriptor}` : "";
+  return `${worldStem}-${assetType}${suffix}`;
+}
+
+export function getContentDropInWorkflowGuide() {
+  return {
+    files: { ...CONTENT_DROP_IN_FILES },
+    ownership: { ...CONTENT_INSERTION_OWNERSHIP },
+    idPatterns: { ...CONTENT_ID_PATTERNS },
+    sequence: [...REAL_CONTENT_INSERTION_SEQUENCE],
+    recommendedFirstTarget: { ...FIRST_REAL_CONTENT_INSERTION_TARGET },
+    notes: [
+      "Keep ids stable across files so existing board, lesson, QA, and sentence routing continues to work without UI changes.",
+      "Prefer filling placeholder entries over introducing parallel flow paths.",
+      "Add assets first in assets.js, then reference their ids from worlds.js or chapters.js.",
+    ],
   };
 }

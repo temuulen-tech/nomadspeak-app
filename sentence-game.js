@@ -6,6 +6,7 @@
  * - Register sentence bank ids and their data source here.
  * - Keep runtime loading flow stable by pointing each bank at the same JSON/data contract unless a later migration is intentional.
  * - When a chapter gets its own sentence bank, add the bank here and reference its id from chapters.js and/or worlds.js.
+ * - Prefer changing bank registrations rather than changing sentence-game runtime flow.
  */
 
 import {

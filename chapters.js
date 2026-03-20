@@ -6,6 +6,8 @@
  * - Keep chapter order, story copy, node ranges, and per-chapter content ids here.
  * - Each chapter should point to exactly one lessonPackId, wordBankId, qaSetId, and sentenceBankId for the current insertion pass.
  * - Screen modules read chapter configs; they should not need edits when new real content is inserted with the same ids.
+ * Quick drop-in reminder:
+ * - If a chapter gets new real content, update the ids here first, then fill those ids in lesson.js / qa-game.js / sentence-game.js.
  */
 
 import { getAnimationHookMeta } from "./assets.js";
