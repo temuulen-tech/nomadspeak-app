@@ -1,22 +1,34 @@
-import { DIFFICULTY_LEVELS } from "./constants.js";
+import { CHAPTER_IDS, DIFFICULTY_LEVELS, WORLD_IDS } from "./constants.js";
 
 /**
  * lesson.js
  * Lesson content and core lesson helpers (question bank, labels, options).
  */
+export const LESSON_CONTENT_PACKS = [
+  {
+    id: "world1-ch1-beginner-landing-kit",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH1,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    title: "Колумб ба Шинэ тивийнхэн · 1-р бүлгийн анхан багц",
+    description: "Далай гатлалт ба анхны буултын сэдэвтэй анхны бодит lesson content pack.",
+    entries: [
+      { q: "Where is the ship going?", qMn: "Усан онгоц хаашаа явж байна вэ?", a: "The ship is going west.", aMn: "Усан онгоц баруун зүг рүү явж байна." },
+      { q: "Who is on the deck?", qMn: "Тавцан дээр хэн байна вэ?", a: "The sailors are on the deck.", aMn: "Далайчид тавцан дээр байна." },
+      { q: "What do the sailors see?", qMn: "Далайчид юу харж байна вэ?", a: "They see land ahead.", aMn: "Тэд урд талд газар харж байна." },
+      { q: "Are the waves strong today?", qMn: "Өнөөдөр давалгаа хүчтэй байна уу?", a: "Yes, the waves are strong today.", aMn: "Тийм ээ, өнөөдөр давалгаа хүчтэй байна." },
+      { q: "What is the captain holding?", qMn: "Ахмад юу барьж байна вэ?", a: "The captain is holding a map.", aMn: "Ахмад газрын зураг барьж байна." },
+      { q: "Are the travelers tired?", qMn: "Аялагчид ядарсан уу?", a: "Yes, they are tired after the voyage.", aMn: "Тийм ээ, тэд аяллын дараа ядарсан байна." },
+      { q: "What do they need now?", qMn: "Тэдэнд одоо юу хэрэгтэй вэ?", a: "They need fresh water now.", aMn: "Тэдэнд одоо цэвэр ус хэрэгтэй." },
+      { q: "Is the new shore quiet?", qMn: "Шинэ эрэг нам гүм байна уу?", a: "No, the new shore is full of birds.", aMn: "Үгүй ээ, шинэ эрэг шувуудаар дүүрэн байна." },
+    ],
+  },
+];
+
 export const LESSON_BANK = {
-  [DIFFICULTY_LEVELS.BEGINNER]: [
-    { q: "What month is it now?", qMn: "Одоо хэдэн сар вэ?", a: "It is September now.", aMn: "Одоо есдүгээр сар байна." },
-    { q: "What day is it today?", qMn: "Өнөөдөр ямар гараг вэ?", a: "Today is Monday", aMn: "Өнөөдөр Даваа гараг." },
-    { q: "What is your name?", qMn: "Таны нэрийг хэн гэдэг вэ?", a: "My name is Nasaa", aMn: "Миний нэрийг Насаа гэдэг." },
-    { q: "Where do you live?", qMn: "Та хаана амьдардаг вэ?", a: "I live in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод амьдардаг." },
-    { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I from Mongolia", aMn: "Би Монголоос ирсэн." },
-    { q: "Where are you going?", qMn: "Та хаашаа явж байна вэ?", a: "I am going to Shanghai.", aMn: "Би Шанхай руу явж байна." },
-    { q: "Are you hungry?", qMn: "Та өлсөж байна уу?", a: "Yes, I'm a little hungry.", aMn: "Тийм ээ, би бага зэрэг өлсөж байна." },
-    { q: "Have you eaten dinner?", qMn: "Та оройн хоолоо идсэн үү?", a: "I ate dinner.", aMn: "Би оройн хоолоо идсэн." },
-    { q: "What is your hobby?", qMn: "Таны хобби юу вэ?", a: "My hobby is roller skating.", aMn: "Миний хобби бол дугуйт тэшүүр." },
-    { q: "What is your favourite fruit?", qMn: "Таны дуртай жимс юу вэ?", a: "I like to eat apples.", aMn: "Би алим идэх дуртай." },
-  ],
+  [DIFFICULTY_LEVELS.BEGINNER]: LESSON_CONTENT_PACKS
+    .filter((pack) => pack.difficulty === DIFFICULTY_LEVELS.BEGINNER)
+    .flatMap((pack) => pack.entries),
   [DIFFICULTY_LEVELS.INTERMEDIATE]: [
     { q: "When were you born?", qMn: "Та хэзээ төрсөн бэ?", a: "I was born on September 8", aMn: "Би есдүгээр сарын 8-нд төрсөн." },
     { q: "Where were you born?", qMn: "Та хаана төрсөн бэ?", a: "I was born in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод төрсөн." },
@@ -40,12 +52,32 @@ export const LESSON_BANK = {
 
 export const BANK = LESSON_BANK;
 
-export function getLessonEntries(levelKey = DIFFICULTY_LEVELS.BEGINNER) {
+export function findLessonContentPack({ worldId = null, chapterId = null, difficulty = DIFFICULTY_LEVELS.BEGINNER } = {}) {
+  return LESSON_CONTENT_PACKS.find((pack) => (
+    pack.difficulty === difficulty
+    && (!worldId || pack.worldId === worldId)
+    && (!chapterId || pack.chapterId === chapterId)
+  )) || null;
+}
+
+export function getLessonEntries(levelKey = DIFFICULTY_LEVELS.BEGINNER, context = {}) {
+  const matchedPack = findLessonContentPack({
+    worldId: context.worldId,
+    chapterId: context.chapterId,
+    difficulty: levelKey,
+  });
+
+  if (matchedPack?.entries?.length) return matchedPack.entries;
   return LESSON_BANK[levelKey] || [];
 }
 
 export function getAllLessonAnswers() {
-  return Object.values(LESSON_BANK).flatMap((bucket) => (bucket || []).map((item) => item.a));
+  return [
+    ...LESSON_CONTENT_PACKS.flatMap((pack) => (pack.entries || []).map((item) => item.a)),
+    ...Object.entries(LESSON_BANK)
+      .filter(([levelKey]) => levelKey !== DIFFICULTY_LEVELS.BEGINNER)
+      .flatMap(([, bucket]) => (bucket || []).map((item) => item.a)),
+  ];
 }
 
 export function buildLessonTranslationMaps(bank = LESSON_BANK) {

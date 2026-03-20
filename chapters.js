@@ -11,6 +11,7 @@ const CHAPTER_CONTENT = [
     id: CHAPTER_IDS.CH1,
     worldId: WORLD_IDS.WORLD_1,
     index: 1,
+    lessonPackId: "world1-ch1-beginner-landing-kit",
     title: "1-р бүлэг · Далай гатлалт",
     story: "Далайчид салхи, өлсгөлөн, айдастай нүүр тулж, алс эргийн ард түмэн өдөр тутмын амьдралаа үргэлжлүүлнэ.",
     nodeCount: 6,

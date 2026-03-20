@@ -11,6 +11,7 @@ const SELECTABLE_WORLD_CONTENT = [
     id: WORLD_IDS.WORLD_1,
     title: "Колумб ба Шинэ тивийнхэн",
     subtitle: "Та битгий уурлаарай",
+    pilotContentPackId: "world1-ch1-beginner-landing-kit",
     introCoverImage: ASSETS.chapterCovers.columbusNewWorld,
     backgroundImage: ASSETS.worldBackgrounds.sailorsDeck,
     ambienceWorldId: WORLD_IDS.SEA,
