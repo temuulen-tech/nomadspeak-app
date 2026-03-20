@@ -3,6 +3,7 @@ import { getDefaultChapterForWorld, getChapterConfig } from "./chapters.js";
 import { getBoardEntryState } from "./state.js";
 import { getSelectableBoardWorlds, getWorldConfig } from "./worlds.js";
 import { bindClickOnce } from "./ui.js";
+import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 /**
  * chapter-cover-screen.js
@@ -141,15 +142,24 @@ export function initChapterCoverScreen(handlers = {}) {
   setPreview(state.previewChapterId);
   syncSelectorUi();
 
-  return {
+  const screen = createScreenLifecycle({
     id: SCREEN_NAMES.CHAPTER_COVER,
     element: chapterCoverScreenEl,
-    activate: () => {
+    onEnter: () => {
       setPreview(getSelectionState().chapterId);
       syncSelectorUi();
       handlers.onActivate?.();
     },
-    deactivate: () => handlers.onDeactivate?.(),
+    onReenter: () => {
+      setPreview(getSelectionState().chapterId);
+      syncSelectorUi();
+      handlers.onActivate?.();
+    },
+    onLeave: () => handlers.onDeactivate?.(),
+  });
+
+  return {
+    ...screen,
     setPreview,
     getPreviewChapterId: () => state.previewChapterId,
     refresh: () => {

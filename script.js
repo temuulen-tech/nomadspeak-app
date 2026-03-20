@@ -58,6 +58,7 @@ import {
 import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
 import {
   bindClickOnce,
+  bindManagedEvent,
   hasClickBinding,
   hideElement,
   isHidden,
@@ -1867,16 +1868,18 @@ function showScreen(screenId) {
   const wasSentencesVisible = sentencesScreen && !isHidden(sentencesScreen);
   const wasLessonVisible = quizScreen && !isHidden(quizScreen);
 
-  if (activeScreenId && SCREEN_REGISTRY[activeScreenId]?.deactivate) {
-    SCREEN_REGISTRY[activeScreenId].deactivate();
+  const previousScreenId = activeScreenId;
+
+  if (previousScreenId && SCREEN_REGISTRY[previousScreenId]?.leave) {
+    SCREEN_REGISTRY[previousScreenId].leave({ nextScreenId: resolvedScreenId, previousScreenId });
   }
 
   Object.values(SCREENS).forEach((screenEl) => hideElement(screenEl));
   showElement(targetScreen);
 
   activeScreenId = resolvedScreenId;
-  if (SCREEN_REGISTRY[resolvedScreenId]?.activate) {
-    SCREEN_REGISTRY[resolvedScreenId].activate();
+  if (SCREEN_REGISTRY[resolvedScreenId]?.enter) {
+    SCREEN_REGISTRY[resolvedScreenId].enter({ previousScreenId, nextScreenId: resolvedScreenId });
   }
 
   if (targetScreen === quizScreen) {
@@ -4583,59 +4586,47 @@ function initializeSentenceGameControls() {
     sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
   }
 
-  if (sentenceGameTipToggleBtn) {
-    sentenceGameTipToggleBtn.addEventListener("click", toggleSentenceGameTipPanel);
-  }
+  bindClickOnce(sentenceGameTipToggleBtn, "sentence-game:tip-toggle", toggleSentenceGameTipPanel);
 
-  if (sentenceGameTipSpeakBtn) {
-    sentenceGameTipSpeakBtn.addEventListener("click", speakSentenceGameTip);
-  }
+  bindClickOnce(sentenceGameTipSpeakBtn, "sentence-game:tip-speak", speakSentenceGameTip);
 
-  if (sentenceGameTipStopBtn) {
-    sentenceGameTipStopBtn.addEventListener("click", stopSentenceGameTipSpeech);
-  }
+  bindClickOnce(sentenceGameTipStopBtn, "sentence-game:tip-stop", stopSentenceGameTipSpeech);
 
-  if (sentenceGameTipReadBtn) {
-    sentenceGameTipReadBtn.addEventListener("click", showSentenceGameTipText);
-  }
+  bindClickOnce(sentenceGameTipReadBtn, "sentence-game:tip-read", showSentenceGameTipText);
 
-  if (sentenceGameTipCloseBtn) {
-    sentenceGameTipCloseBtn.addEventListener("click", closeSentenceGameTipPanel);
-  }
+  bindClickOnce(sentenceGameTipCloseBtn, "sentence-game:tip-close", closeSentenceGameTipPanel);
 
-  if (sentenceGameDifficultyToggleBtn) {
-    sentenceGameDifficultyToggleBtn.addEventListener("click", () => {
-      const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
-      setSentenceGameDifficultyPanelOpen(nextOpen);
-    });
-  }
+  bindClickOnce(sentenceGameDifficultyToggleBtn, "sentence-game:difficulty-toggle", () => {
+    const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
+    setSentenceGameDifficultyPanelOpen(nextOpen);
+  });
 
   sentenceGameDifficultyButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `sentence-game:difficulty:${btn.dataset.difficulty || btn.textContent}`, () => {
       selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
     });
   });
 
-  if (sentenceGameUndoBtn) sentenceGameUndoBtn.addEventListener("click", undoSentenceGameMove);
-  if (sentenceGameShowCorrectBtn) sentenceGameShowCorrectBtn.addEventListener("click", showSentenceGameCorrectAnswer);
-  if (sentenceGameRetryBtn) sentenceGameRetryBtn.addEventListener("click", retrySentenceGameRound);
-  if (sentenceGamePrevBtn) sentenceGamePrevBtn.addEventListener("click", prevSentenceGameRound);
-  if (sentenceGameNextBtn) sentenceGameNextBtn.addEventListener("click", nextSentenceGameRound);
+  bindClickOnce(sentenceGameUndoBtn, "sentence-game:undo", undoSentenceGameMove);
+  bindClickOnce(sentenceGameShowCorrectBtn, "sentence-game:show-correct", showSentenceGameCorrectAnswer);
+  bindClickOnce(sentenceGameRetryBtn, "sentence-game:retry", retrySentenceGameRound);
+  bindClickOnce(sentenceGamePrevBtn, "sentence-game:prev", prevSentenceGameRound);
+  bindClickOnce(sentenceGameNextBtn, "sentence-game:next", nextSentenceGameRound);
 
   setSentenceGameDifficultyPanelOpen(false);
   updateSentenceGameTipControls();
 }
 
 function initializeVaultControls() {
-  if (lessonSaveBtn) lessonSaveBtn.addEventListener("click", saveCurrentLessonItem);
-  if (sentencesSaveBtn) sentencesSaveBtn.addEventListener("click", saveCurrentSentencesItem);
-  if (qaSaveBtn) qaSaveBtn.addEventListener("click", saveCurrentQaRound);
-  if (sentenceGameSaveBtn) sentenceGameSaveBtn.addEventListener("click", saveCurrentSentenceGameItem);
+  bindClickOnce(lessonSaveBtn, "vault:save-lesson", saveCurrentLessonItem);
+  bindClickOnce(sentencesSaveBtn, "vault:save-sentences", saveCurrentSentencesItem);
+  bindClickOnce(qaSaveBtn, "vault:save-qa", saveCurrentQaRound);
+  bindClickOnce(sentenceGameSaveBtn, "vault:save-sentence-game", saveCurrentSentenceGameItem);
 
-  if (lessonVaultBtn) lessonVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
-  if (qaVaultBtn) qaVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("qna")));
-  if (sentenceGameVaultBtn) sentenceGameVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
-  if (sentencesVaultBtn) sentencesVaultBtn.addEventListener("click", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
+  bindClickOnce(lessonVaultBtn, "vault:open-lesson", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.LESSON)));
+  bindClickOnce(qaVaultBtn, "vault:open-qa", () => renderVaultModal(vaultKeyForScreen("qna")));
+  bindClickOnce(sentenceGameVaultBtn, "vault:open-sentence-game", () => renderVaultModal(vaultKeyForScreen("sentenceGame")));
+  bindClickOnce(sentencesVaultBtn, "vault:open-sentences", () => renderVaultModal(vaultKeyForScreen(SCREEN_NAMES.SENTENCES)));
 
   bindModalDismissal({
     modalEl: vaultModalEl,
@@ -4648,41 +4639,31 @@ function initializeVaultControls() {
 function initializeQaControls() {
   resetQaGameScreen();
 
-  if (qaLevelSelectBtn) {
-    qaLevelSelectBtn.addEventListener("click", () => {
-      setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
-    });
-  }
-
-  qaLevelButtons.forEach((btn) => {
-    btn.addEventListener("click", () => selectQaLevel(btn.dataset.qaLevel));
+  bindClickOnce(qaLevelSelectBtn, "qa:level-toggle", () => {
+    setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
   });
 
-  if (qaCheckBtn) qaCheckBtn.addEventListener("click", checkQaAnswer);
+  qaLevelButtons.forEach((btn) => {
+    bindClickOnce(btn, `qa:level:${btn.dataset.qaLevel || btn.textContent}`, () => selectQaLevel(btn.dataset.qaLevel));
+  });
 
-  if (qaToggleQuestionBtn) {
-    qaToggleQuestionBtn.addEventListener("click", () => {
-      const willShow = isHidden(qaEnQuestionWrap);
-      setHidden(qaEnQuestionWrap, !willShow);
-      qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
-    });
-  }
+  bindClickOnce(qaCheckBtn, "qa:check", checkQaAnswer);
 
-  if (qaToggleAnswerBtn) {
-    qaToggleAnswerBtn.addEventListener("click", () => {
-      const willShow = isHidden(qaEnAnswerWrap);
-      setHidden(qaEnAnswerWrap, !willShow);
-      qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
-    });
-  }
+  bindClickOnce(qaToggleQuestionBtn, "qa:toggle-question", () => {
+    const willShow = isHidden(qaEnQuestionWrap);
+    setHidden(qaEnQuestionWrap, !willShow);
+    qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
+  });
 
-  if (qaShowSentencesBtn) {
-    qaShowSentencesBtn.addEventListener("click", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
-  }
+  bindClickOnce(qaToggleAnswerBtn, "qa:toggle-answer", () => {
+    const willShow = isHidden(qaEnAnswerWrap);
+    setHidden(qaEnAnswerWrap, !willShow);
+    qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
+  });
 
-  if (qaShowHelpBtn) {
-    qaShowHelpBtn.addEventListener("click", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
-  }
+  bindClickOnce(qaShowSentencesBtn, "qa:show-sentences", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
+
+  bindClickOnce(qaShowHelpBtn, "qa:show-help", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
 
   bindModalDismissal({
     modalEl: qaModalEl,
@@ -4695,15 +4676,13 @@ function initializeSentenceFilterControls() {
   updateSentenceFilterActiveState();
   setSentencesLevelPickerOpen(false);
 
-  if (sentencesLevelPickerBtn) {
-    sentencesLevelPickerBtn.addEventListener("click", () => {
-      const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
-      setSentencesLevelPickerOpen(nextOpen);
-    });
-  }
+  bindClickOnce(sentencesLevelPickerBtn, "sentences:filter-toggle", () => {
+    const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
+    setSentencesLevelPickerOpen(nextOpen);
+  });
 
   sentencesLevelOptionButtons.forEach((btn) => {
-    btn.addEventListener("click", () => {
+    bindClickOnce(btn, `sentences:filter:${btn.dataset.filter || btn.textContent}`, () => {
       sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
       updateSentenceFilterActiveState();
       setSentencesLevelPickerOpen(false);
@@ -4713,7 +4692,7 @@ function initializeSentenceFilterControls() {
     });
   });
 
-  document.addEventListener("click", (event) => {
+  bindManagedEvent(document, "click", "sentences:filter-close-outside", (event) => {
     if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
     if (!sentencesLevelPickerEl.contains(event.target)) {
       setSentencesLevelPickerOpen(false);
@@ -4730,13 +4709,11 @@ function initializeAudioAndSentenceControls() {
     });
   });
 
-  if (ttsRateSlider) {
-    ttsRateSlider.addEventListener("input", () => {
-      appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
-      updateTtsControlState();
-      persistTtsSettings();
-    });
-  }
+  bindManagedEvent(ttsRateSlider, "input", "tts:rate", () => {
+    appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
+    updateTtsControlState();
+    persistTtsSettings();
+  });
 
   soundToggleButtons.forEach((toggleBtn) => {
     bindClickOnce(toggleBtn, `app:sound-toggle:${toggleBtn.id || toggleBtn.className}`, () => {
@@ -4856,7 +4833,7 @@ function initializeScreenRegistry() {
 }
 
 function initializeLifecycleEvents() {
-  document.addEventListener("visibilitychange", () => {
+  bindManagedEvent(document, "visibilitychange", "app:lifecycle:persist-visibility", () => {
     if (document.hidden) {
       persistAllActiveTime();
       ensureStoppedIfHidden();
@@ -4877,17 +4854,17 @@ function initializeLifecycleEvents() {
     }
   });
 
-  window.addEventListener("pagehide", () => {
+  bindManagedEvent(window, "pagehide", "app:lifecycle:pagehide", () => {
     persistAllActiveTime();
     stopTimeUiUpdater();
   });
 
-  window.addEventListener("beforeunload", () => {
+  bindManagedEvent(window, "beforeunload", "app:lifecycle:beforeunload", () => {
     persistAllActiveTime();
     stopTimeUiUpdater();
   });
 
-  document.addEventListener("visibilitychange", () => {
+  bindManagedEvent(document, "visibilitychange", "app:lifecycle:audio-visibility", () => {
     audioEngine.onVisibilityChange();
   });
 }
@@ -4895,24 +4872,20 @@ function initializeLifecycleEvents() {
 function initializeSpeechAndProfileControls() {
   if ("speechSynthesis" in window) {
     loadVoices();
-    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
+    bindManagedEvent(window.speechSynthesis, "voiceschanged", "tts:voiceschanged", loadVoices);
   }
 
-  if (profileNameInput) {
-    profileNameInput.addEventListener("input", () => {
-      updateSettings({ profileName: profileNameInput.value.trim() });
-      persistCoreAppState();
-      updateProfileUI();
-    });
-  }
+  bindManagedEvent(profileNameInput, "input", "profile:name-input", () => {
+    updateSettings({ profileName: profileNameInput.value.trim() });
+    persistCoreAppState();
+    updateProfileUI();
+  });
 }
 
 function initializePremiumControls() {
-  if (upgradePremiumBtn) {
-    upgradePremiumBtn.addEventListener("click", () => {
-      openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
-    });
-  }
+  bindClickOnce(upgradePremiumBtn, "premium:upgrade", () => {
+    openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
+  });
 
   bindModalDismissal({
     modalEl: premiumOverlay,
@@ -4924,26 +4897,24 @@ function initializePremiumControls() {
 function initializeInstallPrompt() {
   registerServiceWorker();
 
-  window.addEventListener("beforeinstallprompt", (event) => {
+  bindManagedEvent(window, "beforeinstallprompt", "app:install:beforeinstallprompt", (event) => {
     event.preventDefault();
     deferredInstallPrompt = event;
     updateInstallHintVisibility();
   });
 
-  window.addEventListener("appinstalled", () => {
+  bindManagedEvent(window, "appinstalled", "app:install:installed", () => {
     deferredInstallPrompt = null;
     updateInstallHintVisibility();
   });
 
-  if (installBtn) {
-    installBtn.addEventListener("click", async () => {
-      if (!deferredInstallPrompt) return;
-      deferredInstallPrompt.prompt();
-      await deferredInstallPrompt.userChoice;
-      deferredInstallPrompt = null;
-      updateInstallHintVisibility();
-    });
-  }
+  bindClickOnce(installBtn, "app:install:prompt", async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    await deferredInstallPrompt.userChoice;
+    deferredInstallPrompt = null;
+    updateInstallHintVisibility();
+  });
 
   updateInstallHintVisibility();
 }
@@ -4953,6 +4924,8 @@ function initializeActiveScreenTracking() {
   if (initialVisibleScreen) {
     const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
     const isHomeVisible = initialVisibleScreen === startScreen;
+    activeScreenId = initialScreenId;
+    SCREEN_REGISTRY[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
     setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
     startSession(initialScreenId);
     startTimeUiUpdater();

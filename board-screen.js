@@ -5,9 +5,8 @@
 
 import { renderBoardRollState } from "./render-board.js";
 import { SCREEN_NAMES } from "./constants.js";
-import { bindClickOnce } from "./ui.js";
-
-let boardResizeBindingInitialized = false;
+import { bindClickOnce, bindManagedEvent } from "./ui.js";
+import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
@@ -17,21 +16,22 @@ export function initBoardScreen(handlers = {}) {
   bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
   bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
 
-  if (!boardResizeBindingInitialized) {
-    boardResizeBindingInitialized = true;
-    window.addEventListener("resize", () => {
-      if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;
-      handlers.onResizeWhileVisible?.();
-    });
-  }
+  bindManagedEvent(window, "resize", "board:resize-visible", () => {
+    if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;
+    handlers.onResizeWhileVisible?.();
+  });
 
-  return {
+  return createScreenLifecycle({
     id: SCREEN_NAMES.BOARD,
     element: boardScreenEl,
-    activate: () => {
+    onEnter: () => {
       renderBoardRollState({ enabled: true, rollBtn, diceEl });
       handlers.onActivate?.();
     },
-    deactivate: () => handlers.onDeactivate?.(),
-  };
+    onReenter: () => {
+      renderBoardRollState({ enabled: true, rollBtn, diceEl });
+      handlers.onActivate?.();
+    },
+    onLeave: () => handlers.onDeactivate?.(),
+  });
 }
