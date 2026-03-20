@@ -12,12 +12,15 @@ import { getAnimationHookMeta } from "./assets.js";
 import {
   ANIMATION_HOOKS,
   CHAPTER_IDS,
+  CONTENT_TEMPLATE_SECTIONS,
   CONTENT_COLLECTIONS,
   FUTURE_CONTENT_SLOTS,
   PLACEHOLDER_STATES,
   SCREEN_NAMES,
   WORLD_IDS,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 import { getWorldConfig, resolveBoardWorld, resolveWorldContentRefs } from "./worlds.js";
 
@@ -248,6 +251,26 @@ export function getDefaultChapterForWorld(worldId) {
   return getChaptersByWorld(effectiveBoardWorldId)[0] || BOARD_WORLD_CHAPTERS[0] || null;
 }
 
+export const CHAPTER_STARTER_CONTENT_TEMPLATES = Object.values(CHAPTER_CONFIGS).map((chapter) => createStarterTemplateManifest({
+  section: CONTENT_TEMPLATE_SECTIONS.CHAPTER,
+  worldId: chapter.worldId,
+  chapterId: chapter.id,
+  lessonPackId: chapter.lessonPackId,
+  wordBankId: chapter.wordBankId,
+  qaSetId: chapter.qaSetId,
+  sentenceBankId: chapter.sentenceBankId,
+  assetIds: {
+    coverAssetId: chapter.expansion?.worldCover?.id || null,
+    rewardVisualThemeId: chapter.expansion?.rewardVisual?.id || null,
+  },
+  animationHooks: (chapter.expansion?.animationHooks || []).map((hook) => hook.id),
+  notes: `Insert chapter-specific content by keeping ids aligned with ${chapter.id}.`,
+}));
+
+export function getChapterStarterTemplate(chapterId) {
+  return CHAPTER_STARTER_CONTENT_TEMPLATES.find((template) => template.chapterId === chapterId) || null;
+}
+
 export function resolveChapterContent({ chapterId = null, worldId = null, difficultyId = null } = {}) {
   const chapter = getChapterConfig(chapterId) || getDefaultChapterForWorld(worldId);
   const worldContent = resolveWorldContentRefs(chapter?.worldId || worldId, difficultyId);
@@ -292,11 +315,12 @@ export function getChapterContentInsertionGuide() {
     ownership: {
       file: "chapters.js",
       manages: [
-        "chapter metadata",
-        "board sequencing",
-        "chapter-to-content ids",
+        "chapter-level routing ids",
+        "chapter story/node metadata",
+        "chapter starter content templates",
       ],
     },
-    example: JSON.parse(JSON.stringify(CHAPTER_CONTENT_INSERTION_EXAMPLE)),
+    starterTemplates: CHAPTER_STARTER_CONTENT_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(CHAPTER_CONTENT_INSERTION_EXAMPLE),
   };
 }

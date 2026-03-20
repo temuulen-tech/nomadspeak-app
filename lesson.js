@@ -1,12 +1,15 @@
 import {
   CHAPTER_IDS,
   CONTENT_COLLECTIONS,
+  CONTENT_TEMPLATE_SECTIONS,
   DIFFICULTY_LEVELS,
   DIFFICULTY_LEVEL_LIST,
   FUTURE_CONTENT_SLOTS,
   PLACEHOLDER_STATES,
   WORLD_IDS,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 
 /**
@@ -185,6 +188,17 @@ export const LESSON_PACK_INDEX = LESSON_CONTENT_PACKS.reduce((acc, pack) => ({
   [pack.id]: pack,
 }), {});
 
+export const LESSON_STARTER_TEMPLATES = LESSON_CONTENT_PACKS.map((pack) => createStarterTemplateManifest({
+  section: CONTENT_TEMPLATE_SECTIONS.LESSON,
+  worldId: pack.worldId,
+  difficultyId: pack.difficulty,
+  chapterId: pack.chapterId,
+  lessonPackId: pack.id,
+  wordBankId: pack.expansion?.wordBank?.id || null,
+  sentenceBankId: pack.expansion?.sentenceBank?.id || null,
+  notes: pack.expansion?.lessonPack?.notes || "Insert lesson entries and matching word bank tokens here.",
+}));
+
 export const LESSON_PACKS_BY_CONTEXT = LESSON_CONTENT_PACKS.reduce((acc, pack) => {
   const key = [pack.worldId || "*", pack.chapterId || "*", pack.difficulty].join("::");
   acc[key] = pack;
@@ -335,17 +349,27 @@ export function buildOptions(correct, allAnswers = getAllLessonAnswers()) {
   return options.sort(() => Math.random() - 0.5);
 }
 
+export function getLessonStarterTemplate({ packId = null, worldId = null, chapterId = null, difficulty = DIFFICULTY_LEVELS.BEGINNER } = {}) {
+  if (packId) return LESSON_STARTER_TEMPLATES.find((template) => template.lessonPackId === packId) || null;
+  return LESSON_STARTER_TEMPLATES.find((template) => (
+    template.worldId === worldId
+    && template.chapterId === chapterId
+    && template.difficultyId === difficulty
+  )) || null;
+}
+
 export function getLessonContentInsertionGuide() {
   return {
     ownership: {
       file: "lesson.js",
       manages: [
-        "lesson pack entries",
-        "lesson-linked word banks",
-        "fallback lesson buckets by difficulty",
+        "lesson content packs",
+        "lesson word banks",
+        "lesson starter templates",
       ],
     },
-    example: JSON.parse(JSON.stringify(LESSON_CONTENT_INSERTION_EXAMPLE)),
+    starterTemplates: LESSON_STARTER_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(LESSON_CONTENT_INSERTION_EXAMPLE),
     recommendedPattern: [
       "Create one pack id per world/chapter/difficulty.",
       "Keep lesson entries self-contained with q/qMn/a/aMn fields.",

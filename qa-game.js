@@ -11,10 +11,13 @@
 import { getRewardAssetByLevel } from "./assets.js";
 import {
   CONTENT_COLLECTIONS,
+  CONTENT_TEMPLATE_SECTIONS,
   DIFFICULTY_LEVELS,
   FUTURE_CONTENT_SLOTS,
   PLACEHOLDER_STATES,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 
 export const QA_REWARD_STEPS = [
@@ -109,6 +112,14 @@ const QA_CONTENT_SETS = [
   },
 ];
 
+export const QA_STARTER_TEMPLATES = QA_CONTENT_SETS.map((set) => createStarterTemplateManifest({
+  section: CONTENT_TEMPLATE_SECTIONS.QA,
+  difficultyId: set.difficulty,
+  qaSetId: set.id,
+  wordBankId: set.expansion?.wordBank?.id || null,
+  notes: set.expansion?.qaSet?.notes || "Insert QA rounds here while keeping the same round contract.",
+}));
+
 export const QA_CONTENT_SET_INDEX = QA_CONTENT_SETS.reduce((acc, set) => ({ ...acc, [set.id]: set }), {});
 
 const sharedCoreRounds = QA_CONTENT_SETS[0].rounds;
@@ -175,6 +186,7 @@ export function getQaContentInsertionGuide() {
         "QA expansion manifest state",
       ],
     },
-    example: JSON.parse(JSON.stringify(QA_CONTENT_INSERTION_EXAMPLE)),
+    starterTemplates: QA_STARTER_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(QA_CONTENT_INSERTION_EXAMPLE),
   };
 }

@@ -10,11 +10,14 @@
 
 import {
   CONTENT_COLLECTIONS,
+  CONTENT_TEMPLATE_SECTIONS,
   DIFFICULTY_LEVELS,
   FUTURE_CONTENT_SLOTS,
   PLACEHOLDER_STATES,
   WORLD_IDS,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 
 export const SENTENCE_GAME_DIFFICULTY_LABELS = {
@@ -144,6 +147,14 @@ export function prepareSentenceItems(items = []) {
   return items.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
 }
 
+export const SENTENCE_STARTER_TEMPLATES = SENTENCE_CONTENT_BANKS.map((bank) => createStarterTemplateManifest({
+  section: CONTENT_TEMPLATE_SECTIONS.SENTENCE,
+  worldId: bank.worldId,
+  difficultyId: bank.difficulty,
+  sentenceBankId: bank.id,
+  notes: bank.expansion?.sentenceBank?.notes || "Insert sentence rows in the shared dataset for this bank id.",
+}));
+
 export const SENTENCE_CONTENT_BANK_INDEX = SENTENCE_CONTENT_BANKS.reduce((acc, bank) => ({ ...acc, [bank.id]: bank }), {});
 
 export function getSentenceContentBank(bankId = "sentence-bank-shared-default") {
@@ -211,6 +222,7 @@ export function getSentenceContentInsertionGuide() {
         "difficulty-specific sentence bank routing",
       ],
     },
-    example: JSON.parse(JSON.stringify(SENTENCE_CONTENT_INSERTION_EXAMPLE)),
+    starterTemplates: SENTENCE_STARTER_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(SENTENCE_CONTENT_INSERTION_EXAMPLE),
   };
 }

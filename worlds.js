@@ -12,12 +12,15 @@ import { getAnimationHookMeta, getAudioTrackAsset, getWorldBackgroundAsset, getW
 import {
   ANIMATION_HOOKS,
   CONTENT_COLLECTIONS,
+  CONTENT_TEMPLATE_SECTIONS,
   DIFFICULTY_LEVELS,
   FUTURE_CONTENT_SLOTS,
   GAME_MODES,
   PLACEHOLDER_STATES,
   WORLD_IDS,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 
 const WORLD_CONTENT_INSERTION_EXAMPLE = {
@@ -326,6 +329,28 @@ export function getWorldExpansionPlan(worldId = DEFAULT_WORLD_ID) {
   return getWorldConfig(worldId)?.expansion || null;
 }
 
+export const WORLD_STARTER_CONTENT_TEMPLATES = SELECTABLE_WORLD_CONTENT.flatMap((world) => (
+  Object.values(DIFFICULTY_LEVELS).map((difficultyId) => createStarterTemplateManifest({
+    section: CONTENT_TEMPLATE_SECTIONS.WORLD,
+    worldId: world.id,
+    difficultyId,
+    lessonPackId: world.content.lessonContentMap?.[difficultyId] || world.content.pilotLessonPackId || null,
+    qaSetId: world.content.qaSetId || null,
+    sentenceBankId: world.content.sentenceBankId || null,
+    assetIds: {
+      coverAssetId: world.visuals.coverAssetId || null,
+      backgroundAssetId: world.visuals.backgroundAssetId || null,
+      rewardVisualThemeId: world.visuals.rewardVisualThemeId || null,
+    },
+    animationHooks: world.expansion?.animationHooks || [],
+    notes: `Register ${world.id} ${difficultyId} content here before swapping in final lesson/game data.`,
+  }))
+));
+
+export function getWorldStarterTemplate(worldId = DEFAULT_WORLD_ID, difficultyId = DIFFICULTY_LEVELS.BEGINNER) {
+  return WORLD_STARTER_CONTENT_TEMPLATES.find((template) => template.worldId === worldId && template.difficultyId === difficultyId) || null;
+}
+
 export function getWorldContentInsertionGuide() {
   return {
     ownership: {
@@ -342,8 +367,7 @@ export function getWorldContentInsertionGuide() {
       difficultyId: DIFFICULTY_LEVELS.BEGINNER,
       chapterId: "ch2",
     },
-    example: typeof structuredClone === "function"
-      ? structuredClone(WORLD_CONTENT_INSERTION_EXAMPLE)
-      : JSON.parse(JSON.stringify(WORLD_CONTENT_INSERTION_EXAMPLE)),
+    starterTemplates: WORLD_STARTER_CONTENT_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(WORLD_CONTENT_INSERTION_EXAMPLE),
   };
 }
