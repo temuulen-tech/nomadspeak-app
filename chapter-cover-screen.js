@@ -124,10 +124,12 @@ export function initChapterCoverScreen(handlers = {}) {
     state.previewChapterId = chapter.id;
 
     const worldConfig = getWorldConfig(getSelectionState().worldId) || getWorldConfig(chapter.worldId);
-    const coverImage = chapter.coverImage || worldConfig?.introCoverImage || null;
+    const coverAsset = chapter.visualAssets?.cover || worldConfig?.visualAssets?.cover || null;
+    const coverImage = coverAsset?.path || chapter.coverImage || worldConfig?.introCoverImage || null;
     if (coverImageEl && coverImage) {
       coverImageEl.src = coverImage;
-      coverImageEl.alt = `${chapter.title} cover`;
+      coverImageEl.alt = coverAsset?.alt || `${chapter.title} cover`;
+      coverImageEl.style.objectPosition = coverAsset?.presentation?.objectPosition || "center center";
     }
 
     chapterCoverScreenEl?.setAttribute("data-debug-chapter-id", chapter.id);

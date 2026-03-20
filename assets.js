@@ -11,6 +11,7 @@
 
 import {
   ANIMATION_HOOKS,
+  CHAPTER_IDS,
   CONTENT_COLLECTIONS,
   CONTENT_TEMPLATE_SECTIONS,
   FUTURE_CONTENT_SLOTS,
@@ -21,22 +22,79 @@ import {
   createStarterTemplateManifest,
 } from "./constants.js";
 
+const VISUAL_VARIANTS = {
+  PORTRAIT: "portrait",
+  LANDSCAPE: "landscape",
+  SQUARE: "square",
+};
+
+const DEFAULT_VISUAL_PRESENTATION = {
+  variant: VISUAL_VARIANTS.PORTRAIT,
+  aspectRatio: "4 / 5",
+  objectPosition: "center center",
+  mobilePriority: true,
+};
+
+function createVisualPresentation(overrides = {}) {
+  return {
+    ...DEFAULT_VISUAL_PRESENTATION,
+    ...overrides,
+  };
+}
+
+function createVisualAssetEntry({
+  id,
+  worldId = null,
+  chapterId = null,
+  slot,
+  state = PLACEHOLDER_STATES.PLACEHOLDER,
+  path,
+  alt = "",
+  theme = null,
+  presentation = {},
+} = {}) {
+  return {
+    id,
+    worldId,
+    chapterId,
+    slot,
+    state,
+    path,
+    alt,
+    theme,
+    presentation: createVisualPresentation(presentation),
+  };
+}
+
+const CHAPTER_ASSET_FALLBACK = "default";
+
 export const ASSET_INSERTION_EXAMPLE = {
   worldVisual: {
     id: "world1-ch2-cover",
     worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.READY,
     path: "assets/visuals/worlds/world-1/chapter-covers/world-cover-world-1-chapter-2-placeholder.svg",
     alt: "World 1 Chapter 2 cover",
+    presentation: createVisualPresentation({
+      variant: VISUAL_VARIANTS.PORTRAIT,
+      aspectRatio: "4 / 5",
+    }),
   },
   worldBackground: {
     id: "world1-ch2-background",
     worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
     state: PLACEHOLDER_STATES.READY,
     path: "assets/visuals/worlds/world-1/backgrounds/world-bg-world-1-chapter-2-placeholder.svg",
     alt: "World 1 Chapter 2 background",
+    presentation: createVisualPresentation({
+      variant: VISUAL_VARIANTS.LANDSCAPE,
+      aspectRatio: "16 / 9",
+      objectPosition: "center 42%",
+    }),
   },
   animationHook: {
     id: ANIMATION_HOOKS.CHAPTER_REVEAL,
@@ -50,7 +108,9 @@ const ASSET_NAMING_RULES = {
   caseStyle: "lowercase-kebab-case",
   filePrefixes: {
     worldCover: "world-cover-*",
+    chapterCover: "chapter-cover-*",
     worldBackground: "world-bg-*",
+    chapterBackground: "chapter-bg-*",
     rewardVisual: "reward-*",
     lessonVisual: "lesson-*",
     animationAsset: "anim-*",
@@ -60,7 +120,9 @@ const ASSET_NAMING_RULES = {
   placeholderSuffix: "-placeholder",
   locationRules: {
     worldCovers: "assets/visuals/worlds/<theme>/intro/",
+    chapterCovers: "assets/visuals/worlds/<theme>/chapter-covers/",
     worldBackgrounds: "assets/visuals/worlds/<theme>/backgrounds/",
+    chapterBackgrounds: "assets/visuals/worlds/<theme>/backgrounds/",
     rewardVisuals: "assets/rewards/icons/",
     lessonVisuals: "assets/visuals/lessons/",
     animationAssets: "assets/animations/",
@@ -78,50 +140,135 @@ const rewardIconEntries = [
 ];
 
 const worldVisualEntries = [
-  {
+  createVisualAssetEntry({
     id: "world1-cover",
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.READY,
+    theme: "sailors",
     path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Колумб ба Шинэ тивийнхэн ертөнцийн хавтас",
-  },
-  {
+  }),
+  createVisualAssetEntry({
     id: "world2-cover-placeholder",
     worldId: WORLD_IDS.WORLD_2,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    theme: "silk-road",
     path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн placeholder хавтас",
-  },
-  {
+  }),
+  createVisualAssetEntry({
     id: "world3-cover-placeholder",
     worldId: WORLD_IDS.WORLD_3,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    theme: "rome",
     path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн placeholder хавтас",
-  },
+  }),
+  createVisualAssetEntry({
+    id: "world1-ch2-cover",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
+    slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
+    state: PLACEHOLDER_STATES.READY,
+    theme: "world-1",
+    path: "assets/visuals/worlds/world-1/chapter-covers/world-cover-world-1-chapter-2-placeholder.svg",
+    alt: "World 1 Chapter 2 cover",
+  }),
 ];
 
 const worldBackgroundEntries = [
-  {
+  createVisualAssetEntry({
     id: "sailors-deck",
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
     state: PLACEHOLDER_STATES.READY,
+    theme: "sailors",
     path: "assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg",
     alt: "Хөлгийн тавцангийн дэвсгэр",
-  },
-  {
+    presentation: {
+      variant: VISUAL_VARIANTS.LANDSCAPE,
+      aspectRatio: "16 / 9",
+      objectPosition: "center 42%",
+    },
+  }),
+  createVisualAssetEntry({
     id: "shared-world-background-placeholder",
-    worldId: null,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    theme: "shared",
     path: "assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн дэвсгэр placeholder",
-  },
+    presentation: {
+      variant: VISUAL_VARIANTS.LANDSCAPE,
+      aspectRatio: "16 / 9",
+      objectPosition: "center 42%",
+    },
+  }),
+  createVisualAssetEntry({
+    id: "world1-ch2-background",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
+    slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
+    state: PLACEHOLDER_STATES.READY,
+    theme: "world-1",
+    path: "assets/visuals/worlds/world-1/backgrounds/world-bg-world-1-chapter-2-placeholder.svg",
+    alt: "World 1 Chapter 2 background",
+    presentation: {
+      variant: VISUAL_VARIANTS.LANDSCAPE,
+      aspectRatio: "16 / 9",
+      objectPosition: "center 42%",
+    },
+  }),
 ];
+
+const WORLD_ART_REGISTRY = {
+  [WORLD_IDS.WORLD_1]: {
+    coverAssetId: "world1-cover",
+    backgroundAssetId: "sailors-deck",
+    chapterVisuals: {
+      [CHAPTER_ASSET_FALLBACK]: {
+        coverAssetId: "world1-cover",
+        backgroundAssetId: "sailors-deck",
+      },
+      [CHAPTER_IDS.CH1]: {
+        coverAssetId: "world1-cover",
+        backgroundAssetId: "sailors-deck",
+      },
+      [CHAPTER_IDS.CH2]: {
+        coverAssetId: "world1-ch2-cover",
+        backgroundAssetId: "world1-ch2-background",
+      },
+      [CHAPTER_IDS.CH3]: {
+        coverAssetId: "world1-cover",
+        backgroundAssetId: "sailors-deck",
+      },
+      [CHAPTER_IDS.CH4]: {
+        coverAssetId: "world1-cover",
+        backgroundAssetId: "sailors-deck",
+      },
+    },
+  },
+  [WORLD_IDS.WORLD_2]: {
+    coverAssetId: "world2-cover-placeholder",
+    backgroundAssetId: "shared-world-background-placeholder",
+    chapterVisuals: {
+      [CHAPTER_ASSET_FALLBACK]: {
+        coverAssetId: "world2-cover-placeholder",
+        backgroundAssetId: "shared-world-background-placeholder",
+      },
+    },
+  },
+  [WORLD_IDS.WORLD_3]: {
+    coverAssetId: "world3-cover-placeholder",
+    backgroundAssetId: "shared-world-background-placeholder",
+    chapterVisuals: {
+      [CHAPTER_ASSET_FALLBACK]: {
+        coverAssetId: "world3-cover-placeholder",
+        backgroundAssetId: "shared-world-background-placeholder",
+      },
+    },
+  },
+};
 
 const audioTrackEntries = [
   {
@@ -133,9 +280,38 @@ const audioTrackEntries = [
   },
 ];
 
+function buildChapterVisualRegistry() {
+  return Object.entries(WORLD_ART_REGISTRY).reduce((acc, [worldId, worldVisuals]) => {
+    acc[worldId] = { ...(worldVisuals.chapterVisuals || {}) };
+    return acc;
+  }, {});
+}
+
+const CHAPTER_VISUAL_REGISTRY = buildChapterVisualRegistry();
+
+function cloneVisualAssetEntry(entry) {
+  return entry
+    ? {
+      ...entry,
+      presentation: { ...entry.presentation },
+    }
+    : null;
+}
+
+function resolveWorldArtRegistration(worldId) {
+  return WORLD_ART_REGISTRY[worldId] || null;
+}
+
+function resolveChapterArtRegistration(worldId, chapterId = CHAPTER_ASSET_FALLBACK) {
+  const chapterVisuals = CHAPTER_VISUAL_REGISTRY[worldId] || {};
+  return chapterVisuals[chapterId] || chapterVisuals[CHAPTER_ASSET_FALLBACK] || null;
+}
+
 export const FUTURE_VISUAL_LIBRARY = {
   worlds: worldVisualEntries,
   backgrounds: worldBackgroundEntries,
+  chapterRegistry: CHAPTER_VISUAL_REGISTRY,
+  worldRegistry: WORLD_ART_REGISTRY,
   rewards: rewardIconEntries,
   lessonVisuals: [
     createPlaceholderMeta({
@@ -216,12 +392,14 @@ export const ASSET_STARTER_TEMPLATES = [
   ...worldVisualEntries.map((entry) => createStarterTemplateManifest({
     section: CONTENT_TEMPLATE_SECTIONS.ASSET,
     worldId: entry.worldId,
+    chapterId: entry.chapterId || null,
     assetIds: { assetId: entry.id, path: entry.path, slot: entry.slot },
     notes: `Swap the placeholder or starter visual registered as ${entry.id} when final art is ready.`,
   })),
   ...worldBackgroundEntries.map((entry) => createStarterTemplateManifest({
     section: CONTENT_TEMPLATE_SECTIONS.ASSET,
     worldId: entry.worldId,
+    chapterId: entry.chapterId || null,
     assetIds: { assetId: entry.id, path: entry.path, slot: entry.slot },
     notes: `Keep world background ids stable when replacing ${entry.id}.`,
   })),
@@ -242,6 +420,7 @@ export const ASSETS = {
   namingRules: ASSET_NAMING_RULES,
   chapterCovers: {
     columbusNewWorld: worldVisualEntries[0].path,
+    world1Chapter2: getWorldVisualAssetById("world1-ch2-cover")?.path || worldVisualEntries[0].path,
   },
   rewardIcons: rewardIconEntries.reduce((acc, entry) => ({
     ...acc,
@@ -251,6 +430,8 @@ export const ASSETS = {
   worldVisualEntries,
   worldBackgroundEntries,
   audioTrackEntries,
+  chapterVisualRegistry: CHAPTER_VISUAL_REGISTRY,
+  worldVisualRegistry: WORLD_ART_REGISTRY,
   worldBackgrounds: {
     sailorsDeck: worldBackgroundEntries[0].path,
   },
@@ -274,21 +455,60 @@ export function getRewardAssetByLevel(level = 1) {
 }
 
 export function getWorldVisualAssetById(assetId) {
-  return worldVisualEntries.find((entry) => entry.id === assetId) || null;
+  return cloneVisualAssetEntry(worldVisualEntries.find((entry) => entry.id === assetId) || null);
 }
 
 export function getWorldCoverAsset(worldId) {
-  return worldVisualEntries.find((entry) => entry.worldId === worldId && entry.slot === FUTURE_CONTENT_SLOTS.WORLD_COVER) || null;
+  const registration = resolveWorldArtRegistration(worldId);
+  return getWorldVisualAssetById(registration?.coverAssetId || null)
+    || cloneVisualAssetEntry(worldVisualEntries.find((entry) => entry.worldId === worldId && entry.slot === FUTURE_CONTENT_SLOTS.WORLD_COVER) || null);
 }
 
 export function getWorldBackgroundAssetById(assetId) {
-  return worldBackgroundEntries.find((entry) => entry.id === assetId) || null;
+  return cloneVisualAssetEntry(worldBackgroundEntries.find((entry) => entry.id === assetId) || null);
 }
 
 export function getWorldBackgroundAsset(worldId) {
-  return worldBackgroundEntries.find((entry) => entry.worldId === worldId)
+  const registration = resolveWorldArtRegistration(worldId);
+  return getWorldBackgroundAssetById(registration?.backgroundAssetId || null)
+    || cloneVisualAssetEntry(worldBackgroundEntries.find((entry) => entry.worldId === worldId) || null)
     || getWorldBackgroundAssetById("shared-world-background-placeholder")
     || null;
+}
+
+export function getChapterVisualAsset(worldId, chapterId) {
+  const registration = resolveChapterArtRegistration(worldId, chapterId);
+  const cover = getWorldVisualAssetById(registration?.coverAssetId || null)
+    || getWorldCoverAsset(worldId);
+  const background = getWorldBackgroundAssetById(registration?.backgroundAssetId || null)
+    || getWorldBackgroundAsset(worldId);
+
+  return {
+    worldId,
+    chapterId,
+    cover,
+    background,
+    registration: registration
+      ? {
+        ...registration,
+      }
+      : null,
+  };
+}
+
+export function getWorldArtRegistryEntry(worldId) {
+  const registration = resolveWorldArtRegistration(worldId);
+  return registration
+    ? {
+      ...registration,
+      chapterVisuals: { ...(registration.chapterVisuals || {}) },
+    }
+    : null;
+}
+
+export function getChapterArtRegistryEntry(worldId, chapterId) {
+  const registration = resolveChapterArtRegistration(worldId, chapterId);
+  return registration ? { ...registration } : null;
 }
 
 export function getAudioTrackAsset(trackId) {
@@ -305,6 +525,8 @@ export function getAssetInsertionGuide() {
       file: "assets.js",
       manages: [
         "cover/background/audio asset ids",
+        "chapter-to-world visual registry mappings",
+        "portrait/mobile presentation metadata for future artwork",
         "reward art ids",
         "future animation hook registrations",
       ],
