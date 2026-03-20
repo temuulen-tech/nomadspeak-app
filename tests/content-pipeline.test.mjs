@@ -31,7 +31,7 @@ test('chapter visual registry resolves chapter-specific cover/background assets 
 
 test('sentence rows normalize routing metadata and can be filtered by bank id', () => {
   const items = sentenceGame.prepareSentenceItems([
-    { id: 1, bankId: 'sentence-bank-shared-default', worldId: 'world1', chapterId: 'ch1', level: 'beginner', topic: 'A', en: 'Hello there.', mn: 'Сайн уу.' },
+    { id: 1, worldId: 'world1', chapterId: 'ch1', level: 'beginner', topic: 'A', en: 'Hello there.', mn: 'Сайн уу.' },
     { id: 2, bankId: 'sentence-bank-world1-ch2-placeholder', worldId: 'world1', chapterId: 'ch2', level: 'beginner', topic: 'B', en: 'They see the shore.', mn: 'Тэд эргийг харж байна.' },
   ]);
 
@@ -42,5 +42,5 @@ test('sentence rows normalize routing metadata and can be filtered by bank id', 
   assert.equal(chapter2Items[0].chapterId, 'ch2');
   assert.deepEqual(chapter2Items[0].tokens, ['They', 'see', 'the', 'shore', '.']);
   assert.equal(fallbackItems.length, 1);
-  assert.equal(fallbackItems[0].bankId, 'sentence-bank-shared-default');
+  assert.equal(fallbackItems[0].bankId, 'sentence-bank-world1-ch1-first-steps');
 });

@@ -109,7 +109,7 @@ const SELECTABLE_WORLD_CONTENT = [
     content: {
       pilotLessonPackId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).lessonPackId,
       lessonContentMap: {
-        [DIFFICULTY_LEVELS.BEGINNER]: "world1-ch1-beginner-landing-kit",
+        [DIFFICULTY_LEVELS.BEGINNER]: "world1-ch1-beginner-first-steps",
         [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
         [DIFFICULTY_LEVELS.ADVANCED]: null,
       },

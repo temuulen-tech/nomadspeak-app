@@ -31,10 +31,10 @@ export function buildWorldChapterContentIds({ worldId, chapterId, descriptor = "
 export const SHARED_CONTENT_IDS = {
   rewardTheme: "reward-theme-shared-core",
   world1Chapter1: createChapterContentRefs({
-    lessonPackId: "world1-ch1-beginner-landing-kit",
-    wordBankId: "word-bank-world1-ch1-core",
-    qaSetId: "qa-set-shared-core",
-    sentenceBankId: "sentence-bank-shared-default",
+    lessonPackId: "world1-ch1-beginner-first-steps",
+    wordBankId: "word-bank-world1-ch1-first-steps",
+    qaSetId: "qa-set-world1-ch1-first-steps",
+    sentenceBankId: "sentence-bank-world1-ch1-first-steps",
   }),
 };
 
@@ -76,11 +76,20 @@ export function createSentenceBankRoute({
 }
 
 export const SENTENCE_BANK_ROUTE_REGISTRY = {
+  "sentence-bank-world1-ch1-first-steps": createSentenceBankRoute({
+    id: "sentence-bank-world1-ch1-first-steps",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH1,
+    state: PLACEHOLDER_STATES.READY,
+    notes: "Starter Chapter 1 sentence bank for greetings, simple words, and daily conversation.",
+  }),
   "sentence-bank-shared-default": createSentenceBankRoute({
     id: "sentence-bank-shared-default",
     worldId: WORLD_IDS.WORLD_1,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
+    datasetKey: "sentence-bank-world1-ch1-first-steps",
+    notes: "Legacy fallback alias for the Chapter 1 starter sentence bank.",
   }),
   "sentence-bank-world1-ch2-placeholder": createSentenceBankRoute({
     id: "sentence-bank-world1-ch2-placeholder",
@@ -121,7 +130,7 @@ export function getSentenceBankRoute(bankId) {
 export function normalizeSentenceDatasetRow(row = {}, index = 0) {
   return {
     id: row.id ?? index + 1,
-    bankId: row.bankId || "sentence-bank-shared-default",
+    bankId: row.bankId || "sentence-bank-world1-ch1-first-steps",
     worldId: row.worldId || WORLD_IDS.WORLD_1,
     chapterId: row.chapterId || null,
     level: row.level || DIFFICULTY_LEVELS.BEGINNER,
