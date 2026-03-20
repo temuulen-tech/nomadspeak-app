@@ -1185,29 +1185,6 @@ function updateGaugeUI(aggregates, now = new Date()) {
   statsThermometerTierEl.textContent = `Түвшин: ${tier.label}`;
 }
 
-function refreshTimeSummaryUI() {
-  const aggregates = getAggregates(new Date());
-  const todayFormatted = formatHHMMSS(aggregates.today);
-  todayTimeEls.forEach((el) => {
-    el.textContent = todayFormatted;
-  });
-
-  if (timeDetailsYesterdayEl) timeDetailsYesterdayEl.textContent = formatHHMMSS(aggregates.yesterday);
-  if (timeDetailsThisWeekEl) timeDetailsThisWeekEl.textContent = formatHHMMSS(aggregates.thisWeek);
-  if (timeDetailsLastWeekEl) timeDetailsLastWeekEl.textContent = formatHHMMSS(aggregates.lastWeek);
-  if (timeDetailsThisMonthEl) timeDetailsThisMonthEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (timeDetailsLastMonthEl) timeDetailsLastMonthEl.textContent = formatHHMMSS(aggregates.lastMonth);
-
-  if (statsTodayMinutesEl) statsTodayMinutesEl.textContent = formatHHMMSS(aggregates.today);
-  if (statsThisWeekTimeEl) statsThisWeekTimeEl.textContent = formatHHMMSS(aggregates.thisWeek);
-  if (statsLastWeekTimeEl) statsLastWeekTimeEl.textContent = formatHHMMSS(aggregates.lastWeek);
-  if (statsThisMonthTimeEl) statsThisMonthTimeEl.textContent = formatHHMMSS(aggregates.thisMonth);
-  if (statsLast7DaysEl) statsLast7DaysEl.innerHTML = buildLast7DaysTimeRows();
-
-  updateGaugeUI(aggregates);
-  renderRewardsTab();
-}
-
 function startTimeUiUpdater() {
   if (appTimeUiInterval) {
     clearInterval(appTimeUiInterval);
