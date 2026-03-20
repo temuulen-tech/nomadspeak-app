@@ -844,6 +844,29 @@
     padding:12px;
   }
 
+  .home-header-main-simplified{
+    gap:10px;
+  }
+
+  .home-hub-card{
+    padding:16px;
+    border-radius:20px;
+  }
+
+  .home-hub-title{
+    max-width:none;
+    font-size:1.42rem;
+  }
+
+  .home-hub-text{
+    max-width:none;
+  }
+
+  .home-hub-actions{
+    grid-template-columns:1fr;
+    gap:8px;
+  }
+
   .home-hero-block{
     grid-template-columns:1fr;
     gap:14px;
@@ -851,6 +874,14 @@
 
   .home-hero-title{
     font-size:1.42rem;
+  }
+
+  .home-hub-actions{
+    grid-template-columns:1fr;
+  }
+
+  .home-header-main-simplified{
+    align-items:flex-start;
   }
 
   #start-screen{
