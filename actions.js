@@ -68,10 +68,10 @@ export function saveCoreState() {
   return persistCoreState();
 }
 
-export function loadCoreState() {
+export function loadCoreState({ persist = true } = {}) {
   const normalized = buildCoreStateFromStorage(loadAppState());
   initializeCoreState(normalized);
-  saveAppState(getCoreState());
+  if (persist) saveAppState(getCoreState());
   return getCoreState();
 }
 
