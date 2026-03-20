@@ -25,14 +25,14 @@ import { CONTENT_GROUPS, getChapterContentRefs } from "./content-registry.js";
  */
 
 const BEGINNER_PACK_ENTRIES = [
-  { q: "Where is the ship going?", qMn: "Усан онгоц хаашаа явж байна вэ?", a: "The ship is going west.", aMn: "Усан онгоц баруун зүг рүү явж байна." },
-  { q: "Who is on the deck?", qMn: "Тавцан дээр хэн байна вэ?", a: "The sailors are on the deck.", aMn: "Далайчид тавцан дээр байна." },
-  { q: "What do the sailors see?", qMn: "Далайчид юу харж байна вэ?", a: "They see land ahead.", aMn: "Тэд урд талд газар харж байна." },
-  { q: "Are the waves strong today?", qMn: "Өнөөдөр давалгаа хүчтэй байна уу?", a: "Yes, the waves are strong today.", aMn: "Тийм ээ, өнөөдөр давалгаа хүчтэй байна." },
-  { q: "What is the captain holding?", qMn: "Ахмад юу барьж байна вэ?", a: "The captain is holding a map.", aMn: "Ахмад газрын зураг барьж байна." },
-  { q: "Are the travelers tired?", qMn: "Аялагчид ядарсан уу?", a: "Yes, they are tired after the voyage.", aMn: "Тийм ээ, тэд аяллын дараа ядарсан байна." },
-  { q: "What do they need now?", qMn: "Тэдэнд одоо юу хэрэгтэй вэ?", a: "They need fresh water now.", aMn: "Тэдэнд одоо цэвэр ус хэрэгтэй." },
-  { q: "Is the new shore quiet?", qMn: "Шинэ эрэг нам гүм байна уу?", a: "No, the new shore is full of birds.", aMn: "Үгүй ээ, шинэ эрэг шувуудаар дүүрэн байна." },
+  { q: "What is your name?", qMn: "Таныг хэн гэдэг вэ?", a: "My name is Sara.", aMn: "Миний нэрийг Сара гэдэг." },
+  { q: "How are you?", qMn: "Сайн байна уу?", a: "I am fine, thank you.", aMn: "Би сайн байна, баярлалаа." },
+  { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I am from Mongolia.", aMn: "Би Монголоос ирсэн." },
+  { q: "Do you speak English?", qMn: "Та англиар ярьдаг уу?", a: "Yes, I speak a little English.", aMn: "Тийм ээ, би англиар бага зэрэг ярьдаг." },
+  { q: "Who is this?", qMn: "Энэ хэн бэ?", a: "This is my friend.", aMn: "Энэ бол миний найз." },
+  { q: "Is this your book?", qMn: "Энэ таны ном уу?", a: "Yes, this is my book.", aMn: "Тийм ээ, энэ бол миний ном." },
+  { q: "What do you want?", qMn: "Та юу хүсэж байна вэ?", a: "I want some water.", aMn: "Би ус авмаар байна." },
+  { q: "Are you ready?", qMn: "Та бэлэн үү?", a: "Yes, I am ready.", aMn: "Тийм ээ, би бэлэн байна." },
 ];
 
 const INTERMEDIATE_FALLBACK_ENTRIES = [
@@ -170,7 +170,7 @@ export const LESSON_CONTENT_PACKS = [
     chapterId: CHAPTER_IDS.CH1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     title: "Колумб ба Шинэ тивийнхэн · 1-р бүлгийн анхан багц",
-    description: "Далай гатлалт ба анхны буултын сэдэвтэй анхны бодит lesson content pack.",
+    description: "Анхны суралцах замд зориулсан энгийн үг, богино өгүүлбэр, мэндчилгээ, үндсэн асуулт-хариултын багц.",
     entries: BEGINNER_PACK_ENTRIES,
     wordBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     sentenceBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).sentenceBankId,
@@ -205,7 +205,7 @@ export const LESSON_WORD_BANKS = {
     id: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
-    tokens: ["ship", "west", "deck", "captain", "map", "shore", "water", "sailors"],
+    tokens: ["hello", "name", "fine", "friend", "book", "water", "ready", "English", "Mongolia"],
   }),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
     const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
