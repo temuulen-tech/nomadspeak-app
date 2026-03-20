@@ -232,6 +232,9 @@
 }
 
 .home-hub-copy{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
   gap:8px;
 }
 
@@ -246,18 +249,29 @@
 .home-hub-actions{
   grid-template-columns:minmax(0, 1.5fr) repeat(2, minmax(0, .78fr));
   gap:10px;
-  align-items:start;
+  align-items:stretch;
 }
 
 .home-modes-menu-wrap{
   display:flex;
   flex-direction:column;
   gap:10px;
+  min-width:0;
 }
 
 .home-entry-card{
   position:relative;
   gap:6px;
+  justify-content:flex-start;
+  min-height:100%;
+}
+
+.start-intro-panel{
+  margin-top:14px;
+}
+
+.start-intro-list{
+  gap:8px;
 }
 
 .home-entry-card--primary{

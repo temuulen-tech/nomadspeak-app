@@ -366,7 +366,7 @@ body{
 .learning-screen-shell{
   display:flex;
   flex-direction:column;
-  gap:8px;
+  gap:12px;
 }
 
 .learning-screen{
@@ -378,7 +378,7 @@ body{
   flex-direction:column;
   gap:10px;
   border-radius:12px;
-  padding:8px;
+  padding:10px;
   margin-bottom:0;
 }
 
@@ -493,8 +493,16 @@ body{
 .learning-progress-frame{
   border:1px solid rgba(255,219,136,.5);
   border-radius:10px;
-  padding:8px;
+  padding:10px;
   box-shadow:none;
+}
+
+.learning-screen .adventure-companion-panel,
+.learning-screen .sentence-game-reward-middle,
+.learning-screen .sentences-top-controls,
+.learning-screen .qa-round-panel,
+.learning-screen .sentence-game-tip-panel{
+  margin-top:0;
 }
 
 .learning-progress-compact .reward-row,
@@ -701,6 +709,8 @@ body{
 
   .learning-today-time{
     font-size:.66rem;
+    width:100%;
+    justify-content:center;
   }
 
   .board-game-topbar{
@@ -730,6 +740,10 @@ body{
 
   .learning-master-row > *{
     flex-basis:100%;
+  }
+
+  .learning-header-row{
+    align-items:stretch;
   }
 
   .board-game-bottom-dock{
