@@ -2966,6 +2966,14 @@ body[data-active-screen="board-game"] .app{
     min-height:auto;
   }
 
+  .home-hub-actions{
+    grid-template-columns:1fr;
+  }
+
+  .home-hub-primary{
+    grid-column:auto;
+  }
+
   .home-modes-panel{
     position:static;
     margin-top:8px;
@@ -2989,6 +2997,14 @@ body[data-active-screen="board-game"] .app{
 }
 
 @media (max-width:420px){
+  .home-profile-entry{
+    gap:6px;
+  }
+
+  .home-profile-label{
+    font-size:10px;
+  }
+
   .home-hero-stat-label{
     font-size:10px;
   }
@@ -2996,6 +3012,10 @@ body[data-active-screen="board-game"] .app{
   .home-hero-title{
     max-width:100%;
     line-height:1.16;
+  }
+
+  .start-intro-summary{
+    grid-template-columns:1fr;
   }
 
   .start-intro-panel-head{

@@ -57,13 +57,16 @@
           </div>
         </div>
 
-        <button
-          class="profile-icon-btn"
-          id="nav-profile-btn"
-          type="button"
-          title="Профайл"
-          aria-label="Профайл"
-        >👤</button>
+        <div class="home-profile-entry">
+          <p class="chip-label home-profile-label">Профайл &amp; Тохиргоо</p>
+          <button
+            class="profile-icon-btn"
+            id="nav-profile-btn"
+            type="button"
+            title="Профайл"
+            aria-label="Профайл"
+          >👤</button>
+        </div>
       </div>
     </header>
 
@@ -80,13 +83,21 @@
         <div class="home-hub-copy">
           <span class="chip-label home-hub-kicker">Эхлэхэд бэлэн үү?</span>
           <h2 class="home-hub-title">Хэдхэн товчоор өнөөдрийн суралцах замаа сонгоорой.</h2>
-          <p class="muted home-hub-text">Үндсэн үйлдлүүдээ эндээс нээж, дэлгэрэнгүй мэдээллээ тухайн дэлгэц дотроос хараарай.</p>
+          <p class="muted home-hub-text">Эхний дэлгэц дээр зөвхөн гол орцуудаа үлдээгээд, дэлгэрэнгүйг тухайн хэсэг рүү орж хардаг болголоо.</p>
         </div>
 
         <div class="home-hub-actions" aria-label="Үндсэн навигаци">
           <div class="home-modes-menu-wrap home-primary-action home-hub-primary">
-            <button class="secondary nav-btn nav-btn--primary home-hub-btn" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">Тоглоом &amp; Хичээлүүд</button>
+            <button class="secondary nav-btn nav-btn--primary home-hub-btn home-entry-card home-entry-card--primary" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">
+              <span class="home-entry-eyebrow">Үндсэн эхлэл</span>
+              <span class="home-entry-title">Тоглоом &amp; Хичээлүүд</span>
+              <span class="home-entry-meta">Хичээл, ертөнц, тоглоомын урсгалаа эндээс сонгоно.</span>
+            </button>
             <div class="home-modes-panel hidden" id="home-modes-panel" role="menu" aria-label="Тоглоом ба хичээлүүд">
+              <div class="home-modes-panel-copy">
+                <p class="chip-label">Суралцах төрлөө сонгоно уу</p>
+                <p class="muted">Тоглоом, дасгал, асуулт-хариултын бүх эхлэл энэ цэсэнд байна.</p>
+              </div>
               <button class="home-modes-option" id="nav-lesson-btn" type="button" role="menuitem">Зөв хариулт сонгоорой</button>
               <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
               <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэр бүтээж сурцгаая</button>
@@ -94,8 +105,16 @@
               <button class="home-modes-option" id="nav-board-game-btn" type="button" role="menuitem">Та битгий уурлаарай</button>
             </div>
           </div>
-          <button class="secondary nav-btn home-hub-btn" id="nav-stats-btn" type="button" aria-label="Өнөөдрийн ахиц" title="Өнөөдрийн ахиц">Өнөөдрийн ахиц</button>
-          <button class="premium-intro-btn premium-intro-btn--compact home-hub-btn" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">Танилцуулга</button>
+          <button class="secondary nav-btn home-hub-btn home-entry-card" id="nav-stats-btn" type="button" aria-label="Өнөөдрийн ахиц" title="Өнөөдрийн ахиц">
+            <span class="home-entry-eyebrow">Хянах хэсэг</span>
+            <span class="home-entry-title">Өнөөдрийн ахиц</span>
+            <span class="home-entry-meta">XP, streak, шагнал, өдөр тутмын явцаа шалгана.</span>
+          </button>
+          <button class="premium-intro-btn premium-intro-btn--compact home-hub-btn home-entry-card" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">
+            <span class="home-entry-eyebrow">Туслах хэсэг</span>
+            <span class="home-entry-title">Танилцуулга</span>
+            <span class="home-entry-meta">Аппын зорилго, ашиглах чиглэл, нэмэлт тайлбарыг нээнэ.</span>
+          </button>
         </div>
       </div>
 
@@ -103,6 +122,16 @@
         <div class="start-intro-panel-head">
           <strong class="chip-label">Танилцуулга</strong>
           <button class="secondary" id="intro-close-btn" type="button">Хаах</button>
+        </div>
+        <div class="start-intro-summary">
+          <article class="start-intro-summary-card">
+            <p class="chip-label">Эндээс юу хийх вэ?</p>
+            <p class="muted">Тоглоом &amp; Хичээлүүд товчоор суралцах урсгал руу орж, Өнөөдрийн ахиц товчоор дүнгээ шалгана.</p>
+          </article>
+          <article class="start-intro-summary-card">
+            <p class="chip-label">Дэлгэрэнгүй хаана байна?</p>
+            <p class="muted">Ахицын нарийвчилсан мэдээлэл ахицын дэлгэцэд, профайл ба тохиргоо дээд талын профайл хэсэгт байна.</p>
+          </article>
         </div>
         <p class="muted">Манай аппын давуу тал нь харилцан ярианы өгүүлбэрүүдийг өдөр бүр давтсанаар та маш хурдан дэлхийн хүмүүстэй англиар харилцаж чаддаг болох юм. Дүрэм цээжлэхээс илүү шууд харилцан ярианд орж, бусадтай ойлголцож эхлэх нь таны урам зоригийг өсгөнө. Ингэснээр та дэлхийн хаана ч явсан өөрийн санаа бодлоо ойлгуулж, чөлөөтэй ярьж чаддаг болно. Таны сурлагад амжилт хүсье. Дэлхийн иргэн болцгооё! 🌍</p>
       </div>
