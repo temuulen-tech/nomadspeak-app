@@ -29,6 +29,20 @@ export const QA_REWARD_STEPS = [
   { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, ...getRewardAssetByLevel(5), alt: "Асуулт-хариултын шагнал эрдэнэ" },
 ];
 
+
+const WORLD_1_PLACEHOLDER_CHAPTERS = ["ch2", "ch3", "ch4"];
+
+function createWorld1PlaceholderQaSet(chapterId) {
+  return createQaContentSet({
+    id: `qa-set-world1-${chapterId}-placeholder`,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    qaNotes: `Insert ${chapterId.toUpperCase()} QA rounds here later.`,
+    wordBankId: `qa-word-bank-world1-${chapterId}-placeholder`,
+    wordBankNotes: `Add ${chapterId.toUpperCase()} QA helper tokens later if this bank diverges from the shared core.`,
+  });
+}
+
 export const QA_CONTENT_INSERTION_EXAMPLE = {
   id: "qa-set-world1-ch2-core",
   difficulty: DIFFICULTY_LEVELS.BEGINNER,
@@ -107,30 +121,7 @@ const QA_CONTENT_SETS = [
     wordBankId: "qa-word-bank-shared-core",
     wordBankState: PLACEHOLDER_STATES.READY,
   }),
-  createQaContentSet({
-    id: "qa-set-world1-ch2-placeholder",
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    qaNotes: "Insert Chapter 2 QA rounds here later.",
-    wordBankId: "qa-word-bank-world1-ch2-placeholder",
-    wordBankNotes: "Add Chapter 2 QA helper tokens later if this bank diverges from the shared core.",
-  }),
-  createQaContentSet({
-    id: "qa-set-world1-ch3-placeholder",
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    qaNotes: "Insert Chapter 3 QA rounds here later.",
-    wordBankId: "qa-word-bank-world1-ch3-placeholder",
-    wordBankNotes: "Add Chapter 3 QA helper tokens later if this bank diverges from the shared core.",
-  }),
-  createQaContentSet({
-    id: "qa-set-world1-ch4-placeholder",
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    qaNotes: "Insert Chapter 4 QA rounds here later.",
-    wordBankId: "qa-word-bank-world1-ch4-placeholder",
-    wordBankNotes: "Add Chapter 4 QA helper tokens later if this bank diverges from the shared core.",
-  }),
+  ...WORLD_1_PLACEHOLDER_CHAPTERS.map((chapterId) => createWorld1PlaceholderQaSet(chapterId)),
   createQaContentSet({
     id: "qa-set-world2-placeholder",
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
@@ -217,6 +208,7 @@ export function getQaContentInsertionGuide() {
         "QA round sets",
         "round-specific token banks",
         "QA expansion manifest state",
+        "the shared placeholder-id pattern for upcoming chapter QA sets",
       ],
     },
     starterTemplates: QA_STARTER_TEMPLATES.map((template) => ({ ...template })),

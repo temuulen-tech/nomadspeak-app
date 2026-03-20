@@ -152,6 +152,15 @@ export const CONTENT_DROP_IN_FILES = {
   sharedWorkflowConstants: "constants.js",
 };
 
+export const CONTENT_HANDOFF_ENTRYPOINTS = [
+  { order: 1, area: "World metadata", file: CONTENT_DROP_IN_FILES.worldMetadata },
+  { order: 2, area: "Chapter metadata", file: CONTENT_DROP_IN_FILES.chapterMetadata },
+  { order: 3, area: "Lesson packs + lesson word banks", file: CONTENT_DROP_IN_FILES.lessonContent },
+  { order: 4, area: "QA rounds + QA helper banks", file: CONTENT_DROP_IN_FILES.qaContent },
+  { order: 5, area: "Sentence bank registrations", file: CONTENT_DROP_IN_FILES.sentenceContent },
+  { order: 6, area: "Visual/audio/animation asset references", file: CONTENT_DROP_IN_FILES.assetReferences },
+];
+
 export const CONTENT_ID_PATTERNS = {
   lessonPack: "world{n}-ch{n}-{difficulty}-{descriptor}",
   lessonWordBank: "word-bank-world{n}-ch{n}-{descriptor}",
@@ -179,6 +188,8 @@ export const FIRST_REAL_CONTENT_INSERTION_TARGET = {
   chapterId: CHAPTER_IDS.CH2,
   rationale: "World 1 beginner already drives the live board/lesson flow, so Chapter 2 is the lowest-risk next real-content insertion target.",
 };
+
+export const SHARED_BOARD_LAYOUT_WORLD_ID = WORLD_IDS.WORLD_1;
 
 export const ANIMATION_HOOKS = {
   WORLD_INTRO: "world-intro",
@@ -299,6 +310,7 @@ export function getContentDropInWorkflowGuide() {
     ownership: { ...CONTENT_INSERTION_OWNERSHIP },
     idPatterns: { ...CONTENT_ID_PATTERNS },
     sequence: [...REAL_CONTENT_INSERTION_SEQUENCE],
+    entrypoints: CONTENT_HANDOFF_ENTRYPOINTS.map((entry) => ({ ...entry })),
     recommendedFirstTarget: { ...FIRST_REAL_CONTENT_INSERTION_TARGET },
     notes: [
       "Keep ids stable across files so existing board, lesson, QA, and sentence routing continues to work without UI changes.",

@@ -55,6 +55,49 @@ const ADVANCED_FALLBACK_ENTRIES = [
   { q: "Do you remember her?", qMn: "Та түүнийг санаж байна уу?", a: "I miss her very much.", aMn: "Би түүнийг маш их санаж байна." },
 ];
 
+
+const PLACEHOLDER_CHAPTER_IDS = [CHAPTER_IDS.CH2, CHAPTER_IDS.CH3, CHAPTER_IDS.CH4];
+
+function buildChapterPlaceholderId(chapterId, type) {
+  switch (type) {
+    case "lessonPack":
+      return `world1-${chapterId}-placeholder`;
+    case "wordBank":
+      return `word-bank-world1-${chapterId}-placeholder`;
+    case "sentenceBank":
+      return `sentence-bank-world1-${chapterId}-placeholder`;
+    default:
+      return `world1-${chapterId}-placeholder`;
+  }
+}
+
+function createWorld1PlaceholderLessonPack(chapterId) {
+  return createLessonContentPack({
+    id: buildChapterPlaceholderId(chapterId, "lessonPack"),
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    title: `World 1 · ${chapterId.toUpperCase()} placeholder lesson pack`,
+    description: `Expansion-ready placeholder pack for future ${chapterId.toUpperCase()} lesson insertion.`,
+    entries: [],
+    wordBankId: buildChapterPlaceholderId(chapterId, "wordBank"),
+    sentenceBankId: buildChapterPlaceholderId(chapterId, "sentenceBank"),
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    notes: `Insert final ${chapterId.toUpperCase()} lesson entries here later.`,
+  });
+}
+
+function createLessonWordBank({ id, chapterId, state = PLACEHOLDER_STATES.PLACEHOLDER, tokens = [] } = {}) {
+  return {
+    id,
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state,
+    tokens,
+  };
+}
+
 const LESSON_CONTENT_INSERTION_EXAMPLE = {
   pack: {
     id: "world1-ch2-beginner-core",
@@ -143,45 +186,7 @@ export const LESSON_CONTENT_PACKS = [
     wordBankId: "word-bank-world1-ch1-core",
     sentenceBankId: "sentence-bank-shared-default",
   }),
-  createLessonContentPack({
-    id: "world1-ch2-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH2,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    title: "World 1 · Chapter 2 placeholder lesson pack",
-    description: "Expansion-ready placeholder pack for future chapter lesson insertion.",
-    entries: [],
-    wordBankId: "word-bank-world1-ch2-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch2-placeholder",
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    notes: "Insert final Chapter 2 lesson entries here later.",
-  }),
-  createLessonContentPack({
-    id: "world1-ch3-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH3,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    title: "World 1 · Chapter 3 placeholder lesson pack",
-    description: "Expansion-ready placeholder pack for future chapter lesson insertion.",
-    entries: [],
-    wordBankId: "word-bank-world1-ch3-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch3-placeholder",
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    notes: "Insert final Chapter 3 lesson entries here later.",
-  }),
-  createLessonContentPack({
-    id: "world1-ch4-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH4,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    title: "World 1 · Chapter 4 placeholder lesson pack",
-    description: "Expansion-ready placeholder pack for future chapter lesson insertion.",
-    entries: [],
-    wordBankId: "word-bank-world1-ch4-placeholder",
-    sentenceBankId: "sentence-bank-world1-ch4-placeholder",
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    notes: "Insert final Chapter 4 lesson entries here later.",
-  }),
+  ...PLACEHOLDER_CHAPTER_IDS.map((chapterId) => createWorld1PlaceholderLessonPack(chapterId)),
 ];
 
 export const LESSON_PACK_INDEX = LESSON_CONTENT_PACKS.reduce((acc, pack) => ({
@@ -207,38 +212,16 @@ export const LESSON_PACKS_BY_CONTEXT = LESSON_CONTENT_PACKS.reduce((acc, pack) =
 }, {});
 
 export const LESSON_WORD_BANKS = {
-  "word-bank-world1-ch1-core": {
+  "word-bank-world1-ch1-core": createLessonWordBank({
     id: "word-bank-world1-ch1-core",
-    worldId: WORLD_IDS.WORLD_1,
     chapterId: CHAPTER_IDS.CH1,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.READY,
     tokens: ["ship", "west", "deck", "captain", "map", "shore", "water", "sailors"],
-  },
-  "word-bank-world1-ch2-placeholder": {
-    id: "word-bank-world1-ch2-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH2,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    tokens: [],
-  },
-  "word-bank-world1-ch3-placeholder": {
-    id: "word-bank-world1-ch3-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH3,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    tokens: [],
-  },
-  "word-bank-world1-ch4-placeholder": {
-    id: "word-bank-world1-ch4-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    chapterId: CHAPTER_IDS.CH4,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    tokens: [],
-  },
+  }),
+  ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
+    const id = buildChapterPlaceholderId(chapterId, "wordBank");
+    return [id, createLessonWordBank({ id, chapterId, tokens: [] })];
+  })),
 };
 
 export const LESSON_BANK = {
@@ -367,6 +350,7 @@ export function getLessonContentInsertionGuide() {
         "lesson content packs",
         "lesson word banks",
         "lesson starter templates",
+        "the World 1 chapter placeholder pattern used for later real pack drop-ins",
       ],
     },
     starterTemplates: LESSON_STARTER_TEMPLATES.map((template) => ({ ...template })),
