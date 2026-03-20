@@ -1,39 +1,93 @@
-const CACHE_NAME = 'nomadspeak-v3';
-const PRECACHE_URLS = [
+const CACHE_VERSION = 'nomadspeak-shell-v4';
+const APP_SHELL_ASSETS = [
   './',
   './index.html',
-  './style.css',
-  './script.js',
   './manifest.json',
+  './base.css',
+  './components.css',
+  './screens.css',
+  './utilities.css',
+  './app.js',
+  './script.js',
+  './actions.js',
+  './assets.js',
+  './audio.js',
+  './board-game.js',
+  './board-screen.js',
+  './chapter-cover-screen.js',
+  './chapters.js',
+  './constants.js',
+  './debug-tools.js',
+  './home-screen.js',
+  './lesson-screen.js',
+  './lesson.js',
+  './modal.js',
+  './qa-game.js',
+  './render-board.js',
+  './render-home.js',
+  './render-lesson.js',
+  './render-rewards.js',
+  './render-shell.js',
+  './screen-lifecycle.js',
+  './sentence-game.js',
+  './state.js',
+  './stats-screen.js',
+  './stats.js',
+  './storage.js',
+  './ui.js',
+  './worlds.js',
   './data/sentences.json',
+  './assets/hero.png',
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',
+  './assets/rewards/reward-coin.png',
+  './assets/rewards/reward-diamond.png',
+  './assets/rewards/reward-flag.png',
+  './assets/rewards/reward-star.png',
+  './assets/rewards/reward-trophy.png',
 ];
 
 self.addEventListener('install', (event) => {
-  event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(PRECACHE_URLS)));
+  event.waitUntil(
+    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL_ASSETS))
+  );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((key) => key !== CACHE_NAME).map((key) => caches.delete(key))))
+    caches.keys().then((keys) => Promise.all(
+      keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))
+    ))
   );
   self.clients.claim();
 });
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
-  event.respondWith(
-    caches.match(event.request).then((cachedResponse) => {
-      if (cachedResponse) return cachedResponse;
-      return fetch(event.request)
-        .then((networkResponse) => {
-          const copy = networkResponse.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
-          return networkResponse;
-        })
-        .catch(() => caches.match('./index.html'));
-    })
-  );
+
+  const requestUrl = new URL(event.request.url);
+  if (requestUrl.origin !== self.location.origin) return;
+
+  const isNavigationRequest = event.request.mode === 'navigate';
+
+  event.respondWith((async () => {
+    const cache = await caches.open(CACHE_VERSION);
+    const cachedResponse = await cache.match(event.request, { ignoreSearch: true });
+    if (cachedResponse) return cachedResponse;
+
+    try {
+      const networkResponse = await fetch(event.request);
+      if (networkResponse.ok) {
+        cache.put(event.request, networkResponse.clone());
+      }
+      return networkResponse;
+    } catch (error) {
+      if (isNavigationRequest) {
+        const fallback = await cache.match('./index.html');
+        if (fallback) return fallback;
+      }
+      throw error;
+    }
+  })());
 });
