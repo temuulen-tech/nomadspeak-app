@@ -4478,6 +4478,8 @@ function initializeScreenRegistry() {
   SCREEN_REGISTRY.lesson = initLessonScreen({
     onNext: () => nextQuestion(),
     onRestart: () => startQuiz(),
+    onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
+    onSelectStartLevel: (button) => handleStartLevelSelection(button),
   });
 
   SCREEN_REGISTRY.stats = initStatsScreen({
