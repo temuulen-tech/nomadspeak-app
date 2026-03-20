@@ -98,7 +98,9 @@ import {
   SENTENCE_GAME_TOAST_SPEECH_DELAY,
   SENTENCE_GAME_TOAST_SPEECH_END_BUFFER,
   SENTENCE_GAME_DATA_PATH,
+  filterSentenceItemsForBank,
   prepareSentenceItems,
+  resolveSentenceContentBank,
   tokenizeSentence,
 } from "./sentence-game.js";
 import {
@@ -2630,7 +2632,16 @@ async function loadSentences() {
   try {
     const response = await fetch(SENTENCE_GAME_DATA_PATH);
     if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
-    sentenceItems = prepareSentenceItems(await response.json());
+    const allSentenceItems = prepareSentenceItems(await response.json());
+    const { selectedWorldId } = getCoreState();
+    const chapterId = getDefaultChapterForWorld(selectedWorldId)?.id || null;
+    const chapterContent = resolveChapterContent({ worldId: selectedWorldId, chapterId, difficultyId: level });
+    const sentenceBank = resolveSentenceContentBank({
+      bankId: chapterContent.sentenceBankId,
+      worldId: chapterContent.worldId,
+      difficulty: level,
+    });
+    sentenceItems = filterSentenceItemsForBank(allSentenceItems, sentenceBank?.id || chapterContent.sentenceBankId);
     renderSentences();
     sentenceGameHistory = [];
     sentenceGameIndex = -1;

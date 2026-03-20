@@ -11,6 +11,7 @@ import {
   createPlaceholderMeta,
   createStarterTemplateManifest,
 } from "./constants.js";
+import { CONTENT_GROUPS, getChapterContentRefs } from "./content-registry.js";
 
 /**
  * lesson.js
@@ -56,32 +57,20 @@ const ADVANCED_FALLBACK_ENTRIES = [
 ];
 
 
-const PLACEHOLDER_CHAPTER_IDS = [CHAPTER_IDS.CH2, CHAPTER_IDS.CH3, CHAPTER_IDS.CH4];
-
-function buildChapterPlaceholderId(chapterId, type) {
-  switch (type) {
-    case "lessonPack":
-      return `world1-${chapterId}-placeholder`;
-    case "wordBank":
-      return `word-bank-world1-${chapterId}-placeholder`;
-    case "sentenceBank":
-      return `sentence-bank-world1-${chapterId}-placeholder`;
-    default:
-      return `world1-${chapterId}-placeholder`;
-  }
-}
+const PLACEHOLDER_CHAPTER_IDS = CONTENT_GROUPS.WORLD_1_PLACEHOLDER_CHAPTERS;
 
 function createWorld1PlaceholderLessonPack(chapterId) {
+  const contentRefs = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId);
   return createLessonContentPack({
-    id: buildChapterPlaceholderId(chapterId, "lessonPack"),
+    id: contentRefs.lessonPackId,
     worldId: WORLD_IDS.WORLD_1,
     chapterId,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     title: `World 1 · ${chapterId.toUpperCase()} placeholder lesson pack`,
     description: `Expansion-ready placeholder pack for future ${chapterId.toUpperCase()} lesson insertion.`,
     entries: [],
-    wordBankId: buildChapterPlaceholderId(chapterId, "wordBank"),
-    sentenceBankId: buildChapterPlaceholderId(chapterId, "sentenceBank"),
+    wordBankId: contentRefs.wordBankId,
+    sentenceBankId: contentRefs.sentenceBankId,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
     notes: `Insert final ${chapterId.toUpperCase()} lesson entries here later.`,
   });
@@ -114,8 +103,8 @@ const LESSON_CONTENT_INSERTION_EXAMPLE = {
         aMn: "Эрэг дээр нэг гэр бүл хүлээж байна.",
       },
     ],
-    wordBankId: "word-bank-world1-ch2-core",
-    sentenceBankId: "sentence-bank-world1-ch2-core",
+    wordBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH2).wordBankId,
+    sentenceBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH2).sentenceBankId,
   },
   wordBank: {
     id: "word-bank-world1-ch2-core",
@@ -183,8 +172,8 @@ export const LESSON_CONTENT_PACKS = [
     title: "Колумб ба Шинэ тивийнхэн · 1-р бүлгийн анхан багц",
     description: "Далай гатлалт ба анхны буултын сэдэвтэй анхны бодит lesson content pack.",
     entries: BEGINNER_PACK_ENTRIES,
-    wordBankId: "word-bank-world1-ch1-core",
-    sentenceBankId: "sentence-bank-shared-default",
+    wordBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
+    sentenceBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).sentenceBankId,
   }),
   ...PLACEHOLDER_CHAPTER_IDS.map((chapterId) => createWorld1PlaceholderLessonPack(chapterId)),
 ];
@@ -212,14 +201,14 @@ export const LESSON_PACKS_BY_CONTEXT = LESSON_CONTENT_PACKS.reduce((acc, pack) =
 }, {});
 
 export const LESSON_WORD_BANKS = {
-  "word-bank-world1-ch1-core": createLessonWordBank({
-    id: "word-bank-world1-ch1-core",
+  [getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId]: createLessonWordBank({
+    id: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
     tokens: ["ship", "west", "deck", "captain", "map", "shore", "water", "sailors"],
   }),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
-    const id = buildChapterPlaceholderId(chapterId, "wordBank");
+    const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
     return [id, createLessonWordBank({ id, chapterId, tokens: [] })];
   })),
 };
