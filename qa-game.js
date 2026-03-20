@@ -1,6 +1,11 @@
 /**
  * qa-game.js
  * Question-answer game constants and mode-specific helper functions.
+ *
+ * Real content insertion ownership:
+ * - Store QA round sets here.
+ * - Each set id should match the qaSetId referenced from worlds.js and/or chapters.js.
+ * - Keep word-bank tokens needed for the QA build flow inside each round so gameplay code does not change.
  */
 
 import { getRewardAssetByLevel } from "./assets.js";
@@ -19,6 +24,22 @@ export const QA_REWARD_STEPS = [
   { icon: "🏆", label: "Алтан цомын Эзэн", seconds: 60 * 60, ...getRewardAssetByLevel(4), alt: "Асуулт-хариултын шагнал цом" },
   { icon: "💎", label: "Алмөөз эрдэнэ Чинийх", seconds: 90 * 60, ...getRewardAssetByLevel(5), alt: "Асуулт-хариултын шагнал эрдэнэ" },
 ];
+
+export const QA_CONTENT_INSERTION_EXAMPLE = {
+  id: "qa-set-world1-ch2-core",
+  difficulty: DIFFICULTY_LEVELS.BEGINNER,
+  state: PLACEHOLDER_STATES.READY,
+  rounds: [
+    {
+      id: "A",
+      mnQuestion: "Тэд эрэг дээр юу авчирсан бэ?",
+      mnAnswer: "Тэд жижиг бэлэг авчирсан.",
+      enQuestion: "What did they bring to the shore ?",
+      enAnswer: "They brought small gifts to the shore .",
+      wordBankTokens: ["What", "did", "they", "bring", "to", "the", "shore", "?", "They", "brought", "small", "gifts", "."],
+    },
+  ],
+};
 
 const QA_CONTENT_SETS = [
   {
@@ -142,4 +163,18 @@ export function getQaExpansionManifest() {
     roundCount: set.rounds.length,
     expansion: set.expansion,
   }));
+}
+
+export function getQaContentInsertionGuide() {
+  return {
+    ownership: {
+      file: "qa-game.js",
+      manages: [
+        "QA round sets",
+        "round-specific token banks",
+        "QA expansion manifest state",
+      ],
+    },
+    example: JSON.parse(JSON.stringify(QA_CONTENT_INSERTION_EXAMPLE)),
+  };
 }

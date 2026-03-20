@@ -12,6 +12,11 @@ import {
 /**
  * lesson.js
  * Lesson content and core lesson helpers (question bank, labels, options).
+ *
+ * Real content insertion ownership:
+ * - Store full lesson prompt/answer rows here.
+ * - Store lesson-side word bank tokens here when they are learned/reviewed alongside the lesson pack.
+ * - Keep ids aligned with worlds.js and chapters.js so routing stays data-driven.
  */
 
 const BEGINNER_PACK_ENTRIES = [
@@ -45,6 +50,35 @@ const ADVANCED_FALLBACK_ENTRIES = [
   { q: "Where is their home?", qMn: "Тэдний гэр хаана байдаг вэ?", a: "Their home is in Berlin.", aMn: "Тэдний гэр Берлинд байдаг." },
   { q: "Do you remember her?", qMn: "Та түүнийг санаж байна уу?", a: "I miss her very much.", aMn: "Би түүнийг маш их санаж байна." },
 ];
+
+const LESSON_CONTENT_INSERTION_EXAMPLE = {
+  pack: {
+    id: "world1-ch2-beginner-core",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    title: "World 1 · Chapter 2 beginner pack",
+    description: "One lesson set for a single world/chapter/difficulty insertion.",
+    entries: [
+      {
+        q: "Who is waiting on the shore?",
+        qMn: "Эрэг дээр хэн хүлээж байна вэ?",
+        a: "A family is waiting on the shore.",
+        aMn: "Эрэг дээр нэг гэр бүл хүлээж байна.",
+      },
+    ],
+    wordBankId: "word-bank-world1-ch2-core",
+    sentenceBankId: "sentence-bank-world1-ch2-core",
+  },
+  wordBank: {
+    id: "word-bank-world1-ch2-core",
+    worldId: WORLD_IDS.WORLD_1,
+    chapterId: CHAPTER_IDS.CH2,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.READY,
+    tokens: ["shore", "family", "gift", "canoe"],
+  },
+};
 
 function createLessonContentPack({
   id,
@@ -299,4 +333,23 @@ export function buildOptions(correct, allAnswers = getAllLessonAnswers()) {
     if (pick && !options.includes(pick)) options.push(pick);
   }
   return options.sort(() => Math.random() - 0.5);
+}
+
+export function getLessonContentInsertionGuide() {
+  return {
+    ownership: {
+      file: "lesson.js",
+      manages: [
+        "lesson pack entries",
+        "lesson-linked word banks",
+        "fallback lesson buckets by difficulty",
+      ],
+    },
+    example: JSON.parse(JSON.stringify(LESSON_CONTENT_INSERTION_EXAMPLE)),
+    recommendedPattern: [
+      "Create one pack id per world/chapter/difficulty.",
+      "Keep lesson entries self-contained with q/qMn/a/aMn fields.",
+      "Create a matching word bank id in LESSON_WORD_BANKS when vocabulary should be surfaced with that pack.",
+    ],
+  };
 }

@@ -1,6 +1,11 @@
 /**
  * sentence-game.js
  * Sentence-building game specific constants, content loading helpers, and string helpers.
+ *
+ * Real content insertion ownership:
+ * - Register sentence bank ids and their data source here.
+ * - Keep runtime loading flow stable by pointing each bank at the same JSON/data contract unless a later migration is intentional.
+ * - When a chapter gets its own sentence bank, add the bank here and reference its id from chapters.js and/or worlds.js.
  */
 
 import {
@@ -19,6 +24,23 @@ export const SENTENCE_GAME_DIFFICULTY_LABELS = {
 };
 
 export const SENTENCE_GAME_DATA_PATH = "data/sentences.json";
+
+export const SENTENCE_CONTENT_INSERTION_EXAMPLE = {
+  id: "sentence-bank-world1-ch2-core",
+  worldId: WORLD_IDS.WORLD_1,
+  difficulty: DIFFICULTY_LEVELS.BEGINNER,
+  state: PLACEHOLDER_STATES.READY,
+  dataPath: SENTENCE_GAME_DATA_PATH,
+  expansion: {
+    sentenceBank: createPlaceholderMeta({
+      collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+      slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+      id: "sentence-bank-world1-ch2-core",
+      state: PLACEHOLDER_STATES.READY,
+      notes: "Point this id at Chapter 2 sentence rows in the shared JSON dataset.",
+    }),
+  },
+};
 
 export const SENTENCE_CONTENT_BANKS = [
   {
@@ -177,4 +199,18 @@ export function normalizeSentence(str = "") {
 
 export function normalizeSentenceGameToken(token = "") {
   return token.replace(/\s+/g, " ").trim();
+}
+
+export function getSentenceContentInsertionGuide() {
+  return {
+    ownership: {
+      file: "sentence-game.js",
+      manages: [
+        "sentence bank registrations",
+        "bank-to-data path mapping",
+        "difficulty-specific sentence bank routing",
+      ],
+    },
+    example: JSON.parse(JSON.stringify(SENTENCE_CONTENT_INSERTION_EXAMPLE)),
+  };
 }

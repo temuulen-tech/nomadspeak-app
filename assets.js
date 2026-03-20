@@ -1,6 +1,11 @@
 /**
  * Centralized visual asset registry for NomadSpeak.
  * Keep image/icon/cover/background/audio paths here so screen modules can reference one source of truth.
+ *
+ * Real content insertion ownership:
+ * - Store file-path-based asset registrations here.
+ * - worlds.js and chapters.js should reference asset ids from this file instead of hardcoding paths.
+ * - Future animation hooks should be registered here first, then referenced elsewhere by hook id.
  */
 
 import {
@@ -11,6 +16,31 @@ import {
   WORLD_IDS,
   createPlaceholderMeta,
 } from "./constants.js";
+
+export const ASSET_INSERTION_EXAMPLE = {
+  worldVisual: {
+    id: "world1-ch2-cover",
+    worldId: WORLD_IDS.WORLD_1,
+    slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
+    state: PLACEHOLDER_STATES.READY,
+    path: "assets/worlds/world1/ch2-cover.png",
+    alt: "World 1 Chapter 2 cover",
+  },
+  worldBackground: {
+    id: "world1-ch2-background",
+    worldId: WORLD_IDS.WORLD_1,
+    slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
+    state: PLACEHOLDER_STATES.READY,
+    path: "assets/worlds/world1/ch2-background.png",
+    alt: "World 1 Chapter 2 background",
+  },
+  animationHook: {
+    id: ANIMATION_HOOKS.CHAPTER_REVEAL,
+    collection: CONTENT_COLLECTIONS.ANIMATION_HOOKS,
+    slot: FUTURE_CONTENT_SLOTS.INTRO_ANIMATION,
+    notes: "Attach config for later motion without changing selection flow.",
+  },
+};
 
 const rewardIconEntries = [
   { id: "flag", path: "assets/rewards/reward-flag.png", alt: "Шагнал туг" },
@@ -127,6 +157,15 @@ export const FUTURE_VISUAL_LIBRARY = {
         notes: "Attach future sentence success animation config here.",
       }),
     },
+    {
+      id: ANIMATION_HOOKS.WORLD_REWARD,
+      ...createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.ANIMATION_HOOKS,
+        slot: FUTURE_CONTENT_SLOTS.REWARD_ANIMATION,
+        id: ANIMATION_HOOKS.WORLD_REWARD,
+        notes: "Attach future world reward animation config here.",
+      }),
+    },
   ],
 };
 
@@ -180,4 +219,18 @@ export function getAudioTrackAsset(trackId) {
 
 export function getAnimationHookMeta(hookId) {
   return FUTURE_VISUAL_LIBRARY.animationHooks.find((entry) => entry.id === hookId) || null;
+}
+
+export function getAssetInsertionGuide() {
+  return {
+    ownership: {
+      file: "assets.js",
+      manages: [
+        "cover/background/audio asset ids",
+        "reward art ids",
+        "future animation hook registrations",
+      ],
+    },
+    example: JSON.parse(JSON.stringify(ASSET_INSERTION_EXAMPLE)),
+  };
 }
