@@ -6,6 +6,7 @@
  * - Store file-path-based asset registrations here.
  * - worlds.js and chapters.js should reference asset ids from this file instead of hardcoding paths.
  * - Future animation hooks should be registered here first, then referenced elsewhere by hook id.
+ * - Prefer swapping placeholder registrations here over adding file paths directly inside screen modules.
  */
 
 import {

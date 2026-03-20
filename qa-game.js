@@ -6,6 +6,7 @@
  * - Store QA round sets here.
  * - Each set id should match the qaSetId referenced from worlds.js and/or chapters.js.
  * - Keep word-bank tokens needed for the QA build flow inside each round so gameplay code does not change.
+ * - Prefer replacing placeholder sets with real rounds instead of branching QA flow logic.
  */
 
 import { getRewardAssetByLevel } from "./assets.js";
