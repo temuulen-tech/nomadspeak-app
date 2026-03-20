@@ -440,6 +440,25 @@ function persistCoreAppState() {
   saveCoreState();
 }
 
+function schedulePostStartupTask(task, { timeout = 1200 } = {}) {
+  if (typeof task !== "function") return;
+
+  const runTask = () => {
+    try {
+      task();
+    } catch (error) {
+      console.error("[NomadSpeak] Deferred startup task failed.", error);
+    }
+  };
+
+  if (typeof window.requestIdleCallback === "function") {
+    window.requestIdleCallback(runTask, { timeout });
+    return;
+  }
+
+  window.setTimeout(runTask, 0);
+}
+
 const SOUND_EVENT_HOOKS = {
   diceRoll: "dice-roll",
   answerCorrect: "answer-correct",
@@ -455,6 +474,8 @@ let deferredInstallPrompt = null;
 let appTimeUiInterval = null;
 let appInitialized = false;
 let stateSubscriptionsInitialized = false;
+let sentenceItemsLoadPromise = null;
+let boardGameBootstrapped = false;
 
 const SCREEN_IDS = {
   [startScreen.id]: SCREEN_NAMES.START,
@@ -1243,10 +1264,15 @@ function persistProgressState() {
   syncCoreStateReferences();
 }
 
-function loadProgressState() {
-  loadCoreState();
-  syncCoreStateReferences();
+function loadProgressState({ rehydrate = true, persistAfterSync = true } = {}) {
+  if (rehydrate) {
+    loadCoreState({ persist: false });
+    syncCoreStateReferences();
+  }
   syncProgressForToday();
+  if (persistAfterSync) {
+    persistProgressState();
+  }
 }
 
 function loadPremiumStatus() {
@@ -2007,11 +2033,14 @@ const NAVIGATION_HANDLERS = {
   [FLOW_DESTINATIONS.SENTENCES]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.SENTENCES);
+    ensureSentenceItemsLoaded().catch(() => {});
   },
   [FLOW_DESTINATIONS.SENTENCE_GAME]: () => {
     stopSpeaking();
     showScreen(SCREEN_NAMES.SENTENCE_GAME);
-    initSentenceGameRound();
+    ensureSentenceItemsLoaded()
+      .then(() => initSentenceGameRound())
+      .catch(() => {});
     enforceFreeXpGate();
   },
   [FLOW_DESTINATIONS.QA_GAME]: () => {
@@ -2629,6 +2658,7 @@ async function boardGameRollDice() {
 }
 
 function initBoardGameMvp() {
+  boardGameBootstrapped = true;
   boardGameState.tiles = buildBoardGameTiles(boardLevelConfig());
   boardGameState.player.currentTile = 1;
   boardGameState.player.xp = 0;
@@ -3022,7 +3052,7 @@ function loadSentenceGameRewardState() {
 }
 
 function reconcileRewardTierProgress() {
-  loadProgressState();
+  loadProgressState({ rehydrate: false });
   const derivedRewardTier = Math.max(progressState.rewardTierUnlocked || 1, sentenceGameRewardLevel || 0);
   if (derivedRewardTier <= (progressState.rewardTierUnlocked || 1)) return false;
 
@@ -3507,9 +3537,24 @@ async function loadSentences() {
     sentenceGameHistory = [];
     sentenceGameIndex = -1;
     if (!isHidden(sentenceGameScreen)) initSentenceGameRound();
+    return sentenceItems;
   } catch (error) {
     sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
+    sentenceItemsLoadPromise = null;
+    throw error;
   }
+}
+
+function ensureSentenceItemsLoaded() {
+  if (sentenceItems.length) return Promise.resolve(sentenceItems);
+  if (sentenceItemsLoadPromise) return sentenceItemsLoadPromise;
+
+  sentenceItemsLoadPromise = loadSentences().catch((error) => {
+    sentenceItemsLoadPromise = null;
+    throw error;
+  });
+
+  return sentenceItemsLoadPromise;
 }
 
 
@@ -4585,9 +4630,12 @@ function initializeStateSubscriptions() {
 }
 
 function initializeAppState() {
-  loadTtsSettings();
+  loadCoreState({ persist: false });
+  syncCoreStateReferences();
+  syncProgressForToday();
+  persistProgressState();
+
   updateTtsControlState();
-  loadSoundSettings();
   updateSoundToggleState();
   ensureAudioUnlocked();
   loadSentenceGameClimbLevel();
@@ -4597,9 +4645,6 @@ function initializeAppState() {
   reconcileRewardTierProgress();
   persistSentenceGameRewardState();
   loadSentenceGameDifficulty();
-  loadPremiumStatus();
-  loadProfileName();
-  loadProgressState();
   updateHeaderStatus();
   updateProfileUI();
   updateStatsUI();
@@ -4609,8 +4654,6 @@ function initializeAppState() {
     worldId: selectedWorldId,
     difficultyId: selectedDifficultyId,
   });
-  persistCoreAppState();
-  persistProgressState();
 }
 
 function initializeDebugMode() {
@@ -4860,6 +4903,9 @@ function initializeScreenRegistry() {
   SCREEN_REGISTRY[SCREEN_NAMES.BOARD] = initBoardScreen({
     onRollDice: () => boardGameRollDice(),
     onResizeWhileVisible: () => updateBoardGameTokenPosition(),
+    onActivate: () => {
+      if (!boardGameBootstrapped) initBoardGameMvp();
+    },
   });
 
   SCREEN_REGISTRY.lesson = initLessonScreen({
@@ -4949,7 +4995,7 @@ function initializePremiumControls() {
 }
 
 function initializeInstallPrompt() {
-  registerServiceWorker();
+  schedulePostStartupTask(() => registerServiceWorker(), { timeout: 3000 });
 
   bindManagedEvent(window, "beforeinstallprompt", "app:install:beforeinstallprompt", (event) => {
     event.preventDefault();
@@ -5027,7 +5073,6 @@ function auditPrimaryButtonWiring() {
 }
 
 export function initializeApp() {
-  initializeStateSubscriptions();
   if (appInitialized) {
     auditPrimaryButtonWiring();
     return;
@@ -5035,6 +5080,8 @@ export function initializeApp() {
 
   appInitialized = true;
   initializeAppState();
+  renderCoreStateSnapshot();
+  initializeStateSubscriptions();
   initializeScreenRegistry();
   initializeDebugMode();
   initializeRewardUi();
@@ -5050,8 +5097,10 @@ export function initializeApp() {
   initializeInstallPrompt();
   initializeActiveScreenTracking();
   auditPrimaryButtonWiring();
-  loadSentences();
-  initBoardGameMvp();
+
+  schedulePostStartupTask(() => {
+    ensureSentenceItemsLoaded().catch(() => {});
+  });
 }
 
 function sentenceLevelFilterLabel(filterKey) {
