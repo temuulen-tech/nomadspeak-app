@@ -1626,10 +1626,11 @@
   .stats-reward-tier,
   .stats-reward-threshold,
   .stats-reward-rating{
-    white-space:nowrap;
-    overflow:hidden;
-    text-overflow:ellipsis;
+    white-space:normal;
+    overflow:visible;
+    text-overflow:clip;
     max-width:100%;
+    overflow-wrap:anywhere;
   }
 
   .stats-reward-left .stats-reward-title,
@@ -1645,6 +1646,26 @@
   .progress-summary{
     grid-template-columns:1fr;
     gap:8px;
+  }
+
+  .stats-reward-card,
+  .stats-reward-main,
+  .stats-reward-left,
+  .stats-reward-right{
+    flex-direction:column;
+    align-items:stretch;
+  }
+
+  .stats-reward-right{
+    margin-left:0;
+    justify-content:flex-start;
+    flex-shrink:1;
+  }
+
+  .stats-reward-left .stats-reward-title,
+  .stats-reward-left .stats-reward-subtitle,
+  .stats-reward-left .stats-reward-range{
+    max-width:100%;
   }
 
   .progress-summary-card{
