@@ -997,13 +997,13 @@ button,
 .home-hub-shell{
   display:flex;
   flex-direction:column;
-  gap:18px;
+  gap:14px;
 }
 
 .home-hub-copy{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
   text-align:center;
   align-items:center;
 }
@@ -1022,13 +1022,13 @@ button,
 
 .home-hub-text{
   margin:0;
-  max-width:38ch;
-  line-height:1.55;
+  max-width:34ch;
+  line-height:1.45;
 }
 
 .home-hub-actions{
   display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
+  grid-template-columns:minmax(0, 1.35fr) repeat(2, minmax(0, .85fr));
   gap:10px;
   align-items:stretch;
 }
@@ -1040,7 +1040,7 @@ button,
 .home-hub-btn{
   min-height:56px;
   width:100%;
-  padding:14px 16px;
+  padding:13px 15px;
   border-radius:16px;
   justify-content:flex-start;
   text-align:left;
@@ -1052,7 +1052,7 @@ button,
   display:flex;
   flex-direction:column;
   align-items:flex-start;
-  gap:6px;
+  gap:5px;
 }
 
 .home-entry-card--primary{
@@ -1071,12 +1071,13 @@ button,
   font-size:15px;
   font-weight:800;
   color:#f8fffb;
+  line-height:1.2;
 }
 
 .home-entry-meta{
-  font-size:12px;
-  line-height:1.45;
-  color:rgba(235,247,241,.86);
+  font-size:11px;
+  line-height:1.4;
+  color:rgba(235,247,241,.82);
 }
 
 .home-modes-panel-copy{
@@ -1088,6 +1089,28 @@ button,
 
 .home-modes-panel-copy p{
   margin:0;
+}
+
+
+.start-intro-compact{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+}
+
+.start-intro-compact > p{
+  margin:0;
+}
+
+.start-intro-list{
+  margin:0;
+  padding-left:18px;
+  display:grid;
+  gap:8px;
+}
+
+.start-intro-list li::marker{
+  color:rgba(140, 206, 255, .92);
 }
 
 
