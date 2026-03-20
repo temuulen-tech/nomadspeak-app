@@ -114,6 +114,7 @@ export const FUTURE_CONTENT_SLOTS = {
   WORLD_COVER: "worldCover",
   WORLD_REWARD_VISUAL: "worldRewardVisual",
   WORLD_BACKGROUND: "worldBackground",
+  LESSON_VISUAL: "lessonVisual",
   AMBIENCE_TRACK: "ambienceTrack",
   INTRO_ANIMATION: "introAnimation",
   REWARD_ANIMATION: "rewardAnimation",
