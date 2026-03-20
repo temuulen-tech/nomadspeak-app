@@ -28,7 +28,6 @@ import {
   updateSettings,
   updateStreak,
 } from "./actions.js";
-import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
 import { initChapterCoverScreen } from "./chapter-cover-screen.js";
@@ -37,6 +36,9 @@ import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { LESSON_TRANSLATIONS, buildOptions, levelName, resolveLessonContent } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
+import { createVaultManager } from "./vault-manager.js";
+import { createAppTimerManager } from "./app-timer.js";
+import { createScreenNavigator } from "./screen-navigation.js";
 import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
   renderHomeScreen,
@@ -586,92 +588,6 @@ function unique(array) {
   return [...new Set(array)];
 }
 
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
-}
-
-function renderVaultEnMnLine(enText, mnText) {
-  const safeEn = escapeHtml(enText || "");
-  const safeMn = escapeHtml(mnText || "");
-  return `<span class="vault-entry-en">${safeEn}</span><span class="vault-entry-mn">${safeMn}</span>`;
-}
-
-function lessonMnTranslation(value) {
-  if (!value) return "";
-  return LESSON_TRANSLATIONS.questionMnByEn[value]
-    || LESSON_TRANSLATIONS.answerMnByEn[value]
-    || "";
-}
-
-function enrichLessonVaultItemWithMn(item) {
-  if (!item || typeof item !== "object") return item;
-  const next = { ...item };
-  const questionMn = next.questionMn || lessonMnTranslation(next.questionText);
-  const correctAnswerMn = next.correctAnswerMn || lessonMnTranslation(next.correctAnswer);
-  next.questionMn = questionMn;
-  next.correctAnswerMn = correctAnswerMn;
-
-  const options = Array.isArray(next.options) ? next.options.slice() : [];
-  const optionMnMap = (next.optionMnMap && typeof next.optionMnMap === "object") ? { ...next.optionMnMap } : {};
-  options.forEach((option) => {
-    if (!optionMnMap[option]) {
-      optionMnMap[option] = lessonMnTranslation(option);
-    }
-  });
-  next.optionMnMap = optionMnMap;
-  return next;
-}
-
-
-const VAULT_KEY_BY_SCREEN = {
-  lesson: "repeatVault_lesson",
-  qna: "repeatVault_qna",
-  sentenceGame: "repeatVault_sentenceGame",
-  sentences: "repeatVault_sentences",
-};
-
-const VAULT_SCREEN_META = {
-  lesson: { badgeEl: lessonVaultBadge, title: "Хичээлийн хадгалсан асуултууд" },
-  qna: { badgeEl: qaVaultBadge, title: "Q&A тоглоомын хадгалсан зүйлс" },
-  sentenceGame: { badgeEl: sentenceGameVaultBadge, title: "Өгүүлбэрийн тоглоомын хадгалсан зүйлс" },
-  sentences: { badgeEl: sentencesVaultBadge, title: "Өгүүлбэрүүдийн хадгалсан зүйлс" },
-};
-
-const VAULT_ITEM_RENDERERS = {
-  lesson: (item) => {
-    const options = Array.isArray(item.options) ? item.options : [];
-    const optionMnMap = (item.optionMnMap && typeof item.optionMnMap === "object") ? item.optionMnMap : {};
-    const optionsHtml = options.map((option, index) => {
-      const mnText = optionMnMap[option] || lessonMnTranslation(option);
-      const correctBadge = option === item.correctAnswer ? " <span class=\"vault-option-badge\">(Зөв)</span>" : "";
-      return `<div class="vault-option-line">${index + 1}. ${renderVaultEnMnLine(option, mnText)}${correctBadge}</div>`;
-    }).join("");
-
-    return `
-      <p><strong>Түвшин:</strong> ${escapeHtml(item.level || "")}</p>
-      <p><strong>Асуулт:</strong> ${renderVaultEnMnLine(item.questionText, item.questionMn || lessonMnTranslation(item.questionText))}</p>
-      <p class="vault-correct-answer"><strong>Зөв хариулт:</strong> ${renderVaultEnMnLine(item.correctAnswer, item.correctAnswerMn || lessonMnTranslation(item.correctAnswer))}</p>
-      <div class="vault-options-list">${optionsHtml}</div>
-    `;
-  },
-  qna: (item) => `<p><strong>Монгол Асуулт:</strong> ${item.mnQuestion || ""}</p><p><strong>Монгол Хариулт:</strong> ${item.mnAnswer || ""}</p><p><strong>Англи Асуулт:</strong> ${item.enQuestion || ""}</p><p><strong>Англи Хариулт:</strong> ${item.enAnswer || ""}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
-  sentenceGame: (item) => `<p><strong>Англи:</strong> ${item.enSentence || ""}</p><p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p><p><strong>Түвшин:</strong> ${item.level || ""}</p>`,
-  sentences: (item) => `
-    <p><strong>Англи:</strong> ${item.enSentence || ""}</p>
-    <p><strong>Монгол:</strong> ${item.mnTranslation || "-"}</p>
-    <button type="button" class="vault-sentence-speak-btn" data-id="${item.id}" aria-pressed="false">▶ Дараад сонс</button>
-  `,
-};
-
-function vaultKeyForScreen(screenId) {
-  return VAULT_KEY_BY_SCREEN[screenId] || `repeatVault_${screenId}`;
-}
-
 function safeLocalStorageSet(key, value) {
   try {
     localStorage.setItem(key, value);
@@ -690,274 +606,47 @@ function safeLocalStorageRemove(key) {
   }
 }
 
-function loadVault(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed)) return [];
-    if (key !== vaultKeyForScreen("lesson")) return parsed;
-
-    let changed = false;
-    const normalized = parsed.map((item) => {
-      const enriched = enrichLessonVaultItemWithMn(item);
-      if (JSON.stringify(enriched) !== JSON.stringify(item)) changed = true;
-      return enriched;
-    });
-
-    if (changed) {
-      safeLocalStorageSet(key, JSON.stringify(normalized));
-    }
-    return normalized;
-  } catch (error) {
-    return [];
-  }
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
 }
 
-function saveToVault(key, item) {
-  if (!item || !item.id) return { ok: false, reason: "invalid" };
-  const list = loadVault(key);
-  const exists = list.some((entry) => entry.id === item.id);
-  if (exists) return { ok: false, reason: "duplicate" };
-  list.unshift(item);
-  if (!safeLocalStorageSet(key, JSON.stringify(list))) {
-    return { ok: false, reason: "storage" };
-  }
-  return { ok: true, reason: "saved", count: list.length };
+function lessonMnTranslation(value) {
+  if (!value) return "";
+  return LESSON_TRANSLATIONS.questionMnByEn[value]
+    || LESSON_TRANSLATIONS.answerMnByEn[value]
+    || "";
 }
 
-function removeFromVault(key, id) {
-  const list = loadVault(key);
-  const next = list.filter((entry) => entry.id !== id);
-  safeLocalStorageSet(key, JSON.stringify(next));
-  return next;
+function saveCurrentSentencesItem() {
+  const visible = filteredSentences();
+  if (!visible.length) return;
+  const active = visible.find((item) => String(item.id) === String(speakingSentenceId || ""));
+  saveSentenceListItem(active || visible[0]);
+}
+
+let appTimerManager = null;
+let vaultManager = null;
+let screenNavigator = null;
+
+function vaultKeyForScreen(screenId) {
+  return vaultManager?.keyForScreen(screenId) || `repeatVault_${screenId}`;
 }
 
 function updateVaultBadge(key) {
-  const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
-  if (!screenId) return;
-  const meta = VAULT_SCREEN_META[screenId];
-  if (!meta || !meta.badgeEl) return;
-  meta.badgeEl.textContent = String(loadVault(key).length);
-}
-
-function showVaultToast(message) {
-  showQaToast(message);
-}
-
-function showVaultSaveResult(result = {}) {
-  if (result.reason === "duplicate") {
-    showVaultToast("Өмнө нь хадгалсан байна");
-    return;
-  }
-
-  if (result.reason === "storage") {
-    showVaultToast("Хадгалах үед алдаа гарлаа. Дахин оролдоно уу.");
-    return;
-  }
-
-  showVaultToast("Хадгаллаа ✅");
-}
-
-function findVaultItem(sectionKey, itemId) {
-  if (!sectionKey || !itemId) return null;
-  const key = vaultKeyForScreen(sectionKey);
-  return loadVault(key).find((entry) => entry.id === itemId) || null;
-}
-
-function focusSentenceFromVault(savedItem) {
-  if (!savedItem || !sentencesListEl) return;
-  const targetSentence = String(savedItem.enSentence || "").trim().toLowerCase();
-  if (!targetSentence) return;
-
-  const rows = [...sentencesListEl.querySelectorAll(".sentence-row")];
-  const targetRow = rows.find((row) => {
-    const enEl = row.querySelector(".sentence-en");
-    return String(enEl?.textContent || "").trim().toLowerCase() === targetSentence;
-  });
-
-  if (!targetRow) {
-    openQaModal(
-      "Өгүүлбэр давтах",
-      `<p><strong>Англи:</strong> ${escapeHtml(savedItem.enSentence || "")}</p><p><strong>Монгол:</strong> ${escapeHtml(savedItem.mnTranslation || "-")}</p>`
-    );
-    return;
-  }
-
-  sentencesListEl.querySelectorAll(".sentence-row.is-repeat-target").forEach((row) => row.classList.remove("is-repeat-target"));
-  targetRow.classList.add("is-repeat-target");
-  targetRow.scrollIntoView({ behavior: "smooth", block: "center" });
-  targetRow.querySelector(".speak-btn")?.focus();
-
-  if (appSettings.soundEnabled) {
-    const sourceItem = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === targetSentence)
-      || { id: Number(targetRow.querySelector(".speak-btn")?.dataset.id || 0), en: savedItem.enSentence };
-    setTimeout(() => speakSentence(sourceItem), 120);
-  }
-}
-
-function loadSentenceGameFromVault(savedItem) {
-  if (!savedItem || !savedItem.enSentence) return;
-  const normalized = String(savedItem.enSentence).trim().toLowerCase();
-  const matched = sentenceItems.find((item) => String(item.en || "").trim().toLowerCase() === normalized)
-    || { en: savedItem.enSentence, mn: savedItem.mnTranslation || "", level: (savedItem.level || DIFFICULTY_LEVELS.BEGINNER).toLowerCase() };
-
-  sentenceGameHistory = [matched];
-  sentenceGameIndex = 0;
-  initSentenceGameRound();
-}
-
-function loadQaRoundFromVault(savedItem) {
-  if (!savedItem) return;
-  const round = {
-    id: savedItem.id || `vault-${Date.now()}`,
-    mnQuestion: savedItem.mnQuestion || "",
-    mnAnswer: savedItem.mnAnswer || "",
-    enQuestion: savedItem.enQuestion || "",
-    enAnswer: savedItem.enAnswer || "",
-  };
-
-  qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
-  qaRoundPool = [round];
-  qaRoundIndex = 0;
-  setHidden(qaRoundPanelEl, false);
-  setHidden(qaLevelOptionsEl, true);
-  qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
-
-  const questionTokens = round.enQuestion.split(" ").filter(Boolean);
-  const answerTokens = round.enAnswer.split(" ").filter(Boolean);
-  const combinedTokens = [...questionTokens, ...answerTokens];
-  setupQaRound({ round, wordBankTokens: combinedTokens });
-  startQaTimer();
-}
-
-function repeatFromVault(sectionKey, itemId) {
-  const savedItem = findVaultItem(sectionKey, itemId);
-  if (!savedItem) {
-    showVaultToast("Хадгалсан өгөгдөл олдсонгүй.");
-    return;
-  }
-
-  closeModal(vaultModalEl);
-
-  if (sectionKey === SCREEN_NAMES.LESSON) {
-    startLessonFromSaved(itemId);
-    return;
-  }
-
-  if (sectionKey === SCREEN_NAMES.SENTENCES) {
-    stopSpeaking();
-    showScreen(sentencesScreen);
-    renderSentences();
-    focusSentenceFromVault(savedItem);
-    return;
-  }
-
-  if (sectionKey === "sentenceGame") {
-    stopSpeaking();
-    showScreen(sentenceGameScreen);
-    loadSentenceGameFromVault(savedItem);
-    enforceFreeXpGate();
-    return;
-  }
-
-  if (sectionKey === "qna") {
-    stopSpeaking();
-    showScreen(qaGameScreen);
-    loadQaRoundFromVault(savedItem);
-  }
+  vaultManager?.updateBadge(key);
 }
 
 function renderVaultModal(key) {
-  if (!vaultModalEl || !vaultModalBodyEl || !vaultModalTitleEl) return;
-  const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
-  const list = loadVault(key);
-  const meta = VAULT_SCREEN_META[screenId] || { title: "Дахин давтах / Дараа харах" };
-  vaultModalTitleEl.textContent = meta.title;
+  vaultManager?.renderModal(key);
+}
 
-  let selectedId = list.length ? list[0].id : "";
-  const setSelectedEntry = (entryId) => {
-    selectedId = entryId || "";
-    vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
-      toggleClass(entry, "is-selected", entry.dataset.id === selectedId);
-    });
-  };
-
-  if (vaultReplayBtn) {
-    setDisabledState(vaultReplayBtn, !list.length);
-  }
-  if (vaultDeleteBtn) {
-    setDisabledState(vaultDeleteBtn, !list.length);
-  }
-  if (vaultLearnedBtn) {
-    setDisabledState(vaultLearnedBtn, !list.length);
-  }
-
-  if (!list.length) {
-    vaultModalBodyEl.innerHTML = '<div class="vault-list"><p>Одоогоор хадгалсан зүйл алга.</p></div>';
-    openModal(vaultModalEl);
-    return;
-  }
-
-  const renderItem = VAULT_ITEM_RENDERERS[screenId] || ((item) => `<p>${item.id}</p>`);
-  openModal(vaultModalEl, { titleEl: vaultModalTitleEl, title: meta.title, bodyEl: vaultModalBodyEl, bodyHtml: `<div class="vault-list">${list.map((item) => `
-    <article class="vault-entry" data-id="${item.id}">
-      ${renderItem(item)}
-    </article>
-  `).join("")}</div>` });
-  setSelectedEntry(selectedId);
-
-  vaultModalBodyEl.querySelectorAll(".vault-entry").forEach((entry) => {
-    entry.addEventListener("click", () => {
-      const itemId = entry.dataset.id;
-      if (!itemId) return;
-      setSelectedEntry(itemId);
-    });
-  });
-
-  if (screenId === SCREEN_NAMES.SENTENCES) {
-    vaultModalBodyEl.querySelectorAll(".vault-sentence-speak-btn").forEach((btn) => {
-      btn.addEventListener("click", (event) => {
-        event.stopPropagation();
-        const itemId = String(btn.dataset.id || "");
-        if (!itemId) return;
-        setSelectedEntry(itemId);
-
-        const sentenceText = list.find((entry) => String(entry.id) === itemId)?.enSentence || "";
-        if (!sentenceText) return;
-
-        if (String(speakingSentenceId || "") === itemId) {
-          stopSpeaking();
-          return;
-        }
-
-        speakSentence({ id: itemId, en: sentenceText });
-      });
-    });
-  }
-
-  if (vaultReplayBtn) {
-    vaultReplayBtn.onclick = () => {
-      if (!screenId || !selectedId) return;
-      repeatFromVault(screenId, selectedId);
-    };
-  }
-
-  const removeSelected = () => {
-    if (!selectedId) return;
-    removeFromVault(key, selectedId);
-    updateVaultBadge(key);
-    showVaultToast("Хадгалсанаас устгалаа 🗑️");
-    renderVaultModal(key);
-  };
-
-  if (vaultDeleteBtn) vaultDeleteBtn.onclick = removeSelected;
-  if (vaultLearnedBtn) vaultLearnedBtn.onclick = () => {
-    const learnedEntry = list.find((entry) => entry.id === selectedId);
-    const learnedWord = learnedEntry?.enSentence || learnedEntry?.correctAnswer || learnedEntry?.enAnswer || learnedEntry?.questionText;
-    if (learnedWord) markWordLearned(learnedWord);
-    removeSelected();
-  };
+function saveSentenceListItem(item) {
+  vaultManager?.saveSentenceListItem(item);
 }
 
 function saveCurrentLessonItem() {
@@ -968,7 +657,7 @@ function saveCurrentLessonItem() {
     acc[option] = lessonMnTranslation(option);
     return acc;
   }, {});
-  const payload = enrichLessonVaultItemWithMn({
+  const payload = {
     id: `lesson:${item.q.toLowerCase().trim()}`,
     questionText: item.q,
     questionMn: item.qMn || lessonMnTranslation(item.q),
@@ -978,31 +667,11 @@ function saveCurrentLessonItem() {
     optionMnMap,
     level: levelName(level),
     timestamp: Date.now(),
-  });
+  };
   const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
-  const result = saveToVault(key, payload);
+  const result = vaultManager?.saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultSaveResult(result);
-}
-
-function startLessonFromSaved(itemId) {
-  const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
-  const savedItem = loadVault(key).find((entry) => entry.id === itemId);
-  if (!savedItem) return;
-
-  lessonReviewMode = true;
-  questions = [{
-    q: savedItem.questionText || "",
-    a: savedItem.correctAnswer || "",
-    replayOptions: Array.isArray(savedItem.options) ? savedItem.options.slice() : [],
-  }];
-  currentIndex = 0;
-  locked = false;
-
-  closeModal(vaultModalEl);
-  stopSpeaking();
-  showScreen(quizScreen);
-  renderQuestion();
+  vaultManager?.showSaveResult(result);
 }
 
 function saveCurrentQaRound() {
@@ -1018,9 +687,9 @@ function saveCurrentQaRound() {
     timestamp: Date.now(),
   };
   const key = vaultKeyForScreen("qna");
-  const result = saveToVault(key, payload);
+  const result = vaultManager?.saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultSaveResult(result);
+  vaultManager?.showSaveResult(result);
 }
 
 function saveCurrentSentenceGameItem() {
@@ -1034,38 +703,30 @@ function saveCurrentSentenceGameItem() {
     timestamp: Date.now(),
   };
   const key = vaultKeyForScreen("sentenceGame");
-  const result = saveToVault(key, payload);
+  const result = vaultManager?.saveToVault(key, payload);
   updateVaultBadge(key);
-  showVaultSaveResult(result);
+  vaultManager?.showSaveResult(result);
 }
 
-function saveSentenceListItem(item) {
-  if (!item) return;
-  const payload = {
-    id: `sentences:${String(item.en || "").toLowerCase().trim()}`,
-    enSentence: item.en,
-    mnTranslation: item.mn || "",
-    voiceSetting: appSettings.ttsSettings.voice,
-    timestamp: Date.now(),
-  };
-  const key = vaultKeyForScreen(SCREEN_NAMES.SENTENCES);
-  const result = saveToVault(key, payload);
-  updateVaultBadge(key);
-  showVaultSaveResult(result);
+function showScreen(screenId) {
+  screenNavigator?.showScreen(screenId);
 }
 
-function saveCurrentSentencesItem() {
-  const visible = filteredSentences();
-  if (!visible.length) return;
-  const active = visible.find((item) => String(item.id) === String(speakingSentenceId || ""));
-  saveSentenceListItem(active || visible[0]);
+function syncBoardEntryFlowState(options) {
+  return screenNavigator?.syncBoardEntryFlowState(options);
 }
+
+function navigateTo(destination) {
+  screenNavigator?.navigateTo(destination);
+}
+
+function requestNavigation(destination) {
+  screenNavigator?.requestNavigation(destination);
+}
+
 
 function getLocalDateKey(date = new Date()) {
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return appTimerManager?.getLocalDateKey(date) || "";
 }
 
 function getTodayKey() {
@@ -1073,207 +734,67 @@ function getTodayKey() {
 }
 
 function getAppTimeDailyTotals() {
-  try {
-    const raw = localStorage.getItem(APP_TIME_DAILY_TOTALS_KEY);
-    const parsed = raw ? JSON.parse(raw) : {};
-    return parsed && typeof parsed === "object" ? parsed : {};
-  } catch (error) {
-    return {};
-  }
-}
-
-function setAppTimeDailyTotals(totals) {
-  safeLocalStorageSet(APP_TIME_DAILY_TOTALS_KEY, JSON.stringify(totals));
+  return appTimerManager?.getAppTimeDailyTotals() || {};
 }
 
 function addSecondsToDate(dateKey, seconds) {
-  const safeSeconds = Math.max(0, Math.floor(seconds));
-  if (!dateKey || safeSeconds <= 0) return;
-  const totals = getAppTimeDailyTotals();
-  totals[dateKey] = Math.max(0, Math.floor(Number(totals[dateKey]) || 0)) + safeSeconds;
-  setAppTimeDailyTotals(totals);
-}
-
-function splitAcrossMidnight(startMs, endMs) {
-  if (!Number.isFinite(startMs) || !Number.isFinite(endMs)) return;
-  if (endMs <= startMs) return;
-
-  let cursor = startMs;
-  while (cursor < endMs) {
-    const current = new Date(cursor);
-    const dayStart = new Date(current.getFullYear(), current.getMonth(), current.getDate());
-    const nextMidnight = dayStart.getTime() + (24 * 60 * 60 * 1000);
-    const segmentEnd = Math.min(endMs, nextMidnight);
-    const seconds = Math.floor((segmentEnd - cursor) / 1000);
-    if (seconds > 0) {
-      addSecondsToDate(getLocalDateKey(current), seconds);
-    }
-    cursor = segmentEnd;
-  }
-}
-
-function readActiveSession() {
-  try {
-    const raw = localStorage.getItem(APP_TIME_ACTIVE_SESSION_KEY);
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed || typeof parsed !== "object") return null;
-    if (!parsed.screenId || !Number.isFinite(Number(parsed.startedAtEpochMs))) return null;
-    return {
-      screenId: parsed.screenId,
-      startedAtEpochMs: Number(parsed.startedAtEpochMs),
-    };
-  } catch (error) {
-    return null;
-  }
-}
-
-function writeActiveSession(session) {
-  if (!session) {
-    safeLocalStorageRemove(APP_TIME_ACTIVE_SESSION_KEY);
-    return;
-  }
-  safeLocalStorageSet(APP_TIME_ACTIVE_SESSION_KEY, JSON.stringify(session));
-}
-
-function stopSession() {
-  const active = readActiveSession();
-  if (!active) return;
-  splitAcrossMidnight(active.startedAtEpochMs, Date.now());
-  writeActiveSession(null);
-}
-
-function startSession(screenId) {
-  stopSession();
-  if (!screenId) return;
-  writeActiveSession({
-    screenId,
-    startedAtEpochMs: Date.now(),
-  });
-}
-
-function ensureStoppedIfHidden() {
-  if (document.hidden) stopSession();
-}
-
-function persistAllActiveTime() {
-  endSentenceGameSession();
-  stopLessonTimer();
-  stopQaTimer();
-  stopSentencesTimer();
-  stopSession();
-}
-
-function secondsBetween(a, b) {
-  return Math.max(0, Math.floor((b - a) / 1000));
-}
-
-function getAggregates(now = new Date()) {
-  const todayKey = getLocalDateKey(now);
-  const yesterdayKey = previousDayKey(todayKey);
-
-  const weekday = now.getDay();
-  const mondayOffset = (weekday + 6) % 7;
-  const startOfThisWeek = new Date(now.getFullYear(), now.getMonth(), now.getDate() - mondayOffset);
-  const startOfNextWeek = new Date(startOfThisWeek.getFullYear(), startOfThisWeek.getMonth(), startOfThisWeek.getDate() + 7);
-  const startOfLastWeek = new Date(startOfThisWeek.getFullYear(), startOfThisWeek.getMonth(), startOfThisWeek.getDate() - 7);
-
-  const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-  const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-  const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-
-  const active = readActiveSession();
-  if (active) {
-    splitAcrossMidnight(active.startedAtEpochMs, Date.now());
-    writeActiveSession({ screenId: active.screenId, startedAtEpochMs: Date.now() });
-  }
-
-  const totals = getAppTimeDailyTotals();
-
-  const parseKeyDate = (key) => new Date(`${key}T00:00:00`);
-  const sumRange = (start, end) => Object.entries(totals).reduce((sum, [key, value]) => {
-    const date = parseKeyDate(key);
-    if (date >= start && date < end) return sum + Math.max(0, Math.floor(Number(value) || 0));
-    return sum;
-  }, 0);
-
-  return {
-    today: Math.max(0, Math.floor(Number(totals[todayKey]) || 0)),
-    yesterday: Math.max(0, Math.floor(Number(totals[yesterdayKey]) || 0)),
-    thisWeek: sumRange(startOfThisWeek, startOfNextWeek),
-    lastWeek: sumRange(startOfLastWeek, startOfThisWeek),
-    thisMonth: sumRange(startOfThisMonth, startOfNextMonth),
-    lastMonth: sumRange(startOfLastMonth, startOfThisMonth),
-  };
-}
-
-function formatHHMMSS(totalSeconds) {
-  return formatDuration(totalSeconds);
+  appTimerManager?.addSecondsToDate(dateKey, seconds);
 }
 
 function previousDayKey(dayKey) {
-  if (!dayKey) return "";
-  const dt = new Date(`${dayKey}T00:00:00`);
-  dt.setDate(dt.getDate() - 1);
-  const year = dt.getFullYear();
-  const month = String(dt.getMonth() + 1).padStart(2, "0");
-  const day = String(dt.getDate()).padStart(2, "0");
-  return `${year}-${month}-${day}`;
+  return appTimerManager?.previousDayKey(dayKey) || "";
 }
 
-function rewardForStreak(streak) {
-  if (streak >= 30) return "💎 Бриллиант";
-  if (streak >= 7) return "🏆 Алтан цом";
-  return "⭐ Таван хошуу";
+function loadProgressState(options) {
+  appTimerManager?.loadProgressState(options);
 }
 
 function syncProgressForToday() {
-  const today = getTodayKey();
-  const aggregates = getAggregates(new Date());
-  const dailyTotals = getAppTimeDailyTotals();
-  const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
-    const dt = new Date();
-    dt.setDate(dt.getDate() - (6 - index));
-    const key = getLocalDateKey(dt);
-    return Math.floor((Number(dailyTotals[key]) || 0) / 60);
-  });
-  const lastStatsDate = progressState.lastStatsDate || progressState.lastActiveDate;
-  const shouldResetDaily = Boolean(lastStatsDate && lastStatsDate !== today);
-  updateStreak({
-    today,
-    yesterday: previousDayKey(today),
-    todayMinutes: Math.floor(aggregates.today / 60),
-    weeklyMinutes,
-    resetDaily: shouldResetDaily,
-  });
-  syncCoreStateReferences();
+  appTimerManager?.syncProgressForToday();
 }
 
 function persistProgressState() {
-  syncCoreStateReferences();
-  const weeklyMinutes = Array.isArray(progressState.weeklyMinutes) ? progressState.weeklyMinutes.slice() : [];
-  if (weeklyMinutes.length) {
-    weeklyMinutes[weeklyMinutes.length - 1] = Math.max(0, Math.floor(progressState.todayMinutes || 0));
-  }
-  replaceProgress({
-    ...progressState,
-    xpTotal: progressState.xp,
-    streakDays: progressState.streak,
-    level: Math.floor(progressState.xp / 100) + 1,
-    weeklyMinutes,
-  });
-  syncCoreStateReferences();
+  appTimerManager?.persistProgressState();
 }
 
-function loadProgressState({ rehydrate = true, persistAfterSync = true } = {}) {
-  if (rehydrate) {
-    loadCoreState({ persist: false });
-    syncCoreStateReferences();
-  }
-  syncProgressForToday();
-  if (persistAfterSync) {
-    persistProgressState();
-  }
+function refreshTimeSummaryUI() {
+  appTimerManager?.refreshTimeSummaryUI();
+}
+
+function readActiveSession() {
+  return appTimerManager?.readActiveSession() || null;
+}
+
+function startSession(screenId) {
+  appTimerManager?.startSession(screenId);
+}
+
+function stopSession() {
+  appTimerManager?.stopSession();
+}
+
+function ensureStoppedIfHidden() {
+  appTimerManager?.ensureStoppedIfHidden();
+}
+
+function persistAllActiveTime() {
+  appTimerManager?.persistAllActiveTime();
+}
+
+function formatHHMMSS(totalSeconds) {
+  return appTimerManager?.formatHHMMSS(totalSeconds) || "00:00:00";
+}
+
+function startTimeUiUpdater() {
+  appTimerManager?.startTimeUiUpdater();
+}
+
+function stopTimeUiUpdater() {
+  appTimerManager?.stopTimeUiUpdater();
+}
+
+function showVaultToast(message) {
+  showQaToast(message);
 }
 
 function loadPremiumStatus() {
@@ -1326,9 +847,7 @@ function renderProfileSnapshot() {
 }
 
 function updateProfileUI() {
-  syncCoreStateReferences();
-  syncProgressForToday();
-  renderProfileSnapshot();
+  appTimerManager?.updateProfileUI();
 }
 
 function playDailyGoalSuccessChime() {
@@ -1718,15 +1237,11 @@ function renderStatsSnapshot() {
 }
 
 function updateStatsUI() {
-  syncCoreStateReferences();
-  syncProgressForToday();
-  renderStatsSnapshot();
-  persistProgressState();
+  appTimerManager?.updateStatsUI();
 }
 
 function updateHeaderStatus() {
-  syncCoreStateReferences();
-  syncProgressForToday();
+  appTimerManager?.updateHeaderStatus();
 }
 
 
@@ -1940,192 +1455,6 @@ function speakBannerText(text) {
   window.speechSynthesis.speak(utterance);
 }
 
-function showScreen(screenId) {
-  const resolvedScreenId = typeof screenId === "string"
-    ? screenId
-    : Object.keys(SCREENS).find((id) => SCREENS[id] === screenId);
-  if (!resolvedScreenId) return;
-
-  const targetScreen = SCREENS[resolvedScreenId];
-  if (!targetScreen) return;
-
-  setStateValue("currentScreen", resolvedScreenId);
-
-  const wasSentenceGameVisible = sentenceGameScreenVisible();
-  const wasQaGameVisible = qaGameScreen && !isHidden(qaGameScreen);
-  const wasSentencesVisible = sentencesScreen && !isHidden(sentencesScreen);
-  const wasLessonVisible = quizScreen && !isHidden(quizScreen);
-
-  const previousScreenId = activeScreenId;
-
-  if (previousScreenId && SCREEN_REGISTRY[previousScreenId]?.leave) {
-    SCREEN_REGISTRY[previousScreenId].leave({ nextScreenId: resolvedScreenId, previousScreenId });
-  }
-
-  Object.values(SCREENS).forEach((screenEl) => hideElement(screenEl));
-  showElement(targetScreen);
-
-  activeScreenId = resolvedScreenId;
-  if (SCREEN_REGISTRY[resolvedScreenId]?.enter) {
-    SCREEN_REGISTRY[resolvedScreenId].enter({ previousScreenId, nextScreenId: resolvedScreenId });
-  }
-
-  if (targetScreen === quizScreen) {
-    showElement(topbar);
-  } else {
-    hideElement(topbar);
-  }
-
-  if (targetScreen === profileScreen) {
-    updateProfileUI();
-  }
-
-  if (targetScreen === sentenceGameScreen && !wasSentenceGameVisible) {
-    beginSentenceGameSession();
-  }
-
-  if (targetScreen !== sentenceGameScreen && wasSentenceGameVisible) {
-    endSentenceGameSession();
-  }
-
-  if (targetScreen === quizScreen && !wasLessonVisible) {
-    startLessonTimer();
-  }
-
-  if (targetScreen !== quizScreen && wasLessonVisible) {
-    stopLessonTimer();
-  }
-
-  if (targetScreen === qaGameScreen && !wasQaGameVisible && qaGameLevel) {
-    startQaTimer();
-  }
-
-  if (targetScreen !== qaGameScreen && wasQaGameVisible) {
-    stopQaTimer();
-  }
-
-  if (targetScreen === sentencesScreen && !wasSentencesVisible) {
-    startSentencesTimer();
-  }
-
-  if (targetScreen !== sentencesScreen && wasSentencesVisible) {
-    stopSentencesTimer();
-  }
-
-  const domScreenId = targetScreen.id ? SCREEN_IDS[targetScreen.id] || targetScreen.id : null;
-  const learningModeActive = targetScreen !== startScreen;
-  setAppMode(learningModeActive ? "learning" : "home");
-
-  if (document.body) {
-    document.body.dataset.activeScreen = domScreenId || "home";
-  }
-
-  const ambienceMode = domScreenId === "lesson" ? "lesson" : (domScreenId === "sentences" ? "sentences" : "home");
-  worldSoundscape.start(ambienceMode);
-
-  if (domScreenId === "lesson") updateCompanionLine("lesson", "idle");
-  if (domScreenId === "sentences") updateCompanionLine("sentences", "idle");
-
-  startSession(domScreenId);
-  startTimeUiUpdater();
-  refreshTimeSummaryUI();
-
-  updateHeaderStatus();
-}
-
-function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}) {
-  const currentEntry = getBoardEntryState();
-  const nextWorldId = worldId || currentEntry.worldId;
-  const nextDifficultyId = difficultyId || currentEntry.difficultyId;
-  const nextChapterId = chapterId || currentEntry.chapterId || getDefaultChapterForWorld(nextWorldId)?.id || null;
-
-  updateBoardEntryState({
-    ...(step ? { step } : {}),
-    ...(worldId ? { worldId } : {}),
-    ...(difficultyId ? { difficultyId } : {}),
-    chapterId: nextChapterId,
-  });
-
-  updateSelections({
-    selectedWorldId: nextWorldId,
-    selectedDifficultyId: nextDifficultyId,
-  });
-
-  updateState((state) => {
-    state.flow.lastRequestedScreen = step === BOARD_SELECTOR_STEPS.PLAY ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
-  });
-
-  SCREEN_REGISTRY[SCREEN_NAMES.CHAPTER_COVER]?.refresh?.();
-  return getBoardEntryState();
-}
-
-const NAVIGATION_HANDLERS = {
-  [FLOW_DESTINATIONS.HOME]: () => {
-    stopSpeaking();
-    hideStartIntroPanel();
-    showScreen(SCREEN_NAMES.START);
-  },
-  [FLOW_DESTINATIONS.LESSON]: () => {
-    stopSpeaking();
-    hideStartIntroPanel();
-    setStartLevelMenuOpen(false);
-    startQuiz();
-  },
-  [FLOW_DESTINATIONS.SENTENCES]: () => {
-    stopSpeaking();
-    showScreen(SCREEN_NAMES.SENTENCES);
-    ensureSentenceItemsLoaded().catch(() => {});
-  },
-  [FLOW_DESTINATIONS.SENTENCE_GAME]: () => {
-    stopSpeaking();
-    showScreen(SCREEN_NAMES.SENTENCE_GAME);
-    ensureSentenceItemsLoaded()
-      .then(() => initSentenceGameRound())
-      .catch(() => {});
-    enforceFreeXpGate();
-  },
-  [FLOW_DESTINATIONS.QA_GAME]: () => {
-    stopSpeaking();
-    showScreen(SCREEN_NAMES.QA_GAME);
-    resetQaGameScreen();
-  },
-  [FLOW_DESTINATIONS.BOARD_ENTRY]: () => {
-    stopSpeaking();
-    const { selectedWorldId, selectedDifficultyId } = getCoreState();
-    resetBoardEntryState({
-      worldId: selectedWorldId,
-      difficultyId: selectedDifficultyId,
-      chapterId: getDefaultChapterForWorld(selectedWorldId)?.id || null,
-    });
-    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.ENTRY });
-    showScreen(SCREEN_NAMES.CHAPTER_COVER);
-  },
-  [FLOW_DESTINATIONS.BOARD_COVER]: () => {
-    stopSpeaking();
-    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.COVER });
-    showScreen(SCREEN_NAMES.CHAPTER_COVER);
-  },
-  [FLOW_DESTINATIONS.BOARD_PLAY]: () => {
-    stopSpeaking();
-    syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.PLAY });
-    showScreen(SCREEN_NAMES.BOARD);
-    initBoardGameMvp();
-  },
-  [FLOW_DESTINATIONS.STATS]: () => {
-    stopSpeaking();
-    showScreen(SCREEN_NAMES.STATS);
-    updateStatsUI();
-  },
-  [FLOW_DESTINATIONS.PROFILE]: () => {
-    stopSpeaking();
-    showScreen(SCREEN_NAMES.PROFILE);
-  },
-};
-
-function navigateTo(destination) {
-  const handler = NAVIGATION_HANDLERS[destination];
-  if (handler) handler();
-}
 
 function resetLessonProgress() {
   questions = [];
@@ -2138,15 +1467,6 @@ function resetLessonProgress() {
   stopLessonTimer();
   updateLessonTimerUI();
   renderLessonRewards();
-}
-
-function requestNavigation(destination) {
-  closeHomeModesPanel();
-  if (destination !== FLOW_DESTINATIONS.LESSON) resetLessonProgress();
-  updateState((state) => {
-    state.flow.lastRequestedScreen = destination;
-  });
-  navigateTo(destination);
 }
 
 // ---- Board Game MVP ----
@@ -4693,6 +4013,178 @@ function resetQaGameScreen() {
 }
 
 
+function initializeManagers() {
+  appTimerManager = createAppTimerManager({
+    storageKeys: {
+      dailyTotalsKey: APP_TIME_DAILY_TOTALS_KEY,
+      activeSessionKey: APP_TIME_ACTIVE_SESSION_KEY,
+    },
+    stopActivityTimers: () => {
+      endSentenceGameSession();
+      stopLessonTimer();
+      stopQaTimer();
+      stopSentencesTimer();
+    },
+    syncCoreStateReferences,
+    getProgressState: () => progressState,
+    replaceProgress,
+    updateStreak,
+    renderCoreStateSnapshot,
+    getTodayKey,
+    dom: {
+      todayTimeEls,
+      timeDetailsYesterdayEl,
+      timeDetailsThisWeekEl,
+      timeDetailsLastWeekEl,
+      timeDetailsThisMonthEl,
+      timeDetailsLastMonthEl,
+      statsTodayMinutesEl,
+      statsThisWeekTimeEl,
+      statsLastWeekTimeEl,
+      statsThisMonthTimeEl,
+      statsLast7DaysEl,
+    },
+    rewardTabs: {
+      loadCoreState,
+      buildLast7DaysTimeRows,
+      updateGaugeUI,
+      renderRewardsTab,
+      renderStatsSnapshot,
+      renderProfileSnapshot,
+    },
+  });
+
+  vaultManager = createVaultManager({
+    badgeElsByScreen: { lesson: lessonVaultBadge, qna: qaVaultBadge, sentenceGame: sentenceGameVaultBadge, sentences: sentencesVaultBadge },
+    modal: {
+      modalEl: vaultModalEl,
+      titleEl: vaultModalTitleEl,
+      bodyEl: vaultModalBodyEl,
+      replayBtn: vaultReplayBtn,
+      deleteBtn: vaultDeleteBtn,
+      learnedBtn: vaultLearnedBtn,
+    },
+    showVaultToast,
+    lessonMnTranslation,
+    sentencesListEl,
+    appSettings: () => appSettings,
+    sentenceItems: () => sentenceItems,
+    speakingSentenceId: () => speakingSentenceId,
+    stopSpeaking,
+    speakSentence,
+    sentenceGame: {
+      setHistory: (history) => { sentenceGameHistory = history; },
+      setIndex: (index) => { sentenceGameIndex = index; },
+      initRound: initSentenceGameRound,
+      enforceFreeXpGate,
+      renderSentences,
+    },
+    qa: {
+      openModal: openQaModal,
+      loadRound: (round) => {
+        qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
+        qaRoundPool = [round];
+        qaRoundIndex = 0;
+        setHidden(qaRoundPanelEl, false);
+        setHidden(qaLevelOptionsEl, true);
+        qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
+        const questionTokens = round.enQuestion.split(" ").filter(Boolean);
+        const answerTokens = round.enAnswer.split(" ").filter(Boolean);
+        setupQaRound({ round, wordBankTokens: [...questionTokens, ...answerTokens] });
+        startQaTimer();
+      },
+    },
+    lesson: {
+      startFromSaved: (savedItem) => {
+        lessonReviewMode = true;
+        questions = [{
+          q: savedItem.questionText || "",
+          a: savedItem.correctAnswer || "",
+          replayOptions: Array.isArray(savedItem.options) ? savedItem.options.slice() : [],
+        }];
+        currentIndex = 0;
+        locked = false;
+        stopSpeaking();
+        showScreen(SCREEN_NAMES.LESSON);
+        renderQuestion();
+      },
+    },
+    markWordLearned,
+    showScreen,
+    screens: {
+      sentences: SCREEN_NAMES.SENTENCES,
+      sentenceGame: SCREEN_NAMES.SENTENCE_GAME,
+      qaGame: SCREEN_NAMES.QA_GAME,
+    },
+  });
+
+  screenNavigator = createScreenNavigator({
+    screens: SCREENS,
+    screenIds: SCREEN_IDS,
+    screenRegistry: SCREEN_REGISTRY,
+    getActiveScreenId: () => activeScreenId,
+    setActiveScreenId: (screenId) => { activeScreenId = screenId; },
+    setStateValue,
+    setAppMode,
+    state: {
+      topbar,
+      startScreen,
+      quizScreen,
+      sentencesScreen,
+      sentenceGameScreen,
+      qaGameScreen,
+      profileScreen,
+      destinations: FLOW_DESTINATIONS,
+      hasQaGameLevel: () => Boolean(qaGameLevel),
+    },
+    boardEntry: {
+      getState: getBoardEntryState,
+      reset: resetBoardEntryState,
+      steps: BOARD_SELECTOR_STEPS,
+    },
+    getCoreState,
+    getDefaultChapterForWorld,
+    updateBoardEntryState,
+    updateSelections,
+    updateState,
+    stopSpeaking,
+    startQuiz,
+    ensureSentenceItemsLoaded,
+    initSentenceGameRound,
+    enforceFreeXpGate,
+    resetQaGameScreen,
+    initBoardGameMvp,
+    updateStatsUI,
+    updateProfileUI,
+    updateHeaderStatus,
+    hideStartIntroPanel,
+    setStartLevelMenuOpen,
+    resetLessonProgress,
+    closeHomeModesPanel,
+    worldSoundscape,
+    updateCompanionLine,
+    startSession,
+    startTimeUiUpdater,
+    refreshTimeSummaryUI,
+    screenVisibility: {
+      sentenceGameVisible: sentenceGameScreenVisible,
+      qaVisible: () => qaGameScreen && !isHidden(qaGameScreen),
+      sentencesVisible: () => sentencesScreen && !isHidden(sentencesScreen),
+      lessonVisible: () => quizScreen && !isHidden(quizScreen),
+    },
+    timers: {
+      beginSentenceGameSession,
+      endSentenceGameSession,
+      startLessonTimer,
+      stopLessonTimer,
+      startQaTimer,
+      stopQaTimer,
+      startSentencesTimer,
+      stopSentencesTimer,
+    },
+  });
+}
+
 function initializeStateSubscriptions() {
   if (stateSubscriptionsInitialized) return;
   stateSubscriptionsInitialized = true;
@@ -4805,7 +4297,7 @@ function initializeVaultControls() {
     closeBtn: vaultModalCloseBtn,
   });
 
-  Object.keys(VAULT_KEY_BY_SCREEN).forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
+  [SCREEN_NAMES.LESSON, "qna", "sentenceGame", SCREEN_NAMES.SENTENCES].forEach((screenId) => updateVaultBadge(vaultKeyForScreen(screenId)));
 }
 
 function initializeQaControls() {
@@ -5154,6 +4646,7 @@ export function initializeApp() {
   }
 
   appInitialized = true;
+  initializeManagers();
   initializeAppState();
   renderCoreStateSnapshot();
   initializeStateSubscriptions();
