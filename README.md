@@ -35,3 +35,5 @@ This phase does **not** add the final content library yet. It keeps the current 
 ### Safe rule for future content packs
 
 When adding a new content pack, **reuse the existing ids and placeholders where possible** instead of creating a new flow path. That keeps the current UI, buttons, progress handling, and gameplay route unchanged.
+
+See `docs/content-insertion-handoff.md` for the step-by-step handoff checklist used for future real content drops.
