@@ -370,10 +370,10 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-scene-backdrop::before{
-  background-image:url("assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg");
+  background-image:var(--board-world-bg-image, url("assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg"));
   background-repeat:no-repeat;
   background-size:cover;
-  background-position:center 42%;
+  background-position:var(--board-world-bg-position, center 42%);
   filter:saturate(1.12) contrast(1.04) brightness(1.03);
   transform:scale(1.03);
 }

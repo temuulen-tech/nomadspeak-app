@@ -10,7 +10,7 @@
  * - If a chapter gets new real content, update the ids here first, then fill those ids in lesson.js / qa-game.js / sentence-game.js.
  */
 
-import { getAnimationHookMeta } from "./assets.js";
+import { getAnimationHookMeta, getChapterArtRegistryEntry, getChapterVisualAsset } from "./assets.js";
 import { getChapterContentRefs, SHARED_CONTENT_IDS } from "./content-registry.js";
 import { getLessonContentPackById } from "./lesson.js";
 import { getQaContentSet } from "./qa-game.js";
@@ -149,7 +149,7 @@ function getContentRefState(ref) {
   return ref?.state === PLACEHOLDER_STATES.READY ? PLACEHOLDER_STATES.READY : PLACEHOLDER_STATES.PLACEHOLDER;
 }
 
-function buildChapterExpansion(definition, worldConfig) {
+function buildChapterExpansion(definition, worldConfig, chapterVisuals) {
   const lessonPackMeta = getLessonContentPackById(definition.content.lessonPackId)?.expansion?.lessonPack || null;
   const lessonWordBankMeta = getLessonContentPackById(definition.content.lessonPackId)?.expansion?.wordBank || null;
   const qaSetMeta = getQaContentSet(definition.content.qaSetId)?.expansion?.qaSet || null;
@@ -186,8 +186,15 @@ function buildChapterExpansion(definition, worldConfig) {
     worldCover: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
       slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
-      state: worldConfig?.expansion?.coverImage?.state || PLACEHOLDER_STATES.PLACEHOLDER,
-      id: worldConfig?.expansion?.coverImage?.id || null,
+      state: chapterVisuals?.cover?.state || worldConfig?.expansion?.coverImage?.state || PLACEHOLDER_STATES.PLACEHOLDER,
+      id: chapterVisuals?.cover?.id || worldConfig?.expansion?.coverImage?.id || null,
+    }),
+    worldBackground: createPlaceholderMeta({
+      collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
+      slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
+      state: chapterVisuals?.background?.state || PLACEHOLDER_STATES.PLACEHOLDER,
+      id: chapterVisuals?.background?.id || null,
+      notes: "Keep chapter/world background ids centralized in assets.js when art is added.",
     }),
     rewardVisual: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.REWARD_VISUALS,
@@ -202,6 +209,8 @@ function buildChapterExpansion(definition, worldConfig) {
 function createChapterConfig(definition) {
   const worldConfig = getWorldConfig(definition.worldId);
   const contentRefs = { ...definition.content };
+  const visualRegistry = getChapterArtRegistryEntry(definition.worldId, definition.id);
+  const chapterVisuals = getChapterVisualAsset(definition.worldId, definition.id);
   return {
     ...definition,
     contentRefs,
@@ -209,9 +218,12 @@ function createChapterConfig(definition) {
     wordBankId: contentRefs.wordBankId,
     qaSetId: contentRefs.qaSetId,
     sentenceBankId: contentRefs.sentenceBankId,
-    coverImage: worldConfig?.introCoverImage || null,
+    coverImage: chapterVisuals?.cover?.path || worldConfig?.introCoverImage || null,
+    backgroundImage: chapterVisuals?.background?.path || worldConfig?.backgroundImage || null,
+    visualAssets: chapterVisuals,
+    visualRefs: visualRegistry,
     startScreen: SCREEN_NAMES.CHAPTER_COVER,
-    expansion: buildChapterExpansion(definition, worldConfig),
+    expansion: buildChapterExpansion(definition, worldConfig, chapterVisuals),
   };
 }
 
@@ -249,6 +261,7 @@ export const CHAPTER_STARTER_CONTENT_TEMPLATES = Object.values(CHAPTER_CONFIGS).
   sentenceBankId: chapter.sentenceBankId,
   assetIds: {
     coverAssetId: chapter.expansion?.worldCover?.id || null,
+    backgroundAssetId: chapter.expansion?.worldBackground?.id || null,
     rewardVisualThemeId: chapter.expansion?.rewardVisual?.id || null,
   },
   animationHooks: (chapter.expansion?.animationHooks || []).map((hook) => hook.id),

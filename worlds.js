@@ -15,6 +15,7 @@
 import {
   getAnimationHookMeta,
   getAudioTrackAsset,
+  getWorldArtRegistryEntry,
   getWorldBackgroundAsset,
   getWorldBackgroundAssetById,
   getWorldCoverAsset,
@@ -116,8 +117,7 @@ const SELECTABLE_WORLD_CONTENT = [
       qaSetId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).qaSetId,
     },
     visuals: {
-      coverAssetId: "world1-cover",
-      backgroundAssetId: "sailors-deck",
+      ...getWorldArtRegistryEntry(WORLD_IDS.WORLD_1),
       rewardVisualThemeId: SHARED_CONTENT_IDS.rewardTheme,
     },
     audio: {
@@ -157,8 +157,7 @@ const SELECTABLE_WORLD_CONTENT = [
       qaSetId: "qa-set-world2-placeholder",
     },
     visuals: {
-      coverAssetId: "world2-cover-placeholder",
-      backgroundAssetId: "shared-world-background-placeholder",
+      ...getWorldArtRegistryEntry(WORLD_IDS.WORLD_2),
       rewardVisualThemeId: "reward-theme-world2-placeholder",
     },
     audio: {
@@ -197,8 +196,7 @@ const SELECTABLE_WORLD_CONTENT = [
       qaSetId: "qa-set-world3-placeholder",
     },
     visuals: {
-      coverAssetId: "world3-cover-placeholder",
-      backgroundAssetId: "shared-world-background-placeholder",
+      ...getWorldArtRegistryEntry(WORLD_IDS.WORLD_3),
       rewardVisualThemeId: "reward-theme-world3-placeholder",
     },
     audio: {
