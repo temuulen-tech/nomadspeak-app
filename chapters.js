@@ -9,6 +9,9 @@
  */
 
 import { getAnimationHookMeta } from "./assets.js";
+import { getLessonContentPackById } from "./lesson.js";
+import { getQaContentSet } from "./qa-game.js";
+import { getSentenceContentBank } from "./sentence-game.js";
 import {
   ANIMATION_HOOKS,
   CHAPTER_IDS,
@@ -159,40 +162,42 @@ const CHAPTER_CONTENT = [
   }),
 ];
 
-function getChapterContentState(definition) {
-  return definition.content.lessonPackId === "world1-ch1-beginner-landing-kit"
-    ? PLACEHOLDER_STATES.READY
-    : PLACEHOLDER_STATES.PLACEHOLDER;
+function getContentRefState(ref) {
+  return ref?.state === PLACEHOLDER_STATES.READY ? PLACEHOLDER_STATES.READY : PLACEHOLDER_STATES.PLACEHOLDER;
 }
 
 function buildChapterExpansion(definition, worldConfig) {
-  const contentState = getChapterContentState(definition);
+  const lessonPackMeta = getLessonContentPackById(definition.content.lessonPackId)?.expansion?.lessonPack || null;
+  const lessonWordBankMeta = getLessonContentPackById(definition.content.lessonPackId)?.expansion?.wordBank || null;
+  const qaSetMeta = getQaContentSet(definition.content.qaSetId)?.expansion?.qaSet || null;
+  const sentenceBankMeta = getSentenceContentBank(definition.content.sentenceBankId)?.expansion?.sentenceBank || null;
+
   return {
     lessonPack: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.LESSON_PACKS,
       slot: FUTURE_CONTENT_SLOTS.LESSON_PACK,
       id: definition.content.lessonPackId,
-      state: contentState,
+      state: getContentRefState(lessonPackMeta),
     }),
     wordBank: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.WORD_BANKS,
       slot: FUTURE_CONTENT_SLOTS.WORD_BANK,
       id: definition.content.wordBankId,
-      state: contentState,
+      state: getContentRefState(lessonWordBankMeta),
       notes: "Add chapter-specific word bank data later without editing screen flow.",
     }),
     qaSet: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.QA_SETS,
       slot: FUTURE_CONTENT_SLOTS.QA_SET,
       id: definition.content.qaSetId,
-      state: contentState,
+      state: getContentRefState(qaSetMeta),
       notes: "Add chapter-specific QA round data later if needed.",
     }),
     sentenceBank: createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
       slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
       id: definition.content.sentenceBankId,
-      state: contentState,
+      state: getContentRefState(sentenceBankMeta),
       notes: "Add chapter-specific sentence bank content later.",
     }),
     worldCover: createPlaceholderMeta({

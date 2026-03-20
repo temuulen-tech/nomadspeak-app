@@ -8,7 +8,14 @@
  * - When adding a new world, register asset ids here only after adding the asset records in assets.js.
  */
 
-import { getAnimationHookMeta, getAudioTrackAsset, getWorldBackgroundAsset, getWorldCoverAsset } from "./assets.js";
+import {
+  getAnimationHookMeta,
+  getAudioTrackAsset,
+  getWorldBackgroundAsset,
+  getWorldBackgroundAssetById,
+  getWorldCoverAsset,
+  getWorldVisualAssetById,
+} from "./assets.js";
 import {
   ANIMATION_HOOKS,
   CONTENT_COLLECTIONS,
@@ -212,8 +219,8 @@ const SELECTABLE_WORLD_CONTENT = [
 ];
 
 function createWorldConfig(definition) {
-  const coverAsset = getWorldCoverAsset(definition.id);
-  const backgroundAsset = getWorldBackgroundAsset(definition.id);
+  const coverAsset = getWorldVisualAssetById(definition.visuals.coverAssetId) || getWorldCoverAsset(definition.id);
+  const backgroundAsset = getWorldBackgroundAssetById(definition.visuals.backgroundAssetId) || getWorldBackgroundAsset(definition.id);
   const contentRefs = {
     pilotLessonPackId: definition.content.pilotLessonPackId,
     lessonContentMap: { ...definition.content.lessonContentMap },

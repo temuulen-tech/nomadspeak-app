@@ -44,8 +44,44 @@ export const QA_CONTENT_INSERTION_EXAMPLE = {
   ],
 };
 
+function createQaContentSet({
+  id,
+  difficulty = DIFFICULTY_LEVELS.BEGINNER,
+  state = PLACEHOLDER_STATES.PLACEHOLDER,
+  rounds = [],
+  qaNotes = "",
+  wordBankId = null,
+  wordBankState = state,
+  wordBankNotes = "",
+} = {}) {
+  return {
+    id,
+    difficulty,
+    state,
+    rounds,
+    expansion: {
+      qaSet: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.QA_SETS,
+        slot: FUTURE_CONTENT_SLOTS.QA_SET,
+        id,
+        state,
+        notes: qaNotes,
+      }),
+      ...(wordBankId ? {
+        wordBank: createPlaceholderMeta({
+          collection: CONTENT_COLLECTIONS.WORD_BANKS,
+          slot: FUTURE_CONTENT_SLOTS.WORD_BANK,
+          id: wordBankId,
+          state: wordBankState,
+          notes: wordBankNotes,
+        }),
+      } : {}),
+    },
+  };
+}
+
 const QA_CONTENT_SETS = [
-  {
+  createQaContentSet({
     id: "qa-set-shared-core",
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.READY,
@@ -67,49 +103,45 @@ const QA_CONTENT_SETS = [
         wordBankTokens: ["I", "China", "from", "?", "arrived", "Where", "to", "yesterday", "did", "you", "are", "come", "Mongolia", "from", "I", "When", "in", "you", "am", "China", "?"],
       },
     ],
-    expansion: {
-      qaSet: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.QA_SETS,
-        slot: FUTURE_CONTENT_SLOTS.QA_SET,
-        id: "qa-set-shared-core",
-        state: PLACEHOLDER_STATES.READY,
-      }),
-      wordBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.WORD_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.WORD_BANK,
-        id: "qa-word-bank-shared-core",
-        state: PLACEHOLDER_STATES.READY,
-      }),
-    },
-  },
-  {
+    wordBankId: "qa-word-bank-shared-core",
+    wordBankState: PLACEHOLDER_STATES.READY,
+  }),
+  createQaContentSet({
+    id: "qa-set-world1-ch2-placeholder",
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    qaNotes: "Insert Chapter 2 QA rounds here later.",
+    wordBankId: "qa-word-bank-world1-ch2-placeholder",
+    wordBankNotes: "Add Chapter 2 QA helper tokens later if this bank diverges from the shared core.",
+  }),
+  createQaContentSet({
+    id: "qa-set-world1-ch3-placeholder",
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    qaNotes: "Insert Chapter 3 QA rounds here later.",
+    wordBankId: "qa-word-bank-world1-ch3-placeholder",
+    wordBankNotes: "Add Chapter 3 QA helper tokens later if this bank diverges from the shared core.",
+  }),
+  createQaContentSet({
+    id: "qa-set-world1-ch4-placeholder",
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    state: PLACEHOLDER_STATES.PLACEHOLDER,
+    qaNotes: "Insert Chapter 4 QA rounds here later.",
+    wordBankId: "qa-word-bank-world1-ch4-placeholder",
+    wordBankNotes: "Add Chapter 4 QA helper tokens later if this bank diverges from the shared core.",
+  }),
+  createQaContentSet({
     id: "qa-set-world2-placeholder",
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
-    rounds: [],
-    expansion: {
-      qaSet: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.QA_SETS,
-        slot: FUTURE_CONTENT_SLOTS.QA_SET,
-        id: "qa-set-world2-placeholder",
-        notes: "Insert Silk Road QA rounds here later.",
-      }),
-    },
-  },
-  {
+    qaNotes: "Insert Silk Road QA rounds here later.",
+  }),
+  createQaContentSet({
     id: "qa-set-world3-placeholder",
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
-    rounds: [],
-    expansion: {
-      qaSet: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.QA_SETS,
-        slot: FUTURE_CONTENT_SLOTS.QA_SET,
-        id: "qa-set-world3-placeholder",
-        notes: "Insert Roman world QA rounds here later.",
-      }),
-    },
-  },
+    qaNotes: "Insert Roman world QA rounds here later.",
+  }),
 ];
 
 export const QA_STARTER_TEMPLATES = QA_CONTENT_SETS.map((set) => createStarterTemplateManifest({
