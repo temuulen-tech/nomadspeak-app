@@ -16,14 +16,25 @@ const SHELL_TARGETS = [
         <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
 
         <section class="progress-summary" aria-label="Ахицын товч мэдээлэл">
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">⭐ Оноо</p><p class="progress-summary-value" id="stats-total-xp">0</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">📈 Миний түвшин</p><p class="progress-summary-value" id="stats-level">Түв.1</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">🔥 Дарааллаж хичээллэсэн өдөр</p><p class="progress-summary-value" id="stats-streak">0 өдөр</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">📅 Өнөөдрийн ахиц</p><p class="progress-summary-value" id="stats-today-progress">0/10</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">Энэ долоо хоног</p><p class="progress-summary-value chip-time" id="stats-this-week-time">00:00:00</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">Өнгөрсөн долоо хоног</p><p class="progress-summary-value chip-time" id="stats-last-week-time">00:00:00</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">Энэ сар</p><p class="progress-summary-value chip-time" id="stats-this-month-time">00:00:00</p></article>
-          <article class="progress-summary-card"><p class="chip-label progress-summary-label">Өнөөдөр</p><p class="progress-summary-value chip-time" id="stats-today-minutes">00:00:00</p></article>
+          <div class="progress-summary-primary">
+            <article class="progress-summary-card progress-summary-card-primary"><p class="chip-label progress-summary-label">⭐ Оноо</p><p class="progress-summary-value" id="stats-total-xp">0</p></article>
+            <article class="progress-summary-card progress-summary-card-primary"><p class="chip-label progress-summary-label">📈 Миний түвшин</p><p class="progress-summary-value" id="stats-level">Түв.1</p></article>
+            <article class="progress-summary-card progress-summary-card-primary"><p class="chip-label progress-summary-label">🔥 Дарааллаж хичээллэсэн өдөр</p><p class="progress-summary-value" id="stats-streak">0 өдөр</p></article>
+            <article class="progress-summary-card progress-summary-card-primary"><p class="chip-label progress-summary-label">📅 Өнөөдрийн ахиц</p><p class="progress-summary-value" id="stats-today-progress">0/10</p></article>
+          </div>
+
+          <section class="progress-summary-secondary stats-panel control-panel-gold-outline" aria-label="Цагийн товч үзүүлэлт">
+            <div class="stats-panel-header progress-summary-secondary-header">
+              <h3 class="screen-title-chip chip-title stats-section-chip">Цагийн товч</h3>
+              <p class="muted progress-summary-secondary-copy">Сүүлийн идэвхээ нэг дороос тайван хар.</p>
+            </div>
+            <div class="progress-summary-secondary-grid">
+              <article class="progress-summary-card progress-summary-card-secondary"><p class="chip-label progress-summary-label">Өнөөдөр</p><p class="progress-summary-value chip-time" id="stats-today-minutes">00:00:00</p></article>
+              <article class="progress-summary-card progress-summary-card-secondary"><p class="chip-label progress-summary-label">Энэ долоо хоног</p><p class="progress-summary-value chip-time" id="stats-this-week-time">00:00:00</p></article>
+              <article class="progress-summary-card progress-summary-card-secondary"><p class="chip-label progress-summary-label">Өнгөрсөн долоо хоног</p><p class="progress-summary-value chip-time" id="stats-last-week-time">00:00:00</p></article>
+              <article class="progress-summary-card progress-summary-card-secondary"><p class="chip-label progress-summary-label">Энэ сар</p><p class="progress-summary-value chip-time" id="stats-this-month-time">00:00:00</p></article>
+            </div>
+          </section>
         </section>
 
         <article class="stats-panel control-panel-gold-outline">
