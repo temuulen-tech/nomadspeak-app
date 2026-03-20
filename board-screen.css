@@ -280,6 +280,7 @@ body[data-active-screen="board-game"] .app{
   background:rgba(8,20,26,.66);
   border:1px solid rgba(255,225,148,.28);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+  min-width:0;
 }
 
 .board-game-meta-chip strong{
@@ -302,6 +303,7 @@ body[data-active-screen="board-game"] .app{
   border:1px solid rgba(229,207,141,.22);
   backdrop-filter:blur(5px);
   box-shadow:0 12px 26px rgba(0,0,0,.16);
+  min-width:0;
 }
 
 .board-game-story-copy{
@@ -894,6 +896,7 @@ body[data-active-screen="board-game"] .app{
   padding:10px 12px;
   background:linear-gradient(160deg, rgba(17,47,53,.84), rgba(21,62,56,.78));
   border:1px solid rgba(220,244,255,.2);
+  white-space:normal;
 }
 
 .board-game-option-btn.correct{ border-color:#7affae; box-shadow:0 0 0 1px rgba(122,255,174,.45); }
