@@ -337,8 +337,12 @@ export function updateBoardEntryState(patch = {}, scope = "boardEntry") {
   return state.flow.boardEntry;
 }
 
-export function resetBoardEntryState(scope = "boardEntry") {
-  state.flow.boardEntry = createDefaultBoardEntryState();
+export function resetBoardEntryState(overrides = {}, scope = "boardEntry") {
+  const patch = overrides && typeof overrides === "object" ? overrides : {};
+  state.flow.boardEntry = normalizeBoardEntryState({
+    ...createDefaultBoardEntryState(),
+    ...patch,
+  });
   notifyStateListeners(scope);
   return state.flow.boardEntry;
 }

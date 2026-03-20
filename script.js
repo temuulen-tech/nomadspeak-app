@@ -1999,7 +1999,12 @@ const NAVIGATION_HANDLERS = {
   },
   [FLOW_DESTINATIONS.BOARD_ENTRY]: () => {
     stopSpeaking();
-    resetBoardEntryState();
+    const { selectedWorldId, selectedDifficultyId } = getCoreState();
+    resetBoardEntryState({
+      worldId: selectedWorldId,
+      difficultyId: selectedDifficultyId,
+      chapterId: getDefaultChapterForWorld(selectedWorldId)?.id || null,
+    });
     syncBoardEntryFlowState({ step: BOARD_SELECTOR_STEPS.ENTRY });
     showScreen(SCREEN_NAMES.CHAPTER_COVER);
   },
