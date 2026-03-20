@@ -96,8 +96,9 @@
     <section class="card home-only home-hub-card" id="start-screen">
       <div class="home-hub-shell">
         <div class="home-hub-copy">
+          <p class="chip-label home-hub-kicker">Өнөөдрийн төв удирдлага</p>
           <h2 class="home-hub-title">Өнөөдрийн дараагийн алхмаа сонгоорой.</h2>
-          <p class="muted home-hub-text">Гол орцуудыг л үлдээж, эхлэх хэсгийг илүү цэгцтэй болголоо.</p>
+          <p class="muted home-hub-text">Гол орцуудыг урд эгнээнд гаргаж, хамгийн хэрэгтэй үйлдлүүдийг илүү цэвэр дарааллаар байрлууллаа.</p>
         </div>
 
         <div class="home-hub-actions" aria-label="Үндсэн навигаци">
@@ -105,18 +106,38 @@
             <button class="secondary nav-btn nav-btn--primary home-hub-btn home-entry-card home-entry-card--primary" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">
               <span class="home-entry-eyebrow">Үндсэн зам</span>
               <span class="home-entry-title">Үргэлжлүүлэх</span>
-              <span class="home-entry-meta">Тоглоом &amp; Хичээлүүдийн цэсийг нээнэ.</span>
+              <span class="home-entry-meta">Тоглоом &amp; хичээлээ нэг товшилтоор нээнэ.</span>
             </button>
             <div class="home-modes-panel hidden" id="home-modes-panel" role="menu" aria-label="Тоглоом ба хичээлүүд">
-              <div class="home-modes-panel-copy">
-                <p class="chip-label">Тоглоом &amp; Хичээлүүд</p>
-                <p class="muted">Дараагийн суралцах төрлөө сонгоно уу.</p>
+              <div class="home-modes-panel-head">
+                <div class="home-modes-panel-copy">
+                  <p class="chip-label">Тоглоом &amp; Хичээлүүд</p>
+                  <p class="muted">Дараагийн суралцах төрлөө сонгоно уу.</p>
+                </div>
+                <p class="home-modes-panel-hint">Нэгийг сонгоод шууд эхлээрэй.</p>
               </div>
-              <button class="home-modes-option" id="nav-lesson-btn" type="button" role="menuitem">Зөв хариулт сонгоорой</button>
-              <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">Асуугаад &amp; Хариулаарай</button>
-              <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">Өгүүлбэр бүтээж сурцгаая</button>
-              <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">Асуулт &amp; Хариулт бүтээцгээе</button>
-              <button class="home-modes-option" id="nav-board-game-btn" type="button" role="menuitem">Та битгий уурлаарай</button>
+              <div class="home-modes-grid">
+                <button class="home-modes-option" id="nav-lesson-btn" type="button" role="menuitem">
+                  <span class="home-modes-option-title">Зөв хариулт сонгоорой</span>
+                  <span class="home-modes-option-meta">Сонголттой дасгал</span>
+                </button>
+                <button class="home-modes-option" id="nav-sentences-btn" type="button" role="menuitem">
+                  <span class="home-modes-option-title">Асуугаад &amp; Хариулаарай</span>
+                  <span class="home-modes-option-meta">Өдөр тутмын харилцан яриа</span>
+                </button>
+                <button class="home-modes-option" id="nav-sentence-game-btn" type="button" role="menuitem">
+                  <span class="home-modes-option-title">Өгүүлбэр бүтээж сурцгаая</span>
+                  <span class="home-modes-option-meta">Үгсээ дарааллаар холбоно</span>
+                </button>
+                <button class="home-modes-option" id="nav-qa-game-btn" type="button" role="menuitem">
+                  <span class="home-modes-option-title">Асуулт &amp; Хариулт бүтээцгээе</span>
+                  <span class="home-modes-option-meta">Хариултаа өөрөө бүтээнэ</span>
+                </button>
+                <button class="home-modes-option home-modes-option--feature" id="nav-board-game-btn" type="button" role="menuitem">
+                  <span class="home-modes-option-title">Та битгий уурлаарай</span>
+                  <span class="home-modes-option-meta">Самбарын аялал ба сорилт</span>
+                </button>
+              </div>
             </div>
           </div>
           <button class="secondary nav-btn home-hub-btn home-entry-card" id="nav-stats-btn" type="button" aria-label="Өнөөдрийн ахиц" title="Өнөөдрийн ахиц">

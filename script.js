@@ -949,6 +949,9 @@ function closeHomeModesPanel() {
 function toggleHomeModesPanel() {
   if (!homeModesPanel) return;
   const shouldOpen = isHidden(homeModesPanel);
+  if (shouldOpen) {
+    setStartIntroOpen(false);
+  }
   setHomeModesPanelOpen(shouldOpen);
 }
 
@@ -1894,6 +1897,9 @@ function hideStartIntroPanel() {
 function toggleStartIntroPanel() {
   if (!introPanel) return;
   const willOpen = isHidden(introPanel);
+  if (willOpen) {
+    setHomeModesPanelOpen(false);
+  }
   setStartIntroOpen(willOpen);
 }
 
