@@ -2,6 +2,10 @@
 
 This phase is a **handoff only**. Do **not** redesign the UI, change the gameplay route, or reset progress while inserting future real content.
 
+## Baseline status
+
+As of **Phase 46**, the current architecture should be treated as the **locked content-ready baseline**. Future work should assume the routing/state/render structure is stable enough for real content insertion, and should focus mainly on replacing placeholder ids/data/assets rather than reopening architecture churn.
+
 ## Where future content work should start
 
 Start with the existing data-driven flow that already powers the live app:
@@ -92,3 +96,14 @@ Run this quick manual check without changing the flow:
 - **Do not add a parallel flow for new content.** Reuse the existing ids and placeholder slots.
 - **Do not reset storage or change progress logic** just to load a new pack.
 - **Do not redesign visuals in this phase.** This guide is only for future content insertion.
+
+## Baseline-lock reminder
+
+Use the existing modules as stable ownership boundaries:
+
+- Keep routing metadata in `worlds.js` and `chapters.js`.
+- Keep lesson/QA/sentence datasets in `lesson.js`, `qa-game.js`, `sentence-game.js`, and `data/sentences.json`.
+- Keep cover/background/reward/audio/animation registrations in `assets.js`.
+- Keep navigation, screen lifecycle, and progress handling intact unless a truly necessary bug fix or migration is discovered.
+
+If a future task is only about adding real lessons, images, word banks, question sets, sentence rows, or motion assets, it should normally **not** require a render/navigation refactor.

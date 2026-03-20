@@ -189,6 +189,49 @@ export const FIRST_REAL_CONTENT_INSERTION_TARGET = {
   rationale: "World 1 beginner already drives the live board/lesson flow, so Chapter 2 is the lowest-risk next real-content insertion target.",
 };
 
+export const CONTENT_READY_BASELINE = {
+  phase: 46,
+  name: "final baseline locked + content-ready milestone",
+  status: "content-ready",
+  architecturePolicy: {
+    baselineLocked: true,
+    preferNextWork: [
+      "content insertion",
+      "asset insertion",
+      "lesson pack insertion",
+      "sentence/question dataset insertion",
+      "animation asset/hook insertion",
+    ],
+    avoidByDefault: [
+      "new parallel gameplay flows",
+      "screen/render rewrites for content-only changes",
+      "hardcoded asset paths inside screen modules",
+      "moving content datasets back into routing modules",
+      "progress/storage rewrites unless a real save migration is required",
+    ],
+  },
+  stablePaths: {
+    appBootstrap: "app.js",
+    stateAndPersistence: ["state.js", "actions.js", "storage.js"],
+    worldAndChapterRouting: ["worlds.js", "chapters.js"],
+    lessonAndGameContent: ["lesson.js", "qa-game.js", "sentence-game.js", "data/sentences.json"],
+    visualAndAnimationAssets: ["assets.js"],
+    screensAndRenderers: [
+      "home-screen.js",
+      "chapter-cover-screen.js",
+      "board-screen.js",
+      "lesson-screen.js",
+      "stats-screen.js",
+      "render-home.js",
+      "render-board.js",
+      "render-lesson.js",
+      "render-rewards.js",
+      "render-shell.js",
+    ],
+    lifecycleAndNavigation: ["screen-lifecycle.js", "script.js"],
+  },
+};
+
 export const SHARED_BOARD_LAYOUT_WORLD_ID = WORLD_IDS.WORLD_1;
 
 export const ANIMATION_HOOKS = {
@@ -312,10 +355,38 @@ export function getContentDropInWorkflowGuide() {
     sequence: [...REAL_CONTENT_INSERTION_SEQUENCE],
     entrypoints: CONTENT_HANDOFF_ENTRYPOINTS.map((entry) => ({ ...entry })),
     recommendedFirstTarget: { ...FIRST_REAL_CONTENT_INSERTION_TARGET },
+    baseline: {
+      ...CONTENT_READY_BASELINE,
+      architecturePolicy: {
+        ...CONTENT_READY_BASELINE.architecturePolicy,
+        preferNextWork: [...CONTENT_READY_BASELINE.architecturePolicy.preferNextWork],
+        avoidByDefault: [...CONTENT_READY_BASELINE.architecturePolicy.avoidByDefault],
+      },
+      stablePaths: Object.fromEntries(Object.entries(CONTENT_READY_BASELINE.stablePaths).map(([key, value]) => [key, Array.isArray(value) ? [...value] : value])),
+    },
     notes: [
       "Keep ids stable across files so existing board, lesson, QA, and sentence routing continues to work without UI changes.",
       "Prefer filling placeholder entries over introducing parallel flow paths.",
       "Add assets first in assets.js, then reference their ids from worlds.js or chapters.js.",
+      "Treat this architecture as the locked content-ready baseline unless a truly necessary migration is discovered.",
+    ],
+  };
+}
+
+export function getContentReadyBaselineSummary() {
+  return {
+    ...CONTENT_READY_BASELINE,
+    architecturePolicy: {
+      ...CONTENT_READY_BASELINE.architecturePolicy,
+      preferNextWork: [...CONTENT_READY_BASELINE.architecturePolicy.preferNextWork],
+      avoidByDefault: [...CONTENT_READY_BASELINE.architecturePolicy.avoidByDefault],
+    },
+    stablePaths: Object.fromEntries(Object.entries(CONTENT_READY_BASELINE.stablePaths).map(([key, value]) => [key, Array.isArray(value) ? [...value] : value])),
+    nextFocus: [
+      "replace placeholder packs with real lessons",
+      "insert sentence/question datasets behind existing ids",
+      "swap placeholder visuals/rewards with final assets",
+      "attach animation configs/assets through assets.js + existing hook ids",
     ],
   };
 }
