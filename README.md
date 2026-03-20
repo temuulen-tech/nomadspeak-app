@@ -38,7 +38,7 @@ When adding a new content pack, **reuse the existing ids and placeholders where 
 
 See `docs/content-insertion-handoff.md` for the step-by-step handoff checklist used for future real content drops.
 
-## Phase 46 baseline lock
+## Phase 54 baseline sign-off
 
 The app should now be treated as the **stable content-ready baseline** for future production work.
 
