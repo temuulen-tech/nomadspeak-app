@@ -47,6 +47,21 @@ const BEGINNER_PACK_ENTRIES = [
   { q: "Where is your home?", qMn: "Таны гэр хаана байдаг вэ?", a: "My home is near the park.", aMn: "Миний гэр цэцэрлэгт хүрээлэнгийн ойролцоо байдаг." },
   { q: "What do you do every day?", qMn: "Та өдөр бүр юу хийдэг вэ?", a: "I study every day.", aMn: "Би өдөр бүр хичээллэдэг." },
   { q: "When do you sleep?", qMn: "Та хэзээ унтдаг вэ?", a: "I sleep at night.", aMn: "Би шөнө унтдаг." },
+  { q: "Who is this?", qMn: "Энэ хэн бэ?", a: "This is my mother.", aMn: "Энэ бол миний ээж." },
+  { q: "Who is in your family?", qMn: "Танай гэр бүлд хэн байдаг вэ?", a: "My family has four people.", aMn: "Миний гэр бүл дөрвөн хүнтэй." },
+  { q: "Where is your father?", qMn: "Таны аав хаана байна вэ?", a: "My father is at work.", aMn: "Миний аав ажил дээрээ байна." },
+  { q: "What is for breakfast?", qMn: "Өглөөний цайнд юу байна вэ?", a: "Bread and eggs.", aMn: "Талх, өндөг байна." },
+  { q: "What do you want to eat?", qMn: "Та юу идэхийг хүсэж байна вэ?", a: "I want rice and soup.", aMn: "Би будаа, шөл идмээр байна." },
+  { q: "Where is the kitchen?", qMn: "Гал тогоо хаана байна вэ?", a: "The kitchen is next to the living room.", aMn: "Гал тогоо зочны өрөөний хажууд байна." },
+  { q: "What time is it?", qMn: "Хэдэн цаг болж байна вэ?", a: "It is seven o'clock.", aMn: "Долоон цаг болж байна." },
+  { q: "When do you go to work?", qMn: "Та хэзээ ажилдаа явдаг вэ?", a: "I go to work at eight.", aMn: "Би найман цагт ажилдаа явдаг." },
+  { q: "Where do you work?", qMn: "Та хаана ажилладаг вэ?", a: "I work in a shop.", aMn: "Би дэлгүүрт ажилладаг." },
+  { q: "Which bus do we take?", qMn: "Бид ямар автобусанд суух вэ?", a: "We take bus number two.", aMn: "Бид хоёр дугаартай автобусанд сууна." },
+  { q: "Where do I turn left?", qMn: "Би хаана зүүн тийш эргэх вэ?", a: "Turn left at the bank.", aMn: "Банк дээр зүүн тийш эргэ." },
+  { q: "How do I get home?", qMn: "Би гэртээ яаж харих вэ?", a: "Go straight and turn right.", aMn: "Чигээрээ яваад баруун тийш эргэ." },
+  { q: "What is on the table?", qMn: "Ширээн дээр юу байна вэ?", a: "There is rice on the table.", aMn: "Ширээн дээр будаа байна." },
+  { q: "Who cooks at home?", qMn: "Гэрт хэн хоол хийдэг вэ?", a: "My sister cooks at home.", aMn: "Миний эгч гэрт хоол хийдэг." },
+  { q: "When do you eat dinner?", qMn: "Та оройн хоолоо хэзээ иддэг вэ?", a: "I eat dinner at six.", aMn: "Би зургаан цагт оройн хоолоо иддэг." },
 ];
 
 const INTERMEDIATE_FALLBACK_ENTRIES = [
@@ -219,7 +234,7 @@ export const LESSON_WORD_BANKS = {
     id: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
-    tokens: ["hello", "good morning", "good afternoon", "good evening", "goodbye", "see you later", "name", "who", "fine", "from Mongolia", "school", "here", "morning", "book", "friend", "English", "a little", "water", "tea", "ready", "home", "park", "every day", "night", "nice to meet you"],
+    tokens: ["hello", "good morning", "good afternoon", "good evening", "goodbye", "see you later", "name", "who", "fine", "from Mongolia", "school", "here", "morning", "book", "friend", "English", "a little", "water", "tea", "ready", "home", "park", "every day", "night", "nice to meet you", "mother", "family", "father", "work", "breakfast", "bread", "eggs", "rice", "soup", "kitchen", "living room", "time", "seven o'clock", "shop", "bus number two", "left", "right", "bank", "table", "sister", "dinner"],
   }),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
     const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
