@@ -11,6 +11,7 @@
  */
 
 import { getAnimationHookMeta } from "./assets.js";
+import { getChapterContentRefs, SHARED_CONTENT_IDS } from "./content-registry.js";
 import { getLessonContentPackById } from "./lesson.js";
 import { getQaContentSet } from "./qa-game.js";
 import { getSentenceContentBank } from "./sentence-game.js";
@@ -86,19 +87,14 @@ const CHAPTER_CONTENT = [
     id: CHAPTER_IDS.CH1,
     worldId: WORLD_IDS.WORLD_1,
     index: 1,
-    content: {
-      lessonPackId: "world1-ch1-beginner-landing-kit",
-      wordBankId: "word-bank-world1-ch1-core",
-      qaSetId: "qa-set-shared-core",
-      sentenceBankId: "sentence-bank-shared-default",
-    },
+    content: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1),
     title: "1-р бүлэг · Далай гатлалт",
     story: "Далайчид салхи, өлсгөлөн, айдастай нүүр тулж, алс эргийн ард түмэн өдөр тутмын амьдралаа үргэлжлүүлнэ.",
     nodeCount: 6,
     startTile: 1,
     endTile: 6,
     expansion: {
-      rewardVisualId: "reward-theme-shared-core",
+      rewardVisualId: SHARED_CONTENT_IDS.rewardTheme,
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
   }),
@@ -106,19 +102,14 @@ const CHAPTER_CONTENT = [
     id: CHAPTER_IDS.CH2,
     worldId: WORLD_IDS.WORLD_1,
     index: 2,
-    content: {
-      lessonPackId: "world1-ch2-placeholder",
-      wordBankId: "word-bank-world1-ch2-placeholder",
-      qaSetId: "qa-set-world1-ch2-placeholder",
-      sentenceBankId: "sentence-bank-world1-ch2-placeholder",
-    },
+    content: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH2),
     title: "2-р бүлэг · Газардаж анх уулзсан нь",
     story: "Газар харагдаж, сониуч зан нэмэгдэнэ. Анхны солилцоо бэлэг, дохио, үл ойлголцлоор өрнөнө.",
     nodeCount: 6,
     startTile: 7,
     endTile: 12,
     expansion: {
-      rewardVisualId: "reward-theme-shared-core",
+      rewardVisualId: SHARED_CONTENT_IDS.rewardTheme,
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
   }),
@@ -126,19 +117,14 @@ const CHAPTER_CONTENT = [
     id: CHAPTER_IDS.CH3,
     worldId: WORLD_IDS.WORLD_1,
     index: 3,
-    content: {
-      lessonPackId: "world1-ch3-placeholder",
-      wordBankId: "word-bank-world1-ch3-placeholder",
-      qaSetId: "qa-set-world1-ch3-placeholder",
-      sentenceBankId: "sentence-bank-world1-ch3-placeholder",
-    },
+    content: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH3),
     title: "3-р бүлэг · Солилцоо, алт, хурцадмал байдал",
     story: "Солилцоо эхлэх ч алт эрсэн шахалт нэмэгдэж, үл ойлголцол итгэлцлийг сулруулна.",
     nodeCount: 8,
     startTile: 13,
     endTile: 20,
     expansion: {
-      rewardVisualId: "reward-theme-shared-core",
+      rewardVisualId: SHARED_CONTENT_IDS.rewardTheme,
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
   }),
@@ -146,19 +132,14 @@ const CHAPTER_CONTENT = [
     id: CHAPTER_IDS.CH4,
     worldId: WORLD_IDS.WORLD_1,
     index: 4,
-    content: {
-      lessonPackId: "world1-ch4-placeholder",
-      wordBankId: "word-bank-world1-ch4-placeholder",
-      qaSetId: "qa-set-world1-ch4-placeholder",
-      sentenceBankId: "sentence-bank-world1-ch4-placeholder",
-    },
+    content: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH4),
     title: "4-р бүлэг · Амьд үлдэхүй ба эмзэг суурьшил",
     story: "Шуурга, хомсдол, айдас нь тодорхойгүй өдрүүдэд амьд үлдэх гэж буй суурьшигчдыг сорьно.",
     nodeCount: 6,
     startTile: 21,
     endTile: 26,
     expansion: {
-      rewardVisualId: "reward-theme-shared-core",
+      rewardVisualId: SHARED_CONTENT_IDS.rewardTheme,
       animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
     },
   }),

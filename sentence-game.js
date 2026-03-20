@@ -20,18 +20,7 @@ import {
   createPlaceholderMeta,
   createStarterTemplateManifest,
 } from "./constants.js";
-
-
-const WORLD_1_PLACEHOLDER_CHAPTERS = ["ch2", "ch3", "ch4"];
-
-function createWorldSentencePlaceholderBank(worldId, id, notes) {
-  return createSentenceContentBank({
-    id,
-    worldId,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes,
-  });
-}
+import { SENTENCE_BANK_ROUTE_REGISTRY, normalizeSentenceDatasetRow } from "./content-registry.js";
 
 export const SENTENCE_GAME_DIFFICULTY_LABELS = {
   [DIFFICULTY_LEVELS.BEGINNER]: "Анхан шат",
@@ -61,17 +50,21 @@ export const SENTENCE_CONTENT_INSERTION_EXAMPLE = {
 function createSentenceContentBank({
   id,
   worldId,
+  chapterId = null,
   difficulty = DIFFICULTY_LEVELS.BEGINNER,
   state = PLACEHOLDER_STATES.PLACEHOLDER,
   dataPath = SENTENCE_GAME_DATA_PATH,
+  datasetKey = null,
   notes = "",
 } = {}) {
   return {
     id,
     worldId,
+    chapterId,
     difficulty,
     state,
     dataPath,
+    datasetKey: datasetKey || id,
     expansion: {
       sentenceBank: createPlaceholderMeta({
         collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
@@ -84,17 +77,7 @@ function createSentenceContentBank({
   };
 }
 
-export const SENTENCE_CONTENT_BANKS = [
-  createSentenceContentBank({
-    id: "sentence-bank-shared-default",
-    worldId: WORLD_IDS.WORLD_1,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.READY,
-  }),
-  ...WORLD_1_PLACEHOLDER_CHAPTERS.map((chapterId) => createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_1, `sentence-bank-world1-${chapterId}-placeholder`, `Insert ${chapterId.toUpperCase()} sentence data later, keeping the same JSON loading flow.`)),
-  createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_2, "sentence-bank-world2-placeholder", "Insert World 2 sentence data later."),
-  createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_3, "sentence-bank-world3-placeholder", "Insert World 3 sentence data later."),
-];
+export const SENTENCE_CONTENT_BANKS = Object.values(SENTENCE_BANK_ROUTE_REGISTRY).map((route) => createSentenceContentBank(route));
 
 export function tokenizeSentence(sentence = "") {
   const tokens = sentence.match(/[A-Za-z0-9']+|[^\sA-Za-z0-9']/g);
@@ -102,7 +85,16 @@ export function tokenizeSentence(sentence = "") {
 }
 
 export function prepareSentenceItems(items = []) {
-  return items.map((item) => ({ ...item, tokens: tokenizeSentence(item.en) }));
+  return items.map((item, index) => {
+    const normalized = normalizeSentenceDatasetRow(item, index);
+    return { ...normalized, tokens: tokenizeSentence(normalized.en) };
+  });
+}
+
+export function filterSentenceItemsForBank(items = [], bankId = "sentence-bank-shared-default") {
+  const fallbackBankId = "sentence-bank-shared-default";
+  const filtered = items.filter((item) => item.bankId === bankId);
+  return filtered.length ? filtered : items.filter((item) => item.bankId === fallbackBankId);
 }
 
 export const SENTENCE_STARTER_TEMPLATES = SENTENCE_CONTENT_BANKS.map((bank) => createStarterTemplateManifest({

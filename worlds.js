@@ -20,8 +20,10 @@ import {
   getWorldCoverAsset,
   getWorldVisualAssetById,
 } from "./assets.js";
+import { getChapterContentRefs, SHARED_CONTENT_IDS } from "./content-registry.js";
 import {
   ANIMATION_HOOKS,
+  CHAPTER_IDS,
   CONTENT_COLLECTIONS,
   CONTENT_TEMPLATE_SECTIONS,
   DIFFICULTY_LEVELS,
@@ -104,19 +106,19 @@ const SELECTABLE_WORLD_CONTENT = [
     title: "Колумб ба Шинэ тивийнхэн",
     subtitle: "Та битгий уурлаарай",
     content: {
-      pilotLessonPackId: "world1-ch1-beginner-landing-kit",
+      pilotLessonPackId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).lessonPackId,
       lessonContentMap: {
         [DIFFICULTY_LEVELS.BEGINNER]: "world1-ch1-beginner-landing-kit",
         [DIFFICULTY_LEVELS.INTERMEDIATE]: null,
         [DIFFICULTY_LEVELS.ADVANCED]: null,
       },
-      sentenceBankId: "sentence-bank-shared-default",
-      qaSetId: "qa-set-shared-core",
+      sentenceBankId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).sentenceBankId,
+      qaSetId: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).qaSetId,
     },
     visuals: {
       coverAssetId: "world1-cover",
       backgroundAssetId: "sailors-deck",
-      rewardVisualThemeId: "reward-theme-shared-core",
+      rewardVisualThemeId: SHARED_CONTENT_IDS.rewardTheme,
     },
     audio: {
       ambienceWorldId: WORLD_IDS.SEA,
@@ -135,7 +137,7 @@ const SELECTABLE_WORLD_CONTENT = [
         collection: CONTENT_COLLECTIONS.REWARD_VISUALS,
         slot: FUTURE_CONTENT_SLOTS.WORLD_REWARD_VISUAL,
         state: PLACEHOLDER_STATES.PLACEHOLDER,
-        id: "reward-theme-shared-core",
+        id: SHARED_CONTENT_IDS.rewardTheme,
         notes: "Swap this to a world-specific reward theme when art is ready.",
       }),
       animationHooks: [ANIMATION_HOOKS.WORLD_INTRO, ANIMATION_HOOKS.WORLD_REWARD],
@@ -378,7 +380,7 @@ export function getWorldContentInsertionGuide() {
     recommendedFirstTarget: {
       worldId: WORLD_IDS.WORLD_1,
       difficultyId: DIFFICULTY_LEVELS.BEGINNER,
-      chapterId: "ch2",
+      chapterId: CHAPTER_IDS.CH2,
     },
     starterTemplates: WORLD_STARTER_CONTENT_TEMPLATES.map((template) => ({ ...template })),
     example: cloneInsertionExample(WORLD_CONTENT_INSERTION_EXAMPLE),

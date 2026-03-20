@@ -20,6 +20,7 @@ import {
   createPlaceholderMeta,
   createStarterTemplateManifest,
 } from "./constants.js";
+import { CONTENT_GROUPS, getChapterContentRefs } from "./content-registry.js";
 
 export const QA_REWARD_STEPS = [
   { icon: "🏳️", label: "Эхлэл амжилттай!", seconds: 20 * 60, ...getRewardAssetByLevel(1), alt: "Асуулт-хариултын шагнал туг" },
@@ -30,11 +31,11 @@ export const QA_REWARD_STEPS = [
 ];
 
 
-const WORLD_1_PLACEHOLDER_CHAPTERS = ["ch2", "ch3", "ch4"];
+const WORLD_1_PLACEHOLDER_CHAPTERS = CONTENT_GROUPS.WORLD_1_PLACEHOLDER_CHAPTERS;
 
 function createWorld1PlaceholderQaSet(chapterId) {
   return createQaContentSet({
-    id: `qa-set-world1-${chapterId}-placeholder`,
+    id: getChapterContentRefs("world1", chapterId).qaSetId,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
     qaNotes: `Insert ${chapterId.toUpperCase()} QA rounds here later.`,
