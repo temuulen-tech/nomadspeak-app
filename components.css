@@ -1449,17 +1449,26 @@ button,
   display:flex;
   align-items:center;
   justify-content:center;
-  padding:24px;
+  padding:
+    calc(24px + var(--app-safe-top))
+    calc(24px + var(--app-safe-right))
+    calc(24px + var(--app-safe-bottom))
+    calc(24px + var(--app-safe-left));
+  overflow-y:auto;
+  overscroll-behavior:contain;
   z-index:10;
 }
 
 .confirm-card{
   width:min(520px, 100%);
+  max-width:100%;
+  max-height:min(100%, calc(var(--app-viewport-height) - 48px));
   background:var(--card);
   border:1px solid rgba(255,255,255,.12);
   border-radius:18px;
   box-shadow:var(--shadow);
   padding:22px;
+  overflow:auto;
 }
 
 .confirm-card h2{
@@ -1918,5 +1927,24 @@ button,
     width:100%;
     max-width:100%;
     min-width:0;
+  }
+}
+
+@media (max-height:760px){
+  .confirm-overlay{
+    align-items:flex-start;
+    padding:
+      calc(12px + var(--app-safe-top))
+      calc(12px + var(--app-safe-right))
+      calc(12px + var(--app-safe-bottom))
+      calc(12px + var(--app-safe-left));
+  }
+
+  .confirm-card{
+    max-height:min(100%, calc(var(--app-viewport-height) - 24px));
+  }
+
+  #vault-modal .vault-modal{
+    max-height:min(100%, calc(var(--app-viewport-height) - 24px));
   }
 }
