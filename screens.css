@@ -3023,3 +3023,179 @@ body[data-active-screen="board-game"] .app{
     align-items:flex-start;
   }
 }
+
+
+/* Final stabilization hardening: future-content-safe learning, reward, and board layouts */
+.learning-screen-shell,
+.learning-layout-header,
+.learning-master-top,
+.learning-master-row,
+.learning-master-row > *,
+.question-text-wrap,
+.lesson-question-row,
+.question-row,
+.sentences-top-controls,
+.sentences-controls-grid,
+.sentence-row,
+.sentence-text,
+.sentence-game-top,
+.sentence-game-top-header,
+.qa-round-panel,
+.qa-builder-lines,
+.qa-bank,
+.board-game-topbar-main,
+.board-game-info-stack,
+.board-game-helper-copy,
+.board-game-options,
+.board-game-feedback-strip,
+.board-game-challenge-panel,
+.board-game-world-selection,
+.board-game-difficulty-selector,
+.board-game-selection-block{
+  min-width:0;
+}
+
+.learning-master-row{
+  align-items:stretch;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn,
+.learning-master-row-2 > :first-child,
+.learning-master-row-2 > :last-child,
+.learning-master-row-3 > :first-child,
+.learning-master-row-3 > :last-child,
+.learning-master-row-4 > :first-child,
+.learning-master-row-4 > :last-child{
+  flex:1 1 min(100%, 260px);
+  max-width:none;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn,
+.learning-master-row-2 .learning-level-btn,
+.learning-master-row-3 .learning-utility-btn,
+.learning-master-row-3 .sound-toggle-btn{
+  white-space:normal;
+}
+
+.learning-title-block,
+#board-game-screen .board-game-topbar-main .screen-title-chip,
+#board-game-chapter-title,
+#board-game-challenge-title,
+#board-game-challenge-text,
+.board-game-entry-copy,
+.board-game-selection-heading,
+#board-game-difficulty-title,
+#board-game-selector-title,
+.qa-feedback,
+.sentence-game-feedback,
+.sentence-en,
+.sentence-mn{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.learning-progress-compact .reward-row,
+.learning-progress-compact .sentence-game-reward-row,
+.learning-progress-compact.sentences-reward-strip,
+.learning-progress-compact .sentences-reward-strip{
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.learning-progress-compact .reward-tile,
+.learning-progress-compact .learning-progress-item{
+  min-width:min(100%, 104px);
+  max-width:100%;
+}
+
+.reward-tile{
+  min-width:0;
+}
+
+.reward-label-chip{
+  max-width:100%;
+  text-align:center;
+  overflow-wrap:anywhere;
+}
+
+.sentences-list,
+.stats-reward-cards,
+.board-game-options{
+  overscroll-behavior:contain;
+}
+
+.qa-level-options{
+  width:100%;
+}
+
+.qa-level-options button{
+  flex:1 1 160px;
+}
+
+.board-game-world-options,
+.board-game-difficulty-options{
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.board-game-topbar{
+  grid-template-columns:minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
+}
+
+.board-game-challenge-panel{
+  overflow:auto hidden;
+}
+
+.board-game-challenge-panel.show{
+  max-height:min(420px, 54vh);
+}
+
+.board-game-option-btn{
+  align-items:flex-start;
+}
+
+@media (max-width:920px){
+  .learning-master-row{
+    flex-wrap:wrap;
+  }
+
+  .learning-master-row > *{
+    flex-basis:100%;
+  }
+
+  .board-game-top-grid,
+  .board-game-bottom-dock{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-controls-panel{
+    min-height:auto;
+  }
+}
+
+@media (max-width:560px){
+  .learning-progress-compact .reward-tile,
+  .learning-progress-compact .learning-progress-item{
+    flex:1 1 min(100%, 148px);
+  }
+
+  .board-game-topbar{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-topbar-side,
+  .board-game-topbar-side-end{
+    justify-content:stretch;
+  }
+
+  .board-topbar-exit,
+  .board-topbar-sound{
+    width:100%;
+  }
+
+  .board-game-board{
+    padding-left:18px;
+    padding-right:18px;
+  }
+}
