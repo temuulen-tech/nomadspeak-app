@@ -120,6 +120,17 @@ export const FUTURE_CONTENT_SLOTS = {
   GAMEPLAY_ANIMATION: "gameplayAnimation",
 };
 
+export const CONTENT_TEMPLATE_SECTIONS = {
+  WORLD: "world",
+  DIFFICULTY: "difficulty",
+  CHAPTER: "chapter",
+  LESSON: "lesson",
+  QA: "qa",
+  SENTENCE: "sentence",
+  ASSET: "asset",
+  ANIMATION: "animation",
+};
+
 export const CONTENT_INSERTION_OWNERSHIP = {
   worldMetadata: "worlds.js",
   chapterMetadata: "chapters.js",
@@ -188,6 +199,39 @@ export function createPlaceholderMeta({
     slot: slot || null,
     state,
     id,
+    notes,
+  };
+}
+
+export function cloneInsertionExample(example) {
+  if (typeof structuredClone === "function") return structuredClone(example);
+  return JSON.parse(JSON.stringify(example));
+}
+
+export function createStarterTemplateManifest({
+  section,
+  worldId = null,
+  difficultyId = null,
+  chapterId = null,
+  lessonPackId = null,
+  wordBankId = null,
+  qaSetId = null,
+  sentenceBankId = null,
+  assetIds = {},
+  animationHooks = [],
+  notes = "",
+} = {}) {
+  return {
+    section: section || null,
+    worldId,
+    difficultyId,
+    chapterId,
+    lessonPackId,
+    wordBankId,
+    qaSetId,
+    sentenceBankId,
+    assetIds: { ...assetIds },
+    animationHooks: [...animationHooks],
     notes,
   };
 }

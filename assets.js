@@ -11,10 +11,13 @@
 import {
   ANIMATION_HOOKS,
   CONTENT_COLLECTIONS,
+  CONTENT_TEMPLATE_SECTIONS,
   FUTURE_CONTENT_SLOTS,
   PLACEHOLDER_STATES,
   WORLD_IDS,
+  cloneInsertionExample,
   createPlaceholderMeta,
+  createStarterTemplateManifest,
 } from "./constants.js";
 
 export const ASSET_INSERTION_EXAMPLE = {
@@ -169,6 +172,32 @@ export const FUTURE_VISUAL_LIBRARY = {
   ],
 };
 
+export const ASSET_STARTER_TEMPLATES = [
+  ...worldVisualEntries.map((entry) => createStarterTemplateManifest({
+    section: CONTENT_TEMPLATE_SECTIONS.ASSET,
+    worldId: entry.worldId,
+    assetIds: { assetId: entry.id, path: entry.path, slot: entry.slot },
+    notes: `Swap the placeholder or starter visual registered as ${entry.id} when final art is ready.`,
+  })),
+  ...worldBackgroundEntries.map((entry) => createStarterTemplateManifest({
+    section: CONTENT_TEMPLATE_SECTIONS.ASSET,
+    worldId: entry.worldId,
+    assetIds: { assetId: entry.id, path: entry.path, slot: entry.slot },
+    notes: `Keep world background ids stable when replacing ${entry.id}.`,
+  })),
+  ...audioTrackEntries.map((entry) => createStarterTemplateManifest({
+    section: CONTENT_TEMPLATE_SECTIONS.ASSET,
+    worldId: entry.worldId,
+    assetIds: { assetId: entry.id, path: entry.path, slot: entry.slot },
+    notes: `Attach future world ambience files here without editing world flow.`,
+  })),
+  ...FUTURE_VISUAL_LIBRARY.animationHooks.map((entry) => createStarterTemplateManifest({
+    section: CONTENT_TEMPLATE_SECTIONS.ANIMATION,
+    animationHooks: [entry.id],
+    notes: entry.notes || "Attach motion config later.",
+  })),
+];
+
 export const ASSETS = {
   chapterCovers: {
     columbusNewWorld: worldVisualEntries[0].path,
@@ -231,6 +260,7 @@ export function getAssetInsertionGuide() {
         "future animation hook registrations",
       ],
     },
-    example: JSON.parse(JSON.stringify(ASSET_INSERTION_EXAMPLE)),
+    starterTemplates: ASSET_STARTER_TEMPLATES.map((template) => ({ ...template })),
+    example: cloneInsertionExample(ASSET_INSERTION_EXAMPLE),
   };
 }
