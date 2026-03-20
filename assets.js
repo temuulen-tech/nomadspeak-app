@@ -272,13 +272,21 @@ export function getRewardAssetByLevel(level = 1) {
   return rewardEntry ? { ...rewardEntry, level, image: rewardEntry.path } : null;
 }
 
+export function getWorldVisualAssetById(assetId) {
+  return worldVisualEntries.find((entry) => entry.id === assetId) || null;
+}
+
 export function getWorldCoverAsset(worldId) {
   return worldVisualEntries.find((entry) => entry.worldId === worldId && entry.slot === FUTURE_CONTENT_SLOTS.WORLD_COVER) || null;
 }
 
+export function getWorldBackgroundAssetById(assetId) {
+  return worldBackgroundEntries.find((entry) => entry.id === assetId) || null;
+}
+
 export function getWorldBackgroundAsset(worldId) {
   return worldBackgroundEntries.find((entry) => entry.worldId === worldId)
-    || worldBackgroundEntries.find((entry) => entry.id === "shared-world-background-placeholder")
+    || getWorldBackgroundAssetById("shared-world-background-placeholder")
     || null;
 }
 

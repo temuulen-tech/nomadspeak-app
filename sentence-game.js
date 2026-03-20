@@ -45,97 +45,69 @@ export const SENTENCE_CONTENT_INSERTION_EXAMPLE = {
   },
 };
 
+function createSentenceContentBank({
+  id,
+  worldId,
+  difficulty = DIFFICULTY_LEVELS.BEGINNER,
+  state = PLACEHOLDER_STATES.PLACEHOLDER,
+  dataPath = SENTENCE_GAME_DATA_PATH,
+  notes = "",
+} = {}) {
+  return {
+    id,
+    worldId,
+    difficulty,
+    state,
+    dataPath,
+    expansion: {
+      sentenceBank: createPlaceholderMeta({
+        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
+        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
+        id,
+        state,
+        notes,
+      }),
+    },
+  };
+}
+
 export const SENTENCE_CONTENT_BANKS = [
-  {
+  createSentenceContentBank({
     id: "sentence-bank-shared-default",
     worldId: WORLD_IDS.WORLD_1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.READY,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-shared-default",
-        state: PLACEHOLDER_STATES.READY,
-      }),
-    },
-  },
-  {
+  }),
+  createSentenceContentBank({
     id: "sentence-bank-world1-ch2-placeholder",
     worldId: WORLD_IDS.WORLD_1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-world1-ch2-placeholder",
-        notes: "Insert Chapter 2 sentence data later, keeping the same JSON loading flow.",
-      }),
-    },
-  },
-  {
+    notes: "Insert Chapter 2 sentence data later, keeping the same JSON loading flow.",
+  }),
+  createSentenceContentBank({
     id: "sentence-bank-world1-ch3-placeholder",
     worldId: WORLD_IDS.WORLD_1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-world1-ch3-placeholder",
-        notes: "Insert Chapter 3 sentence data later, keeping the same JSON loading flow.",
-      }),
-    },
-  },
-  {
+    notes: "Insert Chapter 3 sentence data later, keeping the same JSON loading flow.",
+  }),
+  createSentenceContentBank({
     id: "sentence-bank-world1-ch4-placeholder",
     worldId: WORLD_IDS.WORLD_1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-world1-ch4-placeholder",
-        notes: "Insert Chapter 4 sentence data later, keeping the same JSON loading flow.",
-      }),
-    },
-  },
-  {
+    notes: "Insert Chapter 4 sentence data later, keeping the same JSON loading flow.",
+  }),
+  createSentenceContentBank({
     id: "sentence-bank-world2-placeholder",
     worldId: WORLD_IDS.WORLD_2,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-world2-placeholder",
-        notes: "Insert World 2 sentence data later.",
-      }),
-    },
-  },
-  {
+    notes: "Insert World 2 sentence data later.",
+  }),
+  createSentenceContentBank({
     id: "sentence-bank-world3-placeholder",
     worldId: WORLD_IDS.WORLD_3,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    state: PLACEHOLDER_STATES.PLACEHOLDER,
-    dataPath: SENTENCE_GAME_DATA_PATH,
-    expansion: {
-      sentenceBank: createPlaceholderMeta({
-        collection: CONTENT_COLLECTIONS.SENTENCE_BANKS,
-        slot: FUTURE_CONTENT_SLOTS.SENTENCE_BANK,
-        id: "sentence-bank-world3-placeholder",
-        notes: "Insert World 3 sentence data later.",
-      }),
-    },
-  },
+    notes: "Insert World 3 sentence data later.",
+  }),
 ];
 
 export function tokenizeSentence(sentence = "") {
