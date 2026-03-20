@@ -91,8 +91,8 @@ export function prepareSentenceItems(items = []) {
   });
 }
 
-export function filterSentenceItemsForBank(items = [], bankId = "sentence-bank-shared-default") {
-  const fallbackBankId = "sentence-bank-shared-default";
+export function filterSentenceItemsForBank(items = [], bankId = "sentence-bank-world1-ch1-first-steps") {
+  const fallbackBankId = "sentence-bank-world1-ch1-first-steps";
   const filtered = items.filter((item) => item.bankId === bankId);
   return filtered.length ? filtered : items.filter((item) => item.bankId === fallbackBankId);
 }
@@ -107,7 +107,7 @@ export const SENTENCE_STARTER_TEMPLATES = SENTENCE_CONTENT_BANKS.map((bank) => c
 
 export const SENTENCE_CONTENT_BANK_INDEX = SENTENCE_CONTENT_BANKS.reduce((acc, bank) => ({ ...acc, [bank.id]: bank }), {});
 
-export function getSentenceContentBank(bankId = "sentence-bank-shared-default") {
+export function getSentenceContentBank(bankId = "sentence-bank-world1-ch1-first-steps") {
   return SENTENCE_CONTENT_BANK_INDEX[bankId] || SENTENCE_CONTENT_BANKS[0] || null;
 }
 

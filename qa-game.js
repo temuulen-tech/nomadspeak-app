@@ -98,36 +98,52 @@ function createQaContentSet({
 
 const QA_CONTENT_SETS = [
   createQaContentSet({
-    id: "qa-set-shared-core",
+    id: "qa-set-world1-ch1-first-steps",
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.READY,
     rounds: [
       {
         id: "A",
         mnQuestion: "Таныг хэн гэдэг вэ ?",
-        mnAnswer: "Миний нэрийг Сара гэдэг.",
+        mnAnswer: "Миний нэр Сара.",
         enQuestion: "What is your name ?",
         enAnswer: "My name is Sara .",
         wordBankTokens: ["What", "is", "your", "name", "?", "My", "name", "is", "Sara", "."],
       },
       {
         id: "B",
-        mnQuestion: "Чи хаанаас ирсэн бэ ?",
+        mnQuestion: "Сайн байна уу ?",
+        mnAnswer: "Би сайн байна, баярлалаа.",
+        enQuestion: "How are you ?",
+        enAnswer: "I am fine , thank you .",
+        wordBankTokens: ["How", "are", "you", "?", "I", "am", "fine", ",", "thank", "you", "."],
+      },
+      {
+        id: "C",
+        mnQuestion: "Та хаанаас ирсэн бэ ?",
         mnAnswer: "Би Монголоос ирсэн.",
         enQuestion: "Where are you from ?",
         enAnswer: "I am from Mongolia .",
         wordBankTokens: ["Where", "are", "you", "from", "?", "I", "am", "from", "Mongolia", "."],
       },
       {
-        id: "C",
-        mnQuestion: "Чи бэлэн үү ?",
+        id: "D",
+        mnQuestion: "Та англиар ярьдаг уу ?",
+        mnAnswer: "Бага зэрэг.",
+        enQuestion: "Do you speak English ?",
+        enAnswer: "A little .",
+        wordBankTokens: ["Do", "you", "speak", "English", "?", "A", "little", "."],
+      },
+      {
+        id: "E",
+        mnQuestion: "Та бэлэн үү ?",
         mnAnswer: "Тийм ээ, би бэлэн байна.",
         enQuestion: "Are you ready ?",
         enAnswer: "Yes , I am ready .",
         wordBankTokens: ["Are", "you", "ready", "?", "Yes", ",", "I", "am", "ready", "."],
       },
     ],
-    wordBankId: "qa-word-bank-shared-core",
+    wordBankId: "qa-word-bank-world1-ch1-first-steps",
     wordBankState: PLACEHOLDER_STATES.READY,
   }),
   ...WORLD_1_PLACEHOLDER_CHAPTERS.map((chapterId) => createWorld1PlaceholderQaSet(chapterId)),
@@ -161,11 +177,11 @@ export const QA_ROUNDS = sharedCoreRounds;
 
 export const QA_WORD_BANK_BASE = QA_ROUNDS[0].wordBankTokens;
 
-export function getQaContentSet(setId = "qa-set-shared-core") {
+export function getQaContentSet(setId = "qa-set-world1-ch1-first-steps") {
   return QA_CONTENT_SET_INDEX[setId] || QA_CONTENT_SETS[0] || null;
 }
 
-export function getQaRounds(setId = "qa-set-shared-core") {
+export function getQaRounds(setId = "qa-set-world1-ch1-first-steps") {
   return getQaContentSet(setId)?.rounds?.slice() || QA_ROUNDS.slice();
 }
 
@@ -194,7 +210,7 @@ export function qaLevelLabel(levelKey) {
 
 export const QA_LONG_EXPLANATION_TEXT = "Энэ тоглоом нь асуулт, хариултын бүтэц дээр төвлөрч, англи өгүүлбэрийг зөв дарааллаар бодож бүтээх дадлыг хөгжүүлнэ. Та эхлээд ангиллаа сонгоод тоглоомоо эхлүүлнэ. Асуултын мөрийг зөв бүтээсний дараа л хариултын мөр нээгдэнэ. Ингэснээр та асуулт-хариултын логик дарааллыг бодитоор сурна. Үгийн сангийн chip-үүд дээр дарж мөр рүү оруулна, буцаахдаа мөр дээрх chip дээр дахин дарна. Зөв хариулт гарвал дараагийн тойрог руу шилжиж, хугацааны дагуу шагналууд нээгдэнэ. Хэрэв та төөрвөл англи асуулт, хариултыг харах товчоор түр харж болно. Тогтмол тоглосноор өгүүлбэр бүтээх хурд, хэлний мэдрэмж эрс сайжирна.";
 
-export function qaRoundPoolForLevel(levelKey, setId = "qa-set-shared-core") {
+export function qaRoundPoolForLevel(levelKey, setId = "qa-set-world1-ch1-first-steps") {
   const rounds = getQaRounds(setId);
   return levelKey === DIFFICULTY_LEVELS.BEGINNER ? rounds.slice(0, 1) : rounds.slice(0, 2);
 }

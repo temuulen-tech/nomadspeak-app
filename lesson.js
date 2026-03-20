@@ -25,13 +25,15 @@ import { CONTENT_GROUPS, getChapterContentRefs } from "./content-registry.js";
  */
 
 const BEGINNER_PACK_ENTRIES = [
-  { q: "What is your name?", qMn: "Таныг хэн гэдэг вэ?", a: "My name is Sara.", aMn: "Миний нэрийг Сара гэдэг." },
+  { q: "Hello!", qMn: "Сайн уу!", a: "Hello!", aMn: "Сайн уу!" },
+  { q: "Good morning.", qMn: "Өглөөний мэнд.", a: "Good morning.", aMn: "Өглөөний мэнд." },
+  { q: "What is your name?", qMn: "Таныг хэн гэдэг вэ?", a: "My name is Sara.", aMn: "Миний нэр Сара." },
   { q: "How are you?", qMn: "Сайн байна уу?", a: "I am fine, thank you.", aMn: "Би сайн байна, баярлалаа." },
   { q: "Where are you from?", qMn: "Та хаанаас ирсэн бэ?", a: "I am from Mongolia.", aMn: "Би Монголоос ирсэн." },
-  { q: "Do you speak English?", qMn: "Та англиар ярьдаг уу?", a: "Yes, I speak a little English.", aMn: "Тийм ээ, би англиар бага зэрэг ярьдаг." },
-  { q: "Who is this?", qMn: "Энэ хэн бэ?", a: "This is my friend.", aMn: "Энэ бол миний найз." },
-  { q: "Is this your book?", qMn: "Энэ таны ном уу?", a: "Yes, this is my book.", aMn: "Тийм ээ, энэ бол миний ном." },
-  { q: "What do you want?", qMn: "Та юу хүсэж байна вэ?", a: "I want some water.", aMn: "Би ус авмаар байна." },
+  { q: "Nice to meet you.", qMn: "Танилцахад таатай байна.", a: "Nice to meet you too.", aMn: "Надад ч бас таатай байна." },
+  { q: "This is my friend.", qMn: "Энэ бол миний найз.", a: "Hello, friend.", aMn: "Сайн уу, найз аа." },
+  { q: "Do you speak English?", qMn: "Та англиар ярьдаг уу?", a: "A little.", aMn: "Бага зэрэг." },
+  { q: "I want water.", qMn: "Би ус хүсэж байна.", a: "Here is water.", aMn: "Энд ус байна." },
   { q: "Are you ready?", qMn: "Та бэлэн үү?", a: "Yes, I am ready.", aMn: "Тийм ээ, би бэлэн байна." },
 ];
 
@@ -165,7 +167,7 @@ function createLessonContentPack({
 
 export const LESSON_CONTENT_PACKS = [
   createLessonContentPack({
-    id: "world1-ch1-beginner-landing-kit",
+    id: "world1-ch1-beginner-first-steps",
     worldId: WORLD_IDS.WORLD_1,
     chapterId: CHAPTER_IDS.CH1,
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
@@ -205,7 +207,7 @@ export const LESSON_WORD_BANKS = {
     id: getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH1).wordBankId,
     chapterId: CHAPTER_IDS.CH1,
     state: PLACEHOLDER_STATES.READY,
-    tokens: ["hello", "name", "fine", "friend", "book", "water", "ready", "English", "Mongolia"],
+    tokens: ["hello", "good morning", "name", "fine", "Mongolia", "friend", "English", "a little", "water", "ready", "nice to meet you"],
   }),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
     const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
