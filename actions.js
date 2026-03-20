@@ -14,6 +14,8 @@ import {
   replaceProgressState,
   updateCoreState,
 } from "./state.js";
+import { DIFFICULTY_LEVELS } from "./constants.js";
+import { getSelectableBoardWorlds } from "./worlds.js";
 
 function persistCoreState() {
   const normalized = getCoreState();
@@ -31,6 +33,18 @@ function commitCoreMutation(mutator, scope = "core") {
 
 function normalizeRewardEventId(eventId = "") {
   return String(eventId || "").trim();
+}
+
+function isSelectableWorldId(worldId = "") {
+  const normalizedId = String(worldId || "").trim();
+  if (!normalizedId) return false;
+  return getSelectableBoardWorlds().some((world) => world.id === normalizedId);
+}
+
+function isSupportedDifficultyId(difficultyId = "") {
+  const normalizedId = String(difficultyId || "").trim();
+  if (!normalizedId) return false;
+  return Object.values(DIFFICULTY_LEVELS).includes(normalizedId);
 }
 
 function hasProcessedRewardEvent(coreState, eventId = "") {
@@ -244,7 +258,7 @@ export function updateSettings(patch = {}) {
 
 export function setSelectedWorld(worldId) {
   const nextWorldId = String(worldId || "").trim();
-  if (!nextWorldId) return getCoreState().selectedWorldId;
+  if (!isSelectableWorldId(nextWorldId)) return getCoreState().selectedWorldId;
 
   commitCoreMutation((core) => {
     core.selectedWorldId = nextWorldId;
@@ -255,7 +269,7 @@ export function setSelectedWorld(worldId) {
 
 export function setSelectedDifficulty(difficultyId) {
   const nextDifficultyId = String(difficultyId || "").trim();
-  if (!nextDifficultyId) return getCoreState().selectedDifficultyId;
+  if (!isSupportedDifficultyId(nextDifficultyId)) return getCoreState().selectedDifficultyId;
 
   commitCoreMutation((core) => {
     core.selectedDifficultyId = nextDifficultyId;
@@ -265,8 +279,10 @@ export function setSelectedDifficulty(difficultyId) {
 }
 
 export function updateSelections(patch = {}) {
-  const nextWorldId = typeof patch.selectedWorldId === "string" ? patch.selectedWorldId.trim() : "";
-  const nextDifficultyId = typeof patch.selectedDifficultyId === "string" ? patch.selectedDifficultyId.trim() : "";
+  const requestedWorldId = typeof patch.selectedWorldId === "string" ? patch.selectedWorldId.trim() : "";
+  const requestedDifficultyId = typeof patch.selectedDifficultyId === "string" ? patch.selectedDifficultyId.trim() : "";
+  const nextWorldId = isSelectableWorldId(requestedWorldId) ? requestedWorldId : "";
+  const nextDifficultyId = isSupportedDifficultyId(requestedDifficultyId) ? requestedDifficultyId : "";
   if (!nextWorldId && !nextDifficultyId) {
     return {
       selectedWorldId: getCoreState().selectedWorldId,
