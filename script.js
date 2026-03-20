@@ -300,7 +300,7 @@ const sentencesCompanionLineEl = document.getElementById("sentences-companion-li
 
 const boardGameBoardEl = document.getElementById("board-game-board");
 const boardGameTokenEl = document.getElementById("board-game-token");
-const boardGameRollBtn = document.getElementById("board-game-roll-btn");
+const boardGameRollBtn = document.getElementById("board-game-roll-btn") || document.getElementById("board-game-dice");
 const boardGamePositionEl = document.getElementById("board-game-position");
 const boardGameTotalTilesEl = document.getElementById("board-game-total-tiles");
 const boardGameLastRollEl = document.getElementById("board-game-last-roll");

@@ -20,14 +20,11 @@ function ensureDebugChapterPreviewMeta(state, screenEl) {
 
 export function initChapterCoverScreen(handlers = {}) {
   const chapterCoverScreenEl = document.getElementById("board-game-intro-screen");
-  const continueBtn = document.getElementById("board-game-intro-continue-btn");
   const coverImageEl = document.querySelector("#board-game-intro-screen .board-game-intro-cover");
   const entryPanelEl = document.getElementById("board-game-entry-panel");
   const worldSelectionEl = document.getElementById("board-game-world-selection");
-  const worldButtons = Array.from(document.querySelectorAll(".board-game-world-option"));
   const difficultySelectorEl = document.getElementById("board-game-difficulty-selector");
   const selectedWorldLabelEl = document.getElementById("board-game-selected-world-label");
-  const difficultyButtons = Array.from(document.querySelectorAll(".board-game-difficulty-option"));
   const state = {
     previewChapterId: getBoardEntryState().chapterId,
     debugMetaEl: null,
@@ -35,17 +32,49 @@ export function initChapterCoverScreen(handlers = {}) {
 
   const worldOptions = getSelectableBoardWorlds();
 
-  worldButtons.forEach((btn, index) => {
-    const world = worldOptions[index];
-    if (!world) return;
-    btn.dataset.boardWorld = world.id;
-    btn.textContent = world.label;
-  });
+  const getContinueBtn = () => document.getElementById("board-game-intro-continue-btn");
+  const getWorldButtons = () => Array.from(document.querySelectorAll(".board-game-world-option"));
+  const getDifficultyButtons = () => Array.from(document.querySelectorAll(".board-game-difficulty-option"));
 
-  difficultyButtons.forEach((btn) => {
-    const difficulty = getDifficultyOption(btn.dataset.boardDifficulty);
-    if (difficulty) btn.textContent = difficulty.label;
-  });
+  const wireControls = () => {
+    const continueBtn = getContinueBtn();
+
+    bindClickOnce(continueBtn, "board-entry:continue", () => {
+      const selection = getSelectionState();
+      if (selection.step === BOARD_SELECTOR_STEPS.ENTRY) {
+        handlers.onAdvanceSelectorStep?.(BOARD_SELECTOR_STEPS.WORLD);
+        syncSelectorUi();
+        return;
+      }
+
+      handlers.onStartGame?.(selection);
+    });
+
+    getWorldButtons().forEach((btn, index) => {
+      const world = worldOptions[index];
+      if (world) {
+        btn.dataset.boardWorld = world.id;
+        btn.textContent = world.label;
+      }
+
+      bindClickOnce(btn, `board-entry:world:${btn.dataset.boardWorld || btn.textContent}`, () => {
+        const worldId = btn.dataset.boardWorld || worldOptions[0]?.id || null;
+        handlers.onSelectWorld?.(worldId);
+        setPreview(getDefaultChapterForWorld(worldId)?.id || null);
+        syncSelectorUi();
+      });
+    });
+
+    getDifficultyButtons().forEach((btn) => {
+      const difficulty = getDifficultyOption(btn.dataset.boardDifficulty);
+      if (difficulty) btn.textContent = difficulty.label;
+
+      bindClickOnce(btn, `board-entry:difficulty:${btn.dataset.boardDifficulty || btn.textContent}`, () => {
+        handlers.onSelectDifficulty?.(btn.dataset.boardDifficulty);
+        syncSelectorUi();
+      });
+    });
+  };
 
   const getSelectionState = () => handlers.getSelectionState?.() || getBoardEntryState();
 
@@ -54,6 +83,9 @@ export function initChapterCoverScreen(handlers = {}) {
     const selectedWorld = getWorldConfig(selection.worldId);
     const selectedDifficulty = getDifficultyOption(selection.difficultyId);
     const selectorVisible = selection.step !== BOARD_SELECTOR_STEPS.ENTRY;
+    const continueBtn = getContinueBtn();
+    const worldButtons = getWorldButtons();
+    const difficultyButtons = getDifficultyButtons();
 
     entryPanelEl?.classList.toggle("hidden", selectorVisible);
     worldSelectionEl?.classList.toggle("hidden", !selectorVisible);
@@ -87,6 +119,7 @@ export function initChapterCoverScreen(handlers = {}) {
   const setPreview = (chapterId = getSelectionState().chapterId) => {
     const chapter = getChapterConfig(chapterId) || getDefaultChapterForWorld(getSelectionState().worldId);
     if (!chapter) return null;
+    const continueBtn = getContinueBtn();
 
     state.previewChapterId = chapter.id;
 
@@ -112,33 +145,7 @@ export function initChapterCoverScreen(handlers = {}) {
     return chapter;
   };
 
-  bindClickOnce(continueBtn, "board-entry:continue", () => {
-    const selection = getSelectionState();
-    if (selection.step === BOARD_SELECTOR_STEPS.ENTRY) {
-      handlers.onAdvanceSelectorStep?.(BOARD_SELECTOR_STEPS.WORLD);
-      syncSelectorUi();
-      return;
-    }
-
-    handlers.onStartGame?.(selection);
-  });
-
-  worldButtons.forEach((btn) => {
-    bindClickOnce(btn, `board-entry:world:${btn.dataset.boardWorld || btn.textContent}`, () => {
-      const worldId = btn.dataset.boardWorld || worldOptions[0]?.id || null;
-      handlers.onSelectWorld?.(worldId);
-      setPreview(getDefaultChapterForWorld(worldId)?.id || null);
-      syncSelectorUi();
-    });
-  });
-
-  difficultyButtons.forEach((btn) => {
-    bindClickOnce(btn, `board-entry:difficulty:${btn.dataset.boardDifficulty || btn.textContent}`, () => {
-      handlers.onSelectDifficulty?.(btn.dataset.boardDifficulty);
-      syncSelectorUi();
-    });
-  });
-
+  wireControls();
   setPreview(state.previewChapterId);
   syncSelectorUi();
 
@@ -146,11 +153,13 @@ export function initChapterCoverScreen(handlers = {}) {
     id: SCREEN_NAMES.CHAPTER_COVER,
     element: chapterCoverScreenEl,
     onEnter: () => {
+      wireControls();
       setPreview(getSelectionState().chapterId);
       syncSelectorUi();
       handlers.onActivate?.();
     },
     onReenter: () => {
+      wireControls();
       setPreview(getSelectionState().chapterId);
       syncSelectorUi();
       handlers.onActivate?.();

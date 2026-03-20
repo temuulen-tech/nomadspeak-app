@@ -10,26 +10,31 @@ import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 export function initStatsScreen(handlers = {}) {
   const statsScreenEl = document.getElementById("stats-screen");
-  const statsPeriodButtons = Array.from(document.querySelectorAll("[data-period]"));
-  const statsRewardTabButtons = Array.from(document.querySelectorAll(".stats-reward-tab"));
-  const timeDetailsButtons = Array.from(document.querySelectorAll(".time-details-btn"));
   const timeDetailsModalEl = document.getElementById("time-details-modal");
   const timeDetailsCloseBtn = document.getElementById("time-details-close-btn");
 
-  statsPeriodButtons.forEach((btn) => {
-    bindClickOnce(btn, `stats:period:${btn.dataset.period || btn.textContent}`, () => handlers.onPeriodChange?.(btn));
-  });
+  const wireControls = () => {
+    const statsPeriodButtons = Array.from(document.querySelectorAll("[data-period]"));
+    const statsRewardTabButtons = Array.from(document.querySelectorAll(".stats-reward-tab"));
+    const timeDetailsButtons = Array.from(document.querySelectorAll(".time-details-btn"));
 
-  statsRewardTabButtons.forEach((btn) => {
-    bindClickOnce(btn, `stats:reward-tab:${btn.dataset.rewardTab || btn.textContent}`, () => handlers.onRewardTabChange?.(btn));
-  });
-
-  timeDetailsButtons.forEach((btn, index) => {
-    bindClickOnce(btn, `stats:time-details:${btn.id || index}`, () => {
-      handlers.onBeforeOpenTimeDetails?.();
-      openModal(timeDetailsModalEl);
+    statsPeriodButtons.forEach((btn) => {
+      bindClickOnce(btn, `stats:period:${btn.dataset.period || btn.textContent}`, () => handlers.onPeriodChange?.(btn));
     });
-  });
+
+    statsRewardTabButtons.forEach((btn) => {
+      bindClickOnce(btn, `stats:reward-tab:${btn.dataset.rewardTab || btn.textContent}`, () => handlers.onRewardTabChange?.(btn));
+    });
+
+    timeDetailsButtons.forEach((btn, index) => {
+      bindClickOnce(btn, `stats:time-details:${btn.id || index}`, () => {
+        handlers.onBeforeOpenTimeDetails?.();
+        openModal(timeDetailsModalEl);
+      });
+    });
+  };
+
+  wireControls();
 
   bindModalDismissal({
     modalEl: timeDetailsModalEl,
@@ -39,8 +44,14 @@ export function initStatsScreen(handlers = {}) {
   return createScreenLifecycle({
     id: SCREEN_NAMES.STATS,
     element: statsScreenEl,
-    onEnter: () => handlers.onActivate?.(),
-    onReenter: () => handlers.onActivate?.(),
+    onEnter: () => {
+      wireControls();
+      handlers.onActivate?.();
+    },
+    onReenter: () => {
+      wireControls();
+      handlers.onActivate?.();
+    },
     onLeave: () => handlers.onDeactivate?.(),
   });
 }

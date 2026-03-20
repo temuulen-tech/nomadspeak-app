@@ -10,11 +10,18 @@ import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
-  const rollBtn = document.getElementById("board-game-roll-btn");
-  const diceEl = document.getElementById("board-game-dice");
+  const resolveRollBtn = () => document.getElementById("board-game-roll-btn") || document.getElementById("board-game-dice");
+  const resolveDiceEl = () => document.getElementById("board-game-dice");
 
-  bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
-  bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
+  const wireControls = () => {
+    const rollBtn = resolveRollBtn();
+    const diceEl = resolveDiceEl();
+    bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
+    bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
+    return { rollBtn, diceEl };
+  };
+
+  wireControls();
 
   bindManagedEvent(window, "resize", "board:resize-visible", () => {
     if (!boardScreenEl || boardScreenEl.classList.contains("hidden")) return;
@@ -25,10 +32,12 @@ export function initBoardScreen(handlers = {}) {
     id: SCREEN_NAMES.BOARD,
     element: boardScreenEl,
     onEnter: () => {
+      const { rollBtn, diceEl } = wireControls();
       renderBoardRollState({ enabled: true, rollBtn, diceEl });
       handlers.onActivate?.();
     },
     onReenter: () => {
+      const { rollBtn, diceEl } = wireControls();
       renderBoardRollState({ enabled: true, rollBtn, diceEl });
       handlers.onActivate?.();
     },
