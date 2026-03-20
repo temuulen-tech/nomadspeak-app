@@ -368,5 +368,305 @@
     "bankId": "sentence-bank-world1-ch1-first-steps",
     "worldId": "world1",
     "chapterId": "ch1"
+  },
+  {
+    "id": 38,
+    "level": "beginner",
+    "topic": "Family",
+    "en": "Who is this?",
+    "mn": "Энэ хэн бэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 39,
+    "level": "beginner",
+    "topic": "Family",
+    "en": "This is my mother.",
+    "mn": "Энэ бол миний ээж.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 40,
+    "level": "beginner",
+    "topic": "Family",
+    "en": "Who is in your family?",
+    "mn": "Танай гэр бүлд хэн байдаг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 41,
+    "level": "beginner",
+    "topic": "Family",
+    "en": "My family has four people.",
+    "mn": "Миний гэр бүл дөрвөн хүнтэй.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 42,
+    "level": "beginner",
+    "topic": "Home and work",
+    "en": "Where is your father?",
+    "mn": "Таны аав хаана байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 43,
+    "level": "beginner",
+    "topic": "Home and work",
+    "en": "My father is at work.",
+    "mn": "Миний аав ажил дээрээ байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 44,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "What is for breakfast?",
+    "mn": "Өглөөний цайнд юу байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 45,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "Bread and eggs.",
+    "mn": "Талх, өндөг байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 46,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "What do you want to eat?",
+    "mn": "Та юу идэхийг хүсэж байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 47,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "I want rice and soup.",
+    "mn": "Би будаа, шөл идмээр байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 48,
+    "level": "beginner",
+    "topic": "Home",
+    "en": "Where is the kitchen?",
+    "mn": "Гал тогоо хаана байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 49,
+    "level": "beginner",
+    "topic": "Home",
+    "en": "The kitchen is next to the living room.",
+    "mn": "Гал тогоо зочны өрөөний хажууд байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 50,
+    "level": "beginner",
+    "topic": "Time",
+    "en": "What time is it?",
+    "mn": "Хэдэн цаг болж байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 51,
+    "level": "beginner",
+    "topic": "Time",
+    "en": "It is seven o'clock.",
+    "mn": "Долоон цаг болж байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 52,
+    "level": "beginner",
+    "topic": "Work",
+    "en": "When do you go to work?",
+    "mn": "Та хэзээ ажилдаа явдаг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 53,
+    "level": "beginner",
+    "topic": "Work",
+    "en": "I go to work at eight.",
+    "mn": "Би найман цагт ажилдаа явдаг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 54,
+    "level": "beginner",
+    "topic": "Work",
+    "en": "Where do you work?",
+    "mn": "Та хаана ажилладаг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 55,
+    "level": "beginner",
+    "topic": "Work",
+    "en": "I work in a shop.",
+    "mn": "Би дэлгүүрт ажилладаг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 56,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "Which bus do we take?",
+    "mn": "Бид ямар автобусанд суух вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 57,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "We take bus number two.",
+    "mn": "Бид хоёр дугаартай автобусанд сууна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 58,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "Where do I turn left?",
+    "mn": "Би хаана зүүн тийш эргэх вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 59,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "Turn left at the bank.",
+    "mn": "Банк дээр зүүн тийш эргэ.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 60,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "How do I get home?",
+    "mn": "Би гэртээ яаж харих вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 61,
+    "level": "beginner",
+    "topic": "Directions",
+    "en": "Go straight and turn right.",
+    "mn": "Чигээрээ яваад баруун тийш эргэ.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 62,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "What is on the table?",
+    "mn": "Ширээн дээр юу байна вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 63,
+    "level": "beginner",
+    "topic": "Food",
+    "en": "There is rice on the table.",
+    "mn": "Ширээн дээр будаа байна.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 64,
+    "level": "beginner",
+    "topic": "Home",
+    "en": "Who cooks at home?",
+    "mn": "Гэрт хэн хоол хийдэг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 65,
+    "level": "beginner",
+    "topic": "Home",
+    "en": "My sister cooks at home.",
+    "mn": "Миний эгч гэрт хоол хийдэг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 66,
+    "level": "beginner",
+    "topic": "Time",
+    "en": "When do you eat dinner?",
+    "mn": "Та оройн хоолоо хэзээ иддэг вэ?",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
+  },
+  {
+    "id": 67,
+    "level": "beginner",
+    "topic": "Time",
+    "en": "I eat dinner at six.",
+    "mn": "Би зургаан цагт оройн хоолоо иддэг.",
+    "bankId": "sentence-bank-world1-ch1-first-steps",
+    "worldId": "world1",
+    "chapterId": "ch1"
   }
 ]
