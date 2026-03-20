@@ -4,7 +4,7 @@
  */
 
 import { renderHomeScreen } from "./render-home.js";
-import { SCREEN_NAMES } from "./constants.js";
+import { FLOW_DESTINATIONS, SCREEN_NAMES } from "./constants.js";
 import { bindClickOnce } from "./ui.js";
 import { createScreenLifecycle } from "./screen-lifecycle.js";
 
@@ -21,18 +21,13 @@ export function initHomeScreen(handlers = {}) {
   const homeModesPanel = document.getElementById("home-modes-panel");
   const introToggleBtn = document.getElementById("intro-toggle-btn");
   const introCloseBtn = document.getElementById("intro-close-btn");
-  const startBtn = document.getElementById("start-btn");
-  const startLevelDropdown = document.getElementById("start-level-dropdown");
-  const startLevelPicker = document.querySelector(".start-level-picker");
-  const startLevelOptions = Array.from(document.querySelectorAll(".start-level-option"));
-
-  bindClickOnce(navLessonBtn, "home:navigate-lesson", () => handlers.onNavigate?.(SCREEN_NAMES.LESSON));
-  bindClickOnce(navSentencesBtn, "home:navigate-sentences", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCES));
-  bindClickOnce(navSentenceGameBtn, "home:navigate-sentence-game", () => handlers.onNavigate?.(SCREEN_NAMES.SENTENCE_GAME));
-  bindClickOnce(navQaGameBtn, "home:navigate-qa-game", () => handlers.onNavigate?.(SCREEN_NAMES.QA_GAME));
-  bindClickOnce(navBoardGameBtn, "home:navigate-board-game", () => handlers.onNavigate?.(SCREEN_NAMES.BOARD_GAME));
-  bindClickOnce(navStatsBtn, "home:navigate-stats", () => handlers.onNavigate?.(SCREEN_NAMES.STATS));
-  bindClickOnce(navProfileBtn, "home:navigate-profile", () => handlers.onNavigate?.(SCREEN_NAMES.PROFILE));
+  bindClickOnce(navLessonBtn, "home:navigate-lesson", () => handlers.onNavigate?.(FLOW_DESTINATIONS.LESSON));
+  bindClickOnce(navSentencesBtn, "home:navigate-sentences", () => handlers.onNavigate?.(FLOW_DESTINATIONS.SENTENCES));
+  bindClickOnce(navSentenceGameBtn, "home:navigate-sentence-game", () => handlers.onNavigate?.(FLOW_DESTINATIONS.SENTENCE_GAME));
+  bindClickOnce(navQaGameBtn, "home:navigate-qa-game", () => handlers.onNavigate?.(FLOW_DESTINATIONS.QA_GAME));
+  bindClickOnce(navBoardGameBtn, "home:navigate-board-game", () => handlers.onNavigate?.(FLOW_DESTINATIONS.BOARD_ENTRY));
+  bindClickOnce(navStatsBtn, "home:navigate-stats", () => handlers.onNavigate?.(FLOW_DESTINATIONS.STATS));
+  bindClickOnce(navProfileBtn, "home:navigate-profile", () => handlers.onNavigate?.(FLOW_DESTINATIONS.PROFILE));
   bindClickOnce(navModesBtn, "home:toggle-modes", () => handlers.onToggleModes?.());
 
   bindClickOnce(document, "home:close-modes-outside-click", (event) => {
@@ -45,27 +40,9 @@ export function initHomeScreen(handlers = {}) {
   bindClickOnce(introToggleBtn, "home:toggle-intro", () => handlers.onToggleIntro?.());
   bindClickOnce(introCloseBtn, "home:close-intro", () => handlers.onCloseIntro?.());
 
-  bindClickOnce(startBtn, "lesson:start-level-menu-toggle", () => {
-    if (!startLevelDropdown) return;
-    const willOpen = startLevelDropdown.classList.contains("hidden");
-    handlers.onSetStartLevelMenuOpen?.(willOpen);
-  });
-
-  bindClickOnce(document, "lesson:close-start-level-menu-outside-click", (event) => {
-    if (!startLevelDropdown || !startBtn || !startLevelPicker) return;
-    if (startLevelDropdown.classList.contains("hidden")) return;
-    if (startLevelPicker.contains(event.target)) return;
-    handlers.onSetStartLevelMenuOpen?.(false);
-  });
-
-  startLevelOptions.forEach((btn) => {
-    bindClickOnce(btn, `lesson:start-level-option:${btn.dataset.level || btn.textContent}`, () => {
-      handlers.onSelectStartLevel?.(btn);
-    });
-  });
 
   return createScreenLifecycle({
-    id: SCREEN_NAMES.HOME,
+    id: SCREEN_NAMES.START,
     element: startScreenEl,
     onEnter: () => {
       renderHomeScreen();
