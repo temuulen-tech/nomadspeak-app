@@ -474,7 +474,6 @@ let progressState = getCoreState().progress;
 
 
 let deferredInstallPrompt = null;
-let appTimeUiInterval = null;
 let appInitialized = false;
 let stateSubscriptionsInitialized = false;
 let sentenceItemsLoadPromise = null;
@@ -1183,25 +1182,6 @@ function updateGaugeUI(aggregates, now = new Date()) {
   statsThermometerFillEl.style.height = `${fillPercent}%`;
   if (statsThermometerMarkerEl) statsThermometerMarkerEl.style.bottom = `${fillPercent}%`;
   statsThermometerTierEl.textContent = `Түвшин: ${tier.label}`;
-}
-
-function startTimeUiUpdater() {
-  if (appTimeUiInterval) {
-    clearInterval(appTimeUiInterval);
-    appTimeUiInterval = null;
-  }
-
-  appTimeUiInterval = setInterval(() => {
-    if (readActiveSession()) {
-      refreshTimeSummaryUI();
-    }
-  }, 1000);
-}
-
-function stopTimeUiUpdater() {
-  if (!appTimeUiInterval) return;
-  clearInterval(appTimeUiInterval);
-  appTimeUiInterval = null;
 }
 
 function renderStatsSnapshot() {
