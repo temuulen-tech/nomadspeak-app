@@ -1,6 +1,11 @@
 /**
  * state.js
- * Shared runtime app state and small accessor helpers.
+ * Shared runtime app state and accessor helpers.
+ *
+ * Architecture split:
+ * - Source of truth: central `state` object.
+ * - Actions: external modules mutate through exported helpers/actions.
+ * - Render: screens subscribe and read from state without owning persistence.
  */
 
 import { BOARD_SELECTOR_STEPS, CURRENT_SAVE_VERSION, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
@@ -57,9 +62,9 @@ export function normalizeProgressState(raw = {}) {
   const todaySecondsRemainder = Number.isFinite(Number(source.todaySecondsRemainder)) ? Math.max(0, Math.floor(Number(source.todaySecondsRemainder))) : defaults.todaySecondsRemainder;
   const weeklyRaw = Array.isArray(source.weeklyMinutes) ? source.weeklyMinutes : [];
   const weeklyMinutes = Array.from({ length: 7 }, (_, index) => {
-    const source = weeklyRaw[index];
+    const entry = weeklyRaw[index];
     const fallback = [...defaults.weeklyMinutes.slice(0, 6), todayMinutes][index];
-    return Number.isFinite(Number(source)) ? Math.max(0, Math.floor(Number(source))) : fallback;
+    return Number.isFinite(Number(entry)) ? Math.max(0, Math.floor(Number(entry))) : fallback;
   });
   const rewardTierUnlocked = Number.isFinite(Number(source.rewardTierUnlocked)) ? Math.max(1, Math.min(5, Math.floor(Number(source.rewardTierUnlocked)))) : defaults.rewardTierUnlocked;
   const level = Math.floor(xp / 100) + 1;
@@ -113,6 +118,30 @@ export function createDefaultBoardEntryState() {
     worldId: DEFAULT_WORLD_ID,
     difficultyId: DIFFICULTY_LEVELS.BEGINNER,
     chapterId: getDefaultChapterForWorld(DEFAULT_WORLD_ID)?.id || null,
+  };
+}
+
+function normalizeBoardEntryState(rawEntry = {}) {
+  const source = toPlainObject(rawEntry);
+  const defaults = createDefaultBoardEntryState();
+  const selectableWorldIds = new Set(getSelectableBoardWorlds().map((world) => world.id));
+  const worldId = typeof source.worldId === "string" && selectableWorldIds.has(source.worldId)
+    ? source.worldId
+    : defaults.worldId;
+  const difficultyId = Object.values(DIFFICULTY_LEVELS).includes(source.difficultyId)
+    ? source.difficultyId
+    : defaults.difficultyId;
+  const step = Object.values(BOARD_SELECTOR_STEPS).includes(source.step)
+    ? source.step
+    : defaults.step;
+
+  return {
+    step,
+    worldId,
+    difficultyId,
+    chapterId: typeof source.chapterId === "string" && source.chapterId.trim()
+      ? source.chapterId.trim()
+      : getDefaultChapterForWorld(worldId)?.id || defaults.chapterId,
   };
 }
 
@@ -210,20 +239,57 @@ export function buildCoreStateFromStorage(rawSave = {}) {
   });
 }
 
-const state = {
-  currentScreen: SCREEN_NAMES.START,
-  level: DIFFICULTY_LEVELS.BEGINNER,
-  flow: {
-    lastRequestedScreen: SCREEN_NAMES.START,
-    boardEntry: createDefaultBoardEntryState(),
-  },
-  lesson: { currentIndex: 0, score: 0, locked: false, reviewMode: false },
-  core: createDefaultCoreState(),
-  rewards: {},
-  difficulty: { qa: null, sentenceGame: DIFFICULTY_LEVELS.BEGINNER },
-  flags: {},
-};
+function createDefaultState() {
+  return {
+    currentScreen: SCREEN_NAMES.START,
+    level: DIFFICULTY_LEVELS.BEGINNER,
+    flow: {
+      lastRequestedScreen: SCREEN_NAMES.START,
+      boardEntry: createDefaultBoardEntryState(),
+    },
+    lesson: { currentIndex: 0, score: 0, locked: false, reviewMode: false },
+    core: createDefaultCoreState(),
+    rewards: {},
+    difficulty: { qa: null, sentenceGame: DIFFICULTY_LEVELS.BEGINNER },
+    flags: {},
+  };
+}
 
+function normalizeState(rawState = {}) {
+  const source = toPlainObject(rawState);
+  const defaults = createDefaultState();
+  return {
+    ...defaults,
+    ...source,
+    currentScreen: typeof source.currentScreen === "string" ? source.currentScreen : defaults.currentScreen,
+    level: Object.values(DIFFICULTY_LEVELS).includes(source.level) ? source.level : defaults.level,
+    flow: {
+      ...defaults.flow,
+      ...toPlainObject(source.flow),
+      lastRequestedScreen: typeof toPlainObject(source.flow).lastRequestedScreen === "string"
+        ? toPlainObject(source.flow).lastRequestedScreen
+        : defaults.flow.lastRequestedScreen,
+      boardEntry: normalizeBoardEntryState(toPlainObject(source.flow).boardEntry),
+    },
+    lesson: {
+      ...defaults.lesson,
+      ...toPlainObject(source.lesson),
+    },
+    core: normalizeCoreState(source.core),
+    rewards: toPlainObject(source.rewards),
+    difficulty: {
+      ...defaults.difficulty,
+      ...toPlainObject(source.difficulty),
+      qa: typeof toPlainObject(source.difficulty).qa === "string" ? toPlainObject(source.difficulty).qa : defaults.difficulty.qa,
+      sentenceGame: Object.values(DIFFICULTY_LEVELS).includes(toPlainObject(source.difficulty).sentenceGame)
+        ? toPlainObject(source.difficulty).sentenceGame
+        : defaults.difficulty.sentenceGame,
+    },
+    flags: toPlainObject(source.flags),
+  };
+}
+
+const state = createDefaultState();
 const stateListeners = new Set();
 
 function notifyStateListeners(scope = "app") {
@@ -236,31 +302,38 @@ function notifyStateListeners(scope = "app") {
   });
 }
 
+function commitState(scope = "app") {
+  const nextState = normalizeState(state);
+  Object.keys(state).forEach((key) => {
+    delete state[key];
+  });
+  Object.assign(state, nextState);
+  notifyStateListeners(scope);
+  return state;
+}
+
 export function subscribeState(listener) {
   if (typeof listener !== "function") return () => {};
   stateListeners.add(listener);
   return () => stateListeners.delete(listener);
 }
 
-
 export function getState() { return state; }
 export function getStateValue(key) { return state[key]; }
-export function setStateValue(key, value) { state[key] = value; return state[key]; }
-export function updateState(mutator) { if (typeof mutator === "function") mutator(state); return state; }
+export function setStateValue(key, value, scope = key || "app") { state[key] = value; commitState(scope); return state[key]; }
+export function updateState(mutator, scope = "app") { if (typeof mutator === "function") mutator(state); commitState(scope); return state; }
 
 export function getBoardEntryState() { return state.flow.boardEntry; }
 
-export function updateBoardEntryState(patch = {}) {
-  const nextEntry = { ...state.flow.boardEntry, ...patch };
-  if (!nextEntry.chapterId) {
-    nextEntry.chapterId = getDefaultChapterForWorld(nextEntry.worldId)?.id || null;
-  }
-  state.flow.boardEntry = nextEntry;
+export function updateBoardEntryState(patch = {}, scope = "boardEntry") {
+  state.flow.boardEntry = normalizeBoardEntryState({ ...state.flow.boardEntry, ...patch });
+  notifyStateListeners(scope);
   return state.flow.boardEntry;
 }
 
-export function resetBoardEntryState() {
+export function resetBoardEntryState(scope = "boardEntry") {
   state.flow.boardEntry = createDefaultBoardEntryState();
+  notifyStateListeners(scope);
   return state.flow.boardEntry;
 }
 
