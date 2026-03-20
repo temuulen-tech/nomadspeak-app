@@ -1,6 +1,11 @@
 /**
  * chapters.js
  * Centralized chapter definitions used by the board game and chapter-related screens.
+ *
+ * Real content insertion ownership:
+ * - Keep chapter order, story copy, node ranges, and per-chapter content ids here.
+ * - Each chapter should point to exactly one lessonPackId, wordBankId, qaSetId, and sentenceBankId for the current insertion pass.
+ * - Screen modules read chapter configs; they should not need edits when new real content is inserted with the same ids.
  */
 
 import { getAnimationHookMeta } from "./assets.js";
@@ -15,6 +20,27 @@ import {
   createPlaceholderMeta,
 } from "./constants.js";
 import { getWorldConfig, resolveBoardWorld, resolveWorldContentRefs } from "./worlds.js";
+
+const CHAPTER_CONTENT_INSERTION_EXAMPLE = {
+  id: "chX",
+  worldId: WORLD_IDS.WORLD_1,
+  index: 2,
+  title: "2-р бүлэг · Future chapter",
+  story: "Short chapter summary shown in the current board flow.",
+  nodeCount: 6,
+  startTile: 7,
+  endTile: 12,
+  content: {
+    lessonPackId: "world1-ch2-beginner-core",
+    wordBankId: "word-bank-world1-ch2-core",
+    qaSetId: "qa-set-world1-ch2-core",
+    sentenceBankId: "sentence-bank-world1-ch2-core",
+  },
+  expansion: {
+    rewardVisualId: "reward-theme-shared-core",
+    animationHooks: [ANIMATION_HOOKS.CHAPTER_REVEAL, ANIMATION_HOOKS.LESSON_SUCCESS],
+  },
+};
 
 function createChapterDefinition({
   id,
@@ -258,5 +284,19 @@ export function resolveBoardSelectionRoute({ worldId, difficultyId, chapterId } 
       worldId: selectedWorld?.id || effectiveBoardWorldId,
       difficultyId,
     }),
+  };
+}
+
+export function getChapterContentInsertionGuide() {
+  return {
+    ownership: {
+      file: "chapters.js",
+      manages: [
+        "chapter metadata",
+        "board sequencing",
+        "chapter-to-content ids",
+      ],
+    },
+    example: JSON.parse(JSON.stringify(CHAPTER_CONTENT_INSERTION_EXAMPLE)),
   };
 }

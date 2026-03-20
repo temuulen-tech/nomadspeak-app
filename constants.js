@@ -120,6 +120,34 @@ export const FUTURE_CONTENT_SLOTS = {
   GAMEPLAY_ANIMATION: "gameplayAnimation",
 };
 
+export const CONTENT_INSERTION_OWNERSHIP = {
+  worldMetadata: "worlds.js",
+  chapterMetadata: "chapters.js",
+  lessonContent: "lesson.js",
+  lessonWordBanks: "lesson.js",
+  qaContent: "qa-game.js",
+  sentenceGameContent: "sentence-game.js",
+  imageAssetRefs: "assets.js",
+  animationHooks: "assets.js",
+};
+
+export const REAL_CONTENT_INSERTION_SEQUENCE = [
+  "1. Register or confirm world-level metadata and world-to-difficulty content refs in worlds.js.",
+  "2. Register chapter-level metadata and per-chapter content ids in chapters.js.",
+  "3. Add the lesson pack and lesson word bank in lesson.js using the same ids.",
+  "4. Add QA rounds in qa-game.js using the qaSetId referenced by world/chapter content.",
+  "5. Add the sentence bank registration in sentence-game.js using the sentenceBankId referenced by world/chapter content.",
+  "6. Add cover/background/audio asset references in assets.js, then point worlds.js to those asset ids.",
+  "7. Attach future animation hook metadata in assets.js and reference those hook ids from worlds.js/chapters.js when motion is ready.",
+];
+
+export const FIRST_REAL_CONTENT_INSERTION_TARGET = {
+  worldId: WORLD_IDS.WORLD_1,
+  difficultyId: DIFFICULTY_LEVELS.BEGINNER,
+  chapterId: CHAPTER_IDS.CH2,
+  rationale: "World 1 beginner already drives the live board/lesson flow, so Chapter 2 is the lowest-risk next real-content insertion target.",
+};
+
 export const ANIMATION_HOOKS = {
   WORLD_INTRO: "world-intro",
   CHAPTER_REVEAL: "chapter-reveal",

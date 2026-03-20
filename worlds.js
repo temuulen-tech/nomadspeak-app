@@ -1,6 +1,11 @@
 /**
  * worlds.js
  * Centralized world definitions and world-level metadata used across the app.
+ *
+ * Real content insertion ownership:
+ * - Keep only world-level routing metadata here: titles, subtitles, difficulty-to-lesson pack refs, shared world QA/sentence defaults, and asset ids.
+ * - Do not place full lesson entries, QA rounds, or sentence rows in this file. Those live in their dedicated content modules.
+ * - When adding a new world, register asset ids here only after adding the asset records in assets.js.
  */
 
 import { getAnimationHookMeta, getAudioTrackAsset, getWorldBackgroundAsset, getWorldCoverAsset } from "./assets.js";
@@ -14,6 +19,32 @@ import {
   WORLD_IDS,
   createPlaceholderMeta,
 } from "./constants.js";
+
+const WORLD_CONTENT_INSERTION_EXAMPLE = {
+  id: "worldX",
+  title: "Future world title",
+  subtitle: "Short learner-facing subtitle",
+  content: {
+    pilotLessonPackId: "worldX-ch1-beginner-core",
+    lessonContentMap: {
+      [DIFFICULTY_LEVELS.BEGINNER]: "worldX-ch1-beginner-core",
+      [DIFFICULTY_LEVELS.INTERMEDIATE]: "worldX-ch1-intermediate-core",
+      [DIFFICULTY_LEVELS.ADVANCED]: "worldX-ch1-advanced-core",
+    },
+    sentenceBankId: "sentence-bank-worldX-ch1-beginner",
+    qaSetId: "qa-set-worldX-ch1-beginner",
+  },
+  visuals: {
+    coverAssetId: "worldX-cover",
+    backgroundAssetId: "worldX-background",
+    rewardVisualThemeId: "reward-theme-worldX",
+  },
+  audio: { ambienceWorldId: WORLD_IDS.SEA },
+  board: { configId: "worldX" },
+  expansion: {
+    animationHooks: [ANIMATION_HOOKS.WORLD_INTRO, ANIMATION_HOOKS.WORLD_REWARD],
+  },
+};
 
 function createWorldDefinition({
   id,
@@ -293,4 +324,26 @@ export function getWorldAudioTrack(worldId = WORLD_IDS.SEA) {
 
 export function getWorldExpansionPlan(worldId = DEFAULT_WORLD_ID) {
   return getWorldConfig(worldId)?.expansion || null;
+}
+
+export function getWorldContentInsertionGuide() {
+  return {
+    ownership: {
+      file: "worlds.js",
+      manages: [
+        "world metadata",
+        "difficulty-to-lesson pack ids",
+        "default QA/sentence bank ids",
+        "world-level visual/audio references",
+      ],
+    },
+    recommendedFirstTarget: {
+      worldId: WORLD_IDS.WORLD_1,
+      difficultyId: DIFFICULTY_LEVELS.BEGINNER,
+      chapterId: "ch2",
+    },
+    example: typeof structuredClone === "function"
+      ? structuredClone(WORLD_CONTENT_INSERTION_EXAMPLE)
+      : JSON.parse(JSON.stringify(WORLD_CONTENT_INSERTION_EXAMPLE)),
+  };
 }
