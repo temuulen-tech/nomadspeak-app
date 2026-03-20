@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" role="img" aria-labelledby="title desc">
+  <title id="title">Sailors world cover placeholder</title>
+  <desc id="desc">Placeholder cover asset for the sailors world.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0%" stop-color="#102d3a"/>
+      <stop offset="100%" stop-color="#1f5f6b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="700" fill="url(#bg)"/>
+  <circle cx="920" cy="170" r="88" fill="#f4d78b" opacity="0.85"/>
+  <path d="M0 520 C150 470 280 470 420 520 S760 600 1200 520 V700 H0 Z" fill="#0b1f24" opacity="0.95"/>
+  <path d="M250 470 L250 260 L270 260 L270 470" fill="#d8b676"/>
+  <path d="M270 275 L430 330 L270 390 Z" fill="#f1e4b8" opacity="0.92"/>
+  <text x="72" y="110" fill="#f8f1dc" font-size="42" font-family="Arial, sans-serif">World cover placeholder</text>
+  <text x="72" y="164" fill="#d2e6ea" font-size="26" font-family="Arial, sans-serif">Use this stable file until final art is inserted.</text>
+</svg>

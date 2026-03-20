@@ -26,7 +26,7 @@ export const ASSET_INSERTION_EXAMPLE = {
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.READY,
-    path: "assets/worlds/world1/ch2-cover.png",
+    path: "assets/visuals/worlds/world-1/chapter-covers/world-cover-world-1-chapter-2-placeholder.svg",
     alt: "World 1 Chapter 2 cover",
   },
   worldBackground: {
@@ -34,7 +34,7 @@ export const ASSET_INSERTION_EXAMPLE = {
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
     state: PLACEHOLDER_STATES.READY,
-    path: "assets/worlds/world1/ch2-background.png",
+    path: "assets/visuals/worlds/world-1/backgrounds/world-bg-world-1-chapter-2-placeholder.svg",
     alt: "World 1 Chapter 2 background",
   },
   animationHook: {
@@ -45,12 +45,35 @@ export const ASSET_INSERTION_EXAMPLE = {
   },
 };
 
+const ASSET_NAMING_RULES = {
+  caseStyle: "lowercase-kebab-case",
+  filePrefixes: {
+    worldCover: "world-cover-*",
+    worldBackground: "world-bg-*",
+    rewardVisual: "reward-*",
+    lessonVisual: "lesson-*",
+    animationAsset: "anim-*",
+    appIcon: "icon-*",
+    characterArt: "hero-* / character-*",
+  },
+  placeholderSuffix: "-placeholder",
+  locationRules: {
+    worldCovers: "assets/visuals/worlds/<theme>/intro/",
+    worldBackgrounds: "assets/visuals/worlds/<theme>/backgrounds/",
+    rewardVisuals: "assets/rewards/icons/",
+    lessonVisuals: "assets/visuals/lessons/",
+    animationAssets: "assets/animations/",
+    icons: "assets/icons/",
+    characters: "assets/characters/",
+  },
+};
+
 const rewardIconEntries = [
-  { id: "flag", path: "assets/rewards/reward-flag.png", alt: "Шагнал туг" },
-  { id: "star", path: "assets/rewards/reward-star.png", alt: "Шагнал од" },
-  { id: "coin", path: "assets/rewards/reward-coin.png", alt: "Шагнал зоос" },
-  { id: "trophy", path: "assets/rewards/reward-trophy.png", alt: "Шагнал цом" },
-  { id: "diamond", path: "assets/rewards/reward-diamond.png", alt: "Шагнал эрдэнэ" },
+  { id: "flag", path: "assets/rewards/icons/reward-flag.png", alt: "Шагнал туг" },
+  { id: "star", path: "assets/rewards/icons/reward-star.png", alt: "Шагнал од" },
+  { id: "coin", path: "assets/rewards/icons/reward-coin.png", alt: "Шагнал зоос" },
+  { id: "trophy", path: "assets/rewards/icons/reward-trophy.png", alt: "Шагнал цом" },
+  { id: "diamond", path: "assets/rewards/icons/reward-diamond.png", alt: "Шагнал эрдэнэ" },
 ];
 
 const worldVisualEntries = [
@@ -59,7 +82,7 @@ const worldVisualEntries = [
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.READY,
-    path: "assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png",
+    path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Колумб ба Шинэ тивийнхэн ертөнцийн хавтас",
   },
   {
@@ -67,7 +90,7 @@ const worldVisualEntries = [
     worldId: WORLD_IDS.WORLD_2,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
-    path: "assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png",
+    path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн placeholder хавтас",
   },
   {
@@ -75,7 +98,7 @@ const worldVisualEntries = [
     worldId: WORLD_IDS.WORLD_3,
     slot: FUTURE_CONTENT_SLOTS.WORLD_COVER,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
-    path: "assets/worlds/sailors/intro/game-cover-columbus-new-world-portrait.png",
+    path: "assets/visuals/worlds/sailors/intro/world-cover-sailors-columbus-new-world-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн placeholder хавтас",
   },
 ];
@@ -86,7 +109,7 @@ const worldBackgroundEntries = [
     worldId: WORLD_IDS.WORLD_1,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
     state: PLACEHOLDER_STATES.READY,
-    path: "assets/worlds/sailors/ship-deck.png",
+    path: "assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg",
     alt: "Хөлгийн тавцангийн дэвсгэр",
   },
   {
@@ -94,7 +117,7 @@ const worldBackgroundEntries = [
     worldId: null,
     slot: FUTURE_CONTENT_SLOTS.WORLD_BACKGROUND,
     state: PLACEHOLDER_STATES.PLACEHOLDER,
-    path: "assets/worlds/sailors/ship-deck.png",
+    path: "assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg",
     alt: "Ирээдүйн ертөнцийн дэвсгэр placeholder",
   },
 ];
@@ -113,6 +136,22 @@ export const FUTURE_VISUAL_LIBRARY = {
   worlds: worldVisualEntries,
   backgrounds: worldBackgroundEntries,
   rewards: rewardIconEntries,
+  lessonVisuals: [
+    createPlaceholderMeta({
+      collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
+      slot: FUTURE_CONTENT_SLOTS.LESSON_CONTENT,
+      id: "lesson-visual-shared-placeholder",
+      notes: "Store future lesson illustration or inline learning visuals under assets/visuals/lessons/.",
+    }),
+  ],
+  animationAssets: [
+    createPlaceholderMeta({
+      collection: CONTENT_COLLECTIONS.ANIMATION_HOOKS,
+      slot: FUTURE_CONTENT_SLOTS.INTRO_ANIMATION,
+      id: "anim-shared-placeholder",
+      notes: "Store future animation spritesheets, Lottie JSON, or motion manifests under assets/animations/.",
+    }),
+  ],
   audioTracks: audioTrackEntries,
   animationHooks: [
     {
@@ -199,6 +238,7 @@ export const ASSET_STARTER_TEMPLATES = [
 ];
 
 export const ASSETS = {
+  namingRules: ASSET_NAMING_RULES,
   chapterCovers: {
     columbusNewWorld: worldVisualEntries[0].path,
   },
@@ -217,7 +257,7 @@ export const ASSETS = {
     seaSailorsWorld: audioTrackEntries[0].path,
   },
   characterImages: {
-    hero: "assets/hero.png",
+    hero: "assets/characters/hero-main.png",
   },
   appIcons: {
     icon192: "assets/icons/icon-192.svg",
@@ -259,6 +299,7 @@ export function getAssetInsertionGuide() {
         "reward art ids",
         "future animation hook registrations",
       ],
+      namingRules: { ...ASSET_NAMING_RULES, filePrefixes: { ...ASSET_NAMING_RULES.filePrefixes }, locationRules: { ...ASSET_NAMING_RULES.locationRules } },
     },
     starterTemplates: ASSET_STARTER_TEMPLATES.map((template) => ({ ...template })),
     example: cloneInsertionExample(ASSET_INSERTION_EXAMPLE),
