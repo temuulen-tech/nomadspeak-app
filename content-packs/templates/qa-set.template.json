@@ -1,0 +1,23 @@
+{
+  "id": "qa-set-worldX-chY-core",
+  "difficulty": "beginner",
+  "wordBankId": "qa-word-bank-worldX-chY-core",
+  "rounds": [
+    {
+      "id": "A",
+      "mnQuestion": "Mongolian question",
+      "mnAnswer": "Mongolian answer",
+      "enQuestion": "English question ?",
+      "enAnswer": "English answer .",
+      "wordBankTokens": [
+        "English",
+        "question",
+        "?",
+        "English",
+        "answer",
+        "."
+      ]
+    }
+  ],
+  "notes": "Copy final rounds into qa-game.js without changing the round contract."
+}

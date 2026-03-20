@@ -1,0 +1,23 @@
+{
+  "bank": {
+    "id": "sentence-bank-worldX-chY-core",
+    "worldId": "worldX",
+    "chapterId": "chY",
+    "difficulty": "beginner",
+    "dataPath": "data/sentences.json",
+    "datasetKey": "sentence-bank-worldX-chY-core",
+    "notes": "Register this bank in sentence-game.js or content-registry.js using the same id."
+  },
+  "rows": [
+    {
+      "id": 1,
+      "bankId": "sentence-bank-worldX-chY-core",
+      "worldId": "worldX",
+      "chapterId": "chY",
+      "level": "beginner",
+      "topic": "Topic label",
+      "en": "English sentence.",
+      "mn": "Mongolian sentence."
+    }
+  ]
+}

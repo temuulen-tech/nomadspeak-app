@@ -1,0 +1,22 @@
+{
+  "packName": "Future real content pack",
+  "worldId": "worldX",
+  "chapterId": "chY",
+  "difficulty": "beginner",
+  "status": "draft",
+  "contentRefs": {
+    "lessonPackId": "worldX-chY-beginner-core",
+    "wordBankId": "word-bank-worldX-chY-core",
+    "qaSetId": "qa-set-worldX-chY-core",
+    "sentenceBankId": "sentence-bank-worldX-chY-core"
+  },
+  "sourceFilesToUpdate": [
+    "worlds.js",
+    "chapters.js",
+    "lesson.js",
+    "qa-game.js",
+    "sentence-game.js",
+    "data/sentences.json"
+  ],
+  "notes": "Use this manifest as a planning sheet before inserting the real content into the live app files."
+}
