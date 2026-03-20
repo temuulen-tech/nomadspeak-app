@@ -28,6 +28,26 @@ function commitCoreMutation(mutator, scope = "core") {
   return persistCoreState();
 }
 
+
+function normalizeRewardEventId(eventId = "") {
+  return String(eventId || "").trim();
+}
+
+function hasProcessedRewardEvent(coreState, eventId = "") {
+  const normalizedId = normalizeRewardEventId(eventId);
+  return Boolean(normalizedId) && Array.isArray(coreState?.processedRewardIds) && coreState.processedRewardIds.includes(normalizedId);
+}
+
+function markProcessedRewardEvent(coreState, eventId = "") {
+  const normalizedId = normalizeRewardEventId(eventId);
+  if (!normalizedId) return coreState?.processedRewardIds || [];
+  const nextIds = Array.isArray(coreState?.processedRewardIds) ? coreState.processedRewardIds : [];
+  if (!nextIds.includes(normalizedId)) nextIds.push(normalizedId);
+  if (nextIds.length > 250) nextIds.splice(0, nextIds.length - 250);
+  coreState.processedRewardIds = nextIds;
+  return nextIds;
+}
+
 function syncDerivedProgress(progress) {
   if (!progress || typeof progress !== "object") return progress;
 
@@ -65,12 +85,19 @@ export function clearPersistedCoreState() {
   clearAppSaveData();
 }
 
-export function completeLesson({ xpEarned = 0, today = null, yesterday = null, countLesson = false, countDailyProgress = false, rewardTierUnlocked = null } = {}) {
+export function completeLesson({ xpEarned = 0, today = null, yesterday = null, countLesson = false, countDailyProgress = false, rewardTierUnlocked = null, eventId = "" } = {}) {
   const earned = Number(xpEarned);
   if (!Number.isFinite(earned) || earned <= 0) return getCoreState().progress;
 
+  const normalizedEventId = normalizeRewardEventId(eventId);
+  if (hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState().progress;
+
   let nextProgress = getCoreState().progress;
   commitCoreMutation((core) => {
+    if (hasProcessedRewardEvent(core, normalizedEventId)) {
+      nextProgress = core.progress;
+      return;
+    }
     const progress = core.progress;
     const firstActivityToday = today && progress.lastActiveDate !== today;
 
@@ -95,23 +122,35 @@ export function completeLesson({ xpEarned = 0, today = null, yesterday = null, c
     }
 
     nextProgress = syncDerivedProgress(progress);
+    markProcessedRewardEvent(core, normalizedEventId);
   }, "progress");
 
   return nextProgress;
 }
 
-export function claimReward({ rewardTierUnlocked = null, coins = 0, gems = 0 } = {}) {
+export function claimReward({ rewardTierUnlocked = null, coins = 0, gems = 0, eventId = "" } = {}) {
+  const normalizedEventId = normalizeRewardEventId(eventId);
+  const coinAmount = Math.max(0, Math.floor(Number(coins) || 0));
+  const gemAmount = Math.max(0, Math.floor(Number(gems) || 0));
+  if (!coinAmount && !gemAmount && !Number.isFinite(Number(rewardTierUnlocked))) return getCoreState();
+  if (hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState();
+
   let coreState = getCoreState();
   commitCoreMutation((core) => {
+    if (hasProcessedRewardEvent(core, normalizedEventId)) {
+      coreState = core;
+      return;
+    }
     core.rewardsWallet = normalizeRewardsWallet({
-      coins: (core.rewardsWallet?.coins || 0) + Number(coins || 0),
-      gems: (core.rewardsWallet?.gems || 0) + Number(gems || 0),
+      coins: (core.rewardsWallet?.coins || 0) + coinAmount,
+      gems: (core.rewardsWallet?.gems || 0) + gemAmount,
     });
 
     if (Number.isFinite(Number(rewardTierUnlocked))) {
       core.progress.rewardTierUnlocked = Math.max(core.progress.rewardTierUnlocked || 1, Math.floor(Number(rewardTierUnlocked)));
     }
 
+    markProcessedRewardEvent(core, normalizedEventId);
     coreState = core;
   }, "rewards");
 

@@ -161,6 +161,7 @@ export function createDefaultCoreState() {
       profileName: "",
     },
     rewardsWallet: normalizeRewardsWallet(),
+    processedRewardIds: [],
     learnedWords: [],
     unlockedChapterIds: [],
     selectedWorldId: DEFAULT_WORLD_ID,
@@ -173,6 +174,9 @@ export function normalizeCoreState(rawCore = {}) {
   const defaults = createDefaultCoreState();
   const selectableWorldIds = new Set(getSelectableBoardWorlds().map((world) => world.id));
   const rawSettings = source.settings && typeof source.settings === "object" ? source.settings : {};
+  const processedRewardIds = Array.isArray(source.processedRewardIds)
+    ? [...new Set(source.processedRewardIds.map((id) => String(id || "").trim()).filter(Boolean))].slice(-250)
+    : defaults.processedRewardIds;
   const learnedWords = Array.isArray(source.learnedWords)
     ? [...new Set(source.learnedWords.map((word) => String(word || "").trim()).filter(Boolean))]
     : defaults.learnedWords;
@@ -189,6 +193,7 @@ export function normalizeCoreState(rawCore = {}) {
       profileName: typeof rawSettings.profileName === "string" ? rawSettings.profileName.trim() : defaults.settings.profileName,
     },
     rewardsWallet: normalizeRewardsWallet(source.rewardsWallet),
+    processedRewardIds,
     learnedWords,
     unlockedChapterIds,
     selectedWorldId: typeof source.selectedWorldId === "string" && selectableWorldIds.has(source.selectedWorldId)
@@ -238,6 +243,7 @@ export function buildCoreStateFromStorage(rawSave = {}) {
       ttsSettings,
     },
     rewardsWallet: source.rewardsWallet,
+    processedRewardIds: source.processedRewardIds,
     learnedWords: source.learnedWords,
     unlockedChapterIds: source.unlockedChapterIds,
     selectedWorldId: source.selectedWorldId,
@@ -357,6 +363,7 @@ export function initializeCoreState(coreState = {}) {
     progress: coreState.progress ?? state.core.progress,
     settings: coreState.settings ?? state.core.settings,
     rewardsWallet: coreState.rewardsWallet ?? state.core.rewardsWallet,
+    processedRewardIds: coreState.processedRewardIds ?? state.core.processedRewardIds,
     learnedWords: coreState.learnedWords ?? state.core.learnedWords,
     unlockedChapterIds: coreState.unlockedChapterIds ?? state.core.unlockedChapterIds,
     selectedWorldId: coreState.selectedWorldId ?? state.core.selectedWorldId,
