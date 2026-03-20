@@ -494,11 +494,11 @@ function setAppMode(mode) {
 function registerServiceWorker() {
   if (!('serviceWorker' in navigator)) return;
 
-  const host = location.hostname;
+  const host = window.location.hostname;
   const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  const isProduction = location.protocol === 'https:';
+  const isSecureContext = window.location.protocol === 'https:';
 
-  if (isLocal || !isProduction) {
+  if (isLocal || !isSecureContext) {
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       registrations.forEach((registration) => {
         registration.unregister();
@@ -509,7 +509,9 @@ function registerServiceWorker() {
     return;
   }
 
-  navigator.serviceWorker.register('/service-worker.js').catch(() => {
+  const serviceWorkerUrl = new URL('./service-worker.js', window.location.href);
+
+  navigator.serviceWorker.register(serviceWorkerUrl, { scope: './' }).catch(() => {
     // silent fail in unsupported/private contexts
   });
 }
