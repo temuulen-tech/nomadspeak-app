@@ -1948,3 +1948,92 @@ button,
     max-height:min(100%, calc(var(--app-viewport-height) - 24px));
   }
 }
+
+
+/* Final stabilization hardening: content-safe wrapping, dropdown containment, and panel resilience */
+.home-hub-actions > *{
+  min-width:0;
+}
+
+.home-entry-card,
+.home-modes-panel,
+.start-intro-summary-card,
+.profile-card,
+.confirm-card,
+.vault-entry,
+.vault-option-line{
+  overflow-wrap:anywhere;
+}
+
+.home-modes-panel{
+  max-height:min(70vh, calc(var(--app-viewport-height) - 140px));
+  overflow:auto;
+}
+
+.start-intro-summary-card{
+  min-width:0;
+}
+
+.start-level-picker,
+.sentences-level-picker,
+.sentence-game-difficulty-wrap,
+.qa-level-picker{
+  min-width:0;
+}
+
+.start-level-dropdown,
+.sentences-level-options,
+.sentence-game-difficulty-panel,
+.qa-level-options{
+  width:min(100%, 100%);
+  max-width:min(100%, 320px);
+}
+
+.primary,
+.secondary,
+.nav-btn,
+.home-modes-option,
+.start-level-option,
+.sentences-level-option,
+.board-game-world-option,
+.board-game-difficulty-option,
+.learning-utility-btn,
+.board-game-option-btn,
+.stats-reward-tab,
+.stats-period-btn{
+  text-wrap:pretty;
+}
+
+.profile-progress-list li,
+.premium-features li,
+.time-details-list p,
+.vault-entry p,
+.vault-option-line{
+  overflow-wrap:anywhere;
+}
+
+.confirm-card,
+.qa-modal-card,
+.time-details-modal-card{
+  min-width:0;
+}
+
+.time-details-list{
+  display:grid;
+  gap:10px;
+}
+
+.time-details-list p{
+  margin:0;
+}
+
+@media (max-width:780px){
+  .home-hub-actions,
+  .start-intro-summary{
+    grid-template-columns:1fr;
+  }
+
+  .home-hub-primary{
+    grid-column:auto;
+  }
+}
