@@ -28,6 +28,7 @@ import {
   FUTURE_CONTENT_SLOTS,
   GAME_MODES,
   PLACEHOLDER_STATES,
+  SHARED_BOARD_LAYOUT_WORLD_ID,
   WORLD_IDS,
   cloneInsertionExample,
   createPlaceholderMeta,
@@ -121,7 +122,7 @@ const SELECTABLE_WORLD_CONTENT = [
       ambienceWorldId: WORLD_IDS.SEA,
     },
     board: {
-      configId: WORLD_IDS.WORLD_1,
+      configId: SHARED_BOARD_LAYOUT_WORLD_ID,
     },
     expansion: {
       coverImage: createPlaceholderMeta({
@@ -162,7 +163,7 @@ const SELECTABLE_WORLD_CONTENT = [
       ambienceWorldId: WORLD_IDS.SEA,
     },
     board: {
-      configId: WORLD_IDS.WORLD_1,
+      configId: SHARED_BOARD_LAYOUT_WORLD_ID,
     },
     expansion: {
       coverImage: createPlaceholderMeta({
@@ -202,7 +203,7 @@ const SELECTABLE_WORLD_CONTENT = [
       ambienceWorldId: WORLD_IDS.SEA,
     },
     board: {
-      configId: WORLD_IDS.WORLD_1,
+      configId: SHARED_BOARD_LAYOUT_WORLD_ID,
     },
     expansion: {
       coverImage: createPlaceholderMeta({
@@ -287,7 +288,7 @@ export const WORLD_CONFIGS = {
 };
 
 export const DEFAULT_WORLD_ID = WORLD_IDS.WORLD_1;
-export const DEFAULT_WORLD_BOARD_CONFIG_ID = WORLD_IDS.WORLD_1;
+export const DEFAULT_WORLD_BOARD_CONFIG_ID = SHARED_BOARD_LAYOUT_WORLD_ID;
 
 export const BOARD_WORLD_SELECTIONS = SELECTABLE_WORLD_CONTENT.map((world) => ({
   id: world.id,
@@ -371,6 +372,7 @@ export function getWorldContentInsertionGuide() {
         "difficulty-to-lesson pack ids",
         "default QA/sentence bank ids",
         "world-level visual/audio references",
+        "shared board layout ownership for worlds still reusing World 1 board tiles",
       ],
     },
     recommendedFirstTarget: {
@@ -380,5 +382,9 @@ export function getWorldContentInsertionGuide() {
     },
     starterTemplates: WORLD_STARTER_CONTENT_TEMPLATES.map((template) => ({ ...template })),
     example: cloneInsertionExample(WORLD_CONTENT_INSERTION_EXAMPLE),
+    notes: [
+      `Worlds that still reuse the shared board path should keep board.configId = ${SHARED_BOARD_LAYOUT_WORLD_ID} until their own board layout is introduced.`,
+      "If a world only needs new copy/assets/content ids, do not change render modules or board flow.",
+    ],
   };
 }

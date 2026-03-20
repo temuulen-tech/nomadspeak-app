@@ -21,6 +21,18 @@ import {
   createStarterTemplateManifest,
 } from "./constants.js";
 
+
+const WORLD_1_PLACEHOLDER_CHAPTERS = ["ch2", "ch3", "ch4"];
+
+function createWorldSentencePlaceholderBank(worldId, id, notes) {
+  return createSentenceContentBank({
+    id,
+    worldId,
+    difficulty: DIFFICULTY_LEVELS.BEGINNER,
+    notes,
+  });
+}
+
 export const SENTENCE_GAME_DIFFICULTY_LABELS = {
   [DIFFICULTY_LEVELS.BEGINNER]: "Анхан шат",
   [DIFFICULTY_LEVELS.INTERMEDIATE]: "Дунд шат",
@@ -79,36 +91,9 @@ export const SENTENCE_CONTENT_BANKS = [
     difficulty: DIFFICULTY_LEVELS.BEGINNER,
     state: PLACEHOLDER_STATES.READY,
   }),
-  createSentenceContentBank({
-    id: "sentence-bank-world1-ch2-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes: "Insert Chapter 2 sentence data later, keeping the same JSON loading flow.",
-  }),
-  createSentenceContentBank({
-    id: "sentence-bank-world1-ch3-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes: "Insert Chapter 3 sentence data later, keeping the same JSON loading flow.",
-  }),
-  createSentenceContentBank({
-    id: "sentence-bank-world1-ch4-placeholder",
-    worldId: WORLD_IDS.WORLD_1,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes: "Insert Chapter 4 sentence data later, keeping the same JSON loading flow.",
-  }),
-  createSentenceContentBank({
-    id: "sentence-bank-world2-placeholder",
-    worldId: WORLD_IDS.WORLD_2,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes: "Insert World 2 sentence data later.",
-  }),
-  createSentenceContentBank({
-    id: "sentence-bank-world3-placeholder",
-    worldId: WORLD_IDS.WORLD_3,
-    difficulty: DIFFICULTY_LEVELS.BEGINNER,
-    notes: "Insert World 3 sentence data later.",
-  }),
+  ...WORLD_1_PLACEHOLDER_CHAPTERS.map((chapterId) => createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_1, `sentence-bank-world1-${chapterId}-placeholder`, `Insert ${chapterId.toUpperCase()} sentence data later, keeping the same JSON loading flow.`)),
+  createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_2, "sentence-bank-world2-placeholder", "Insert World 2 sentence data later."),
+  createWorldSentencePlaceholderBank(WORLD_IDS.WORLD_3, "sentence-bank-world3-placeholder", "Insert World 3 sentence data later."),
 ];
 
 export function tokenizeSentence(sentence = "") {
@@ -193,6 +178,7 @@ export function getSentenceContentInsertionGuide() {
         "sentence bank registrations",
         "bank-to-data path mapping",
         "difficulty-specific sentence bank routing",
+        "the placeholder bank pattern used for upcoming chapter/world sentence data",
       ],
     },
     starterTemplates: SENTENCE_STARTER_TEMPLATES.map((template) => ({ ...template })),
