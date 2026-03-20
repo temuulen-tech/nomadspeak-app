@@ -108,7 +108,8 @@ button,
 }
 
 .install-hint .primary{
-  white-space:nowrap;
+  white-space:normal;
+  flex:0 1 auto;
 }
 
 
@@ -157,6 +158,7 @@ button,
   margin-bottom:10px;
   padding-right:64px;
   padding-top:4px;
+  min-width:0;
 }
 
 .profile-icon-btn{
@@ -285,6 +287,10 @@ button,
   border:1px solid rgba(255,255,255,.2);
   background:rgba(6,24,36,.96);
   box-shadow:0 14px 30px rgba(0,0,0,.32);
+}
+
+.home-modes-panel > *{
+  min-width:0;
 }
 
 .home-modes-option{
@@ -2028,6 +2034,17 @@ button,
 }
 
 @media (max-width:780px){
+  .install-hint{
+    flex-wrap:wrap;
+    justify-content:center;
+  }
+
+  .install-hint span,
+  .install-hint .primary{
+    width:100%;
+    text-align:center;
+  }
+
   .home-hub-actions,
   .start-intro-summary{
     grid-template-columns:1fr;
@@ -2035,5 +2052,43 @@ button,
 
   .home-hub-primary{
     grid-column:auto;
+  }
+}
+
+@media (max-width:780px){
+  .home-header-actions{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .header-nav--compact{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width:560px){
+  .header{
+    padding-right:0;
+    padding-top:0;
+  }
+
+  .profile-icon-btn{
+    position:static;
+    align-self:flex-end;
+    margin-bottom:2px;
+  }
+
+  .header-main,
+  .header-right,
+  .brand{
+    min-width:0;
+  }
+
+  .home-header-actions .header-nav,
+  .header-nav--compact{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .home-modes-panel{
+    max-height:min(62vh, calc(var(--app-viewport-height) - 120px));
   }
 }
