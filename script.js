@@ -31,10 +31,10 @@ import { formatHHMMSS as formatDuration } from "./stats.js";
 import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
 import { initChapterCoverScreen } from "./chapter-cover-screen.js";
-import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute } from "./chapters.js";
+import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute, resolveChapterContent } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
-import { LESSON_TRANSLATIONS, buildOptions, getLessonEntries, levelName } from "./lesson.js";
+import { LESSON_TRANSLATIONS, buildOptions, levelName, resolveLessonContent } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
 import { ASSETS, REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
@@ -4129,7 +4129,13 @@ function retrySentenceGameRound() {
 function startQuiz() {
   const { selectedWorldId } = getCoreState();
   const chapterId = getDefaultChapterForWorld(selectedWorldId)?.id || null;
-  questions = shuffle(getLessonEntries(level, { worldId: selectedWorldId, chapterId })).slice(0); // бүгдийг
+  const chapterContent = resolveChapterContent({ worldId: selectedWorldId, chapterId, difficultyId: level });
+  questions = shuffle(resolveLessonContent({
+    packId: chapterContent.lessonPackId,
+    worldId: chapterContent.worldId,
+    chapterId: chapterContent.chapter?.id || chapterId,
+    difficulty: level,
+  }).entries).slice(0); // бүгдийг
   currentIndex = 0;
   score = 0;
   locked = false;

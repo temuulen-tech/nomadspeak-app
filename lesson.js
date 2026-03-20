@@ -151,6 +151,12 @@ export const LESSON_PACK_INDEX = LESSON_CONTENT_PACKS.reduce((acc, pack) => ({
   [pack.id]: pack,
 }), {});
 
+export const LESSON_PACKS_BY_CONTEXT = LESSON_CONTENT_PACKS.reduce((acc, pack) => {
+  const key = [pack.worldId || "*", pack.chapterId || "*", pack.difficulty].join("::");
+  acc[key] = pack;
+  return acc;
+}, {});
+
 export const LESSON_WORD_BANKS = {
   "word-bank-world1-ch1-core": {
     id: "word-bank-world1-ch1-core",
@@ -197,28 +203,48 @@ export const LESSON_BANK = {
 export const BANK = LESSON_BANK;
 
 export function findLessonContentPack({ worldId = null, chapterId = null, difficulty = DIFFICULTY_LEVELS.BEGINNER } = {}) {
-  return LESSON_CONTENT_PACKS.find((pack) => (
-    pack.difficulty === difficulty
-    && (!worldId || pack.worldId === worldId)
-    && (!chapterId || pack.chapterId === chapterId)
-    && Array.isArray(pack.entries)
-    && pack.entries.length > 0
-  )) || null;
+  const contextKey = [worldId || "*", chapterId || "*", difficulty].join("::");
+  const matchedPack = LESSON_PACKS_BY_CONTEXT[contextKey]
+    || LESSON_CONTENT_PACKS.find((pack) => (
+      pack.difficulty === difficulty
+      && (!worldId || pack.worldId === worldId)
+      && (!chapterId || pack.chapterId === chapterId)
+    ))
+    || null;
+
+  return matchedPack && Array.isArray(matchedPack.entries) && matchedPack.entries.length
+    ? matchedPack
+    : null;
 }
 
 export function getLessonContentPackById(packId) {
   return LESSON_PACK_INDEX[packId] || null;
 }
 
+export function resolveLessonContent({ packId = null, worldId = null, chapterId = null, difficulty = DIFFICULTY_LEVELS.BEGINNER } = {}) {
+  const pack = (packId && getLessonContentPackById(packId))
+    || findLessonContentPack({ worldId, chapterId, difficulty })
+    || null;
+  const entries = pack?.entries?.length ? pack.entries : (LESSON_BANK[difficulty] || []);
+  const wordBank = getLessonWordBank({ packId: pack?.id || packId, worldId, chapterId });
+
+  return {
+    pack,
+    entries,
+    wordBank,
+    worldId: pack?.worldId || worldId || null,
+    chapterId: pack?.chapterId || chapterId || null,
+    difficulty,
+  };
+}
+
 export function getLessonEntries(levelKey = DIFFICULTY_LEVELS.BEGINNER, context = {}) {
-  const matchedPack = findLessonContentPack({
+  return resolveLessonContent({
+    packId: context.packId,
     worldId: context.worldId,
     chapterId: context.chapterId,
     difficulty: levelKey,
-  });
-
-  if (matchedPack?.entries?.length) return matchedPack.entries;
-  return LESSON_BANK[levelKey] || [];
+  }).entries;
 }
 
 export function getLessonWordBank({ packId = null, worldId = null, chapterId = null } = {}) {
