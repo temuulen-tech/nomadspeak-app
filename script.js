@@ -4109,7 +4109,9 @@ function retrySentenceGameRound() {
 
 // ---- Quiz logic ----
 function startQuiz() {
-  questions = shuffle(getLessonEntries(level)).slice(0); // бүгдийг
+  const { selectedWorldId } = getCoreState();
+  const chapterId = getDefaultChapterForWorld(selectedWorldId)?.id || null;
+  questions = shuffle(getLessonEntries(level, { worldId: selectedWorldId, chapterId })).slice(0); // бүгдийг
   currentIndex = 0;
   score = 0;
   locked = false;
