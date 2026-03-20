@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'nomadspeak-shell-v4';
+const CACHE_VERSION = 'nomadspeak-shell-v5';
 const APP_SHELL_ASSETS = [
   './',
   './index.html',
@@ -37,14 +37,14 @@ const APP_SHELL_ASSETS = [
   './ui.js',
   './worlds.js',
   './data/sentences.json',
-  './assets/hero.png',
+  './assets/characters/hero-main.png',
   './assets/icons/icon-192.svg',
   './assets/icons/icon-512.svg',
-  './assets/rewards/reward-coin.png',
-  './assets/rewards/reward-diamond.png',
-  './assets/rewards/reward-flag.png',
-  './assets/rewards/reward-star.png',
-  './assets/rewards/reward-trophy.png',
+  './assets/rewards/icons/reward-coin.png',
+  './assets/rewards/icons/reward-diamond.png',
+  './assets/rewards/icons/reward-flag.png',
+  './assets/rewards/icons/reward-star.png',
+  './assets/rewards/icons/reward-trophy.png',
 ];
 
 self.addEventListener('install', (event) => {

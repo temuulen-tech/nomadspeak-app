@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" role="img" aria-labelledby="title desc">
+  <title id="title">Sailors ship deck placeholder background</title>
+  <desc id="desc">Placeholder world background asset for the sailors deck.</desc>
+  <defs>
+    <linearGradient id="sky" x1="0" x2="0" y1="0" y2="1">
+      <stop offset="0%" stop-color="#214f67"/>
+      <stop offset="100%" stop-color="#7fb2c2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#sky)"/>
+  <rect y="560" width="1600" height="340" fill="#4d6f7a"/>
+  <rect y="640" width="1600" height="260" fill="#6b4e2f"/>
+  <g stroke="#8b6a42" stroke-width="10" opacity="0.75">
+    <line x1="0" y1="720" x2="1600" y2="720"/>
+    <line x1="0" y1="780" x2="1600" y2="780"/>
+  </g>
+  <text x="72" y="110" fill="#f7f4e8" font-size="42" font-family="Arial, sans-serif">World background placeholder</text>
+  <text x="72" y="164" fill="#ecf8fb" font-size="26" font-family="Arial, sans-serif">Replace this file later without changing asset ids.</text>
+</svg>

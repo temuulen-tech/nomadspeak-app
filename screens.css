@@ -2253,7 +2253,7 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-scene-backdrop::before{
-  background-image:url("assets/worlds/sailors/ship-deck.png");
+  background-image:url("assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg");
   background-repeat:no-repeat;
   background-size:cover;
   background-position:center 42%;
