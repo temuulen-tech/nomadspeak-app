@@ -107,6 +107,8 @@ Run this quick manual check without changing the flow:
 - No buttons/navigation paths changed.
 - Existing saved progress still remains untouched.
 
+For a code-side dry-run, use `content-readiness.js` (or run `node --test tests/content-readiness.test.mjs`) to confirm which chapters are already content-complete versus still intentionally placeholder-only.
+
 ## Safe insertion rules
 
 - **Do not put full lesson/QA/sentence datasets into `worlds.js` or `chapters.js`.** Keep those files as routing metadata.

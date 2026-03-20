@@ -108,6 +108,7 @@ import {
   QA_REWARD_STEPS,
   QA_ROUNDS,
   formatQaBuiltLine,
+  getQaContentSet,
   getQaWordBankTokens,
   qaRoundPoolForLevel,
   qaShuffle,
@@ -400,6 +401,7 @@ const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
 const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
 
 let qaGameLevel = null;
+let qaContentSetId = null;
 let qaRoundPool = [];
 let qaRoundIndex = 0;
 let qaBank = [];
@@ -2633,15 +2635,17 @@ async function loadSentences() {
     const response = await fetch(SENTENCE_GAME_DATA_PATH);
     if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
     const allSentenceItems = prepareSentenceItems(await response.json());
-    const { selectedWorldId } = getCoreState();
-    const chapterId = getDefaultChapterForWorld(selectedWorldId)?.id || null;
-    const chapterContent = resolveChapterContent({ worldId: selectedWorldId, chapterId, difficultyId: level });
+    const chapterContent = getActiveLearningSelection();
     const sentenceBank = resolveSentenceContentBank({
       bankId: chapterContent.sentenceBankId,
       worldId: chapterContent.worldId,
       difficulty: level,
     });
-    sentenceItems = filterSentenceItemsForBank(allSentenceItems, sentenceBank?.id || chapterContent.sentenceBankId);
+    const requestedSentenceBankId = sentenceBank?.id || chapterContent.sentenceBankId;
+    sentenceItems = filterSentenceItemsForBank(allSentenceItems, requestedSentenceBankId);
+    if (requestedSentenceBankId && !allSentenceItems.some((item) => item.bankId === requestedSentenceBankId)) {
+      showWorldFeedbackChip("⚠️ Энэ бүлгийн sentence bank одоохондоо хоосон байна.", "warning");
+    }
     renderSentences();
     sentenceGameHistory = [];
     sentenceGameIndex = -1;
@@ -3298,15 +3302,18 @@ function retrySentenceGameRound() {
 
 // ---- Quiz logic ----
 function startQuiz() {
-  const { selectedWorldId } = getCoreState();
-  const chapterId = getDefaultChapterForWorld(selectedWorldId)?.id || null;
-  const chapterContent = resolveChapterContent({ worldId: selectedWorldId, chapterId, difficultyId: level });
-  questions = shuffle(resolveLessonContent({
+  const chapterContent = getActiveLearningSelection();
+  const lessonContent = resolveLessonContent({
     packId: chapterContent.lessonPackId,
     worldId: chapterContent.worldId,
-    chapterId: chapterContent.chapter?.id || chapterId,
+    chapterId: chapterContent.chapter?.id || null,
     difficulty: level,
-  }).entries).slice(0); // бүгдийг
+  });
+  questions = shuffle(lessonContent.entries).slice(0); // бүгдийг
+  if (!questions.length) {
+    showWorldFeedbackChip("⚠️ Энэ бүлгийн lesson pack-д бодит агуулга хараахан ороогүй байна.", "warning");
+    return;
+  }
   currentIndex = 0;
   score = 0;
   locked = false;
@@ -3492,6 +3499,18 @@ function startSentencesTimer() {
   }, 1000);
 }
 
+function getActiveLearningSelection() {
+  const core = getCoreState();
+  const boardEntry = getBoardEntryState();
+  const worldId = core.selectedWorldId;
+  const difficultyId = level || core.selectedDifficultyId || DIFFICULTY_LEVELS.BEGINNER;
+  const chapterId = boardEntry?.worldId === worldId
+    ? (boardEntry.chapterId || getDefaultChapterForWorld(worldId)?.id || null)
+    : (getDefaultChapterForWorld(worldId)?.id || null);
+
+  return resolveChapterContent({ worldId, chapterId, difficultyId });
+}
+
 function getQaCurrentRound() {
   return qaRoundPool[qaRoundIndex % qaRoundPool.length];
 }
@@ -3619,6 +3638,19 @@ function updateQaBuiltTextPreview() {
 
 function setupQaRound(options = {}) {
   const round = options.round || getQaCurrentRound();
+  if (!round) {
+    qaQuestionSolved = false;
+    qaQuestionBuilt = [];
+    qaAnswerBuilt = [];
+    qaBank = [];
+    qaMnQuestionEl.textContent = "Энэ бүлгийн QA агуулга хараахан бэлэн болоогүй байна.";
+    qaMnAnswerEl.textContent = "";
+    qaEnQuestionEl.textContent = "";
+    qaEnAnswerEl.textContent = "";
+    renderQaBuilder();
+    updateQaBuiltTextPreview();
+    return;
+  }
   const sourceTokens = Array.isArray(options.wordBankTokens) && options.wordBankTokens.length
     ? options.wordBankTokens
     : getQaWordBankTokens(round);
@@ -3643,6 +3675,7 @@ function setupQaRound(options = {}) {
 
 function checkQaAnswer() {
   const round = getQaCurrentRound();
+  if (!round) return;
   const targetQuestion = round.enQuestion.split(" ");
   const targetAnswer = round.enAnswer.split(" ");
   const questionTokens = qaQuestionBuilt.map((chip) => chip.token);
@@ -3690,7 +3723,7 @@ function closeQaModal() {
 }
 
 function buildQaSentencesModalHtml() {
-  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || DIFFICULTY_LEVELS.BEGINNER);
+  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || DIFFICULTY_LEVELS.BEGINNER, qaContentSetId);
   return rounds
     .map((round) => `<p>${round.enQuestion} - ${round.enAnswer}</p><p>${round.mnQuestion} - ${round.mnAnswer}</p>`)
     .join("");
@@ -3702,7 +3735,8 @@ function qaLevelLabel(levelKey) {
 
 function selectQaLevel(levelKey) {
   qaGameLevel = levelKey;
-  qaRoundPool = qaRoundPoolForLevel(levelKey);
+  qaContentSetId = getActiveLearningSelection().qaSetId || qaContentSetId;
+  qaRoundPool = qaRoundPoolForLevel(levelKey, qaContentSetId);
   qaRoundIndex = 0;
   setHidden(qaRoundPanelEl, false);
   setHidden(qaLevelOptionsEl, true);
@@ -3713,8 +3747,9 @@ function selectQaLevel(levelKey) {
 
 function resetQaGameScreen() {
   const initialLevel = qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
+  qaContentSetId = getActiveLearningSelection().qaSetId || qaContentSetId;
   qaGameLevel = initialLevel;
-  qaRoundPool = qaRoundPoolForLevel(initialLevel);
+  qaRoundPool = qaRoundPoolForLevel(initialLevel, qaContentSetId);
   qaRoundIndex = 0;
   qaBank = [];
   qaQuestionBuilt = [];
@@ -3730,6 +3765,9 @@ function resetQaGameScreen() {
   setHidden(qaLevelOptionsEl, true);
   qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
   qaFeedbackEl.textContent = "";
+  if (!getQaContentSet(qaContentSetId)?.rounds?.length) {
+    showWorldFeedbackChip("⚠️ Энэ бүлгийн QA багц одоохондоо хоосон байна.", "warning");
+  }
   setupQaRound();
   startQaTimer();
 }
