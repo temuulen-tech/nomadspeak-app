@@ -6,8 +6,8 @@
 import { ASSETS } from "./assets.js";
 import { GAME_MODES, WORLD_IDS } from "./constants.js";
 
-export const WORLD_CONFIGS = {
-  [WORLD_IDS.WORLD_1]: {
+const SELECTABLE_WORLD_CONTENT = [
+  {
     id: WORLD_IDS.WORLD_1,
     title: "Колумб ба Шинэ тивийнхэн",
     subtitle: "Та битгий уурлаарай",
@@ -17,7 +17,7 @@ export const WORLD_CONFIGS = {
     selectable: true,
     boardConfigId: WORLD_IDS.WORLD_1,
   },
-  [WORLD_IDS.WORLD_2]: {
+  {
     id: WORLD_IDS.WORLD_2,
     title: "Эртний Хятад ба Торгоны зам",
     subtitle: "Та битгий уурлаарай",
@@ -27,7 +27,7 @@ export const WORLD_CONFIGS = {
     selectable: true,
     boardConfigId: WORLD_IDS.WORLD_1,
   },
-  [WORLD_IDS.WORLD_3]: {
+  {
     id: WORLD_IDS.WORLD_3,
     title: "Ромын эзэнт гүрэн ба Гладиаторууд",
     subtitle: "Та битгий уурлаарай",
@@ -37,11 +37,15 @@ export const WORLD_CONFIGS = {
     selectable: true,
     boardConfigId: WORLD_IDS.WORLD_1,
   },
+];
+
+export const WORLD_CONFIGS = {
+  ...SELECTABLE_WORLD_CONTENT.reduce((acc, world) => ({ ...acc, [world.id]: world }), {}),
   [WORLD_IDS.SEA]: {
     id: WORLD_IDS.SEA,
     title: "Далайн ертөнц",
     audioTrack: {
-      src: "assets/audio/sea-sailors-world.mp3",
+      src: ASSETS.audioTracks.seaSailorsWorld,
       volume: 0.16,
       loop: true,
       fadeInMs: 1800,
@@ -54,13 +58,11 @@ export const WORLD_CONFIGS = {
 export const DEFAULT_WORLD_ID = WORLD_IDS.WORLD_1;
 export const DEFAULT_WORLD_BOARD_CONFIG_ID = WORLD_IDS.WORLD_1;
 
-export const BOARD_WORLD_SELECTIONS = Object.values(WORLD_CONFIGS)
-  .filter((world) => world.selectable)
-  .map((world) => ({
-    id: world.id,
-    label: world.title,
-    subtitle: world.subtitle || "",
-  }));
+export const BOARD_WORLD_SELECTIONS = SELECTABLE_WORLD_CONTENT.map((world) => ({
+  id: world.id,
+  label: world.title,
+  subtitle: world.subtitle || "",
+}));
 
 export function getWorldConfig(worldId = DEFAULT_WORLD_ID) {
   return WORLD_CONFIGS[worldId] || null;

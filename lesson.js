@@ -4,8 +4,8 @@ import { DIFFICULTY_LEVELS } from "./constants.js";
  * lesson.js
  * Lesson content and core lesson helpers (question bank, labels, options).
  */
-export const BANK = {
-  beginner: [
+export const LESSON_BANK = {
+  [DIFFICULTY_LEVELS.BEGINNER]: [
     { q: "What month is it now?", qMn: "Одоо хэдэн сар вэ?", a: "It is September now.", aMn: "Одоо есдүгээр сар байна." },
     { q: "What day is it today?", qMn: "Өнөөдөр ямар гараг вэ?", a: "Today is Monday", aMn: "Өнөөдөр Даваа гараг." },
     { q: "What is your name?", qMn: "Таны нэрийг хэн гэдэг вэ?", a: "My name is Nasaa", aMn: "Миний нэрийг Насаа гэдэг." },
@@ -17,7 +17,7 @@ export const BANK = {
     { q: "What is your hobby?", qMn: "Таны хобби юу вэ?", a: "My hobby is roller skating.", aMn: "Миний хобби бол дугуйт тэшүүр." },
     { q: "What is your favourite fruit?", qMn: "Таны дуртай жимс юу вэ?", a: "I like to eat apples.", aMn: "Би алим идэх дуртай." },
   ],
-  intermediate: [
+  [DIFFICULTY_LEVELS.INTERMEDIATE]: [
     { q: "When were you born?", qMn: "Та хэзээ төрсөн бэ?", a: "I was born on September 8", aMn: "Би есдүгээр сарын 8-нд төрсөн." },
     { q: "Where were you born?", qMn: "Та хаана төрсөн бэ?", a: "I was born in Ulaanbaatar city", aMn: "Би Улаанбаатар хотод төрсөн." },
     { q: "What do you do in your free time?", qMn: "Та чөлөөт цагаараа юу хийдэг вэ?", a: "I read books in my free time.", aMn: "Би чөлөөт цагаараа ном уншдаг." },
@@ -27,7 +27,7 @@ export const BANK = {
     { q: "When did you go to sleep?", qMn: "Та хэзээ унтсан бэ?", a: "I went to bed at 10 o'clock yesterday.", aMn: "Би өчигдөр 10 цагт унтсан." },
     { q: "How old are you?", qMn: "Та хэдэн настай вэ?", a: "I am thirty years old.", aMn: "Би гучин настай." },
   ],
-  advanced: [
+  [DIFFICULTY_LEVELS.ADVANCED]: [
     { q: "Where was his/her father born?", qMn: "Түүний аав хаана төрсөн бэ?", a: "His father was born in America.", aMn: "Түүний аав Америкт төрсөн." },
     { q: "Where was his/her mother born?", qMn: "Түүний ээж хаана төрсөн бэ?", a: "Her mother was born in France", aMn: "Түүний ээж Францад төрсөн." },
     { q: "How often do you meet him?", qMn: "Та түүнтэй хэр олон уулздаг вэ?", a: "I meet him 3 times a week.", aMn: "Би түүнтэй долоо хоногт 3 удаа уулздаг." },
@@ -38,10 +38,20 @@ export const BANK = {
   ],
 };
 
-export function buildLessonTranslationMaps() {
+export const BANK = LESSON_BANK;
+
+export function getLessonEntries(levelKey = DIFFICULTY_LEVELS.BEGINNER) {
+  return LESSON_BANK[levelKey] || [];
+}
+
+export function getAllLessonAnswers() {
+  return Object.values(LESSON_BANK).flatMap((bucket) => (bucket || []).map((item) => item.a));
+}
+
+export function buildLessonTranslationMaps(bank = LESSON_BANK) {
   const questionMnByEn = {};
   const answerMnByEn = {};
-  Object.values(BANK).forEach((bucket) => {
+  Object.values(bank).forEach((bucket) => {
     (bucket || []).forEach((entry) => {
       if (entry.q) questionMnByEn[entry.q] = entry.qMn || "";
       if (entry.a) answerMnByEn[entry.a] = entry.aMn || "";
@@ -56,7 +66,7 @@ export function levelName(levelKey) {
   return levelKey === DIFFICULTY_LEVELS.BEGINNER ? "Анхан" : levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : "Дээд";
 }
 
-export function buildOptions(correct, allAnswers = Object.values(BANK).flatMap((bucket) => (bucket || []).map((item) => item.a))) {
+export function buildOptions(correct, allAnswers = getAllLessonAnswers()) {
   const others = allAnswers.filter((item) => item !== correct);
   const options = [correct];
   while (options.length < 4 && others.length > 0) {
