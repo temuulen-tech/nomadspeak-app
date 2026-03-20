@@ -1296,7 +1296,7 @@ function playDailyGoalSuccessChime() {
   });
 }
 
-function awardXP(amount, reason = "") {
+function awardXP(amount, reason = "", eventId = "") {
   const earned = Number(amount);
   if (!Number.isFinite(earned) || earned <= 0) return;
 
@@ -1321,6 +1321,7 @@ function awardXP(amount, reason = "") {
     yesterday,
     countDailyProgress: reason === "sentence_game_success",
     rewardTierUnlocked: rewardFromTime,
+    eventId,
   });
 
   syncCoreStateReferences();
@@ -2969,9 +2970,16 @@ function sentenceGameRewardLevelFromSeconds(seconds = 0) {
 
 function persistSentenceGameRewardState() {
   try {
-    localStorage.setItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY, String(Math.max(0, Math.floor(sentenceGameActiveSeconds))));
-    localStorage.setItem(SENTENCE_GAME_REWARD_LEVEL_KEY, String(sentenceGameRewardLevel));
-    localStorage.setItem(SENTENCE_GAME_LAST_TICK_KEY, String(sentenceGameLastTick || Date.now()));
+    const storedActiveRaw = Number(localStorage.getItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY));
+    const storedRewardRaw = Number(localStorage.getItem(SENTENCE_GAME_REWARD_LEVEL_KEY));
+    const storedTickRaw = Number(localStorage.getItem(SENTENCE_GAME_LAST_TICK_KEY));
+    const safeActiveSeconds = Math.max(0, Math.floor(sentenceGameActiveSeconds));
+    const safeRewardLevel = Math.max(0, Math.min(5, Math.floor(sentenceGameRewardLevel)));
+    const safeLastTick = sentenceGameLastTick || Date.now();
+
+    localStorage.setItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY, String(Math.max(Number.isFinite(storedActiveRaw) ? Math.floor(storedActiveRaw) : 0, safeActiveSeconds)));
+    localStorage.setItem(SENTENCE_GAME_REWARD_LEVEL_KEY, String(Math.max(Number.isFinite(storedRewardRaw) ? Math.floor(storedRewardRaw) : 0, safeRewardLevel)));
+    localStorage.setItem(SENTENCE_GAME_LAST_TICK_KEY, String(Math.max(Number.isFinite(storedTickRaw) ? storedTickRaw : 0, safeLastTick)));
   } catch (error) {
     // noop
   }
@@ -2994,6 +3002,19 @@ function loadSentenceGameRewardState() {
 
   const computedLevel = sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds);
   sentenceGameRewardLevel = Math.max(sentenceGameRewardLevel, computedLevel);
+}
+
+function reconcileRewardTierProgress() {
+  loadProgressState();
+  const derivedRewardTier = Math.max(progressState.rewardTierUnlocked || 1, sentenceGameRewardLevel || 0);
+  if (derivedRewardTier <= (progressState.rewardTierUnlocked || 1)) return false;
+
+  applyProgressPatch((progress) => {
+    progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, derivedRewardTier);
+  }, "progress");
+  syncCoreStateReferences();
+  persistProgressState();
+  return true;
 }
 
 function renderSentenceGameRewardState() {
@@ -3065,10 +3086,7 @@ function updateSentenceGameRewardLevel({ allowBanner = false } = {}) {
     return;
   }
 
-  if (nextLevel < sentenceGameRewardLevel) {
-    sentenceGameRewardLevel = nextLevel;
-  }
-
+  sentenceGameRewardLevel = Math.max(sentenceGameRewardLevel, nextLevel);
   renderSentenceGameRewardState();
 }
 
@@ -4159,7 +4177,8 @@ function pickAnswer(buttonEl, selected) {
   if (isCorrect) {
     if (!lessonReviewMode) {
       score += 1;
-      awardXP(1, "quiz_correct_answer");
+      const lessonRewardEventId = `lesson:${getCoreState().selectedWorldId}:${level}:${currentIndex}:${questions[currentIndex]?.q || ""}`;
+      awardXP(1, "quiz_correct_answer", lessonRewardEventId);
     }
     playSuccessSound();
     worldSoundscape.play("reward");
@@ -4552,6 +4571,7 @@ function initializeAppState() {
   renderSentenceGameClimb(sentenceGameClimbLevel);
   loadSentenceGameRewardState();
   updateSentenceGameRewardLevel({ allowBanner: false });
+  reconcileRewardTierProgress();
   persistSentenceGameRewardState();
   loadSentenceGameDifficulty();
   loadPremiumStatus();

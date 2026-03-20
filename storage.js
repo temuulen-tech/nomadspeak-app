@@ -18,6 +18,7 @@ export const STORAGE_KEYS = {
   learnedWords: "nomadspeak:learned-words",
   unlockedChapterIds: "nomadspeak:unlocked-chapter-ids",
   rewardsWallet: "nomadspeak:rewards-wallet",
+  processedRewardIds: "nomadspeak:processed-reward-ids",
   selectedWorldId: "nomadspeak:selected-world-id",
   selectedDifficultyId: "nomadspeak:selected-difficulty-id",
 };
@@ -80,6 +81,7 @@ export function loadAppState() {
       legacyTtsRate: Number(loadString(STORAGE_KEYS.legacyTtsRate, "")),
     },
     rewardsWallet: loadJson(STORAGE_KEYS.rewardsWallet, null),
+    processedRewardIds: loadJson(STORAGE_KEYS.processedRewardIds, null),
     learnedWords: loadJson(STORAGE_KEYS.learnedWords, null),
     unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, null),
     selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, ""),
@@ -96,6 +98,7 @@ export function saveAppState(coreState = {}) {
   saveString(STORAGE_KEYS.premium, settings.premium ? "true" : "false");
   saveString(STORAGE_KEYS.profileName, typeof settings.profileName === "string" ? settings.profileName : "");
   saveJson(STORAGE_KEYS.rewardsWallet, coreState.rewardsWallet ?? null);
+  saveJson(STORAGE_KEYS.processedRewardIds, coreState.processedRewardIds ?? []);
   saveJson(STORAGE_KEYS.learnedWords, coreState.learnedWords ?? []);
   saveJson(STORAGE_KEYS.unlockedChapterIds, coreState.unlockedChapterIds ?? []);
   saveString(STORAGE_KEYS.selectedWorldId, coreState.selectedWorldId ?? "");
