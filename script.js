@@ -15,6 +15,7 @@ import {
 } from "./state.js";
 import {
   applyProgressPatch,
+  claimReward,
   clearPersistedCoreState,
   completeLesson,
   loadCoreState,
@@ -1378,6 +1379,46 @@ function awardXP(amount, reason = "", eventId = "") {
   }
 }
 
+function persistActionRewards({
+  xp = 0,
+  coins = 0,
+  gems = 0,
+  rewardTierUnlocked = null,
+  progressEventId = "",
+  rewardEventId = "",
+  countDailyProgress = false,
+} = {}) {
+  loadProgressState();
+  syncProgressForToday();
+
+  const today = getTodayKey();
+  const yesterday = previousDayKey(today);
+
+  if (Number(xp) > 0) {
+    completeLesson({
+      xpEarned: xp,
+      today,
+      yesterday,
+      countDailyProgress,
+      rewardTierUnlocked,
+      eventId: progressEventId,
+    });
+  }
+
+  if (Number(coins) > 0 || Number(gems) > 0 || Number.isFinite(Number(rewardTierUnlocked))) {
+    claimReward({
+      coins,
+      gems,
+      rewardTierUnlocked,
+      eventId: rewardEventId,
+    });
+  }
+
+  syncCoreStateReferences();
+  persistProgressState();
+  renderCoreStateSnapshot();
+}
+
 function getGaugeTierBySeconds(seconds) {
   const safeSeconds = Math.max(0, Math.floor(Number(seconds) || 0));
   if (safeSeconds >= 120 * 60) return { label: "Онц сайн", index: 4 };
@@ -2513,6 +2554,25 @@ function applyBoardTileEffect(tile) {
   boardGameState.player.xp = Math.max(0, boardGameState.player.xp + (effect.xp || 0));
   boardGameState.player.coins = Math.max(0, boardGameState.player.coins + (effect.coins || 0));
 
+  if ((effect.xp || 0) > 0 || (effect.coins || 0) > 0) {
+    const route = resolveBoardSelectionRoute(getBoardEntryState());
+    const rewardBaseEventId = [
+      "board",
+      route.selectedWorld?.id || getBoardEntryState().worldId || "world",
+      route.difficultyId || getBoardEntryState().difficultyId || "difficulty",
+      tile.chapterId || "chapter",
+      tile.tileNumber,
+      tile.tileType,
+    ].join(":");
+
+    persistActionRewards({
+      xp: Math.max(0, effect.xp || 0),
+      coins: Math.max(0, effect.coins || 0),
+      progressEventId: `${rewardBaseEventId}:progress`,
+      rewardEventId: `${rewardBaseEventId}:wallet`,
+    });
+  }
+
   if (tile.tileType === "reward") return `Шагналын нүд: +${effect.xp} туршлага, +${effect.coins} зоос.`;
   if (tile.tileType === "penalty") return `Торгуулийн нүд: ${effect.xp} туршлага, ${effect.coins} зоос.`;
   if (tile.tileType === "checkpoint") return `Шалган нэвтрэх нүдэнд хүрлээ: +${effect.xp} туршлага, +${effect.coins} зоос.`;
@@ -2611,6 +2671,21 @@ async function handleBoardGameAnswer(selectedOption) {
   if (wasCorrect) {
     boardGameState.player.xp += 20;
     boardGameState.player.coins += 12;
+    const route = resolveBoardSelectionRoute(getBoardEntryState());
+    const rewardBaseEventId = [
+      "board-challenge",
+      route.selectedWorld?.id || getBoardEntryState().worldId || "world",
+      route.difficultyId || getBoardEntryState().difficultyId || "difficulty",
+      challenge.id || boardGameState.player.currentTile,
+      boardGameState.player.currentTile,
+      "success",
+    ].join(":");
+    persistActionRewards({
+      xp: 20,
+      coins: 12,
+      progressEventId: `${rewardBaseEventId}:progress`,
+      rewardEventId: `${rewardBaseEventId}:wallet`,
+    });
     setBoardGameFeedback(`Зөв! ${challenge.promptMn} = ${challenge.answer}. Байрлалаа хадгалж, +20 туршлага, +12 зоос авлаа.`, "success");
     gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.correct);
     spawnBoardParticles("reward");
