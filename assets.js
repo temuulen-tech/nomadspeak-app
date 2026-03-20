@@ -140,7 +140,7 @@ export const FUTURE_VISUAL_LIBRARY = {
   lessonVisuals: [
     createPlaceholderMeta({
       collection: CONTENT_COLLECTIONS.WORLD_VISUALS,
-      slot: FUTURE_CONTENT_SLOTS.LESSON_CONTENT,
+      slot: FUTURE_CONTENT_SLOTS.LESSON_VISUAL,
       id: "lesson-visual-shared-placeholder",
       notes: "Store future lesson illustration or inline learning visuals under assets/visuals/lessons/.",
     }),
