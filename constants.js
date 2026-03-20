@@ -153,6 +153,16 @@ export const CONTENT_DROP_IN_FILES = {
   sharedWorkflowConstants: "constants.js",
 };
 
+export const CONTENT_TEMPLATE_DIRECTORY = "content-packs/templates";
+
+export const CONTENT_TEMPLATE_FILES = {
+  lessonPack: `${CONTENT_TEMPLATE_DIRECTORY}/lesson-pack.template.json`,
+  wordBank: `${CONTENT_TEMPLATE_DIRECTORY}/word-bank.template.json`,
+  sentenceBank: `${CONTENT_TEMPLATE_DIRECTORY}/sentence-bank.template.json`,
+  qaSet: `${CONTENT_TEMPLATE_DIRECTORY}/qa-set.template.json`,
+  contentPackManifest: `${CONTENT_TEMPLATE_DIRECTORY}/content-pack-manifest.template.json`,
+};
+
 export const CONTENT_HANDOFF_ENTRYPOINTS = [
   { order: 1, area: "World metadata", file: CONTENT_DROP_IN_FILES.worldMetadata },
   { order: 2, area: "Chapter metadata", file: CONTENT_DROP_IN_FILES.chapterMetadata },

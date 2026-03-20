@@ -1,0 +1,12 @@
+{
+  "id": "word-bank-worldX-chY-core",
+  "worldId": "worldX",
+  "chapterId": "chY",
+  "difficulty": "beginner",
+  "tokens": [
+    "token one",
+    "token two",
+    "token three"
+  ],
+  "notes": "Use this for lesson or QA helper vocabulary that belongs to one pack. Copy final tokens into lesson.js or qa-game.js as appropriate."
+}

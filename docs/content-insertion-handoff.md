@@ -8,6 +8,8 @@ As of **Phase 54**, the current architecture should be treated as the **locked c
 
 ## Where future content work should start
 
+Start by preparing the real pack in `content-packs/templates/` so starter/demo content stays clearly separated from production content during handoff. Then move the final approved ids/data into the live app files below.
+
 Start with the existing data-driven flow that already powers the live app:
 
 1. `worlds.js`
@@ -35,10 +37,16 @@ Recommended first real insertion target: **World 1 → Beginner → Chapter 2** 
 | Images / world covers / backgrounds / audio | `assets.js` | Stable asset ids and file paths |
 | Future animation hooks/assets | `assets.js` | Animation hook metadata and future animation asset registrations |
 | Shared ids / helper constants | `constants.js` | Reusable ids, insertion sequence, ownership map, helper builders |
+| Handoff prep templates | `content-packs/templates/*.json` | Copyable blank structures for lessons, word banks, sentence banks, QA sets, and one per-pack planning manifest |
 
 ## Recommended order for inserting one new content pack
 
 Use this order to avoid broken references:
+
+0. **Prepare the real content offline in `content-packs/templates/`.**
+   - Copy the lesson / word bank / sentence bank / QA template files.
+   - Fill the real content there first so review can happen without touching the runtime modules.
+   - Keep starter/demo ids separate until the content is approved for insertion.
 
 1. **Confirm the pack target in `constants.js` (optional).**
    - Only edit if you truly need a new stable id pattern or handoff helper.
@@ -75,6 +83,16 @@ Use this order to avoid broken references:
 9. **Register future animation hooks/assets in `assets.js` only when needed.**
    - Add hook metadata or future animation asset references there.
    - Then reference hook ids from `worlds.js` or `chapters.js` without changing screen logic.
+
+## Template-to-runtime mapping
+
+Use the handoff templates as the source-of-truth draft, then copy the approved content into these runtime files:
+
+- `lesson-pack.template.json` → `lesson.js`
+- `word-bank.template.json` → `lesson.js` and/or `qa-game.js`
+- `sentence-bank.template.json` → `sentence-game.js` + `data/sentences.json`
+- `qa-set.template.json` → `qa-game.js`
+- `content-pack-manifest.template.json` → planning only; use it to confirm every referenced id matches `worlds.js` and `chapters.js`
 
 ## Verification checklist after each pack
 

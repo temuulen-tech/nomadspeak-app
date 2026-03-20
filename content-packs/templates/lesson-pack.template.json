@@ -1,0 +1,19 @@
+{
+  "id": "worldX-chY-beginner-core",
+  "worldId": "worldX",
+  "chapterId": "chY",
+  "difficulty": "beginner",
+  "title": "Real lesson pack title",
+  "description": "Short learner-facing description.",
+  "wordBankId": "word-bank-worldX-chY-core",
+  "sentenceBankId": "sentence-bank-worldX-chY-core",
+  "entries": [
+    {
+      "q": "English prompt",
+      "qMn": "Mongolian prompt",
+      "a": "English answer",
+      "aMn": "Mongolian answer"
+    }
+  ],
+  "notes": "Copy these entries into lesson.js under a pack that keeps the same ids."
+}
