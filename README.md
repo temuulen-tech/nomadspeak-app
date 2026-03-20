@@ -37,3 +37,32 @@ This phase does **not** add the final content library yet. It keeps the current 
 When adding a new content pack, **reuse the existing ids and placeholders where possible** instead of creating a new flow path. That keeps the current UI, buttons, progress handling, and gameplay route unchanged.
 
 See `docs/content-insertion-handoff.md` for the step-by-step handoff checklist used for future real content drops.
+
+## Phase 46 baseline lock
+
+The app should now be treated as the **stable content-ready baseline** for future production work.
+
+### What is considered locked
+
+- `app.js` + `script.js` keep bootstrap, navigation, and runtime orchestration.
+- `state.js` + `actions.js` keep state shape, normalization, persistence, and progress mutations.
+- `worlds.js` + `chapters.js` keep routing metadata and content/asset ids.
+- `lesson.js`, `qa-game.js`, `sentence-game.js`, and `data/sentences.json` are the intended insertion paths for lesson/question/sentence content.
+- `assets.js` is the intended insertion path for covers, backgrounds, rewards, audio, and future animation hooks/assets.
+- screen/render modules should keep consuming config/content ids instead of becoming new content stores.
+
+### What future work should prefer
+
+1. Insert real world/chapter metadata through the existing config ids.
+2. Replace placeholder lesson packs, QA sets, sentence banks, and JSON rows with real content.
+3. Swap placeholder cover/background/reward art in `assets.js`.
+4. Attach future animation configs/assets through the existing hook ids before touching screen flow.
+
+### What to avoid unless truly necessary
+
+- Another architecture rewrite for content-only changes.
+- New parallel lesson/gameplay routes for new packs.
+- Hardcoded asset paths in screen/render modules.
+- Save/progress rewrites unless a real storage migration is required.
+
+This keeps the current UI, button flow, and learner progress intact while making future phases primarily about content production.
