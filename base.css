@@ -360,3 +360,393 @@ body{
   }
 
 }
+
+
+/* Shared screen and learning layout foundations */
+.learning-screen-shell{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+
+.learning-screen{
+  padding:12px;
+}
+
+.learning-layout-header{
+  display:flex;
+  flex-direction:column;
+  gap:10px;
+  border-radius:12px;
+  padding:8px;
+  margin-bottom:0;
+}
+
+.learning-master-top{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  width:100%;
+}
+
+.learning-master-row{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  width:100%;
+  min-width:0;
+}
+
+.learning-master-row > *{
+  min-width:0;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn,
+.learning-master-row-2 > :first-child,
+.learning-master-row-2 > :last-child,
+.learning-master-row-3 > :first-child,
+.learning-master-row-3 > :last-child,
+.learning-master-row-4 > :first-child,
+.learning-master-row-4 > :last-child{
+  flex:1 1 50%;
+  max-width:50%;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn{
+  width:100%;
+  white-space:nowrap;
+}
+
+.learning-master-row-2 .learning-level-btn,
+.learning-master-row-3 .learning-utility-btn,
+.learning-master-row-3 .sound-toggle-btn{
+  width:100%;
+}
+
+.learning-header-row .learning-title-block,
+.learning-header-row .learning-today-time{
+  white-space:normal;
+}
+
+.learning-utilities-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:8px;
+}
+
+.learning-screen .primary,
+.learning-screen .secondary,
+.learning-utility-btn{
+  min-height:36px;
+  padding:7px 10px;
+  font-size:12px;
+  line-height:1.2;
+  border-radius:10px;
+}
+
+.learning-level-btn{
+  min-height:38px;
+  width:100%;
+}
+
+.learning-utility-btn--stacked{
+  white-space:normal;
+  text-align:center;
+}
+
+.learning-title-block{
+  margin:0;
+  max-width:100%;
+  line-height:1.28;
+  text-wrap:balance;
+}
+
+.learning-today-time{
+  margin-left:auto;
+  font-size:.72rem;
+  padding:3px 8px;
+  align-self:flex-start;
+  line-height:1.32;
+}
+
+.learning-status-inline{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  padding:4px 6px;
+}
+
+.learning-status-item{
+  font-size:.72rem;
+  line-height:1.2;
+  padding:2px 6px;
+  border-radius:7px;
+  border:1px solid rgba(255,220,143,.34);
+  background:rgba(8,35,45,.42);
+  color:#fff4d5;
+}
+
+.learning-progress-frame{
+  border:1px solid rgba(255,219,136,.5);
+  border-radius:10px;
+  padding:8px;
+  box-shadow:none;
+}
+
+.learning-progress-compact .reward-row,
+.learning-progress-compact .sentence-game-reward-row,
+.learning-progress-compact.sentences-reward-strip,
+.learning-progress-compact .sentences-reward-strip{
+  padding:0;
+  margin:0;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:center;
+}
+
+.learning-progress-compact .reward-tile,
+.learning-progress-compact .learning-progress-item{
+  border:none;
+  background:transparent;
+  box-shadow:none;
+  border-radius:0;
+  padding:18px 4px 4px;
+  flex:1 1 0;
+  opacity:.8;
+  min-width:min(100%, 104px);
+  max-width:100%;
+}
+
+.learning-progress-compact .reward-img,
+.learning-progress-compact .learning-progress-image{
+  width:clamp(102px,12vw,154px);
+  height:clamp(102px,12vw,154px);
+  max-width:none;
+}
+
+.start-level-picker,
+.sentences-level-picker,
+.sentence-game-difficulty-wrap,
+.qa-level-picker{
+  width:100%;
+}
+
+.sentence-game-tip-toggle-row,
+.qa-learning-tools{
+  display:flex;
+  gap:8px;
+}
+
+.sentence-game-tip-toggle-row .learning-utility-btn,
+.qa-learning-tools .learning-utility-btn{
+  width:100%;
+}
+
+.learning-screen-shell,
+.learning-layout-header,
+.learning-master-top,
+.learning-master-row,
+.learning-master-row > *,
+.question-text-wrap,
+.lesson-question-row,
+.question-row,
+.sentences-top-controls,
+.sentences-controls-grid,
+.sentence-row,
+.sentence-text,
+.sentence-game-top,
+.sentence-game-top-header,
+.qa-round-panel,
+.qa-builder-lines,
+.qa-bank,
+.board-game-topbar-main,
+.board-game-info-stack,
+.board-game-helper-copy,
+.board-game-options,
+.board-game-feedback-strip,
+.board-game-challenge-panel,
+.board-game-world-selection,
+.board-game-difficulty-selector,
+.board-game-selection-block{
+  min-width:0;
+}
+
+.learning-master-row{
+  align-items:stretch;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn,
+.learning-master-row-2 > :first-child,
+.learning-master-row-2 > :last-child,
+.learning-master-row-3 > :first-child,
+.learning-master-row-3 > :last-child,
+.learning-master-row-4 > :first-child,
+.learning-master-row-4 > :last-child{
+  flex:1 1 min(100%, 260px);
+  max-width:none;
+}
+
+.learning-master-row-1 .learning-exit-btn,
+.learning-master-row-1 .learning-alltime-btn,
+.learning-master-row-2 .learning-level-btn,
+.learning-master-row-3 .learning-utility-btn,
+.learning-master-row-3 .sound-toggle-btn{
+  white-space:normal;
+}
+
+.learning-title-block,
+#board-game-screen .board-game-topbar-main .screen-title-chip,
+#board-game-chapter-title,
+#board-game-challenge-title,
+#board-game-challenge-text,
+.board-game-entry-copy,
+.board-game-selection-heading,
+#board-game-difficulty-title,
+#board-game-selector-title,
+.qa-feedback,
+.sentence-game-feedback,
+.sentence-en,
+.sentence-mn{
+  overflow-wrap:anywhere;
+  word-break:break-word;
+}
+
+.reward-tile{
+  min-width:0;
+}
+
+.reward-label-chip{
+  max-width:100%;
+  text-align:center;
+  overflow-wrap:anywhere;
+}
+
+.sentences-list,
+.stats-reward-cards,
+.board-game-options{
+  overscroll-behavior:contain;
+}
+
+.qa-level-options{
+  width:100%;
+}
+
+.qa-level-options button{
+  flex:1 1 160px;
+}
+
+.board-game-world-options,
+.board-game-difficulty-options{
+  grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+}
+
+.board-game-topbar{
+  grid-template-columns:minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
+}
+
+.board-game-challenge-panel{
+  overflow:auto hidden;
+}
+
+.board-game-challenge-panel.show{
+  max-height:min(420px, 54vh);
+}
+
+.board-game-option-btn{
+  align-items:flex-start;
+}
+
+@media (max-width:700px){
+  .learning-master-row{
+    gap:8px;
+  }
+
+  .learning-progress-compact .reward-tile,
+  .learning-progress-compact .learning-progress-item{
+    flex:1 1 calc(33.333% - 8px);
+  }
+
+  .learning-progress-compact .reward-img,
+  .learning-progress-compact .learning-progress-image{
+    width:clamp(82px,20vw,112px);
+    height:clamp(82px,20vw,112px);
+  }
+}
+
+@media (max-width:560px){
+  .learning-master-row{
+    flex-wrap:nowrap;
+  }
+
+  .learning-screen .primary,
+  .learning-screen .secondary,
+  .learning-utility-btn{
+    font-size:11.5px;
+    padding:6px 8px;
+  }
+
+  .learning-progress-compact .reward-tile,
+  .learning-progress-compact .learning-progress-item{
+    flex:1 1 min(100%, 148px);
+  }
+
+  .learning-title-block{
+    font-size:.86rem;
+  }
+
+  .learning-today-time{
+    font-size:.66rem;
+  }
+
+  .board-game-topbar{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-topbar-side,
+  .board-game-topbar-side-end{
+    justify-content:stretch;
+  }
+
+  .board-topbar-exit,
+  .board-topbar-sound{
+    width:100%;
+  }
+
+  .board-game-board{
+    padding-left:18px;
+    padding-right:18px;
+  }
+}
+
+@media (max-width:920px){
+  .learning-master-row{
+    flex-wrap:wrap;
+  }
+
+  .learning-master-row > *{
+    flex-basis:100%;
+  }
+
+  .board-game-bottom-dock{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-controls-panel{
+    min-height:auto;
+  }
+}
+@media (min-width:900px){
+  .app{
+    max-width:390px;
+  }
+
+  .profile-grid,
+  .premium-features{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+}
