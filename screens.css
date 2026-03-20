@@ -1478,8 +1478,8 @@
   .app{
     overflow-y:auto;
     overflow-x:hidden;
-    max-height:calc(100vh - 28px);
-    min-height:calc(100vh - 28px);
+    max-height:calc(var(--app-viewport-height) - 28px);
+    min-height:calc(var(--app-viewport-height) - 28px);
   }
 
   .stats-panel{
@@ -1673,7 +1673,7 @@ body[data-active-screen="board-game"]{
 body[data-active-screen="board-game"] .phone-preview-shell{
   width:100%;
   max-width:none;
-  min-height:100dvh;
+  min-height:var(--app-viewport-height);
   border-radius:0;
   border:none;
   padding:0;
@@ -1681,8 +1681,8 @@ body[data-active-screen="board-game"] .phone-preview-shell{
 }
 
 body[data-active-screen="board-game"] .app{
-  min-height:100dvh;
-  max-height:100dvh;
+  min-height:var(--app-viewport-height);
+  max-height:var(--app-viewport-height);
   border-radius:0;
   padding:0;
   background:#0a2230;

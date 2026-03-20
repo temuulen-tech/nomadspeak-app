@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'nomadspeak-shell-v5';
+const CACHE_VERSION = 'nomadspeak-shell-v6';
 const APP_SHELL_ASSETS = [
   './',
   './index.html',
@@ -70,24 +70,40 @@ self.addEventListener('fetch', (event) => {
   if (requestUrl.origin !== self.location.origin) return;
 
   const isNavigationRequest = event.request.mode === 'navigate';
+  const requestDestination = event.request.destination;
+  const isStaticAssetRequest = [
+    'style',
+    'script',
+    'image',
+    'font',
+    'audio',
+    'manifest',
+  ].includes(requestDestination) || requestUrl.pathname.endsWith('.json');
 
   event.respondWith((async () => {
     const cache = await caches.open(CACHE_VERSION);
+
+    if (isNavigationRequest) {
+      try {
+        const networkResponse = await fetch(event.request);
+        if (networkResponse.ok) {
+          cache.put('./index.html', networkResponse.clone());
+        }
+        return networkResponse;
+      } catch (error) {
+        const fallback = await cache.match('./index.html');
+        if (fallback) return fallback;
+        throw error;
+      }
+    }
+
     const cachedResponse = await cache.match(event.request, { ignoreSearch: true });
     if (cachedResponse) return cachedResponse;
 
-    try {
-      const networkResponse = await fetch(event.request);
-      if (networkResponse.ok) {
-        cache.put(event.request, networkResponse.clone());
-      }
-      return networkResponse;
-    } catch (error) {
-      if (isNavigationRequest) {
-        const fallback = await cache.match('./index.html');
-        if (fallback) return fallback;
-      }
-      throw error;
+    const networkResponse = await fetch(event.request);
+    if (networkResponse.ok && isStaticAssetRequest) {
+      cache.put(event.request, networkResponse.clone());
     }
+    return networkResponse;
   })());
 });
