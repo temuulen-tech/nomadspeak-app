@@ -6,6 +6,7 @@
 import { renderHomeScreen } from "./render-home.js";
 import { SCREEN_NAMES } from "./constants.js";
 import { bindClickOnce } from "./ui.js";
+import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 export function initHomeScreen(handlers = {}) {
   const startScreenEl = document.getElementById("start-screen");
@@ -63,13 +64,17 @@ export function initHomeScreen(handlers = {}) {
     });
   });
 
-  return {
+  return createScreenLifecycle({
     id: SCREEN_NAMES.HOME,
     element: startScreenEl,
-    activate: () => {
+    onEnter: () => {
       renderHomeScreen();
       handlers.onActivate?.();
     },
-    deactivate: () => handlers.onDeactivate?.(),
-  };
+    onReenter: () => {
+      renderHomeScreen();
+      handlers.onActivate?.();
+    },
+    onLeave: () => handlers.onDeactivate?.(),
+  });
 }

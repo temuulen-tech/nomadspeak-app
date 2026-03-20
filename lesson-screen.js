@@ -6,6 +6,7 @@
 import { renderLessonScreen } from "./render-lesson.js";
 import { SCREEN_NAMES } from "./constants.js";
 import { bindClickOnce } from "./ui.js";
+import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
@@ -15,13 +16,17 @@ export function initLessonScreen(handlers = {}) {
   bindClickOnce(nextBtn, "lesson:next", () => handlers.onNext?.());
   bindClickOnce(restartBtn, "lesson:restart", () => handlers.onRestart?.());
 
-  return {
+  return createScreenLifecycle({
     id: SCREEN_NAMES.LESSON,
     element: lessonScreenEl,
-    activate: () => {
+    onEnter: () => {
       renderLessonScreen();
       handlers.onActivate?.();
     },
-    deactivate: () => handlers.onDeactivate?.(),
-  };
+    onReenter: () => {
+      renderLessonScreen();
+      handlers.onActivate?.();
+    },
+    onLeave: () => handlers.onDeactivate?.(),
+  });
 }

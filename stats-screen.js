@@ -1,6 +1,7 @@
 import { SCREEN_NAMES } from "./constants.js";
 import { bindModalDismissal, openModal } from "./modal.js";
 import { bindClickOnce } from "./ui.js";
+import { createScreenLifecycle } from "./screen-lifecycle.js";
 
 /**
  * stats-screen.js
@@ -35,10 +36,11 @@ export function initStatsScreen(handlers = {}) {
     closeBtn: timeDetailsCloseBtn,
   });
 
-  return {
+  return createScreenLifecycle({
     id: SCREEN_NAMES.STATS,
     element: statsScreenEl,
-    activate: () => handlers.onActivate?.(),
-    deactivate: () => handlers.onDeactivate?.(),
-  };
+    onEnter: () => handlers.onActivate?.(),
+    onReenter: () => handlers.onActivate?.(),
+    onLeave: () => handlers.onDeactivate?.(),
+  });
 }

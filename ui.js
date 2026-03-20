@@ -9,7 +9,27 @@ function resolveElement(elementOrSelector) {
   return elementOrSelector;
 }
 
-const MANAGED_CLICK_BINDINGS = new WeakMap();
+const MANAGED_EVENT_BINDINGS = new WeakMap();
+
+function getManagedBindingBucket(target, eventName, create = false) {
+  if (!target || !eventName) return null;
+
+  let eventBindings = MANAGED_EVENT_BINDINGS.get(target);
+  if (!eventBindings && create) {
+    eventBindings = new Map();
+    MANAGED_EVENT_BINDINGS.set(target, eventBindings);
+  }
+
+  if (!eventBindings) return null;
+
+  let bindingKeys = eventBindings.get(eventName);
+  if (!bindingKeys && create) {
+    bindingKeys = new Set();
+    eventBindings.set(eventName, bindingKeys);
+  }
+
+  return bindingKeys || null;
+}
 
 export function toggleClass(elementOrSelector, className, force) {
   const element = resolveElement(elementOrSelector);
@@ -111,25 +131,28 @@ export function syncToggleButtons(buttons, isActive, options = {}) {
   });
 }
 
-export function bindClickOnce(elementOrSelector, bindingKey, handler) {
+export function bindManagedEvent(elementOrSelector, eventName, bindingKey, handler, options) {
   const element = resolveElement(elementOrSelector);
-  if (!element || !bindingKey || typeof handler !== "function") return false;
+  if (!element || !eventName || !bindingKey || typeof handler !== "function") return false;
 
-  let bindingKeys = MANAGED_CLICK_BINDINGS.get(element);
-  if (!bindingKeys) {
-    bindingKeys = new Set();
-    MANAGED_CLICK_BINDINGS.set(element, bindingKeys);
-  }
+  const bindingKeys = getManagedBindingBucket(element, eventName, true);
+  if (bindingKeys?.has(bindingKey)) return false;
 
-  if (bindingKeys.has(bindingKey)) return false;
-
-  element.addEventListener("click", handler);
-  bindingKeys.add(bindingKey);
+  element.addEventListener(eventName, handler, options);
+  bindingKeys?.add(bindingKey);
   return true;
 }
 
-export function hasClickBinding(elementOrSelector, bindingKey) {
+export function hasManagedBinding(elementOrSelector, eventName, bindingKey) {
   const element = resolveElement(elementOrSelector);
-  if (!element || !bindingKey) return false;
-  return MANAGED_CLICK_BINDINGS.get(element)?.has(bindingKey) || false;
+  if (!element || !eventName || !bindingKey) return false;
+  return getManagedBindingBucket(element, eventName)?.has(bindingKey) || false;
+}
+
+export function bindClickOnce(elementOrSelector, bindingKey, handler, options) {
+  return bindManagedEvent(elementOrSelector, "click", bindingKey, handler, options);
+}
+
+export function hasClickBinding(elementOrSelector, bindingKey) {
+  return hasManagedBinding(elementOrSelector, "click", bindingKey);
 }
