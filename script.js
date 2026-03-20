@@ -22,9 +22,8 @@ import {
   replaceProgress,
   resetCoreState,
   saveCoreState,
-  setSelectedDifficulty,
-  setSelectedWorld,
   unlockChapter,
+  updateSelections,
   updateSettings,
   updateStreak,
 } from "./actions.js";
@@ -1958,8 +1957,10 @@ function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}
     chapterId: nextChapterId,
   });
 
-  setSelectedWorld(nextWorldId);
-  setSelectedDifficulty(nextDifficultyId);
+  updateSelections({
+    selectedWorldId: nextWorldId,
+    selectedDifficultyId: nextDifficultyId,
+  });
 
   updateState((state) => {
     state.flow.lastRequestedScreen = step === BOARD_SELECTOR_STEPS.PLAY ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
