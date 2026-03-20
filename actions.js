@@ -191,18 +191,39 @@ export function updateSettings(patch = {}) {
   return getCoreState().settings;
 }
 
-export function updateSelections(patch = {}) {
-  updateCoreState((core) => {
-    if (typeof patch.selectedWorldId === "string" && patch.selectedWorldId) {
-      core.selectedWorldId = patch.selectedWorldId;
-    }
+export function setSelectedWorld(worldId) {
+  const nextWorldId = String(worldId || "").trim();
+  if (!nextWorldId) return getCoreState().selectedWorldId;
 
-    if (typeof patch.selectedDifficultyId === "string" && patch.selectedDifficultyId) {
-      core.selectedDifficultyId = patch.selectedDifficultyId;
-    }
-  }, "selections");
+  updateCoreState((core) => {
+    core.selectedWorldId = nextWorldId;
+  }, "selectedWorld");
 
   saveAppState(getCoreState());
+  return getCoreState().selectedWorldId;
+}
+
+export function setSelectedDifficulty(difficultyId) {
+  const nextDifficultyId = String(difficultyId || "").trim();
+  if (!nextDifficultyId) return getCoreState().selectedDifficultyId;
+
+  updateCoreState((core) => {
+    core.selectedDifficultyId = nextDifficultyId;
+  }, "selectedDifficulty");
+
+  saveAppState(getCoreState());
+  return getCoreState().selectedDifficultyId;
+}
+
+export function updateSelections(patch = {}) {
+  if (typeof patch.selectedWorldId === "string" && patch.selectedWorldId) {
+    setSelectedWorld(patch.selectedWorldId);
+  }
+
+  if (typeof patch.selectedDifficultyId === "string" && patch.selectedDifficultyId) {
+    setSelectedDifficulty(patch.selectedDifficultyId);
+  }
+
   return {
     selectedWorldId: getCoreState().selectedWorldId,
     selectedDifficultyId: getCoreState().selectedDifficultyId,

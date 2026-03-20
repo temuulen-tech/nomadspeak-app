@@ -9,6 +9,7 @@ import {
   getState,
   resetBoardEntryState,
   setStateValue,
+  subscribeState,
   updateBoardEntryState,
   updateState,
 } from "./state.js";
@@ -21,8 +22,9 @@ import {
   replaceProgress,
   resetCoreState,
   saveCoreState,
+  setSelectedDifficulty,
+  setSelectedWorld,
   unlockChapter,
-  updateSelections,
   updateSettings,
   updateStreak,
 } from "./actions.js";
@@ -424,6 +426,13 @@ function syncCoreStateReferences() {
   return coreState;
 }
 
+function renderCoreStateSnapshot() {
+  syncCoreStateReferences();
+  updateSoundToggleState();
+  renderProfileSnapshot();
+  renderStatsSnapshot();
+}
+
 function persistCoreAppState() {
   syncCoreStateReferences();
   saveCoreState();
@@ -443,6 +452,7 @@ let progressState = getCoreState().progress;
 let deferredInstallPrompt = null;
 let appTimeUiInterval = null;
 let appInitialized = false;
+let stateSubscriptionsInitialized = false;
 
 const SCREEN_IDS = {
   [startScreen.id]: SCREEN_NAMES.START,
@@ -1222,9 +1232,7 @@ function enforceFreeXpGate() {
   return false;
 }
 
-function updateProfileUI() {
-  loadProgressState();
-  syncProgressForToday();
+function renderProfileSnapshot() {
   if (profileNameInput) profileNameInput.value = appSettings.profileName;
   if (profileNameSaved) profileNameSaved.textContent = `Хадгалагдсан нэр: ${appSettings.profileName || "—"}`;
   if (profileTotalXpEl) profileTotalXpEl.textContent = String(progressState.xp);
@@ -1233,6 +1241,12 @@ function updateProfileUI() {
   if (profileDailyProgressEl) profileDailyProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
   if (profileRewardStageEl) profileRewardStageEl.textContent = `Tier ${progressState.rewardTierUnlocked}`;
   if (profilePlanStatusEl) profilePlanStatusEl.textContent = `Төлөв: ${appSettings.premium ? "Дээд багц" : "Үнэгүй"}`;
+}
+
+function updateProfileUI() {
+  syncCoreStateReferences();
+  syncProgressForToday();
+  renderProfileSnapshot();
 }
 
 function playDailyGoalSuccessChime() {
@@ -1571,22 +1585,24 @@ function stopTimeUiUpdater() {
   appTimeUiInterval = null;
 }
 
-function updateStatsUI() {
-  loadProgressState();
-  syncProgressForToday();
-
+function renderStatsSnapshot() {
   if (statsTotalXpEl) statsTotalXpEl.textContent = String(progressState.xp);
   if (statsLevelEl) statsLevelEl.textContent = `Lv.${progressState.level}`;
   if (statsStreakEl) statsStreakEl.textContent = `${progressState.streak} өдөр`;
   if (statsTodayProgressEl) statsTodayProgressEl.textContent = `${progressState.todayCount}/${progressState.dailyGoalCount}`;
 
   refreshTimeSummaryUI();
+}
 
+function updateStatsUI() {
+  syncCoreStateReferences();
+  syncProgressForToday();
+  renderStatsSnapshot();
   persistProgressState();
 }
 
 function updateHeaderStatus() {
-  loadProgressState();
+  syncCoreStateReferences();
   syncProgressForToday();
 }
 
@@ -1905,10 +1921,8 @@ function syncBoardEntryFlowState({ step, worldId, difficultyId, chapterId } = {}
     chapterId: nextChapterId,
   });
 
-  updateSelections({
-    selectedWorldId: nextWorldId,
-    selectedDifficultyId: nextDifficultyId,
-  });
+  setSelectedWorld(nextWorldId);
+  setSelectedDifficulty(nextDifficultyId);
 
   updateState((state) => {
     state.flow.lastRequestedScreen = step === BOARD_SELECTOR_STEPS.PLAY ? SCREEN_NAMES.BOARD : SCREEN_NAMES.CHAPTER_COVER;
@@ -4468,6 +4482,18 @@ function resetQaGameScreen() {
   startQaTimer();
 }
 
+
+function initializeStateSubscriptions() {
+  if (stateSubscriptionsInitialized) return;
+  stateSubscriptionsInitialized = true;
+
+  subscribeState((_state, scope) => {
+    if (["core", "progress", "settings", "rewards", "learnedWords", "chapters", "selectedWorld", "selectedDifficulty", "selections"].includes(scope)) {
+      renderCoreStateSnapshot();
+    }
+  });
+}
+
 function initializeAppState() {
   loadTtsSettings();
   updateTtsControlState();
@@ -4940,6 +4966,7 @@ function auditPrimaryButtonWiring() {
 }
 
 export function initializeApp() {
+  initializeStateSubscriptions();
   if (appInitialized) {
     auditPrimaryButtonWiring();
     return;
