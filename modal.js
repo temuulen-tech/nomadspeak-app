@@ -3,7 +3,7 @@
  * Modal/overlay controller for shared dialog and overlay lifecycle behavior.
  */
 
-import { hideElement, showElement, setText } from "./ui.js";
+import { bindClickOnce, hideElement, showElement, setText } from "./ui.js";
 
 function resolveElement(elementOrSelector) {
   if (!elementOrSelector) return null;
@@ -45,7 +45,7 @@ export function closeModal(modalEl) {
 export function bindModalBackdropClose(modalEl, onClose = () => closeModal(modalEl)) {
   const modal = resolveElement(modalEl);
   if (!modal) return;
-  modal.addEventListener("click", (event) => {
+  bindClickOnce(modal, `modal:backdrop:${modal.id || "anonymous"}`, (event) => {
     if (event.target === modal) onClose();
   });
 }
@@ -53,6 +53,6 @@ export function bindModalBackdropClose(modalEl, onClose = () => closeModal(modal
 export function bindModalDismissal({ modalEl, closeBtn, onClose = () => closeModal(modalEl) } = {}) {
   const modal = resolveElement(modalEl);
   const button = resolveElement(closeBtn);
-  if (button) button.addEventListener("click", onClose);
+  if (button) bindClickOnce(button, `modal:close:${button.id || modal?.id || "anonymous"}`, onClose);
   bindModalBackdropClose(modal, onClose);
 }
