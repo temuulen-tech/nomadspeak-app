@@ -51,6 +51,7 @@ import { createVaultManager } from "./vault-manager.js";
 import { createVaultUiBridge } from "./vault-ui-bridge.js";
 import { createAppTimerManager } from "./app-timer.js";
 import { createSentenceGameRewardManager } from "./sentence-game-reward-manager.js";
+import { createSentenceRuntime } from "./sentence-runtime.js";
 import { createSessionElapsedTimer } from "./session-elapsed-timer.js";
 import { createScreenNavigator } from "./screen-navigation.js";
 import { REWARD_ICON_SEQUENCE } from "./assets.js";
@@ -85,25 +86,10 @@ import {
 } from "./render-rewards.js";
 import {
   SENTENCE_GAME_CLIMB_POSITIONS,
-  SENTENCE_GAME_CORRECT_TOAST,
-  SENTENCE_GAME_DEBUG,
-  SENTENCE_GAME_DIFFICULTY_LABELS,
   SENTENCE_GAME_IDLE_TIMEOUT_SECONDS,
-  SENTENCE_GAME_INCORRECT_TOAST,
   SENTENCE_GAME_REWARD_BANNERS,
   SENTENCE_GAME_REWARD_THRESHOLDS,
-  SENTENCE_GAME_SHOW_CORRECT_TOAST,
-  SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS,
   SENTENCE_GAME_TIP_TEXT,
-  SENTENCE_GAME_TOAST_DURATION,
-  SENTENCE_GAME_TOAST_MAX_DURATION,
-  SENTENCE_GAME_TOAST_SPEECH_DELAY,
-  SENTENCE_GAME_TOAST_SPEECH_END_BUFFER,
-  SENTENCE_GAME_DATA_PATH,
-  filterSentenceItemsForBank,
-  prepareSentenceItems,
-  resolveSentenceContentBank,
-  tokenizeSentence,
 } from "./sentence-game.js";
 import {
   QA_REWARD_STEPS,
@@ -383,31 +369,9 @@ hydrateRewardStripImages({
 // ---- State ----
 let level = DIFFICULTY_LEVELS.BEGINNER;
 
-let sentenceItems = [];
-let sentenceFilter = DIFFICULTY_LEVELS.BEGINNER;
-let speakingSentenceId = null;
 let availableVoices = [];
 
-let sentenceGameHistory = [];
-let sentenceGameIndex = -1;
-let sentenceGameTiles = [];
-let sentenceGameBuilt = [];
-let sentenceGameCompleted = false;
-let sentenceGameXpAwarded = false;
-let sentenceGameHintXpAwarded = false;
-let sentenceGameUsedShowCorrect = false;
-let sentenceGameCorrectVisible = false;
-let draggingTileId = null;
 let sentenceGameTipSpeaking = false;
-let sentenceGameToastTimer = null;
-let sentenceGameToastHideTimer = null;
-let sentenceGameToastSpeechTimer = null;
-let sentenceGameToastShownAt = 0;
-let sentenceGameToastHideDeadline = 0;
-let sentenceGameToastSpeechActive = false;
-let sentenceGameSuccessAlreadyShownForThisSentence = false;
-let sentenceGameSuccessToastLockUntil = 0;
-let sentenceGameLastOutcomeForThisSentence = null;
 let sentenceGameClimbLevel = 0;
 let sentenceGameLastRenderedClimbLevel = 0;
 let sentenceGamePeakPulseTimer = null;
@@ -416,7 +380,6 @@ let sentenceGameActiveSeconds = 0;
 let sentenceGameRewardLevel = 0;
 let sentenceGameLastActivityAt = 0;
 let sentenceGameLastTick = 0;
-let sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
 
 const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
 const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
@@ -460,7 +423,6 @@ let progressState = getCoreState().progress;
 let statsSelectedPeriod = STATS_PERIODS.DAY;
 let statsRewardTab = REWARD_TABS.DAYS;
 
-let sentenceItemsLoadPromise = null;
 let boardGameBootstrapped = false;
 
 const SCREEN_IDS = {
@@ -517,7 +479,7 @@ function buildSentenceGameEventId(kind = "progress") {
   return [
     "sentence-game",
     getCoreState().selectedWorldId || "world",
-    sentenceGameDifficulty || DIFFICULTY_LEVELS.BEGINNER,
+    sentenceRuntime?.getSentenceGameDifficulty() || DIFFICULTY_LEVELS.BEGINNER,
     kind,
     sentenceKey,
   ].join(":");
@@ -695,30 +657,75 @@ function initBoardGameMvp() {
   initializeBoardGameRuntime();
 }
 
-const vaultUiBridge = createVaultUiBridge({
-  getVaultManager: () => vaultManager,
-  filteredSentences,
-  getSpeakingSentenceId: () => speakingSentenceId,
-  getLessonFlow: () => lessonFlow,
-  buildOptions,
-  lessonMnTranslation,
-  levelName,
-  getLessonLevel: () => level,
-  getQaFlow: () => qaFlow,
-  getSentenceGameSentence: () => sentenceGameSentence(),
-  getSentenceGameDifficulty: () => sentenceGameDifficulty,
-});
+let sentenceRuntime = null;
+let vaultKeyForScreen;
+let updateVaultBadge;
+let renderVaultModal;
+let saveSentenceListItem;
+let saveCurrentSentencesItem;
+let saveCurrentLessonItem;
+let saveCurrentQaRound;
+let saveCurrentSentenceGameItem;
 
-const {
-  vaultKeyForScreen,
-  updateVaultBadge,
-  renderVaultModal,
-  saveSentenceListItem,
-  saveCurrentSentencesItem,
-  saveCurrentLessonItem,
-  saveCurrentQaRound,
-  saveCurrentSentenceGameItem,
-} = vaultUiBridge;
+function filteredSentences() {
+  return sentenceRuntime?.filteredSentences() || [];
+}
+
+function stopSpeaking() {
+  sentenceRuntime?.stopSpeaking();
+}
+
+function speakSentence(item) {
+  sentenceRuntime?.speakSentence(item);
+}
+
+function renderSentences() {
+  sentenceRuntime?.renderSentences();
+}
+
+function ensureSentenceItemsLoaded() {
+  return sentenceRuntime?.ensureSentenceItemsLoaded() || Promise.resolve([]);
+}
+
+function sentenceGameSentence() {
+  return sentenceRuntime?.currentSentence() || null;
+}
+
+function loadSentenceGameDifficulty() {
+  sentenceRuntime?.loadSentenceGameDifficulty();
+}
+
+function setSentenceGameDifficultyPanelOpen(isOpen) {
+  sentenceRuntime?.setSentenceGameDifficultyPanelOpen(isOpen);
+}
+
+function selectSentenceGameDifficulty(difficulty, options) {
+  sentenceRuntime?.selectSentenceGameDifficulty(difficulty, options);
+}
+
+function undoSentenceGameMove() {
+  sentenceRuntime?.undoSentenceGameMove();
+}
+
+function showSentenceGameCorrectAnswer() {
+  sentenceRuntime?.showSentenceGameCorrectAnswer();
+}
+
+function retrySentenceGameRound() {
+  sentenceRuntime?.retrySentenceGameRound();
+}
+
+function prevSentenceGameRound() {
+  sentenceRuntime?.prevSentenceGameRound();
+}
+
+function nextSentenceGameRound() {
+  sentenceRuntime?.nextSentenceGameRound();
+}
+
+function initSentenceGameRound() {
+  sentenceRuntime?.initSentenceGameRound();
+}
 
 const sentenceGameRewardManager = createSentenceGameRewardManager({
   storageKeys: {
@@ -1448,797 +1455,6 @@ function speakSentenceGameTip() {
   window.speechSynthesis.speak(utterance);
 }
 
-function stopSpeaking() {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  sentenceGameTipSpeaking = false;
-  updateSentenceGameTipControls();
-  speakingSentenceId = null;
-  updateSpeakingState();
-}
-
-function speakSentence(item) {
-  if (!appSettings.soundEnabled) return;
-  if (!("speechSynthesis" in window)) return;
-  updateCompanionLine("sentences", "success");
-  showWorldFeedbackChip("🗣️ Амилуулж уншлаа!", "reward");
-  worldSoundscape.play("reward");
-
-  stopSpeaking();
-
-  const utterance = new SpeechSynthesisUtterance(item.en);
-
-  const selectedVoice = selectedEnglishVoice();
-  utterance.lang = selectedVoice && selectedVoice.lang
-    ? selectedVoice.lang
-    : "en-US";
-  utterance.rate = appSettings.ttsSettings.rate;
-
-  if (selectedVoice) utterance.voice = selectedVoice;
-
-  speakingSentenceId = item.id;
-  updateSpeakingState();
-
-  utterance.onend = () => {
-    speakingSentenceId = null;
-    updateSpeakingState();
-  };
-
-  utterance.onerror = () => {
-    speakingSentenceId = null;
-    updateSpeakingState();
-  };
-
-  window.speechSynthesis.speak(utterance);
-}
-
-function filteredSentences() {
-  return sentenceItems.filter(item => item.level === sentenceFilter);
-}
-
-function updateSpeakingState() {
-  const allButtons = sentencesListEl.querySelectorAll(".speak-btn");
-  allButtons.forEach(btn => {
-    const isPlaying = Number(btn.dataset.id) === speakingSentenceId;
-    btn.classList.toggle("playing", isPlaying);
-    setPressedState(btn, isPlaying);
-    btn.setAttribute("aria-label", isPlaying ? "Уншиж байна" : "Дуу сонсох");
-  });
-
-  if (!vaultModalBodyEl) return;
-  const vaultButtons = vaultModalBodyEl.querySelectorAll(".vault-sentence-speak-btn");
-  vaultButtons.forEach((btn) => {
-    const isPlaying = String(btn.dataset.id || "") === String(speakingSentenceId || "");
-    btn.classList.toggle("playing", isPlaying);
-    setPressedState(btn, isPlaying);
-    btn.textContent = isPlaying ? "⏸ Зогсоох" : "▶ Дараад сонс";
-  });
-}
-
-function renderSentences() {
-  const list = filteredSentences();
-
-  if (!list.length) {
-    sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэр олдсонгүй.</p>';
-    return;
-  }
-
-  sentencesListEl.innerHTML = "";
-
-  list.forEach(item => {
-    const row = document.createElement("div");
-    row.className = "sentence-row";
-
-    const textWrap = document.createElement("div");
-    textWrap.className = "sentence-text";
-
-    const en = document.createElement("p");
-    en.className = "sentence-en";
-    en.textContent = item.en;
-
-    const mn = document.createElement("p");
-    mn.className = "sentence-mn muted";
-    mn.textContent = item.mn;
-
-    textWrap.appendChild(en);
-    textWrap.appendChild(mn);
-
-    const rowActions = document.createElement("div");
-    rowActions.className = "sentence-row-actions";
-
-    const saveBtn = document.createElement("button");
-    saveBtn.type = "button";
-    saveBtn.className = "secondary sentence-save-btn";
-    saveBtn.textContent = "⭐";
-    saveBtn.setAttribute("aria-label", "Өгүүлбэр хадгалах");
-    saveBtn.addEventListener("click", () => saveSentenceListItem(item));
-
-    const speakBtn = document.createElement("button");
-    speakBtn.type = "button";
-    speakBtn.className = "speak-btn";
-    speakBtn.dataset.id = item.id;
-    speakBtn.setAttribute("aria-label", "Дуу сонсох");
-    speakBtn.textContent = "🔊";
-    speakBtn.addEventListener("click", () => speakSentence(item));
-
-    rowActions.appendChild(saveBtn);
-    rowActions.appendChild(speakBtn);
-
-    row.appendChild(textWrap);
-    row.appendChild(rowActions);
-    sentencesListEl.appendChild(row);
-  });
-
-  updateSpeakingState();
-}
-
-async function loadSentences() {
-  try {
-    const response = await fetch(SENTENCE_GAME_DATA_PATH);
-    if (!response.ok) throw new Error("Өгөгдөл ачаалж чадсангүй.");
-    const allSentenceItems = prepareSentenceItems(await response.json());
-    const chapterContent = getActiveLearningSelection();
-    const sentenceBank = resolveSentenceContentBank({
-      bankId: chapterContent.sentenceBankId,
-      worldId: chapterContent.worldId,
-      difficulty: level,
-    });
-    const requestedSentenceBankId = sentenceBank?.id || chapterContent.sentenceBankId;
-    sentenceItems = filterSentenceItemsForBank(allSentenceItems, requestedSentenceBankId);
-    if (requestedSentenceBankId && !allSentenceItems.some((item) => item.bankId === requestedSentenceBankId)) {
-      showWorldFeedbackChip("⚠️ Энэ бүлгийн sentence bank одоохондоо хоосон байна.", "warning");
-    }
-    renderSentences();
-    sentenceGameHistory = [];
-    sentenceGameIndex = -1;
-    if (!isHidden(sentenceGameScreen)) initSentenceGameRound();
-    return sentenceItems;
-  } catch (error) {
-    sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
-    sentenceItemsLoadPromise = null;
-    throw error;
-  }
-}
-
-function ensureSentenceItemsLoaded() {
-  if (sentenceItems.length) return Promise.resolve(sentenceItems);
-  if (sentenceItemsLoadPromise) return sentenceItemsLoadPromise;
-
-  sentenceItemsLoadPromise = loadSentences().catch((error) => {
-    sentenceItemsLoadPromise = null;
-    throw error;
-  });
-
-  return sentenceItemsLoadPromise;
-}
-
-
-function sentenceGameSentence() {
-  if (!sentenceGameHistory.length || sentenceGameIndex < 0) return null;
-  return sentenceGameHistory[sentenceGameIndex] || null;
-}
-
-function sentenceGameComplexityScore(item = {}) {
-  const levelTag = String(item.level || item.cefr || "").toLowerCase();
-  const levelWeight = levelTag.includes("advanced") || levelTag.includes("c1") || levelTag.includes("c2")
-    ? 8
-    : (levelTag.includes("intermediate") || levelTag.includes("b1") || levelTag.includes("b2")
-      ? 4
-      : (levelTag.includes("beginner") || levelTag.includes("a1") || levelTag.includes("a2") ? 0 : 2));
-  const tokenCount = tokenizeSentence(item.en || "").length;
-  const longWordCount = String(item.en || "").split(/\s+/).filter((word) => word.replace(/[^A-Za-z]/g, "").length >= 8).length;
-  return tokenCount * 2 + longWordCount + levelWeight;
-}
-
-function sentenceGameBucketsByFallback() {
-  const sorted = [...sentenceItems].sort((a, b) => sentenceGameComplexityScore(a) - sentenceGameComplexityScore(b));
-  if (!sorted.length) return { beginner: [], intermediate: [], advanced: [] };
-  const beginnerEnd = Math.max(1, Math.ceil(sorted.length / 3));
-  const intermediateEnd = Math.max(beginnerEnd + 1, Math.ceil((sorted.length * 2) / 3));
-  return {
-    beginner: sorted.slice(0, beginnerEnd),
-    intermediate: sorted.slice(beginnerEnd, intermediateEnd),
-    advanced: sorted.slice(intermediateEnd),
-  };
-}
-
-function sentenceGameSentencesByDifficulty(difficulty = sentenceGameDifficulty) {
-  const normalizedDifficulty = DIFFICULTY_LEVEL_LIST.includes(difficulty) ? difficulty : DIFFICULTY_LEVELS.BEGINNER;
-  const tagged = sentenceItems.filter((item) => {
-    const rawLevel = String(item.level || item.cefr || "").toLowerCase();
-    if (normalizedDifficulty === DIFFICULTY_LEVELS.BEGINNER) return rawLevel.includes("beginner") || rawLevel.includes("a1") || rawLevel.includes("a2");
-    if (normalizedDifficulty === DIFFICULTY_LEVELS.INTERMEDIATE) return rawLevel.includes("intermediate") || rawLevel.includes("b1") || rawLevel.includes("b2");
-    return rawLevel.includes("advanced") || rawLevel.includes("c1") || rawLevel.includes("c2");
-  });
-
-  if (tagged.length) return tagged;
-
-  const fallback = sentenceGameBucketsByFallback();
-  const selectedFallback = fallback[normalizedDifficulty] || [];
-  if (selectedFallback.length) return selectedFallback;
-
-  return sentenceItems;
-}
-
-function sentenceGameRandomSentence() {
-  const available = sentenceGameSentencesByDifficulty(sentenceGameDifficulty);
-  if (!available.length) return null;
-  const randomIndex = Math.floor(Math.random() * available.length);
-  return available[randomIndex] || null;
-}
-
-function sentenceGameDifficultyButtonLabel(difficulty = sentenceGameDifficulty) {
-  return SENTENCE_GAME_DIFFICULTY_LABELS[difficulty] || SENTENCE_GAME_DIFFICULTY_LABELS.beginner;
-}
-
-function updateSentenceGameDifficultyUI() {
-  if (sentenceGameDifficultyToggleBtn) {
-    const label = sentenceGameDifficultyButtonLabel(sentenceGameDifficulty);
-    sentenceGameDifficultyToggleBtn.textContent = `Тоглох түвшин: ${label}`;
-  }
-
-  sentenceGameDifficultyButtons.forEach((btn) => {
-    const isActive = btn.dataset.difficulty === sentenceGameDifficulty;
-    setActiveState(btn, isActive);
-    setPressedState(btn, isActive);
-  });
-}
-
-function setSentenceGameDifficultyPanelOpen(isOpen) {
-  if (!sentenceGameDifficultyPanelEl || !sentenceGameDifficultyToggleBtn) return;
-  setExpandedState(sentenceGameDifficultyToggleBtn, sentenceGameDifficultyPanelEl, isOpen);
-}
-
-function loadSentenceGameDifficulty() {
-  try {
-    const stored = localStorage.getItem(SENTENCE_GAME_DIFFICULTY_KEY);
-    if (DIFFICULTY_LEVEL_LIST.includes(stored || "")) {
-      sentenceGameDifficulty = stored;
-    } else {
-      sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
-      localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
-    }
-  } catch (_error) {
-    sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
-  }
-
-  updateSentenceGameDifficultyUI();
-}
-
-function selectSentenceGameDifficulty(difficulty, { collapsePanel = true } = {}) {
-  if (!DIFFICULTY_LEVEL_LIST.includes(difficulty)) return;
-  sentenceGameDifficulty = difficulty;
-  try {
-    localStorage.setItem(SENTENCE_GAME_DIFFICULTY_KEY, sentenceGameDifficulty);
-  } catch (_error) {
-    // ignore storage errors in private mode
-  }
-
-  updateSentenceGameDifficultyUI();
-  sentenceGameHistory = [];
-  sentenceGameIndex = -1;
-  initSentenceGameRound();
-
-  if (collapsePanel) {
-    setSentenceGameDifficultyPanelOpen(false);
-  }
-}
-
-function updateSentenceGameNavButtons() {
-
-  if (sentenceGamePrevBtn) {
-    sentenceGamePrevBtn.disabled = sentenceGameIndex <= 0;
-  }
-}
-
-function sentenceGameIsSolved() {
-  return evaluateSentenceGameAttempt().isAllCorrect;
-}
-
-function normalizeSentence(str = "") {
-  return String(str)
-    .replace(/[’`´]/g, "'")
-    .replace(/\s+/g, " ")
-    .replace(/\s+([.,!?:;])/g, "$1")
-    .replace(/([.,!?:;])(?!\s|$)/g, "$1 ")
-    .replace(/\s+/g, " ")
-    .trim()
-    .toLowerCase();
-}
-
-function getPlacedSentenceText() {
-  const placedTokens = sentenceGameBuilt
-    .map((tileId) => sentenceGameTiles.find((tile) => tile.id === tileId)?.value || "")
-    .filter(Boolean);
-
-  return normalizeSentence(placedTokens.join(" "));
-}
-
-function isSentenceFullyCorrect() {
-  const current = sentenceGameSentence();
-  if (!current) return false;
-
-  const expectedSentence = current.en || "";
-  const placedSentence = getPlacedSentenceText();
-  const normalizedPlaced = normalizeSentence(placedSentence);
-  const normalizedExpected = normalizeSentence(expectedSentence);
-
-  return normalizedPlaced === normalizedExpected;
-}
-
-function normalizeSentenceGameToken(token = "") {
-  return String(token).replace(/\s+/g, " ").trim();
-}
-
-function evaluateSentenceGameAttempt() {
-  const current = sentenceGameSentence();
-  const expectedTokens = current?.tokens || [];
-  const totalSlots = expectedTokens.length;
-
-  let correctCount = 0;
-  let wrongCount = 0;
-
-  for (let idx = 0; idx < totalSlots; idx += 1) {
-    const placedTileId = sentenceGameBuilt[idx];
-    const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
-    const expectedToken = normalizeSentenceGameToken(expectedTokens[idx]);
-    const placedToken = normalizeSentenceGameToken(placedTile?.value || "");
-
-    if (!placedToken) continue;
-    if (placedToken === expectedToken) {
-      correctCount += 1;
-    } else {
-      wrongCount += 1;
-    }
-  }
-
-  const isAllCorrect = totalSlots > 0 && correctCount === totalSlots;
-  return { isAllCorrect, totalSlots, correctCount, wrongCount };
-}
-
-function createSentenceGameTileButton(tile, inPool) {
-  const btn = document.createElement("button");
-  btn.type = "button";
-  btn.className = "sentence-game-tile";
-  btn.textContent = tile.value;
-  btn.dataset.tileId = String(tile.id);
-  btn.draggable = true;
-
-  btn.addEventListener("dragstart", (event) => {
-    draggingTileId = tile.id;
-    event.dataTransfer.setData("text/plain", String(tile.id));
-  });
-
-  btn.addEventListener("click", () => {
-    if (inPool) {
-      placeSentenceGameTile(tile.id);
-    } else {
-      removeSentenceGameTile(tile.id);
-    }
-  });
-
-  btn.addEventListener("pointerdown", () => {
-    draggingTileId = tile.id;
-  });
-
-  return btn;
-}
-
-function sentenceGamePlacementStatus(slotIndex) {
-  const current = sentenceGameSentence();
-  if (!current) return "";
-  const placedTileId = sentenceGameBuilt[slotIndex];
-  const placedTile = sentenceGameTiles.find(item => item.id === placedTileId);
-  if (!placedTile) return "";
-  return current.tokens[slotIndex] === placedTile.value ? "word-correct" : "word-wrong";
-}
-
-function renderSentenceGameBoard() {
-  const current = sentenceGameSentence();
-  if (!current) {
-    sentenceGameDropzoneEl.innerHTML = '<p class="muted">Өгүүлбэр алга.</p>';
-    sentenceGamePoolEl.innerHTML = "";
-    return;
-  }
-
-  sentenceGameDropzoneEl.innerHTML = "";
-  for (let idx = 0; idx < current.tokens.length; idx += 1) {
-    const slot = document.createElement("div");
-    slot.className = "sentence-game-slot";
-
-    const tileId = sentenceGameBuilt[idx];
-    if (tileId !== undefined) {
-      const tile = sentenceGameTiles.find(item => item.id === tileId);
-      if (tile) {
-        const placedTileButton = createSentenceGameTileButton(tile, false);
-        placedTileButton.classList.remove("word-correct", "word-wrong");
-        const placementStatus = sentenceGamePlacementStatus(idx);
-        if (placementStatus) placedTileButton.classList.add(placementStatus);
-        slot.appendChild(placedTileButton);
-      }
-    } else {
-      const placeholder = document.createElement("span");
-      placeholder.className = "sentence-game-slot-placeholder";
-      placeholder.textContent = "...";
-      slot.appendChild(placeholder);
-    }
-
-    slot.addEventListener("dragover", (event) => event.preventDefault());
-    slot.addEventListener("drop", (event) => {
-      event.preventDefault();
-      const droppedId = Number(event.dataTransfer.getData("text/plain") || draggingTileId);
-      placeSentenceGameTile(droppedId);
-      draggingTileId = null;
-    });
-    slot.addEventListener("pointerup", () => {
-      if (draggingTileId !== null) placeSentenceGameTile(Number(draggingTileId));
-      draggingTileId = null;
-    });
-    sentenceGameDropzoneEl.appendChild(slot);
-  }
-
-  sentenceGamePoolEl.innerHTML = "";
-  sentenceGamePoolEl.ondragover = (event) => event.preventDefault();
-  sentenceGamePoolEl.ondrop = (event) => {
-    event.preventDefault();
-    const droppedId = Number(event.dataTransfer.getData("text/plain") || draggingTileId);
-    removeSentenceGameTile(droppedId);
-  };
-  sentenceGamePoolEl.onpointerup = () => {
-    if (draggingTileId !== null) removeSentenceGameTile(Number(draggingTileId));
-    draggingTileId = null;
-  };
-
-  sentenceGameTiles.forEach(tile => {
-    if (sentenceGameBuilt.includes(tile.id)) return;
-    sentenceGamePoolEl.appendChild(createSentenceGameTileButton(tile, true));
-  });
-
-  sentenceGameUndoBtn.disabled = sentenceGameBuilt.length === 0;
-}
-
-function updateSentenceGameState() {
-  const evaluation = evaluateSentenceGameAttempt();
-  const allSlotsFilled = evaluation.totalSlots > 0 && sentenceGameBuilt.length === evaluation.totalSlots;
-  const sentenceCorrect = allSlotsFilled && isSentenceFullyCorrect();
-  sentenceGameCompleted = sentenceCorrect;
-  sentenceGameNextBtn.disabled = false;
-
-  if (SENTENCE_GAME_DEBUG) {
-    console.log("[SentenceGame] evaluation", {
-      isAllCorrect: evaluation.isAllCorrect,
-      totalSlots: evaluation.totalSlots,
-      correctCount: evaluation.correctCount,
-      wrongCount: evaluation.wrongCount,
-    });
-  }
-
-  if (sentenceCorrect) {
-    if (!sentenceGameSuccessAlreadyShownForThisSentence) {
-      showSentenceGameToast(SENTENCE_GAME_CORRECT_TOAST);
-      sentenceGameSuccessAlreadyShownForThisSentence = true;
-    }
-
-    if (!sentenceGameUsedShowCorrect) {
-      sentenceGameFeedbackEl.textContent = "Зөв!";
-      sentenceGameFeedbackEl.classList.add("ok");
-    }
-    if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
-      awardXP(10, "sentence_game_success", buildSentenceGameEventId("success"));
-      sentenceGameXpAwarded = true;
-      playCorrectSound();
-    }
-  } else if (!sentenceGameUsedShowCorrect) {
-    sentenceGameSuccessAlreadyShownForThisSentence = false;
-    sentenceGameFeedbackEl.textContent = "";
-    sentenceGameFeedbackEl.classList.remove("ok");
-  }
-
-  if (allSlotsFilled && !sentenceGameAttemptResolved) {
-    sentenceGameAttemptResolved = true;
-    sentenceGameLastOutcomeForThisSentence = sentenceCorrect ? "success" : "fail";
-    updateSentenceGameClimbFromOutcome(sentenceGameLastOutcomeForThisSentence);
-    if (!sentenceCorrect && !sentenceGameUsedShowCorrect) {
-      showSentenceGameToast(SENTENCE_GAME_INCORRECT_TOAST);
-    }
-  } else if (!allSlotsFilled && !sentenceGameAttemptResolved) {
-    sentenceGameLastOutcomeForThisSentence = null;
-  }
-}
-
-function clearSentenceGameToastTimers() {
-  if (sentenceGameToastTimer) {
-    clearTimeout(sentenceGameToastTimer);
-    sentenceGameToastTimer = null;
-  }
-  if (sentenceGameToastHideTimer) {
-    clearTimeout(sentenceGameToastHideTimer);
-    sentenceGameToastHideTimer = null;
-  }
-  if (sentenceGameToastSpeechTimer) {
-    clearTimeout(sentenceGameToastSpeechTimer);
-    sentenceGameToastSpeechTimer = null;
-  }
-  sentenceGameToastSpeechActive = false;
-}
-
-function speakSentenceGameToast(message, handlers = {}) {
-  if (!appSettings.soundEnabled) return;
-  if (!("speechSynthesis" in window)) return;
-
-  const textToSpeak = toastSpeechText(message);
-  if (!textToSpeak) return;
-
-  const toastType = handlers.toastType || toastTypeFromMessage(message);
-  const spoken = speakMongolianText({
-    text: textToSpeak,
-    voices: availableVoices,
-    rate: appSettings.ttsSettings.rate,
-    speechSynthesisRef: window.speechSynthesis,
-    utteranceFactory: (value) => new SpeechSynthesisUtterance(value),
-    configureUtterance: (utterance) => {
-      utterance.onstart = () => {
-        console.log(`[SentenceGameToast][${toastType}] speech start`);
-        if (typeof handlers.onstart === "function") handlers.onstart();
-      };
-      utterance.onend = () => {
-        console.log(`[SentenceGameToast][${toastType}] speech end`);
-        if (typeof handlers.onend === "function") handlers.onend();
-      };
-      utterance.onerror = () => {
-        console.log(`[SentenceGameToast][${toastType}] speech end (error)`);
-        if (typeof handlers.onend === "function") handlers.onend();
-      };
-    },
-  });
-  if (!spoken?.utterance) return;
-}
-
-function scheduleSentenceGameToastHide(targetTimestamp) {
-  sentenceGameToastHideDeadline = Math.max(sentenceGameToastHideDeadline, targetTimestamp);
-
-  if (sentenceGameToastTimer) {
-    clearTimeout(sentenceGameToastTimer);
-    sentenceGameToastTimer = null;
-  }
-
-  const wait = Math.max(0, sentenceGameToastHideDeadline - Date.now());
-  sentenceGameToastTimer = setTimeout(() => {
-    if (sentenceGameToastSpeechActive) {
-      scheduleSentenceGameToastHide(Date.now() + 180);
-      return;
-    }
-    hideSentenceGameToast();
-  }, wait);
-}
-
-function hideSentenceGameToast() {
-  clearSentenceGameToastTimers();
-  if (!sentenceGameToastEl) return;
-
-  sentenceGameToastEl.classList.remove("show");
-  sentenceGameToastEl.classList.add("hide");
-  sentenceGameToastEl.setAttribute("aria-hidden", "true");
-
-  sentenceGameToastHideTimer = setTimeout(() => {
-    if (!sentenceGameToastEl) return;
-    sentenceGameToastEl.classList.remove("hide");
-    sentenceGameToastEl.textContent = "";
-  }, 320);
-}
-
-function showSentenceGameToast(message) {
-  if (!sentenceGameToastEl || !message) return;
-
-  const isSuccessToast = message === SENTENCE_GAME_CORRECT_TOAST;
-  if (!isSuccessToast && Date.now() < sentenceGameSuccessToastLockUntil) {
-    return;
-  }
-
-  if (isSuccessToast) {
-    sentenceGameSuccessToastLockUntil = Date.now() + SENTENCE_GAME_SUCCESS_TOAST_LOCK_MS;
-  }
-
-  const hasActiveToast =
-    sentenceGameToastEl.classList.contains("show") ||
-    sentenceGameToastSpeechActive ||
-    Boolean(sentenceGameToastSpeechTimer);
-
-  if (hasActiveToast && "speechSynthesis" in window) {
-    window.speechSynthesis.cancel();
-  }
-
-  clearSentenceGameToastTimers();
-
-  sentenceGameToastEl.textContent = message;
-  sentenceGameToastEl.setAttribute("aria-hidden", "false");
-  sentenceGameToastEl.classList.remove("hide");
-  sentenceGameToastEl.classList.remove("show");
-  void sentenceGameToastEl.offsetWidth;
-  sentenceGameToastEl.classList.add("show");
-
-  sentenceGameToastShownAt = Date.now();
-  const maxHideTimestamp = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_MAX_DURATION;
-  sentenceGameToastHideDeadline = sentenceGameToastShownAt + SENTENCE_GAME_TOAST_DURATION;
-  sentenceGameToastSpeechActive = false;
-  const toastType = toastTypeFromMessage(message);
-
-  sentenceGameToastSpeechTimer = setTimeout(() => {
-    speakSentenceGameToast(message, {
-      toastType,
-      onstart: () => {
-        sentenceGameToastSpeechActive = true;
-      },
-      onend: () => {
-        sentenceGameToastSpeechActive = false;
-        const nextHideAt = Math.min(Date.now() + SENTENCE_GAME_TOAST_SPEECH_END_BUFFER, maxHideTimestamp);
-        scheduleSentenceGameToastHide(nextHideAt);
-      },
-    });
-  }, SENTENCE_GAME_TOAST_SPEECH_DELAY);
-
-  scheduleSentenceGameToastHide(Math.min(sentenceGameToastHideDeadline, maxHideTimestamp));
-}
-
-function hideSentenceGameCorrectPanel() {
-  sentenceGameCorrectVisible = false;
-  setHidden(sentenceGameCorrectPanelEl, true);
-}
-
-function renderSentenceGameCorrectPanel() {
-  const current = sentenceGameSentence();
-  if (!current || !sentenceGameCorrectPanelEl || !sentenceGameCorrectEnEl || !sentenceGameCorrectMnEl) return;
-  sentenceGameCorrectEnEl.textContent = current.en || "";
-  sentenceGameCorrectMnEl.textContent = current.mn || "";
-  showElement(sentenceGameCorrectPanelEl);
-}
-
-function showSentenceGameCorrectAnswer() {
-  markSentenceGameActivity();
-  const current = sentenceGameSentence();
-  if (!current) return;
-
-  sentenceGameUsedShowCorrect = true;
-  sentenceGameCorrectVisible = !sentenceGameCorrectVisible;
-
-  if (sentenceGameCorrectVisible) {
-    renderSentenceGameCorrectPanel();
-  } else {
-    hideSentenceGameCorrectPanel();
-  }
-
-  if (sentenceGameCorrectVisible) {
-    if (!sentenceGameHintXpAwarded) {
-      awardXP(3, "hint_used", buildSentenceGameEventId("hint"));
-      sentenceGameHintXpAwarded = true;
-    }
-    showSentenceGameToast(SENTENCE_GAME_SHOW_CORRECT_TOAST);
-  }
-
-  if (!sentenceGameCompleted) {
-    sentenceGameFeedbackEl.textContent = "";
-    sentenceGameFeedbackEl.classList.remove("ok");
-  }
-}
-
-function placeSentenceGameTile(tileId) {
-  if (!Number.isFinite(tileId) || sentenceGameBuilt.includes(tileId)) return;
-  markSentenceGameActivity();
-  if (sentenceGameBuilt.length >= sentenceGameTiles.length) return;
-  sentenceGameBuilt.push(tileId);
-
-  const current = sentenceGameSentence();
-  const insertedIndex = sentenceGameBuilt.length - 1;
-  const placedTile = sentenceGameTiles.find(tile => tile.id === tileId);
-  const isCorrectPlacement = Boolean(current && placedTile && current.tokens[insertedIndex] === placedTile.value);
-
-  renderSentenceGameBoard();
-  updateSentenceGameState();
-
-  if (isCorrectPlacement) {
-    playSuccessSound();
-  } else {
-    playErrorSound();
-  }
-}
-
-function removeSentenceGameTile(tileId) {
-  markSentenceGameActivity();
-  const idx = sentenceGameBuilt.indexOf(tileId);
-  if (idx === -1) return;
-  sentenceGameBuilt.splice(idx, 1);
-  sentenceGameSuccessAlreadyShownForThisSentence = false;
-  sentenceGameLastOutcomeForThisSentence = null;
-  renderSentenceGameBoard();
-  updateSentenceGameState();
-}
-
-function undoSentenceGameMove() {
-  if (!sentenceGameBuilt.length) return;
-  markSentenceGameActivity();
-  sentenceGameBuilt.pop();
-  sentenceGameSuccessAlreadyShownForThisSentence = false;
-  sentenceGameLastOutcomeForThisSentence = null;
-  renderSentenceGameBoard();
-  updateSentenceGameState();
-}
-
-function initSentenceGameRound() {
-  hideSentenceGameToast();
-  if (!sentenceGameHistory.length || sentenceGameIndex < 0) {
-    sentenceGameHistory = [];
-    const firstSentence = sentenceGameRandomSentence();
-    if (!firstSentence) return;
-    sentenceGameHistory.push(firstSentence);
-    sentenceGameIndex = 0;
-  }
-
-  const current = sentenceGameSentence();
-  if (!current) return;
-
-  current.tokens = tokenizeSentence(current.en);
-  sentenceGameTiles = shuffle(current.tokens.map((value, id) => ({ id, value })));
-  sentenceGameBuilt = [];
-  sentenceGameCompleted = false;
-  sentenceGameXpAwarded = false;
-  sentenceGameHintXpAwarded = false;
-  sentenceGameUsedShowCorrect = false;
-  sentenceGameSuccessAlreadyShownForThisSentence = false;
-  sentenceGameSuccessToastLockUntil = 0;
-  sentenceGameLastOutcomeForThisSentence = null;
-  sentenceGameAttemptResolved = false;
-  hideSentenceGameCorrectPanel();
-  sentenceGameFeedbackEl.textContent = "";
-  sentenceGameFeedbackEl.classList.remove("ok");
-  sentenceGameNextBtn.disabled = false;
-  updateSentenceGameNavButtons();
-  renderSentenceGameBoard();
-}
-
-function nextSentenceGameRound() {
-  markSentenceGameActivity();
-  const nextIndex = sentenceGameIndex + 1;
-
-  if (nextIndex < sentenceGameHistory.length) {
-    sentenceGameIndex = nextIndex;
-    initSentenceGameRound();
-    return;
-  }
-
-  const nextSentence = sentenceGameRandomSentence();
-  if (!nextSentence) return;
-  sentenceGameHistory.push(nextSentence);
-  sentenceGameIndex = nextIndex;
-  initSentenceGameRound();
-}
-
-function prevSentenceGameRound() {
-  if (sentenceGameIndex <= 0) return;
-  markSentenceGameActivity();
-  sentenceGameIndex -= 1;
-  initSentenceGameRound();
-}
-
-function retrySentenceGameRound() {
-  markSentenceGameActivity();
-  hideSentenceGameToast();
-  sentenceGameBuilt = [];
-  sentenceGameCompleted = false;
-  sentenceGameXpAwarded = false;
-  sentenceGameHintXpAwarded = false;
-  sentenceGameUsedShowCorrect = false;
-  sentenceGameSuccessAlreadyShownForThisSentence = false;
-  sentenceGameSuccessToastLockUntil = 0;
-  sentenceGameLastOutcomeForThisSentence = null;
-  sentenceGameAttemptResolved = false;
-  hideSentenceGameCorrectPanel();
-  sentenceGameFeedbackEl.textContent = "";
-  sentenceGameFeedbackEl.classList.remove("ok");
-  renderSentenceGameBoard();
-  updateSentenceGameState();
-  updateSentenceGameNavButtons();
-}
-
 let hasExplicitStartLevelSelection = false;
 
 
@@ -2353,6 +1569,80 @@ function getActiveLearningSelection() {
 
   return resolveChapterContent({ worldId, chapterId, difficultyId });
 }
+
+sentenceRuntime = createSentenceRuntime({
+  dom: {
+    sentencesListEl,
+    sentenceGameScreen,
+    vaultModalBodyEl,
+    sentenceGameDropzoneEl,
+    sentenceGamePoolEl,
+    sentenceGameUndoBtn,
+    sentenceGamePrevBtn,
+    sentenceGameNextBtn,
+    sentenceGameFeedbackEl,
+    sentenceGameToastEl,
+    sentenceGameCorrectPanelEl,
+    sentenceGameCorrectEnEl,
+    sentenceGameCorrectMnEl,
+    sentenceGameDifficultyToggleBtn,
+    sentenceGameDifficultyPanelEl,
+    sentenceGameDifficultyButtons,
+  },
+  deps: {
+    getCurrentLevel: () => level,
+    getSelectedEnglishVoice: selectedEnglishVoice,
+    getAvailableVoices: () => availableVoices,
+    getAppSettings: () => appSettings,
+    getActiveLearningSelection,
+    updateCompanionLine,
+    showWorldFeedbackChip,
+    playRewardSound: () => worldSoundscape.play("reward"),
+    speakMongolianText,
+    toastSpeechText,
+    toastTypeFromMessage,
+    awardXP,
+    buildSentenceGameEventId,
+    playCorrectSound,
+    playSuccessSound,
+    playErrorSound,
+    markSentenceGameActivity,
+    updateSentenceGameClimbFromOutcome,
+    getSaveSentenceListItem: () => saveSentenceListItem,
+    onSentenceItemsLoaded: updateHeaderStatus,
+    onSentenceGameStateReset: enforceFreeXpGate,
+    sentenceGameScreenVisible,
+    shuffle,
+    createEnglishUtterance: (value) => new SpeechSynthesisUtterance(value),
+    createMongolianUtterance: (value) => new SpeechSynthesisUtterance(value),
+    getSpeechSynthesis: () => ("speechSynthesis" in window ? window.speechSynthesis : null),
+  },
+});
+
+const vaultUiBridge = createVaultUiBridge({
+  getVaultManager: () => vaultManager,
+  filteredSentences,
+  getSpeakingSentenceId: () => sentenceRuntime?.getSpeakingSentenceId() ?? null,
+  getLessonFlow: () => lessonFlow,
+  buildOptions,
+  lessonMnTranslation,
+  levelName,
+  getLessonLevel: () => level,
+  getQaFlow: () => qaFlow,
+  getSentenceGameSentence: () => sentenceGameSentence(),
+  getSentenceGameDifficulty: () => sentenceRuntime?.getSentenceGameDifficulty() ?? DIFFICULTY_LEVELS.BEGINNER,
+});
+
+({
+  vaultKeyForScreen,
+  updateVaultBadge,
+  renderVaultModal,
+  saveSentenceListItem,
+  saveCurrentSentencesItem,
+  saveCurrentLessonItem,
+  saveCurrentQaRound,
+  saveCurrentSentenceGameItem,
+} = vaultUiBridge);
 
 function updateLessonTimerUI() {
   updateLessonTimerRewards();
@@ -2547,8 +1837,8 @@ const initializeSentenceFilterControls = createSentenceFilterControls({
     optionButtons: sentencesLevelOptionButtons,
   },
   state: {
-    getFilter: () => sentenceFilter,
-    setFilter: (value) => { sentenceFilter = value; },
+    getFilter: () => sentenceRuntime?.getSentenceFilter() ?? DIFFICULTY_LEVELS.BEGINNER,
+    setFilter: (value) => { sentenceRuntime?.setSentenceFilter(value); },
   },
   actions: {
     stopSpeaking,
@@ -2697,12 +1987,12 @@ const { initializeApp } = createAppBootstrap({
     lessonMnTranslation,
     sentencesListEl,
     appSettings: () => appSettings,
-    sentenceItems: () => sentenceItems,
-    speakingSentenceId: () => speakingSentenceId,
+    sentenceItems: () => sentenceRuntime?.getSentenceItems() ?? [],
+    speakingSentenceId: () => sentenceRuntime?.getSpeakingSentenceId() ?? null,
     speakSentence,
     sentenceGame: {
-      setHistory: (history) => { sentenceGameHistory = history; },
-      setIndex: (index) => { sentenceGameIndex = index; },
+      setHistory: (history) => { sentenceRuntime?.setSentenceGameHistory(history); },
+      setIndex: (index) => { sentenceRuntime?.setSentenceGameIndex(index); },
       initRound: initSentenceGameRound,
       enforceFreeXpGate,
       renderSentences,
