@@ -195,6 +195,7 @@ const board = {
   challengeTitleEl: byId("board-game-challenge-title"),
   challengeTextEl: byId("board-game-challenge-text"),
   screenTitleEl: byId("board-game-screen-title"),
+  difficultyEl: byId("board-game-difficulty-label"),
   feedbackEl: byId("board-game-feedback"),
   optionsEl: byId("board-game-options"),
   diceEl: byId("board-game-dice"),
