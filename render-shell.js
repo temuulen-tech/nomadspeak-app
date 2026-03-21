@@ -8,12 +8,14 @@ const SHELL_TARGETS = [
     id: "screen-shell-aux",
     html: `
       <!-- Extracted screen shells: stats, profile, and end screens. -->
-      <section class="card hidden" id="stats-screen">
+      <section class="card hidden stats-screen-shell" id="stats-screen">
         <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
-        <div class="panel-header">
-          <h2 class="screen-title-chip chip-title">Миний ахиц &amp; Амжилт</h2>
+        <div class="stats-screen-intro">
+          <div class="panel-header">
+            <h2 class="screen-title-chip chip-title">Миний ахиц &amp; Амжилт</h2>
+          </div>
+          <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
         </div>
-        <p class="muted">Өдрийн ахиц, 7 хоногийн идэвх болон шагналын явцаа эндээс харна.</p>
 
         <section class="progress-summary" aria-label="Ахицын товч мэдээлэл">
           <div class="progress-summary-primary">
@@ -38,7 +40,7 @@ const SHELL_TARGETS = [
         </section>
 
         <article class="stats-panel control-panel-gold-outline">
-          <div class="stats-panel-header"><h3 class="screen-title-chip chip-title stats-section-chip">Нийт хичээллэсэн цагууд</h3></div>
+          <div class="stats-panel-header"><h3 class="screen-title-chip chip-title stats-section-chip">Нийт хичээллэсэн цагууд</h3><p class="muted stats-section-copy">Тухайн хугацааны гол KPI-аа эхэлж харж, дараа нь норм болон чансааны түвшинг унш.</p></div>
           <div class="stats-gauge-layout">
             <div class="stats-gauge-main">
               <div class="stats-period-selector" id="stats-period-selector" role="group" aria-label="Хугацаа сонголт">
@@ -72,13 +74,16 @@ const SHELL_TARGETS = [
         </article>
 
         <article class="stats-panel control-panel-gold-outline">
-          <div class="stats-panel-header"><h3 class="screen-title-chip chip-title stats-section-chip">Сүүлийн 7 хоног</h3></div>
+          <div class="stats-panel-header"><h3 class="screen-title-chip chip-title stats-section-chip">Сүүлийн 7 хоног</h3><p class="muted stats-section-copy">Өдөр бүрийн цагийг тайван жагсаалтаар харуулна.</p></div>
           <ul class="stats-time-list" id="stats-last-7-days"></ul>
         </article>
 
         <article class="stats-panel control-panel-gold-outline">
           <div class="stats-panel-header stats-reward-header">
-            <h3 class="screen-title-chip chip-title stats-section-chip">Авсан шагналууд</h3>
+            <div>
+              <h3 class="screen-title-chip chip-title stats-section-chip">Авсан шагналууд</h3>
+              <p class="muted stats-section-copy">Идэвхийн төрлөөр нь шүүж, авсан шагналуудаа доороос хар.</p>
+            </div>
             <div class="stats-reward-header-controls">
               <div class="stats-reward-tabs" id="stats-reward-tabs" role="tablist" aria-label="Шагналын төрлүүд">
                 <button class="stats-reward-tab active" type="button" role="tab" aria-selected="true" data-reward-tab="days">Өдрүүд</button>
