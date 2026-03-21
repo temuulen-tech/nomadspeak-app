@@ -37,14 +37,14 @@
 
 
 
-/* Direct lesson answer option override: force full-width horizontal stacked buttons */
+/* Direct lesson answer option override: keep lesson answers full-width and horizontal */
 #quiz-screen .question-text-wrap,
 #quiz-screen .question-text-wrap > .options,
 #quiz-screen .question-text-wrap > .lesson-answers-grid,
 #quiz-screen #options.lesson-answers-grid{
   width:100%;
   min-width:0;
-  max-width:none;
+  max-width:100%;
 }
 
 #quiz-screen .question-text-wrap{
@@ -55,14 +55,14 @@
 
 #quiz-screen #options.lesson-answers-grid,
 #quiz-screen .question-text-wrap > .lesson-answers-grid{
-  display:flex !important;
-  flex-direction:column !important;
-  flex-wrap:nowrap !important;
-  grid-template-columns:none !important;
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) !important;
   grid-auto-flow:row !important;
   align-items:stretch !important;
   justify-items:stretch !important;
-  justify-content:flex-start !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
   gap:14px;
   margin:0;
   padding:0;
@@ -71,16 +71,15 @@
 #quiz-screen #options.lesson-answers-grid > .option,
 #quiz-screen .lesson-answers-grid > .option{
   display:flex !important;
-  flex:0 0 auto !important;
   flex-direction:row !important;
   align-items:center;
-  justify-content:center;
+  justify-content:flex-start;
   width:100% !important;
   inline-size:100% !important;
   min-width:0 !important;
   min-inline-size:0 !important;
-  max-width:none !important;
-  max-inline-size:none !important;
+  max-width:100% !important;
+  max-inline-size:100% !important;
   min-height:56px;
   padding:14px 18px;
   box-sizing:border-box;
@@ -90,7 +89,7 @@
   white-space:normal !important;
   word-break:normal !important;
   overflow-wrap:anywhere;
-  text-align:center;
+  text-align:left;
   line-height:1.4;
 }
 
@@ -100,6 +99,8 @@
   writing-mode:horizontal-tb !important;
   text-orientation:mixed !important;
   white-space:normal !important;
+  max-width:100% !important;
+  min-width:0 !important;
 }
 .lesson-finish-summary{
   display:flex;
@@ -230,6 +231,24 @@
   #quiz-screen .lesson-audio-controls #lesson-save-btn,
   #quiz-screen .lesson-audio-controls .sound-toggle-btn{
     width:100%;
+  }
+
+  #quiz-screen #options.lesson-answers-grid,
+  #quiz-screen .question-text-wrap > .lesson-answers-grid{
+    grid-template-columns:minmax(0, 1fr) !important;
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+
+  #quiz-screen #options.lesson-answers-grid > .option,
+  #quiz-screen .lesson-answers-grid > .option{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    writing-mode:horizontal-tb !important;
+    text-orientation:mixed !important;
+    white-space:normal !important;
   }
 
   #quiz-screen .panel-header{
