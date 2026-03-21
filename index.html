@@ -71,25 +71,10 @@
           </div>
           <button class="profile-icon-btn home-profile-btn" id="nav-profile-btn" type="button" aria-label="Профайл" title="Профайл">👤</button>
         </div>
-      </div>
-    </header>
-
-    <div class="completion-banner hidden home-only" id="completion-banner" role="status" aria-live="polite">
-      <span class="banner-text">Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.</span>
-      <div class="banner-overlay" aria-hidden="true">
-        <div class="banner-effects"></div>
-      </div>
-    </div>
-
-    <!-- START SCREEN -->
-    <section class="card home-only home-hub-card" id="start-screen">
-      <div class="home-hub-shell">
         <div class="home-hub-actions" aria-label="Үндсэн навигаци">
           <div class="home-modes-menu-wrap home-primary-action home-hub-primary">
             <button class="secondary nav-btn nav-btn--primary home-hub-btn home-entry-card home-entry-card--primary" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">
-              <span class="home-entry-eyebrow">Үндсэн зам</span>
-              <span class="home-entry-title">Үргэлжлүүлэх</span>
-              <span class="home-entry-meta">Тоглоом &amp; хичээлээ нэг товшилтоор нээнэ.</span>
+              <span class="home-entry-title">Тоглоом &amp; Хичээлүүд</span>
             </button>
             <div class="home-modes-panel hidden" id="home-modes-panel" role="menu" aria-label="Тоглоом ба хичээлүүд">
               <div class="home-modes-panel-head">
@@ -123,18 +108,25 @@
               </div>
             </div>
           </div>
-          <button class="secondary nav-btn home-hub-btn home-entry-card" id="nav-stats-btn" type="button" aria-label="Өнөөдрийн ахиц" title="Өнөөдрийн ахиц">
-            <span class="home-entry-eyebrow">Хянах</span>
-            <span class="home-entry-title">Өнөөдрийн ахиц</span>
-            <span class="home-entry-meta">XP, streak, явцаа нэг дороос харна.</span>
+          <button class="secondary nav-btn home-hub-btn home-entry-card" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">
+            <span class="home-entry-title">Апплекшиний танилцуулга</span>
           </button>
-          <button class="premium-intro-btn premium-intro-btn--compact home-hub-btn home-entry-card" id="intro-toggle-btn" type="button" aria-expanded="false" aria-controls="intro-panel">
-            <span class="home-entry-eyebrow">Тусламж</span>
-            <span class="home-entry-title">Танилцуулга</span>
-            <span class="home-entry-meta">Ашиглах товч зааврыг нээнэ.</span>
+          <button class="secondary nav-btn home-hub-btn home-entry-card" id="nav-stats-btn" type="button" aria-label="Миний ахиц ба амжилт" title="Миний ахиц ба амжилт">
+            <span class="home-entry-title">Миний ахиц &amp; Амжилт</span>
           </button>
         </div>
       </div>
+    </header>
+
+    <div class="completion-banner hidden home-only" id="completion-banner" role="status" aria-live="polite">
+      <span class="banner-text">Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.</span>
+      <div class="banner-overlay" aria-hidden="true">
+        <div class="banner-effects"></div>
+      </div>
+    </div>
+
+    <!-- START SCREEN -->
+    <section class="card home-only home-hub-card" id="start-screen">
 
       <div class="start-intro-panel hidden" id="intro-panel">
         <div class="start-intro-panel-head">
@@ -143,8 +135,8 @@
         </div>
         <div class="start-intro-compact">
           <ul class="start-intro-list muted">
-            <li><strong>Үргэлжлүүлэх</strong> — Тоглоом &amp; Хичээлүүд рүү орно.</li>
-            <li><strong>Өнөөдрийн ахиц</strong> — Өдрийн явцаа шалгана.</li>
+            <li><strong>Тоглоом &amp; Хичээлүүд</strong> — Хичээл, тоглоомын төрлүүдээ сонгоно.</li>
+            <li><strong>Миний ахиц &amp; Амжилт</strong> — Өөрийн XP, streak, амжилтаа шалгана.</li>
           </ul>
         </div>
       </div>
