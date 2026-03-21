@@ -653,10 +653,6 @@ body{
   grid-template-columns:repeat(auto-fit, minmax(min(100%, 220px), 1fr));
 }
 
-.board-game-topbar{
-  grid-template-columns:minmax(0, auto) minmax(0, 1fr) minmax(0, auto);
-}
-
 .board-game-challenge-panel{
   overflow:auto hidden;
 }
@@ -712,25 +708,6 @@ body{
     width:100%;
     justify-content:center;
   }
-
-  .board-game-topbar{
-    grid-template-columns:minmax(0, 1fr);
-  }
-
-  .board-game-topbar-side,
-  .board-game-topbar-side-end{
-    justify-content:stretch;
-  }
-
-  .board-topbar-exit,
-  .board-topbar-sound{
-    width:100%;
-  }
-
-  .board-game-board{
-    padding-left:18px;
-    padding-right:18px;
-  }
 }
 
 @media (max-width:920px){
@@ -745,15 +722,8 @@ body{
   .learning-header-row{
     align-items:stretch;
   }
-
-  .board-game-bottom-dock{
-    grid-template-columns:minmax(0, 1fr);
-  }
-
-  .board-game-controls-panel{
-    min-height:auto;
-  }
 }
+
 @media (min-width:900px){
   .app{
     max-width:390px;
