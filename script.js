@@ -487,7 +487,8 @@ const SOUND_EVENT_HOOKS = {
 };
 
 let progressState = getCoreState().progress;
-
+let statsSelectedPeriod = STATS_PERIODS.DAY;
+let statsRewardTab = REWARD_TABS.DAYS;
 
 let sentenceItemsLoadPromise = null;
 let boardGameBootstrapped = false;
