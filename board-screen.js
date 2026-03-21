@@ -4,7 +4,7 @@
  */
 
 import { renderBoardRollState } from "./render-board.js";
-import { SCREEN_NAMES } from "./constants.js";
+import { FLOW_DESTINATIONS, SCREEN_NAMES } from "./constants.js";
 import { getBoardEntryState } from "./state.js";
 import { getWorldConfig } from "./worlds.js";
 import { bindClickOnce, bindManagedEvent } from "./ui.js";
@@ -14,6 +14,7 @@ export function initBoardScreen(handlers = {}) {
   const boardScreenEl = document.getElementById("board-game-screen");
   const resolveRollBtn = () => document.getElementById("board-game-roll-btn") || document.getElementById("board-game-dice");
   const resolveDiceEl = () => document.getElementById("board-game-dice");
+  const resolveBackBtn = () => document.getElementById("board-game-back-btn");
 
   const syncBoardBackground = () => {
     if (!boardScreenEl) return;
@@ -26,8 +27,10 @@ export function initBoardScreen(handlers = {}) {
   const wireControls = () => {
     const rollBtn = resolveRollBtn();
     const diceEl = resolveDiceEl();
+    const backBtn = resolveBackBtn();
     bindClickOnce(rollBtn, "board:roll-button", () => handlers.onRollDice?.());
     bindClickOnce(diceEl, "board:roll-dice", () => handlers.onRollDice?.());
+    bindClickOnce(backBtn, "board:back", () => handlers.onBack?.(FLOW_DESTINATIONS.BOARD_COVER));
     return { rollBtn, diceEl };
   };
 
