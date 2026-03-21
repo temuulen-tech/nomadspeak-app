@@ -209,7 +209,17 @@ body[data-active-screen="board-game"] .app{
 .board-game-topbar-main,
 .board-game-topbar-side,
 .board-game-topbar-side-end{
-  display:contents;
+  display:grid;
+  gap:10px;
+  min-width:0;
+}
+
+.board-game-topbar-main > *,
+.board-game-topbar-side > *,
+.board-game-topbar-side-end > *{
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
 }
 
 .board-game-topbar-title-block{
