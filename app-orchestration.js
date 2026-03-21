@@ -74,9 +74,10 @@ export function createChapterCoverHandlers({ getSelectionState, syncBoardEntryFl
 }
 
 
-export function createBoardHandlers({ boardGameRollDice, updateBoardGameTokenPosition, initBoardGameMvp, isBoardGameBootstrapped }) {
+export function createBoardHandlers({ boardGameRollDice, updateBoardGameTokenPosition, initBoardGameMvp, isBoardGameBootstrapped, navigateTo }) {
   return {
     onRollDice: () => boardGameRollDice(),
+    onBack: (destination) => navigateTo(destination),
     onResizeWhileVisible: () => updateBoardGameTokenPosition(),
     onActivate: () => {
       if (!isBoardGameBootstrapped()) initBoardGameMvp();

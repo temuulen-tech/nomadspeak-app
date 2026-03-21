@@ -1913,6 +1913,7 @@ const { initializeApp } = createAppBootstrap({
     updateBoardGameTokenPosition,
     initBoardGameMvp,
     isBoardGameBootstrapped: () => boardGameBootstrapped,
+    navigateTo,
   }),
   lessonHandlers: createLessonHandlers({
     lessonFlow,
