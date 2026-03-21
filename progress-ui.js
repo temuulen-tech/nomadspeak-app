@@ -126,6 +126,162 @@ export function buildLast7DaysTimeRows({ getAppTimeDailyTotals, getLocalDateKey,
   }).reverse().join("");
 }
 
+
+export function createCompletionBannerController({
+  completionBannerEl = null,
+  completionBannerTextEl = null,
+  appSettings = () => ({}),
+  speakText = () => {},
+  playTone = () => {},
+  defaultText = "",
+  dailyGoalText = "",
+}) {
+  let completionBannerTimer = null;
+
+  const resolvedDefaultText = String(defaultText || completionBannerTextEl?.textContent || "").trim();
+  const resolvedDailyGoalText = String(dailyGoalText || resolvedDefaultText).trim();
+
+  function clearEffects() {
+    if (!completionBannerEl) return;
+    const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+    if (effectsLayer) effectsLayer.innerHTML = "";
+  }
+
+  function createParticle(layer, className, color, x, y, vars = {}) {
+    const particle = document.createElement("span");
+    particle.className = className;
+    particle.style.setProperty("--particle-color", color);
+    particle.style.setProperty("--x", `${x}px`);
+    particle.style.setProperty("--y", `${y}px`);
+    Object.entries(vars).forEach(([key, value]) => {
+      particle.style.setProperty(key, value);
+    });
+    layer.appendChild(particle);
+    particle.addEventListener("animationend", () => particle.remove(), { once: true });
+  }
+
+  function spawnBannerStars() {
+    if (!completionBannerEl) return;
+    const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+    if (!effectsLayer) return;
+
+    const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffd54d", "#ffffff"];
+    const width = completionBannerEl.clientWidth;
+    const height = completionBannerEl.clientHeight;
+
+    const edgePoint = () => {
+      const side = Math.floor(Math.random() * 4);
+      const inset = 10;
+      if (side === 0) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: 0, nx: 0, ny: -1 };
+      if (side === 1) return { x: width, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: 1, ny: 0 };
+      if (side === 2) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: height, nx: 0, ny: 1 };
+      return { x: 0, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: -1, ny: 0 };
+    };
+
+    for (let i = 0; i < 30; i += 1) {
+      const origin = edgePoint();
+      const spread = (Math.random() - 0.5) * 0.8;
+      const tangentX = -origin.ny;
+      const tangentY = origin.nx;
+      const burst = 16 + Math.random() * 20;
+      const drift = (Math.random() - 0.5) * 8;
+      const duration = 780 + Math.random() * 620;
+
+      createParticle(effectsLayer, "banner-star", colors[i % colors.length], origin.x, origin.y, {
+        "--dx": `${origin.nx * burst + tangentX * spread * 14 + drift}px`,
+        "--dy": `${origin.ny * burst + tangentY * spread * 14 + drift}px`,
+        "--size": `${3 + Math.random() * 3}px`,
+        "--duration": `${duration}ms`,
+      });
+    }
+  }
+
+  function spawnDailyGoalEffects() {
+    if (!completionBannerEl) return;
+    const effectsLayer = completionBannerEl.querySelector(".banner-effects");
+    if (!effectsLayer) return;
+
+    const confettiColors = ["#f8e083", "#f7c944", "#ffeb99", "#f5d878"];
+    const width = completionBannerEl.clientWidth;
+
+    for (let i = 0; i < 36; i += 1) {
+      createParticle(effectsLayer, "banner-confetti", confettiColors[i % confettiColors.length], 12 + Math.random() * (width - 24), -10, {
+        "--drift": `${(Math.random() * 2 - 1) * 40}px`,
+        "--fall": `${34 + Math.random() * 46}px`,
+        "--delay": `${Math.random() * 200}ms`,
+      });
+    }
+
+    const shine = document.createElement("span");
+    shine.className = "banner-shine";
+    effectsLayer.appendChild(shine);
+    shine.addEventListener("animationend", () => shine.remove(), { once: true });
+  }
+
+  function playCompletionBannerSound() {
+    if (!appSettings().soundEnabled) return;
+    [523.25, 659.25, 783.99].forEach((frequency, index) => {
+      setTimeout(() => {
+        playTone({
+          frequency,
+          type: "sine",
+          duration: 0.11,
+          volume: 0.08,
+          attack: 0.01,
+          release: 0.1,
+        });
+      }, index * 120);
+    });
+  }
+
+  function playDailyVictoryChime() {
+    if (!appSettings().soundEnabled) return;
+    [587.33, 783.99, 987.77, 1174.66].forEach((frequency, index) => {
+      setTimeout(() => {
+        playTone({
+          frequency,
+          type: "triangle",
+          duration: 0.1,
+          volume: 0.05,
+          attack: 0.005,
+          release: 0.11,
+        });
+      }, index * 130);
+    });
+  }
+
+  return {
+    show(showDailyGoalUpgrade = false) {
+      if (!completionBannerEl) return;
+
+      const bannerText = showDailyGoalUpgrade ? resolvedDailyGoalText : resolvedDefaultText;
+      if (completionBannerTextEl) completionBannerTextEl.textContent = bannerText;
+      completionBannerEl.classList.toggle("premium", showDailyGoalUpgrade);
+      completionBannerEl.classList.remove("hidden", "showing");
+      void completionBannerEl.offsetWidth;
+      completionBannerEl.classList.add("showing");
+      clearEffects();
+      spawnBannerStars();
+      if (showDailyGoalUpgrade) spawnDailyGoalEffects();
+      speakText(bannerText);
+
+      if (showDailyGoalUpgrade) playDailyVictoryChime();
+      else playCompletionBannerSound();
+
+      if (completionBannerTimer) clearTimeout(completionBannerTimer);
+      completionBannerTimer = setTimeout(() => {
+        completionBannerEl.classList.remove("showing");
+        clearEffects();
+        setTimeout(() => {
+          completionBannerEl.classList.add("hidden");
+          completionBannerEl.classList.remove("premium");
+          if (completionBannerTextEl) completionBannerTextEl.textContent = resolvedDefaultText;
+        }, 450);
+      }, 10000);
+    },
+  };
+}
+
 export function createProgressUi(deps) {
   const {
     getProgressState,
