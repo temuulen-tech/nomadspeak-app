@@ -36,6 +36,9 @@ import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
 import { LESSON_TRANSLATIONS, buildOptions, levelName, resolveLessonContent } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
+import { createQaControls } from "./qa-wiring.js";
+import { createAudioControls } from "./audio-wiring.js";
+import { createSentenceFilterControls, createSentenceGameControls } from "./sentence-game-wiring.js";
 import { createVaultManager } from "./vault-manager.js";
 import { createAppTimerManager } from "./app-timer.js";
 import { createScreenNavigator } from "./screen-navigation.js";
@@ -3784,6 +3787,124 @@ function handleStartLevelSelection(button) {
   startQuiz();
 }
 
+const initializeSentenceGameControls = createSentenceGameControls({
+  dom: {
+    tipTextEl: sentenceGameTipTextEl,
+    tipToggleBtn: sentenceGameTipToggleBtn,
+    tipSpeakBtn: sentenceGameTipSpeakBtn,
+    tipStopBtn: sentenceGameTipStopBtn,
+    tipReadBtn: sentenceGameTipReadBtn,
+    tipCloseBtn: sentenceGameTipCloseBtn,
+    difficultyToggleBtn: sentenceGameDifficultyToggleBtn,
+    difficultyPanelEl: sentenceGameDifficultyPanelEl,
+    difficultyButtons: sentenceGameDifficultyButtons,
+    undoBtn: sentenceGameUndoBtn,
+    showCorrectBtn: sentenceGameShowCorrectBtn,
+    retryBtn: sentenceGameRetryBtn,
+    prevBtn: sentenceGamePrevBtn,
+    nextBtn: sentenceGameNextBtn,
+  },
+  helpers: {
+    tipText: SENTENCE_GAME_TIP_TEXT,
+    toggleTipPanel: toggleSentenceGameTipPanel,
+    speakTip: speakSentenceGameTip,
+    stopTipSpeech: stopSentenceGameTipSpeech,
+    showTipText: showSentenceGameTipText,
+    closeTipPanel: closeSentenceGameTipPanel,
+    setDifficultyPanelOpen: setSentenceGameDifficultyPanelOpen,
+    selectDifficulty: selectSentenceGameDifficulty,
+    updateTipControls: updateSentenceGameTipControls,
+    undoMove: undoSentenceGameMove,
+    showCorrectAnswer: showSentenceGameCorrectAnswer,
+    retryRound: retrySentenceGameRound,
+    prevRound: prevSentenceGameRound,
+    nextRound: nextSentenceGameRound,
+  },
+});
+
+const initializeQaControls = createQaControls({
+  dom: {
+    levelSelectBtn: qaLevelSelectBtn,
+    levelOptionsEl: qaLevelOptionsEl,
+    levelButtons: qaLevelButtons,
+    checkBtn: qaCheckBtn,
+    toggleQuestionBtn: qaToggleQuestionBtn,
+    toggleAnswerBtn: qaToggleAnswerBtn,
+    enQuestionWrap: qaEnQuestionWrap,
+    enAnswerWrap: qaEnAnswerWrap,
+    showSentencesBtn: qaShowSentencesBtn,
+    showHelpBtn: qaShowHelpBtn,
+    modalEl: qaModalEl,
+    modalCloseBtn: qaModalCloseBtn,
+  },
+  actions: {
+    resetScreen: resetQaGameScreen,
+    selectLevel: selectQaLevel,
+    checkAnswer: checkQaAnswer,
+    openSentencesModal: () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()),
+    openHelpModal: () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`),
+    closeModal: closeQaModal,
+  },
+});
+
+const initializeSentenceFilterControls = createSentenceFilterControls({
+  dom: {
+    pickerEl: sentencesLevelPickerEl,
+    pickerBtn: sentencesLevelPickerBtn,
+    optionsEl: sentencesLevelOptionsEl,
+    optionButtons: sentencesLevelOptionButtons,
+  },
+  state: {
+    getFilter: () => sentenceFilter,
+    setFilter: (value) => { sentenceFilter = value; },
+  },
+  actions: {
+    stopSpeaking,
+    renderSentences,
+    updateHeaderStatus,
+  },
+  bindManagedEvent,
+});
+
+const initializeAudioControls = createAudioControls({
+  dom: {
+    voiceOptionButtons,
+    ttsRateSlider,
+    soundToggleButtons,
+  },
+  appState: {
+    getSettings: () => appSettings,
+  },
+  actions: {
+    updateVoice: (voice) => {
+      appSettings.ttsSettings.voice = voice;
+    },
+    updateRate: (value) => {
+      appSettings.ttsSettings.rate = Math.round(value * 20) / 20;
+    },
+    persistTtsSettings,
+    updateTtsControlState,
+    toggleSound: () => {
+      const nextSoundEnabled = !appSettings.soundEnabled;
+      updateSettings({ soundEnabled: nextSoundEnabled });
+      syncCoreStateReferences();
+      setGlobalSoundEnabled(appSettings.soundEnabled);
+      if (!appSettings.soundEnabled) {
+        stopSpeaking();
+        gameFeelSoundManager.stopAmbient();
+        worldSoundscape.stop();
+      } else if (boardGameScreen && !isHidden(boardGameScreen)) {
+        gameFeelSoundManager.startAmbient();
+      } else {
+        const activeScreen = document.body?.dataset.activeScreen || "home";
+        worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
+      }
+      updateSoundToggleState();
+    },
+  },
+  bindManagedEvent,
+});
+
 const { initializeApp } = createAppBootstrap({
   createProgressUi,
   createAppTimerManager,
@@ -4024,32 +4145,7 @@ const { initializeApp } = createAppBootstrap({
   updateSentencesTimerUI,
   renderLessonRewards,
   updateLessonTimerUI,
-  sentenceGameControls: () => {
-    if (sentenceGameTipTextEl) {
-      sentenceGameTipTextEl.textContent = SENTENCE_GAME_TIP_TEXT;
-    }
-    bindClickOnce(sentenceGameTipToggleBtn, "sentence-game:tip-toggle", toggleSentenceGameTipPanel);
-    bindClickOnce(sentenceGameTipSpeakBtn, "sentence-game:tip-speak", speakSentenceGameTip);
-    bindClickOnce(sentenceGameTipStopBtn, "sentence-game:tip-stop", stopSentenceGameTipSpeech);
-    bindClickOnce(sentenceGameTipReadBtn, "sentence-game:tip-read", showSentenceGameTipText);
-    bindClickOnce(sentenceGameTipCloseBtn, "sentence-game:tip-close", closeSentenceGameTipPanel);
-    bindClickOnce(sentenceGameDifficultyToggleBtn, "sentence-game:difficulty-toggle", () => {
-      const nextOpen = sentenceGameDifficultyPanelEl ? isHidden(sentenceGameDifficultyPanelEl) : false;
-      setSentenceGameDifficultyPanelOpen(nextOpen);
-    });
-    sentenceGameDifficultyButtons.forEach((btn) => {
-      bindClickOnce(btn, `sentence-game:difficulty:${btn.dataset.difficulty || btn.textContent}`, () => {
-        selectSentenceGameDifficulty(btn.dataset.difficulty || DIFFICULTY_LEVELS.BEGINNER, { collapsePanel: true });
-      });
-    });
-    bindClickOnce(sentenceGameUndoBtn, "sentence-game:undo", undoSentenceGameMove);
-    bindClickOnce(sentenceGameShowCorrectBtn, "sentence-game:show-correct", showSentenceGameCorrectAnswer);
-    bindClickOnce(sentenceGameRetryBtn, "sentence-game:retry", retrySentenceGameRound);
-    bindClickOnce(sentenceGamePrevBtn, "sentence-game:prev", prevSentenceGameRound);
-    bindClickOnce(sentenceGameNextBtn, "sentence-game:next", nextSentenceGameRound);
-    setSentenceGameDifficultyPanelOpen(false);
-    updateSentenceGameTipControls();
-  },
+  sentenceGameControls: initializeSentenceGameControls,
   bindClickOnce,
   bindModalDismissal,
   updateVaultBadge,
@@ -4060,90 +4156,9 @@ const { initializeApp } = createAppBootstrap({
   saveCurrentQaRound,
   saveCurrentSentenceGameItem,
   screenNames: SCREEN_NAMES,
-  qaControls: () => {
-    resetQaGameScreen();
-    bindClickOnce(qaLevelSelectBtn, "qa:level-toggle", () => {
-      setHidden(qaLevelOptionsEl, !isHidden(qaLevelOptionsEl));
-    });
-    qaLevelButtons.forEach((btn) => {
-      bindClickOnce(btn, `qa:level:${btn.dataset.qaLevel || btn.textContent}`, () => selectQaLevel(btn.dataset.qaLevel));
-    });
-    bindClickOnce(qaCheckBtn, "qa:check", checkQaAnswer);
-    bindClickOnce(qaToggleQuestionBtn, "qa:toggle-question", () => {
-      const willShow = isHidden(qaEnQuestionWrap);
-      setHidden(qaEnQuestionWrap, !willShow);
-      qaToggleQuestionBtn.textContent = willShow ? "Асуултыг нуух" : "Асуултыг харах";
-    });
-    bindClickOnce(qaToggleAnswerBtn, "qa:toggle-answer", () => {
-      const willShow = isHidden(qaEnAnswerWrap);
-      setHidden(qaEnAnswerWrap, !willShow);
-      qaToggleAnswerBtn.textContent = willShow ? "Хариултыг нуух" : "Хариултыг харах";
-    });
-    bindClickOnce(qaShowSentencesBtn, "qa:show-sentences", () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()));
-    bindClickOnce(qaShowHelpBtn, "qa:show-help", () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`));
-    bindModalDismissal({
-      modalEl: qaModalEl,
-      closeBtn: qaModalCloseBtn,
-      onClose: closeQaModal,
-    });
-  },
-  sentenceFilterControls: () => {
-    updateSentenceFilterActiveState();
-    setSentencesLevelPickerOpen(false);
-    bindClickOnce(sentencesLevelPickerBtn, "sentences:filter-toggle", () => {
-      const nextOpen = sentencesLevelOptionsEl ? isHidden(sentencesLevelOptionsEl) : false;
-      setSentencesLevelPickerOpen(nextOpen);
-    });
-    sentencesLevelOptionButtons.forEach((btn) => {
-      bindClickOnce(btn, `sentences:filter:${btn.dataset.filter || btn.textContent}`, () => {
-        sentenceFilter = btn.dataset.filter || DIFFICULTY_LEVELS.BEGINNER;
-        updateSentenceFilterActiveState();
-        setSentencesLevelPickerOpen(false);
-        stopSpeaking();
-        renderSentences();
-        updateHeaderStatus();
-      });
-    });
-    bindManagedEvent(document, "click", "sentences:filter-close-outside", (event) => {
-      if (!sentencesLevelPickerEl || !sentencesLevelOptionsEl || isHidden(sentencesLevelOptionsEl)) return;
-      if (!sentencesLevelPickerEl.contains(event.target)) {
-        setSentencesLevelPickerOpen(false);
-      }
-    });
-  },
-  audioControls: () => {
-    voiceOptionButtons.forEach((btn) => {
-      bindClickOnce(btn, `tts:voice:${btn.dataset.voice || btn.textContent}`, () => {
-        appSettings.ttsSettings.voice = btn.dataset.voice;
-        updateTtsControlState();
-        persistTtsSettings();
-      });
-    });
-    bindManagedEvent(ttsRateSlider, "input", "tts:rate", () => {
-      appSettings.ttsSettings.rate = Math.round(Number(ttsRateSlider.value) * 20) / 20;
-      updateTtsControlState();
-      persistTtsSettings();
-    });
-    soundToggleButtons.forEach((toggleBtn) => {
-      bindClickOnce(toggleBtn, `app:sound-toggle:${toggleBtn.id || toggleBtn.className}`, () => {
-        const nextSoundEnabled = !appSettings.soundEnabled;
-        updateSettings({ soundEnabled: nextSoundEnabled });
-        syncCoreStateReferences();
-        setGlobalSoundEnabled(appSettings.soundEnabled);
-        if (!appSettings.soundEnabled) {
-          stopSpeaking();
-          gameFeelSoundManager.stopAmbient();
-          worldSoundscape.stop();
-        } else if (boardGameScreen && !isHidden(boardGameScreen)) {
-          gameFeelSoundManager.startAmbient();
-        } else {
-          const activeScreen = document.body?.dataset.activeScreen || "home";
-          worldSoundscape.start(activeScreen === "lesson" ? "lesson" : (activeScreen === "sentences" ? "sentences" : "home"));
-        }
-        updateSoundToggleState();
-      });
-    });
-  },
+  qaControls: initializeQaControls,
+  sentenceFilterControls: initializeSentenceFilterControls,
+  audioControls: initializeAudioControls,
   playExitControls: () => {
     playExitButtons.forEach((btn) => {
       bindClickOnce(btn, `app:play-exit:${btn.id || btn.className}`, () => {
@@ -4316,24 +4331,3 @@ const { initializeApp } = createAppBootstrap({
 });
 
 export { initializeApp };
-
-function sentenceLevelFilterLabel(filterKey) {
-  return filterKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : filterKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
-}
-
-function setSentencesLevelPickerOpen(isOpen) {
-  if (!sentencesLevelOptionsEl || !sentencesLevelPickerBtn) return;
-  setExpandedState(sentencesLevelPickerBtn, sentencesLevelOptionsEl, isOpen);
-}
-
-function updateSentenceFilterActiveState() {
-  if (sentencesLevelPickerBtn) {
-    sentencesLevelPickerBtn.textContent = `Түвшин сонгох: ${sentenceLevelFilterLabel(sentenceFilter)}`;
-  }
-
-  sentencesLevelOptionButtons.forEach((btn) => {
-    const isActive = btn.dataset.filter === sentenceFilter;
-    setActiveState(btn, isActive);
-    setCheckedState(btn, isActive);
-  });
-}
