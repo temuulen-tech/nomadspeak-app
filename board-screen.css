@@ -246,8 +246,8 @@ body[data-active-screen="board-game"] .app{
 .board-game-meta-row{
   margin:0;
   display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:12px;
+  grid-template-columns:repeat(2, minmax(120px, 1fr));
+  gap:10px;
   align-items:stretch;
   width:100%;
   min-width:0;
@@ -264,9 +264,9 @@ body[data-active-screen="board-game"] .app{
   justify-content:center;
   gap:4px;
   width:100%;
-  min-width:0;
+  min-width:120px;
   max-width:none;
-  min-height:56px;
+  min-height:64px;
   padding:10px 12px;
   border-radius:16px;
   box-sizing:border-box;
@@ -274,6 +274,10 @@ body[data-active-screen="board-game"] .app{
   font-size:.78rem;
   line-height:1.35;
   text-align:left;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  flex:none;
   background:rgba(8,20,26,.66);
   border:1px solid rgba(255,225,148,.28);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
@@ -302,6 +306,17 @@ body[data-active-screen="board-game"] .app{
   min-width:0;
   max-width:none;
 }
+.board-game-topbar .board-game-action-card,
+.board-game-topbar .board-game-meta-chip{
+  position:static;
+  inset:auto;
+  flex-basis:auto;
+}
+
+.board-game-topbar .board-game-action-card{
+  justify-content:center;
+}
+
 .board-game-scene-story{
   display:grid;
   align-content:start;
@@ -994,14 +1009,16 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-topbar-cards,
   .board-game-meta-row{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(2, minmax(120px, 1fr));
     gap:10px;
   }
 
-  .board-game-meta-chip{
+  .board-game-meta-chip,
+  .board-game-action-card{
     font-size:.7rem;
     padding:10px;
-    min-height:56px;
+    min-width:120px;
+    min-height:64px;
   }
 
   .board-game-mini-status{
@@ -1086,8 +1103,9 @@ body[data-active-screen="board-game"] .app{
     width:100%;
   }
 
-  .board-game-meta-chip{
-    min-width:0;
+  .board-game-meta-chip,
+  .board-game-action-card{
+    min-width:120px;
   }
 
   .board-game-board-frame{
@@ -1128,8 +1146,9 @@ body[data-active-screen="board-game"] .app{
     grid-template-columns:minmax(0, 1fr);
   }
 
-  .board-game-meta-chip{
-    min-width:0;
+  .board-game-meta-chip,
+  .board-game-action-card{
+    min-width:120px;
   }
 
   .board-game-board-frame{
