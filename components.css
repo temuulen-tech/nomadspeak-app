@@ -1316,14 +1316,24 @@ button,
   width:100%;
   max-width:none;
   display:grid;
-  grid-template-columns: 1fr;
+  grid-template-columns:minmax(0, 1fr);
   gap:14px;
   margin:0;
 }
 
 .lesson-answers-grid .option{
   width:100%;
-  min-height:56px;
+  min-width:0;
+  min-height:52px;
+  padding:12px 18px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  line-height:1.35;
 }
 
 .option{
