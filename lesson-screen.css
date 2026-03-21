@@ -38,40 +38,54 @@
 
 
 /* Force lesson answers into full-width horizontal mobile cards */
+#quiz-screen .question-text-wrap,
+#quiz-screen .options,
 #quiz-screen .lesson-answers-grid{
   width:100%;
-  display:flex;
-  flex-direction:column;
-  align-items:stretch;
-  justify-content:flex-start;
-  gap:14px;
-  grid-template-columns:minmax(0, 1fr);
-  grid-auto-flow:row;
+  min-width:0;
+  max-width:none;
 }
 
-#quiz-screen .lesson-answers-grid .option{
-  display:flex;
-  flex-direction:row;
+#quiz-screen .lesson-answers-grid{
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) !important;
+  grid-auto-flow:row !important;
+  align-items:stretch;
+  justify-items:stretch;
+  justify-content:stretch;
+  gap:14px;
+  margin:0;
+}
+
+#quiz-screen .lesson-answers-grid .option,
+#quiz-screen #options > .option{
+  display:flex !important;
+  flex-direction:row !important;
   align-items:center;
   justify-content:center;
-  width:100%;
-  max-width:none;
-  min-width:0;
+  width:100% !important;
+  inline-size:100% !important;
+  max-width:none !important;
+  min-width:0 !important;
+  min-inline-size:0 !important;
   min-height:56px;
   padding:14px 18px;
-  writing-mode:horizontal-tb;
-  text-orientation:mixed;
-  white-space:normal;
+  box-sizing:border-box;
+  place-self:stretch;
+  writing-mode:horizontal-tb !important;
+  text-orientation:mixed !important;
+  white-space:normal !important;
   text-align:center;
   line-height:1.4;
   overflow-wrap:anywhere;
   word-break:normal;
 }
 
+#quiz-screen .lesson-answers-grid .option,
+#quiz-screen .lesson-answers-grid .option::before,
 #quiz-screen .lesson-answers-grid .option > *{
-  writing-mode:horizontal-tb;
-  text-orientation:mixed;
-  max-width:100%;
+  writing-mode:horizontal-tb !important;
+  text-orientation:mixed !important;
 }
 .lesson-finish-summary{
   display:flex;
@@ -99,8 +113,8 @@
     object-fit:contain;
   }
 
-  .lesson-answers-grid{
-    grid-template-columns:1fr 1fr;
+  #quiz-screen .lesson-answers-grid{
+    grid-template-columns:minmax(0, 1fr) !important;
   }
 }
 
