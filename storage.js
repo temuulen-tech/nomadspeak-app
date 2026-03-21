@@ -6,6 +6,7 @@
 import { STORAGE_KEYS as APP_STORAGE_KEYS } from "./constants.js";
 
 export const STORAGE_KEYS = {
+  appStateSnapshot: "nomadspeak:app-state-snapshot",
   ttsSettings: APP_STORAGE_KEYS.TTS_SETTINGS,
   legacyTtsRate: APP_STORAGE_KEYS.LEGACY_TTS_RATE,
   soundEnabled: APP_STORAGE_KEYS.SOUND_ENABLED,
@@ -22,6 +23,26 @@ export const STORAGE_KEYS = {
   selectedWorldId: "nomadspeak:selected-world-id",
   selectedDifficultyId: "nomadspeak:selected-difficulty-id",
 };
+
+function buildSerializableAppState(coreState = {}) {
+  const settings = coreState.settings || {};
+  return {
+    progress: coreState.progress ?? null,
+    settings: {
+      ttsSettings: settings.ttsSettings ?? null,
+      soundEnabled: Boolean(settings.soundEnabled),
+      premium: Boolean(settings.premium),
+      profileName: typeof settings.profileName === "string" ? settings.profileName : "",
+      legacyTtsRate: settings.ttsSettings?.rate != null ? Number(settings.ttsSettings.rate) : Number(loadString(STORAGE_KEYS.legacyTtsRate, "")),
+    },
+    rewardsWallet: coreState.rewardsWallet ?? null,
+    processedRewardIds: coreState.processedRewardIds ?? [],
+    learnedWords: coreState.learnedWords ?? [],
+    unlockedChapterIds: coreState.unlockedChapterIds ?? [],
+    selectedWorldId: coreState.selectedWorldId ?? "",
+    selectedDifficultyId: coreState.selectedDifficultyId ?? "",
+  };
+}
 
 export function loadJson(key, fallback = null) {
   try {
@@ -71,38 +92,49 @@ export function loadBoolean(key, fallback = false) {
 }
 
 export function loadAppState() {
+  const snapshot = loadJson(STORAGE_KEYS.appStateSnapshot, null);
+  const snapshotState = snapshot && typeof snapshot === "object" ? snapshot : {};
+  const snapshotSettings = snapshotState.settings && typeof snapshotState.settings === "object" ? snapshotState.settings : {};
+  const hasStoredValue = (value) => value !== null && value !== "";
+
   return {
-    progress: loadJson(STORAGE_KEYS.progressSettings, null),
+    progress: loadJson(STORAGE_KEYS.progressSettings, snapshotState.progress ?? null),
     settings: {
-      ttsSettings: loadJson(STORAGE_KEYS.ttsSettings, null),
-      soundEnabled: loadBoolean(STORAGE_KEYS.soundEnabled, true),
-      premium: loadBoolean(STORAGE_KEYS.premium, false),
-      profileName: loadString(STORAGE_KEYS.profileName, ""),
-      legacyTtsRate: Number(loadString(STORAGE_KEYS.legacyTtsRate, "")),
+      ttsSettings: loadJson(STORAGE_KEYS.ttsSettings, snapshotSettings.ttsSettings ?? null),
+      soundEnabled: hasStoredValue(loadString(STORAGE_KEYS.soundEnabled, null))
+        ? loadBoolean(STORAGE_KEYS.soundEnabled, true)
+        : Boolean(snapshotSettings.soundEnabled),
+      premium: hasStoredValue(loadString(STORAGE_KEYS.premium, null))
+        ? loadBoolean(STORAGE_KEYS.premium, false)
+        : Boolean(snapshotSettings.premium),
+      profileName: loadString(STORAGE_KEYS.profileName, snapshotSettings.profileName ?? ""),
+      legacyTtsRate: Number(loadString(STORAGE_KEYS.legacyTtsRate, String(snapshotSettings.legacyTtsRate ?? ""))),
     },
-    rewardsWallet: loadJson(STORAGE_KEYS.rewardsWallet, null),
-    processedRewardIds: loadJson(STORAGE_KEYS.processedRewardIds, null),
-    learnedWords: loadJson(STORAGE_KEYS.learnedWords, null),
-    unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, null),
-    selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, ""),
-    selectedDifficultyId: loadString(STORAGE_KEYS.selectedDifficultyId, ""),
+    rewardsWallet: loadJson(STORAGE_KEYS.rewardsWallet, snapshotState.rewardsWallet ?? null),
+    processedRewardIds: loadJson(STORAGE_KEYS.processedRewardIds, snapshotState.processedRewardIds ?? null),
+    learnedWords: loadJson(STORAGE_KEYS.learnedWords, snapshotState.learnedWords ?? null),
+    unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, snapshotState.unlockedChapterIds ?? null),
+    selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, snapshotState.selectedWorldId ?? ""),
+    selectedDifficultyId: loadString(STORAGE_KEYS.selectedDifficultyId, snapshotState.selectedDifficultyId ?? ""),
   };
 }
 
 export function saveAppState(coreState = {}) {
-  const settings = coreState.settings || {};
-  saveJson(STORAGE_KEYS.progressSettings, coreState.progress ?? null);
+  const serializableState = buildSerializableAppState(coreState);
+  const settings = serializableState.settings || {};
+  saveJson(STORAGE_KEYS.appStateSnapshot, serializableState);
+  saveJson(STORAGE_KEYS.progressSettings, serializableState.progress);
   saveJson(STORAGE_KEYS.ttsSettings, settings.ttsSettings ?? null);
   if (settings.ttsSettings?.rate != null) saveString(STORAGE_KEYS.legacyTtsRate, String(settings.ttsSettings.rate));
   saveString(STORAGE_KEYS.soundEnabled, settings.soundEnabled ? "true" : "false");
   saveString(STORAGE_KEYS.premium, settings.premium ? "true" : "false");
-  saveString(STORAGE_KEYS.profileName, typeof settings.profileName === "string" ? settings.profileName : "");
-  saveJson(STORAGE_KEYS.rewardsWallet, coreState.rewardsWallet ?? null);
-  saveJson(STORAGE_KEYS.processedRewardIds, coreState.processedRewardIds ?? []);
-  saveJson(STORAGE_KEYS.learnedWords, coreState.learnedWords ?? []);
-  saveJson(STORAGE_KEYS.unlockedChapterIds, coreState.unlockedChapterIds ?? []);
-  saveString(STORAGE_KEYS.selectedWorldId, coreState.selectedWorldId ?? "");
-  saveString(STORAGE_KEYS.selectedDifficultyId, coreState.selectedDifficultyId ?? "");
+  saveString(STORAGE_KEYS.profileName, settings.profileName || "");
+  saveJson(STORAGE_KEYS.rewardsWallet, serializableState.rewardsWallet);
+  saveJson(STORAGE_KEYS.processedRewardIds, serializableState.processedRewardIds);
+  saveJson(STORAGE_KEYS.learnedWords, serializableState.learnedWords);
+  saveJson(STORAGE_KEYS.unlockedChapterIds, serializableState.unlockedChapterIds);
+  saveString(STORAGE_KEYS.selectedWorldId, serializableState.selectedWorldId);
+  saveString(STORAGE_KEYS.selectedDifficultyId, serializableState.selectedDifficultyId);
   return coreState;
 }
 

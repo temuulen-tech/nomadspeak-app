@@ -618,6 +618,19 @@ function safeLocalStorageRemove(key) {
   }
 }
 
+function buildSentenceGameEventId(kind = "progress") {
+  const item = sentenceGameSentence();
+  const sentenceKey = String(item?.id || item?.en || "").trim().toLowerCase();
+  if (!sentenceKey) return "";
+  return [
+    "sentence-game",
+    getCoreState().selectedWorldId || "world",
+    sentenceGameDifficulty || DIFFICULTY_LEVELS.BEGINNER,
+    kind,
+    sentenceKey,
+  ].join(":");
+}
+
 function escapeHtml(value) {
   return String(value || "")
     .replaceAll("&", "&amp;")
@@ -886,7 +899,7 @@ function awardXP(amount, reason = "", eventId = "") {
     yesterday,
     countDailyProgress: reason === "sentence_game_success",
     rewardTierUnlocked: rewardFromTime,
-    eventId,
+    eventId: String(eventId || "").trim(),
   });
 
   syncCoreStateReferences();
@@ -909,6 +922,9 @@ function persistActionRewards({
   rewardEventId = "",
   countDailyProgress = false,
 } = {}) {
+  const normalizedProgressEventId = String(progressEventId || "").trim();
+  const normalizedRewardEventId = String(rewardEventId || normalizedProgressEventId).trim();
+
   loadProgressState();
   syncProgressForToday();
 
@@ -922,7 +938,7 @@ function persistActionRewards({
       yesterday,
       countDailyProgress,
       rewardTierUnlocked,
-      eventId: progressEventId,
+      eventId: normalizedProgressEventId,
     });
   }
 
@@ -931,7 +947,7 @@ function persistActionRewards({
       coins,
       gems,
       rewardTierUnlocked,
-      eventId: rewardEventId,
+      eventId: normalizedRewardEventId,
     });
   }
 
@@ -2985,7 +3001,7 @@ function updateSentenceGameState() {
       sentenceGameFeedbackEl.classList.add("ok");
     }
     if (!sentenceGameXpAwarded && !sentenceGameUsedShowCorrect) {
-      awardXP(10, "sentence_game_success");
+      awardXP(10, "sentence_game_success", buildSentenceGameEventId("success"));
       sentenceGameXpAwarded = true;
       playCorrectSound();
     }
@@ -3173,7 +3189,7 @@ function showSentenceGameCorrectAnswer() {
 
   if (sentenceGameCorrectVisible) {
     if (!sentenceGameHintXpAwarded) {
-      awardXP(3, "hint_used");
+      awardXP(3, "hint_used", buildSentenceGameEventId("hint"));
       sentenceGameHintXpAwarded = true;
     }
     showSentenceGameToast(SENTENCE_GAME_SHOW_CORRECT_TOAST);
