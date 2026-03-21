@@ -45,11 +45,13 @@
     <header class="header home-only home-header-simplified">
       <div class="header-main home-header-main-simplified">
         <div class="brand home-brand-simplified">
-          <div>
+          <img class="logo-mark" src="./assets/icons/icon-192.svg" alt="NomadSpeak logo" />
+          <div class="home-brand-copy">
             <h1 class="logo">NomadSpeak</h1>
             <p class="subtitle">Өдөр бүрийн суралцах эхлэл</p>
           </div>
         </div>
+        <button class="profile-icon-btn home-profile-btn" id="nav-profile-btn" type="button" aria-label="Профайл" title="Профайл">👤</button>
       </div>
     </header>
 
@@ -63,6 +65,17 @@
     <!-- START SCREEN -->
     <section class="card home-only home-hub-card" id="start-screen">
       <div class="home-hub-shell">
+        <section class="home-hero-panel" aria-label="Home overview">
+          <div class="home-hero-copy">
+            <p class="chip-label">Өнөөдрийн аялал</p>
+            <p class="home-hero-title">Цэвэр, төвлөрсөн эхлэл</p>
+            <p class="home-hero-meta">Үндсэн зам, ахиц, танилцуулгыг цэвэрхэн бүтэцтэй үлдээж, брэнд ба профайлыг буцаан харууллаа.</p>
+          </div>
+          <div class="home-hero-badges" aria-hidden="true">
+            <span class="home-hero-badge">NomadSpeak</span>
+            <span class="home-hero-badge">Profile ready</span>
+          </div>
+        </section>
         <div class="home-hub-actions" aria-label="Үндсэн навигаци">
           <div class="home-modes-menu-wrap home-primary-action home-hub-primary">
             <button class="secondary nav-btn nav-btn--primary home-hub-btn home-entry-card home-entry-card--primary" id="nav-modes-btn" type="button" aria-expanded="false" aria-controls="home-modes-panel">
