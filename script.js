@@ -34,7 +34,7 @@ import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute, resolveChapterContent } from "./chapters.js";
 import { initBoardScreen } from "./board-screen.js";
 import { initLessonScreen } from "./lesson-screen.js";
-import { LESSON_TRANSLATIONS, buildOptions, levelName, resolveLessonContent } from "./lesson.js";
+import { LESSON_TRANSLATIONS, buildOptions, levelName } from "./lesson.js";
 import { initStatsScreen } from "./stats-screen.js";
 import { createQaControls } from "./qa-wiring.js";
 import { createAudioControls } from "./audio-wiring.js";
@@ -60,7 +60,6 @@ import {
   renderBoardFeedbackVisual,
   renderBoardPopup,
 } from "./render-board.js";
-import { renderLessonScreen, renderLessonAnswerState } from "./render-lesson.js";
 import {
   bindClickOnce,
   bindManagedEvent,
@@ -107,14 +106,8 @@ import {
   tokenizeSentence,
 } from "./sentence-game.js";
 import {
-  QA_LONG_EXPLANATION_TEXT,
   QA_REWARD_STEPS,
   QA_ROUNDS,
-  formatQaBuiltLine,
-  getQaContentSet,
-  getQaWordBankTokens,
-  qaRoundPoolForLevel,
-  qaShuffle,
 } from "./qa-game.js";
 import { initDebugTools } from "./debug-tools.js";
 import {
@@ -126,6 +119,8 @@ import {
 } from "./progress-ui.js";
 import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
+import { createLessonFlow } from "./lesson-flow.js";
+import { createQaFlow } from "./qa-flow.js";
 import {
   BOARD_SELECTOR_STEPS,
   DIFFICULTY_LEVELS,
@@ -3323,120 +3318,8 @@ function retrySentenceGameRound() {
   updateSentenceGameNavButtons();
 }
 
-// ---- Quiz logic ----
-function startQuiz() {
-  const chapterContent = getActiveLearningSelection();
-  const lessonContent = resolveLessonContent({
-    packId: chapterContent.lessonPackId,
-    worldId: chapterContent.worldId,
-    chapterId: chapterContent.chapter?.id || null,
-    difficulty: level,
-  });
-  questions = shuffle(lessonContent.entries).slice(0); // бүгдийг
-  if (!questions.length) {
-    showWorldFeedbackChip("⚠️ Энэ бүлгийн lesson pack-д бодит агуулга хараахан ороогүй байна.", "warning");
-    return;
-  }
-  currentIndex = 0;
-  score = 0;
-  locked = false;
-  lessonReviewMode = false;
-  loadProgressState();
-  syncProgressForToday();
-  persistProgressState();
-
-  stopSpeaking();
-  showScreen(quizScreen);
-  renderQuestion();
-}
-
-function renderQuestion() {
-  locked = false;
-  const item = questions[currentIndex];
-  const options = Array.isArray(item.replayOptions) && item.replayOptions.length
-    ? item.replayOptions.slice()
-    : buildOptions(item.a);
-
-  renderLessonScreen({
-    question: item.q,
-    options,
-    onPickAnswer: (btn, opt) => pickAnswer(btn, opt),
-  });
-
-  updateTopbar();
-  updateHeaderStatus();
-  updateCompanionLine(GAME_MODES.LESSON, "idle");
-  updateLessonFlowUi();
-}
-
-function pickAnswer(buttonEl, selected) {
-  if (locked) return;
-  locked = true;
-
-  const correct = questions[currentIndex].a;
-
-  const { isCorrect } = renderLessonAnswerState({
-    selectedButton: buttonEl,
-    correctAnswer: correct,
-    selectedAnswer: selected,
-    revealed: true,
-    nextActionLabel: currentIndex >= questions.length - 1 ? "Үр дүн, шагналаа харах" : "Дараагийн асуулт руу",
-  });
-
-  if (isCorrect) {
-    if (!lessonReviewMode) {
-      score += 1;
-      const lessonRewardEventId = `lesson:${getCoreState().selectedWorldId}:${level}:${currentIndex}:${questions[currentIndex]?.q || ""}`;
-      awardXP(1, "quiz_correct_answer", lessonRewardEventId);
-    }
-    playSuccessSound();
-    worldSoundscape.play("reward");
-    updateCompanionLine(GAME_MODES.LESSON, "success");
-    showWorldFeedbackChip("✨ Зөв хариулт! Зам тань гэрэлтлээ.", "reward");
-  } else {
-    playErrorSound();
-    worldSoundscape.play("soft-fail");
-    updateCompanionLine(GAME_MODES.LESSON, "error");
-    showWorldFeedbackChip("⚠️ Дахин оролдоод үзээрэй, баатар аа.", "warning");
-  }
-
-  updateTopbar();
-  updateHeaderStatus();
-}
-
-function nextQuestion() {
-  currentIndex += 1;
-  updateHeaderStatus();
-  if (currentIndex < questions.length) {
-    renderQuestion();
-  } else {
-    endQuiz();
-  }
-}
-
-function endQuiz() {
-  const totalQuestions = questions.length;
-  const percent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
-  const rewardCount = lessonUnlockedRewards;
-  if (finalTextEl) {
-    finalTextEl.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
-  }
-  if (lessonFinishTitleEl) {
-    lessonFinishTitleEl.textContent = `Хичээл дууслаа — ${score}/${totalQuestions} зөв, ${percent}% амжилттай.`;
-  }
-  if (lessonFinishCopyEl) {
-    lessonFinishCopyEl.textContent = rewardCount > 0
-      ? `Та ${rewardCount} шатны шагнал нээж, өнөөдрийн ахицаа шинэчиллээ. Одоо ахиц & шагналын дэлгэц рүү орж үр дүнгээ харна уу.`
-      : "Энэ удаа шагналын шат нээгдээгүй ч XP, өдөр тутмын ахиц хадгалагдсан. Одоо ахицын дэлгэц рүү орж үр дүнгээ харна уу.";
-  }
-  showScreen(endScreen);
-
-  loadProgressState();
-  showCompletionBanner(progressState.dailyCompleted);
-  updateHeaderStatus();
-}
-
 let hasExplicitStartLevelSelection = false;
+
 
 function renderSentencesRewards() {
   renderSentencesRewardStrip({
@@ -3492,7 +3375,7 @@ const updateQaTimerRewards = createTimedRewardTrack({
   rewardSteps: QA_REWARD_STEPS,
   render: renderQaRewards,
   onUnlock: (_count, step) => {
-    showQaToast(`Шагнал авлаа: ${step.label}`);
+    qaFlow.showQaToast(`Шагнал авлаа: ${step.label}`);
   },
 });
 
@@ -3517,21 +3400,6 @@ function exitPlayModeToHome() {
   stopSession();
   resetLessonProgress();
   navigateTo(SCREEN_NAMES.HOME);
-}
-
-function updateLessonFlowUi() {
-  if (lessonFlowCopyEl) {
-    lessonFlowCopyEl.textContent = "Асуултаа уншаад зөв хариултаа сонгоно уу.";
-  }
-
-  if (lessonRewardCopyEl) {
-    const currentQuestionNumber = Math.min(currentIndex + 1, questions.length || 1);
-    const nextRewardLevel = Math.min(lessonUnlockedRewards + 1, QA_REWARD_STEPS.length);
-    const nextReward = QA_REWARD_STEPS[nextRewardLevel - 1];
-    lessonRewardCopyEl.textContent = nextReward
-      ? `${currentQuestionNumber}/${questions.length} асуулт • дараагийн шагнал: ${nextReward.label}`
-      : `${currentQuestionNumber}/${questions.length} асуулт • бүх шагнал нээгдсэн байна.`;
-  }
 }
 
 function updateSentencesTimerUI() {
@@ -3565,10 +3433,6 @@ function getActiveLearningSelection() {
   return resolveChapterContent({ worldId, chapterId, difficultyId });
 }
 
-function getQaCurrentRound() {
-  return qaRoundPool[qaRoundIndex % qaRoundPool.length];
-}
-
 function syncLessonElapsedSeconds() {
   if (!lessonTimerStartedAt) return;
   const runningSeconds = Math.floor((Date.now() - lessonTimerStartedAt) / 1000);
@@ -3596,18 +3460,6 @@ function startLessonTimer() {
   lessonTimerInterval = setInterval(() => {
     updateLessonTimerUI();
   }, 1000);
-}
-
-function showQaToast(message) {
-  if (!qaToastEl) return;
-  qaToastEl.textContent = message;
-  setHidden(qaToastEl, false);
-  toggleClass(qaToastEl, "show", true);
-  clearTimeout(qaToastTimer);
-  qaToastTimer = setTimeout(() => {
-    toggleClass(qaToastEl, "show", false);
-    setHidden(qaToastEl, true);
-  }, 2200);
 }
 
 function syncQaElapsedSeconds() {
@@ -3639,193 +3491,109 @@ function startQaTimer() {
   }, 1000);
 }
 
-function renderQaBuilder() {
-  if (!qaQuestionLineEl || !qaAnswerLineEl || !qaWordBankEl) return;
-  const activeLine = qaQuestionSolved ? "answer" : "question";
+const lessonFlow = createLessonFlow({
+  state: {
+    getLevel: () => level,
+    setQuestions: (value) => { questions = value; },
+    getQuestions: () => questions,
+    setCurrentIndex: (value) => { currentIndex = value; },
+    getCurrentIndex: () => currentIndex,
+    setScore: (value) => { score = value; },
+    getScore: () => score,
+    getLocked: () => locked,
+    setLocked: (value) => { locked = value; },
+    setLessonReviewMode: (value) => { lessonReviewMode = value; },
+    isLessonReviewMode: () => lessonReviewMode,
+    getLessonUnlockedRewards: () => lessonUnlockedRewards,
+  },
+  dom: {
+    finalTextEl,
+    lessonFinishTitleEl,
+    lessonFinishCopyEl,
+    lessonFlowCopyEl,
+    lessonRewardCopyEl,
+  },
+  actions: {
+    getActiveLearningSelection,
+    shuffle,
+    loadProgressState,
+    syncProgressForToday,
+    persistProgressState,
+    stopSpeaking,
+    showLessonScreen: () => showScreen(quizScreen),
+    showEndScreen: () => showScreen(endScreen),
+    awardXp: awardXP,
+    getLessonRewardEventId: ({ coreState, level, currentIndex, question }) => `lesson:${coreState.selectedWorldId}:${level}:${currentIndex}:${question}`,
+    playSuccessSound,
+    playErrorSound,
+    playRewardSoundscape: () => worldSoundscape.play("reward"),
+    playSoftFailSoundscape: () => worldSoundscape.play("soft-fail"),
+    updateCompanionLine,
+    showWorldFeedbackChip,
+    updateTopbar,
+    updateHeaderStatus,
+    loadProgressAfterCompletion: loadProgressState,
+    showCompletionBanner: () => showCompletionBanner(progressState.dailyCompleted),
+  },
+  helpers: {
+    getCoreState,
+  },
+});
 
-  qaQuestionLineEl.innerHTML = qaQuestionBuilt.length
-    ? qaQuestionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
-    : '<span class="qa-placeholder">Асуултын мөрөнд үгсээ байрлуулна.</span>';
-
-  qaAnswerLineEl.innerHTML = qaAnswerBuilt.length
-    ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
-    : '<span class="qa-placeholder">Хариултын мөрөнд үгсээ байрлуулна.</span>';
-
-  toggleClass(qaAnswerLineEl, "locked", !qaQuestionSolved);
-
-  qaWordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
-
-  qaWordBankEl.querySelectorAll(".qa-chip").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const chipIndex = qaBank.findIndex((chip) => chip.id === btn.dataset.chipId);
-      if (chipIndex < 0) return;
-      const [chip] = qaBank.splice(chipIndex, 1);
-      if (activeLine === "question") qaQuestionBuilt.push(chip);
-      else qaAnswerBuilt.push(chip);
-      renderQaBuilder();
-      updateQaBuiltTextPreview();
-    });
-  });
-
-  [qaQuestionLineEl, qaAnswerLineEl].forEach((lineEl) => {
-    lineEl.querySelectorAll(".qa-chip.placed").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const source = btn.dataset.source;
-        const lineRef = source === "question" ? qaQuestionBuilt : qaAnswerBuilt;
-        const idx = lineRef.findIndex((chip) => chip.id === btn.dataset.chipId);
-        if (idx < 0) return;
-        const [chip] = lineRef.splice(idx, 1);
-        qaBank.push(chip);
-        renderQaBuilder();
-        updateQaBuiltTextPreview();
-      });
-    });
-  });
-}
-
-function updateQaBuiltTextPreview() {
-  if (!qaFeedbackEl) return;
-  const questionText = formatQaBuiltLine(qaQuestionBuilt.map((chip) => chip.token));
-  const answerText = formatQaBuiltLine(qaAnswerBuilt.map((chip) => chip.token));
-  qaFeedbackEl.textContent = `Q: ${questionText || "..."} | A: ${answerText || "..."}`;
-}
-
-function setupQaRound(options = {}) {
-  const round = options.round || getQaCurrentRound();
-  if (!round) {
-    qaQuestionSolved = false;
-    qaQuestionBuilt = [];
-    qaAnswerBuilt = [];
-    qaBank = [];
-    qaMnQuestionEl.textContent = "Энэ бүлгийн QA агуулга хараахан бэлэн болоогүй байна.";
-    qaMnAnswerEl.textContent = "";
-    qaEnQuestionEl.textContent = "";
-    qaEnAnswerEl.textContent = "";
-    renderQaBuilder();
-    updateQaBuiltTextPreview();
-    return;
-  }
-  const sourceTokens = Array.isArray(options.wordBankTokens) && options.wordBankTokens.length
-    ? options.wordBankTokens
-    : getQaWordBankTokens(round);
-
-  qaQuestionSolved = false;
-  qaQuestionBuilt = [];
-  qaAnswerBuilt = [];
-  qaBank = qaShuffle(sourceTokens).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token }));
-
-  qaMnQuestionEl.textContent = round.mnQuestion;
-  qaMnAnswerEl.textContent = round.mnAnswer;
-  qaEnQuestionEl.textContent = round.enQuestion;
-  qaEnAnswerEl.textContent = round.enAnswer;
-  setHidden(qaEnQuestionWrap, true);
-  setHidden(qaEnAnswerWrap, true);
-  if (qaToggleQuestionBtn) qaToggleQuestionBtn.textContent = "Асуултыг харах";
-  if (qaToggleAnswerBtn) qaToggleAnswerBtn.textContent = "Хариултыг харах";
-
-  renderQaBuilder();
-  updateQaBuiltTextPreview();
-}
-
-function checkQaAnswer() {
-  const round = getQaCurrentRound();
-  if (!round) return;
-  const targetQuestion = round.enQuestion.split(" ");
-  const targetAnswer = round.enAnswer.split(" ");
-  const questionTokens = qaQuestionBuilt.map((chip) => chip.token);
-  const answerTokens = qaAnswerBuilt.map((chip) => chip.token);
-
-  if (!qaQuestionSolved) {
-    if (questionTokens.length !== targetQuestion.length) {
-      qaFeedbackEl.textContent = "Асуултын үгийн тоо дутуу/илүү байна.";
-      return;
-    }
-    const isQuestionCorrect = questionTokens.every((token, idx) => token === targetQuestion[idx]);
-    if (!isQuestionCorrect) {
-      qaFeedbackEl.textContent = "Асуулт буруу байна. Дахин оролдоорой.";
-      return;
-    }
-    qaQuestionSolved = true;
-    qaFeedbackEl.textContent = "✅ Асуулт зөв! Одоо хариултаа бүтээнэ үү.";
-    renderQaBuilder();
-    return;
-  }
-
-  if (answerTokens.length !== targetAnswer.length) {
-    qaFeedbackEl.textContent = "Хариултын үгийн тоо дутуу/илүү байна.";
-    return;
-  }
-  const isAnswerCorrect = answerTokens.every((token, idx) => token === targetAnswer[idx]);
-  if (!isAnswerCorrect) {
-    qaFeedbackEl.textContent = "Хариулт буруу байна. Дахин оролдоорой.";
-    return;
-  }
-
-  qaFeedbackEl.textContent = "🎉 Баяр хүргэе! Дараагийн тойрог...";
-  qaRoundIndex = (qaRoundIndex + 1) % qaRoundPool.length;
-  setupQaRound();
-}
-
-function openQaModal(title, htmlBody) {
-  if (!qaModalEl || !qaModalTitleEl || !qaModalBodyEl) return;
-  openModal(qaModalEl, { titleEl: qaModalTitleEl, title, bodyEl: qaModalBodyEl, bodyHtml: htmlBody });
-}
-
-function closeQaModal() {
-  if (!qaModalEl) return;
-  closeModal(qaModalEl);
-}
-
-function buildQaSentencesModalHtml() {
-  const rounds = qaRoundPool.length ? qaRoundPool : qaRoundPoolForLevel(qaGameLevel || DIFFICULTY_LEVELS.BEGINNER, qaContentSetId);
-  return rounds
-    .map((round) => `<p>${round.enQuestion} - ${round.enAnswer}</p><p>${round.mnQuestion} - ${round.mnAnswer}</p>`)
-    .join("");
-}
-
-function qaLevelLabel(levelKey) {
-  return levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : levelKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
-}
-
-function selectQaLevel(levelKey) {
-  qaGameLevel = levelKey;
-  qaContentSetId = getActiveLearningSelection().qaSetId || qaContentSetId;
-  qaRoundPool = qaRoundPoolForLevel(levelKey, qaContentSetId);
-  qaRoundIndex = 0;
-  setHidden(qaRoundPanelEl, false);
-  setHidden(qaLevelOptionsEl, true);
-  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
-  setupQaRound();
-  startQaTimer();
-}
-
-function resetQaGameScreen() {
-  const initialLevel = qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
-  qaContentSetId = getActiveLearningSelection().qaSetId || qaContentSetId;
-  qaGameLevel = initialLevel;
-  qaRoundPool = qaRoundPoolForLevel(initialLevel, qaContentSetId);
-  qaRoundIndex = 0;
-  qaBank = [];
-  qaQuestionBuilt = [];
-  qaAnswerBuilt = [];
-  qaQuestionSolved = false;
-  qaElapsedSeconds = 0;
-  qaUnlockedRewards = 0;
-  qaTimerStartedAt = null;
-  stopQaTimer();
-  updateQaTimerUI();
-  renderQaRewards();
-  setHidden(qaRoundPanelEl, false);
-  setHidden(qaLevelOptionsEl, true);
-  qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
-  qaFeedbackEl.textContent = "";
-  if (!getQaContentSet(qaContentSetId)?.rounds?.length) {
-    showWorldFeedbackChip("⚠️ Энэ бүлгийн QA багц одоохондоо хоосон байна.", "warning");
-  }
-  setupQaRound();
-  startQaTimer();
-}
-
+const qaFlow = createQaFlow({
+  state: {
+    getQaGameLevel: () => qaGameLevel,
+    setQaGameLevel: (value) => { qaGameLevel = value; },
+    getQaContentSetId: () => qaContentSetId,
+    setQaContentSetId: (value) => { qaContentSetId = value; },
+    getQaRoundPool: () => qaRoundPool,
+    setQaRoundPool: (value) => { qaRoundPool = value; },
+    getQaRoundIndex: () => qaRoundIndex,
+    setQaRoundIndex: (value) => { qaRoundIndex = value; },
+    getQaBank: () => qaBank,
+    setQaBank: (value) => { qaBank = value; },
+    getQaQuestionBuilt: () => qaQuestionBuilt,
+    setQaQuestionBuilt: (value) => { qaQuestionBuilt = value; },
+    getQaAnswerBuilt: () => qaAnswerBuilt,
+    setQaAnswerBuilt: (value) => { qaAnswerBuilt = value; },
+    isQaQuestionSolved: () => qaQuestionSolved,
+    setQaQuestionSolved: (value) => { qaQuestionSolved = value; },
+    getQaElapsedSeconds: () => qaElapsedSeconds,
+    setQaElapsedSeconds: (value) => { qaElapsedSeconds = value; },
+    getQaUnlockedRewards: () => qaUnlockedRewards,
+    setQaUnlockedRewards: (value) => { qaUnlockedRewards = value; },
+    setQaTimerStartedAt: (value) => { qaTimerStartedAt = value; },
+  },
+  dom: {
+    qaToastEl,
+    qaLevelSelectBtn,
+    qaLevelOptionsEl,
+    qaRoundPanelEl,
+    qaFeedbackEl,
+    qaMnQuestionEl,
+    qaMnAnswerEl,
+    qaEnQuestionEl,
+    qaEnAnswerEl,
+    qaEnQuestionWrap,
+    qaEnAnswerWrap,
+    qaToggleQuestionBtn,
+    qaToggleAnswerBtn,
+    qaQuestionLineEl,
+    qaAnswerLineEl,
+    qaWordBankEl,
+    qaModalEl,
+    qaModalTitleEl,
+    qaModalBodyEl,
+  },
+  actions: {
+    getActiveLearningSelection,
+    startQaTimer,
+    stopQaTimer,
+    updateQaTimerUi: updateQaTimerUI,
+    renderQaRewards,
+    showWorldFeedbackChip,
+  },
+});
 
 function handleStartLevelSelection(button) {
   if (!button) return;
@@ -3835,7 +3603,7 @@ function handleStartLevelSelection(button) {
   updateStartButtonLabel();
   setStartLevelMenuOpen(false);
   updateHeaderStatus();
-  startQuiz();
+  lessonFlow.startQuiz();
 }
 
 const initializeSentenceGameControls = createSentenceGameControls({
@@ -3889,12 +3657,12 @@ const initializeQaControls = createQaControls({
     modalCloseBtn: qaModalCloseBtn,
   },
   actions: {
-    resetScreen: resetQaGameScreen,
-    selectLevel: selectQaLevel,
-    checkAnswer: checkQaAnswer,
-    openSentencesModal: () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()),
-    openHelpModal: () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`),
-    closeModal: closeQaModal,
+    resetScreen: qaFlow.resetQaGameScreen,
+    selectLevel: qaFlow.selectQaLevel,
+    checkAnswer: qaFlow.checkQaAnswer,
+    openSentencesModal: qaFlow.openSentencesModal,
+    openHelpModal: qaFlow.openHelpModal,
+    closeModal: qaFlow.closeQaModal,
   },
 });
 
@@ -4067,33 +3835,14 @@ const { initializeApp } = createAppBootstrap({
       renderSentences,
     },
     qa: {
-      openModal: openQaModal,
+      openModal: qaFlow.openQaModal,
       loadRound: (round) => {
-        qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
-        qaRoundPool = [round];
-        qaRoundIndex = 0;
-        setHidden(qaRoundPanelEl, false);
-        setHidden(qaLevelOptionsEl, true);
-        qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
-        const questionTokens = round.enQuestion.split(" ").filter(Boolean);
-        const answerTokens = round.enAnswer.split(" ").filter(Boolean);
-        setupQaRound({ round, wordBankTokens: [...questionTokens, ...answerTokens] });
-        startQaTimer();
+        qaFlow.loadRound(round);
       },
     },
     lesson: {
       startFromSaved: (savedItem) => {
-        lessonReviewMode = true;
-        questions = [{
-          q: savedItem.questionText || "",
-          a: savedItem.correctAnswer || "",
-          replayOptions: Array.isArray(savedItem.options) ? savedItem.options.slice() : [],
-        }];
-        currentIndex = 0;
-        locked = false;
-        stopSpeaking();
-        showScreen(SCREEN_NAMES.LESSON);
-        renderQuestion();
+        lessonFlow.startReview(savedItem);
       },
     },
     markWordLearned,
@@ -4133,11 +3882,11 @@ const { initializeApp } = createAppBootstrap({
   updateSelections,
   updateState,
   stopSpeaking,
-  startQuiz,
+  startQuiz: () => lessonFlow.startQuiz(),
   ensureSentenceItemsLoaded,
   initSentenceGameRound,
   enforceFreeXpGate,
-  resetQaGameScreen,
+  resetQaGameScreen: () => qaFlow.resetQaGameScreen(),
   initBoardGameMvp,
   updateStatsUI,
   updateProfileUI,
@@ -4272,8 +4021,8 @@ const { initializeApp } = createAppBootstrap({
     },
   },
   lessonHandlers: {
-    onNext: () => nextQuestion(),
-    onRestart: () => startQuiz(),
+    onNext: () => lessonFlow.nextQuestion(),
+    onRestart: () => lessonFlow.startQuiz(),
     onOpenProgress: () => navigateTo(FLOW_DESTINATIONS.STATS),
     onReturnHome: () => exitPlayModeToHome(),
     onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
