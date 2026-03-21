@@ -8,20 +8,17 @@ export function createLessonFlow({
   actions = {},
   helpers = {},
 } = {}) {
-  const {
-    getLevel,
-    setQuestions,
-    getQuestions,
-    setCurrentIndex,
-    getCurrentIndex,
-    setScore,
-    getScore,
-    getLocked,
-    setLocked,
-    setLessonReviewMode,
-    isLessonReviewMode,
-    getLessonUnlockedRewards,
-  } = state;
+  const runtimeState = {
+    level: state.level,
+    questions: Array.isArray(state.questions) ? state.questions : [],
+    currentIndex: Number.isFinite(state.currentIndex) ? state.currentIndex : 0,
+    score: Number.isFinite(state.score) ? state.score : 0,
+    locked: Boolean(state.locked),
+    lessonReviewMode: Boolean(state.lessonReviewMode),
+    elapsedSeconds: Number.isFinite(state.elapsedSeconds) ? state.elapsedSeconds : 0,
+    unlockedRewards: Number.isFinite(state.unlockedRewards) ? state.unlockedRewards : 0,
+    timerStartedAt: state.timerStartedAt ?? null,
+  };
 
   const {
     finalTextEl,
@@ -54,14 +51,29 @@ export function createLessonFlow({
     showCompletionBanner,
   } = actions;
 
-  const {
-    getCoreState,
-  } = helpers;
+  const { getCoreState } = helpers;
+
+  function getState() {
+    return runtimeState;
+  }
+
+  function setLevel(level) {
+    runtimeState.level = level;
+  }
+
+  function resetRuntimeState() {
+    runtimeState.questions = [];
+    runtimeState.currentIndex = 0;
+    runtimeState.score = 0;
+    runtimeState.locked = false;
+    runtimeState.lessonReviewMode = false;
+    runtimeState.elapsedSeconds = 0;
+    runtimeState.unlockedRewards = 0;
+    runtimeState.timerStartedAt = null;
+  }
 
   function updateLessonFlowUi() {
-    const questions = getQuestions();
-    const currentIndex = getCurrentIndex();
-    const lessonUnlockedRewards = getLessonUnlockedRewards();
+    const { questions, currentIndex, unlockedRewards } = runtimeState;
 
     if (lessonFlowCopyEl) {
       lessonFlowCopyEl.textContent = "Асуултаа уншаад зөв хариултаа сонгоно уу.";
@@ -69,7 +81,7 @@ export function createLessonFlow({
 
     if (lessonRewardCopyEl) {
       const currentQuestionNumber = Math.min(currentIndex + 1, questions.length || 1);
-      const nextRewardLevel = Math.min(lessonUnlockedRewards + 1, QA_REWARD_STEPS.length);
+      const nextRewardLevel = Math.min(unlockedRewards + 1, QA_REWARD_STEPS.length);
       const nextReward = QA_REWARD_STEPS[nextRewardLevel - 1];
       lessonRewardCopyEl.textContent = nextReward
         ? `${currentQuestionNumber}/${questions.length} асуулт • дараагийн шагнал: ${nextReward.label}`
@@ -78,10 +90,8 @@ export function createLessonFlow({
   }
 
   function renderQuestion() {
-    setLocked(false);
-    const questions = getQuestions();
-    const currentIndex = getCurrentIndex();
-    const item = questions[currentIndex];
+    runtimeState.locked = false;
+    const item = runtimeState.questions[runtimeState.currentIndex];
     const options = Array.isArray(item.replayOptions) && item.replayOptions.length
       ? item.replayOptions.slice()
       : buildOptions(item.a);
@@ -99,25 +109,24 @@ export function createLessonFlow({
   }
 
   function startQuiz() {
-    const level = getLevel();
     const chapterContent = getActiveLearningSelection();
     const lessonContent = resolveLessonContent({
       packId: chapterContent.lessonPackId,
       worldId: chapterContent.worldId,
       chapterId: chapterContent.chapter?.id || null,
-      difficulty: level,
+      difficulty: runtimeState.level,
     });
     const questions = shuffle(lessonContent.entries).slice(0);
-    setQuestions(questions);
+    runtimeState.questions = questions;
     if (!questions.length) {
       showWorldFeedbackChip("⚠️ Энэ бүлгийн lesson pack-д бодит агуулга хараахан ороогүй байна.", "warning");
       return;
     }
 
-    setCurrentIndex(0);
-    setScore(0);
-    setLocked(false);
-    setLessonReviewMode(false);
+    runtimeState.currentIndex = 0;
+    runtimeState.score = 0;
+    runtimeState.locked = false;
+    runtimeState.lessonReviewMode = false;
     loadProgressState();
     syncProgressForToday();
     persistProgressState();
@@ -127,29 +136,28 @@ export function createLessonFlow({
   }
 
   function pickAnswer(buttonEl, selected) {
-    if (getLocked()) return;
-    setLocked(true);
+    if (runtimeState.locked) return;
+    runtimeState.locked = true;
 
-    const questions = getQuestions();
-    const currentIndex = getCurrentIndex();
-    const correct = questions[currentIndex].a;
+    const currentQuestion = runtimeState.questions[runtimeState.currentIndex];
+    const correct = currentQuestion.a;
 
     const { isCorrect } = renderLessonAnswerState({
       selectedButton: buttonEl,
       correctAnswer: correct,
       selectedAnswer: selected,
       revealed: true,
-      nextActionLabel: currentIndex >= questions.length - 1 ? "Үр дүн, шагналаа харах" : "Дараагийн асуулт руу",
+      nextActionLabel: runtimeState.currentIndex >= runtimeState.questions.length - 1 ? "Үр дүн, шагналаа харах" : "Дараагийн асуулт руу",
     });
 
     if (isCorrect) {
-      if (!isLessonReviewMode()) {
-        setScore(getScore() + 1);
+      if (!runtimeState.lessonReviewMode) {
+        runtimeState.score += 1;
         awardXp(1, "quiz_correct_answer", getLessonRewardEventId({
           coreState: getCoreState(),
-          level: getLevel(),
-          currentIndex,
-          question: questions[currentIndex]?.q || "",
+          level: runtimeState.level,
+          currentIndex: runtimeState.currentIndex,
+          question: currentQuestion?.q || "",
         }));
       }
       playSuccessSound();
@@ -168,18 +176,15 @@ export function createLessonFlow({
   }
 
   function endQuiz() {
-    const questions = getQuestions();
-    const score = getScore();
-    const level = getLevel();
-    const totalQuestions = questions.length;
-    const percent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
-    const rewardCount = getLessonUnlockedRewards();
+    const totalQuestions = runtimeState.questions.length;
+    const percent = totalQuestions > 0 ? Math.round((runtimeState.score / totalQuestions) * 100) : 0;
+    const rewardCount = runtimeState.unlockedRewards;
 
     if (finalTextEl) {
-      finalTextEl.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+      finalTextEl.textContent = `Таны оноо: ${runtimeState.score} / ${runtimeState.questions.length}  •  Түвшин: ${levelName(runtimeState.level)}`;
     }
     if (lessonFinishTitleEl) {
-      lessonFinishTitleEl.textContent = `Хичээл дууслаа — ${score}/${totalQuestions} зөв, ${percent}% амжилттай.`;
+      lessonFinishTitleEl.textContent = `Хичээл дууслаа — ${runtimeState.score}/${totalQuestions} зөв, ${percent}% амжилттай.`;
     }
     if (lessonFinishCopyEl) {
       lessonFinishCopyEl.textContent = rewardCount > 0
@@ -194,10 +199,9 @@ export function createLessonFlow({
   }
 
   function nextQuestion() {
-    const nextIndex = getCurrentIndex() + 1;
-    setCurrentIndex(nextIndex);
+    runtimeState.currentIndex += 1;
     updateHeaderStatus();
-    if (nextIndex < getQuestions().length) {
+    if (runtimeState.currentIndex < runtimeState.questions.length) {
       renderQuestion();
       return;
     }
@@ -205,20 +209,23 @@ export function createLessonFlow({
   }
 
   function startReview(savedItem) {
-    setLessonReviewMode(true);
-    setQuestions([{
+    runtimeState.lessonReviewMode = true;
+    runtimeState.questions = [{
       q: savedItem.questionText || "",
       a: savedItem.correctAnswer || "",
       replayOptions: Array.isArray(savedItem.options) ? savedItem.options.slice() : [],
-    }]);
-    setCurrentIndex(0);
-    setLocked(false);
+    }];
+    runtimeState.currentIndex = 0;
+    runtimeState.locked = false;
     stopSpeaking();
     showLessonScreen();
     renderQuestion();
   }
 
   return {
+    getState,
+    setLevel,
+    resetRuntimeState,
     startQuiz,
     renderQuestion,
     nextQuestion,
