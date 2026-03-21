@@ -113,6 +113,7 @@ import {
 } from "./qa-game.js";
 import { initDebugTools } from "./debug-tools.js";
 import {
+  createCompletionBannerController,
   createProgressUi,
   createTimedRewardTrack,
   renderLinearRewardBar,
@@ -458,7 +459,6 @@ let audioContext = null;
 let audioPrimed = false;
 let audioInteractionUnlocked = false;
 const BACKGROUND_AUDIO_ENABLED = true;
-let completionBannerTimer = null;
 function syncCoreStateReferences() {
   const coreState = getCoreState();
   progressState = coreState.progress;
@@ -540,28 +540,6 @@ function shuffle(arr) {
   return a;
 }
 
-function unique(array) {
-  return [...new Set(array)];
-}
-
-function safeLocalStorageSet(key, value) {
-  try {
-    localStorage.setItem(key, value);
-    return true;
-  } catch (_error) {
-    return false;
-  }
-}
-
-function safeLocalStorageRemove(key) {
-  try {
-    localStorage.removeItem(key);
-    return true;
-  } catch (_error) {
-    return false;
-  }
-}
-
 function buildSentenceGameEventId(kind = "progress") {
   const item = sentenceGameSentence();
   const sentenceKey = String(item?.id || item?.en || "").trim().toLowerCase();
@@ -573,15 +551,6 @@ function buildSentenceGameEventId(kind = "progress") {
     kind,
     sentenceKey,
   ].join(":");
-}
-
-function escapeHtml(value) {
-  return String(value || "")
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;")
-    .replaceAll('"', "&quot;")
-    .replaceAll("'", "&#39;");
 }
 
 function lessonMnTranslation(value) {
@@ -602,6 +571,13 @@ let appTimerManager = null;
 let vaultManager = null;
 let screenNavigator = null;
 let progressUi = null;
+const completionBanner = createCompletionBannerController({
+  completionBannerEl,
+  completionBannerTextEl,
+  appSettings: () => appSettings,
+  speakText: speakBannerText,
+  playTone,
+});
 
 function vaultKeyForScreen(screenId) {
   return vaultManager?.keyForScreen(screenId) || `repeatVault_${screenId}`;
@@ -1001,165 +977,6 @@ function toggleHomeModesPanel() {
   }
   setHomeModesPanelOpen(shouldOpen);
 }
-
-function clearBannerEffects() {
-  if (!completionBannerEl) return;
-  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
-  if (effectsLayer) {
-    effectsLayer.innerHTML = "";
-  }
-}
-
-function createParticle(layer, className, color, x, y, vars = {}) {
-  const particle = document.createElement("span");
-  particle.className = className;
-  particle.style.setProperty("--particle-color", color);
-  particle.style.setProperty("--x", `${x}px`);
-  particle.style.setProperty("--y", `${y}px`);
-  Object.entries(vars).forEach(([key, value]) => {
-    particle.style.setProperty(key, value);
-  });
-  layer.appendChild(particle);
-  particle.addEventListener("animationend", () => particle.remove(), { once: true });
-}
-
-function spawnBannerStars() {
-  if (!completionBannerEl) return;
-  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
-  if (!effectsLayer) return;
-
-  const colors = ["#ff4f57", "#ffd54d", "#76ff8b", "#ffffff", "#ffd54d", "#ffffff"];
-  const width = completionBannerEl.clientWidth;
-  const height = completionBannerEl.clientHeight;
-  const count = 30;
-
-  const edgePoint = () => {
-    const side = Math.floor(Math.random() * 4);
-    const inset = 10;
-    if (side === 0) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: 0, nx: 0, ny: -1 };
-    if (side === 1) return { x: width, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: 1, ny: 0 };
-    if (side === 2) return { x: inset + Math.random() * Math.max(10, width - inset * 2), y: height, nx: 0, ny: 1 };
-    return { x: 0, y: inset + Math.random() * Math.max(10, height - inset * 2), nx: -1, ny: 0 };
-  };
-
-  for (let i = 0; i < count; i += 1) {
-    const origin = edgePoint();
-    const spread = (Math.random() - 0.5) * 0.8;
-    const tangentX = -origin.ny;
-    const tangentY = origin.nx;
-    const burst = 16 + Math.random() * 20;
-    const drift = (Math.random() - 0.5) * 8;
-    const duration = 780 + Math.random() * 620;
-
-    createParticle(effectsLayer, "banner-star", colors[i % colors.length], origin.x, origin.y, {
-      "--dx": `${origin.nx * burst + tangentX * spread * 14 + drift}px`,
-      "--dy": `${origin.ny * burst + tangentY * spread * 14 + drift}px`,
-      "--size": `${3 + Math.random() * 3}px`,
-      "--duration": `${duration}ms`,
-    });
-  }
-}
-
-function spawnDailyGoalEffects() {
-  if (!completionBannerEl) return;
-  const effectsLayer = completionBannerEl.querySelector(".banner-effects");
-  if (!effectsLayer) return;
-
-  const confettiColors = ["#f8e083", "#f7c944", "#ffeb99", "#f5d878"];
-  const width = completionBannerEl.clientWidth;
-
-  for (let i = 0; i < 36; i += 1) {
-    createParticle(
-      effectsLayer,
-      "banner-confetti",
-      confettiColors[i % confettiColors.length],
-      12 + Math.random() * (width - 24),
-      -10,
-      {
-        "--drift": `${(Math.random() * 2 - 1) * 40}px`,
-        "--fall": `${34 + Math.random() * 46}px`,
-        "--delay": `${Math.random() * 200}ms`,
-      }
-    );
-  }
-
-  const shine = document.createElement("span");
-  shine.className = "banner-shine";
-  effectsLayer.appendChild(shine);
-  shine.addEventListener("animationend", () => shine.remove(), { once: true });
-}
-
-function showCompletionBanner(showDailyGoalUpgrade = false) {
-  if (!completionBannerEl) return;
-
-  const bannerText = showDailyGoalUpgrade
-    ? DAILY_GOAL_COMPLETION_TEXT
-    : DEFAULT_COMPLETION_TEXT;
-
-  if (completionBannerTextEl) {
-    completionBannerTextEl.textContent = bannerText;
-  }
-  completionBannerEl.classList.toggle("premium", showDailyGoalUpgrade);
-
-  completionBannerEl.classList.remove("hidden", "showing");
-  void completionBannerEl.offsetWidth;
-  completionBannerEl.classList.add("showing");
-  clearBannerEffects();
-  spawnBannerStars();
-  speakBannerText(bannerText);
-  if (showDailyGoalUpgrade) {
-    playDailyVictoryChime();
-  } else {
-    playCompletionBannerSound();
-  }
-
-  if (completionBannerTimer) clearTimeout(completionBannerTimer);
-
-  completionBannerTimer = setTimeout(() => {
-    completionBannerEl.classList.remove("showing");
-    clearBannerEffects();
-    setTimeout(() => {
-      completionBannerEl.classList.add("hidden");
-      completionBannerEl.classList.remove("premium");
-      if (completionBannerTextEl) completionBannerTextEl.textContent = DEFAULT_COMPLETION_TEXT;
-    }, 450);
-  }, 10000);
-}
-
-function playCompletionBannerSound() {
-  if (!appSettings.soundEnabled) return;
-  const notes = [523.25, 659.25, 783.99];
-  notes.forEach((frequency, index) => {
-    setTimeout(() => {
-      playTone({
-        frequency,
-        type: "sine",
-        duration: 0.11,
-        volume: 0.08,
-        attack: 0.01,
-        release: 0.1,
-      });
-    }, index * 120);
-  });
-}
-
-function playDailyVictoryChime() {
-  if (!appSettings.soundEnabled) return;
-  const notes = [587.33, 783.99, 987.77, 1174.66];
-  notes.forEach((frequency, index) => {
-    setTimeout(() => {
-      playTone({
-        frequency,
-        type: "triangle",
-        duration: 0.1,
-        volume: 0.05,
-        attack: 0.005,
-        release: 0.11,
-      });
-    }, index * 130);
-  });
-}
-
 
 function mongolianVoice() {
   const voices = (availableVoices || []).filter(v => (v.lang || "").toLowerCase().startsWith("mn"));
@@ -1886,7 +1703,13 @@ function resetDebugProgress() {
     SENTENCE_GAME_REWARD_LEVEL_KEY,
     SENTENCE_GAME_LAST_TICK_KEY,
     SENTENCE_GAME_DIFFICULTY_KEY,
-  ].forEach((key) => safeLocalStorageRemove(key));
+  ].forEach((key) => {
+    try {
+      localStorage.removeItem(key);
+    } catch (_error) {
+      // ignore storage errors in private mode
+    }
+  });
 
   resetCoreState(createDefaultCoreState());
   syncCoreStateReferences();
@@ -3338,7 +3161,7 @@ const lessonFlow = createLessonFlow({
     updateTopbar,
     updateHeaderStatus,
     loadProgressAfterCompletion: loadProgressState,
-    showCompletionBanner: () => showCompletionBanner(progressState.dailyCompleted),
+    showCompletionBanner: () => completionBanner.show(progressState.dailyCompleted),
   },
   helpers: {
     getCoreState,
