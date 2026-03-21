@@ -104,7 +104,7 @@ export function completeLesson({ xpEarned = 0, today = null, yesterday = null, c
   if (!Number.isFinite(earned) || earned <= 0) return getCoreState().progress;
 
   const normalizedEventId = normalizeRewardEventId(eventId);
-  if (hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState().progress;
+  if (normalizedEventId && hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState().progress;
 
   let nextProgress = getCoreState().progress;
   commitCoreMutation((core) => {
@@ -147,7 +147,7 @@ export function claimReward({ rewardTierUnlocked = null, coins = 0, gems = 0, ev
   const coinAmount = Math.max(0, Math.floor(Number(coins) || 0));
   const gemAmount = Math.max(0, Math.floor(Number(gems) || 0));
   if (!coinAmount && !gemAmount && !Number.isFinite(Number(rewardTierUnlocked))) return getCoreState();
-  if (hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState();
+  if (normalizedEventId && hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState();
 
   let coreState = getCoreState();
   commitCoreMutation((core) => {
