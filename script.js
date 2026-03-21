@@ -121,6 +121,18 @@ import {
 } from "./progress-ui.js";
 import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
+import {
+  createBoardHandlers,
+  createChapterCoverHandlers,
+  createHomeHandlers,
+  createInitialHomeUiSetter,
+  createLessonHandlers,
+  createPlayExitControls,
+  createPremiumControls,
+  createSpeechControls,
+  createStartLevelSelectionHandler,
+  createStatsHandlers,
+} from "./app-orchestration.js";
 import { createLessonFlow } from "./lesson-flow.js";
 import { createQaFlow } from "./qa-flow.js";
 import {
@@ -453,25 +465,6 @@ function persistCoreAppState() {
   saveCoreState();
 }
 
-function schedulePostStartupTask(task, { timeout = 1200 } = {}) {
-  if (typeof task !== "function") return;
-
-  const runTask = () => {
-    try {
-      task();
-    } catch (error) {
-      console.error("[NomadSpeak] Deferred startup task failed.", error);
-    }
-  };
-
-  if (typeof window.requestIdleCallback === "function") {
-    window.requestIdleCallback(runTask, { timeout });
-    return;
-  }
-
-  window.setTimeout(runTask, 0);
-}
-
 const SOUND_EVENT_HOOKS = {
   diceRoll: "dice-roll",
   answerCorrect: "answer-correct",
@@ -483,9 +476,6 @@ const SOUND_EVENT_HOOKS = {
 let progressState = getCoreState().progress;
 
 
-let deferredInstallPrompt = null;
-let appInitialized = false;
-let stateSubscriptionsInitialized = false;
 let sentenceItemsLoadPromise = null;
 let boardGameBootstrapped = false;
 
@@ -524,63 +514,6 @@ function setAppMode(mode) {
   document.body.dataset.mode = resolvedMode;
   document.body.classList.toggle("mode-home", resolvedMode === GAME_MODES.HOME);
   document.body.classList.toggle("mode-learning", resolvedMode === GAME_MODES.LEARNING);
-}
-
-function unregisterServiceWorkers() {
-  if (!("serviceWorker" in navigator) || typeof navigator.serviceWorker.getRegistrations !== "function") return;
-
-  navigator.serviceWorker.getRegistrations().then((registrations) => {
-    registrations.forEach((registration) => {
-      registration.unregister();
-    });
-  }).catch(() => {
-    // silent fail in unsupported/private contexts
-  });
-}
-
-function isWrapperLikeRuntime() {
-  const protocol = window.location.protocol;
-  if (!["http:", "https:"].includes(protocol)) return true;
-
-  const userAgent = navigator.userAgent || "";
-  return /Android.*Version\/|\bwv\)|WebView|; wv\b|FBAN|FBAV|Instagram|Line\//i.test(userAgent);
-}
-
-function registerServiceWorker() {
-  if (!("serviceWorker" in navigator)) return;
-
-  const host = window.location.hostname;
-  const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
-  const isSecureContext = window.location.protocol === "https:";
-  const shouldAvoidServiceWorker = isLocal || !isSecureContext || isWrapperLikeRuntime();
-
-  if (shouldAvoidServiceWorker) {
-    unregisterServiceWorkers();
-    return;
-  }
-
-  const serviceWorkerUrl = new URL("./service-worker.js", window.location.href);
-
-  navigator.serviceWorker.register(serviceWorkerUrl, { scope: "./" }).catch(() => {
-    // silent fail in unsupported/private contexts
-  });
-}
-
-function updateInstallHintVisibility() {
-  if (!installHintEl) return;
-
-  const standalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-  const shouldHideInstallHint = standalone || isWrapperLikeRuntime();
-  if (shouldHideInstallHint) {
-    hideElement(installHintEl);
-    return;
-  }
-
-  if (deferredInstallPrompt) {
-    showElement(installHintEl);
-  } else {
-    hideElement(installHintEl);
-  }
 }
 
 // ---- Helpers ----
@@ -3453,16 +3386,16 @@ const qaFlow = createQaFlow({
   },
 });
 
-function handleStartLevelSelection(button) {
-  if (!button) return;
-  syncToggleButtons(startLevelOptions, (option) => option === button, { pressed: false });
-  level = button.dataset.level;
-  hasExplicitStartLevelSelection = true;
-  updateStartButtonLabel();
-  setStartLevelMenuOpen(false);
-  updateHeaderStatus();
-  lessonFlow.startQuiz();
-}
+const handleStartLevelSelection = createStartLevelSelectionHandler({
+  startLevelOptions,
+  syncToggleButtons,
+  setLevel: (value) => { level = value; },
+  markExplicitSelection: (value) => { hasExplicitStartLevelSelection = value; },
+  updateStartButtonLabel,
+  setStartLevelMenuOpen,
+  updateHeaderStatus,
+  startQuiz: () => lessonFlow.startQuiz(),
+});
 
 const initializeSentenceGameControls = createSentenceGameControls({
   dom: {
@@ -3818,117 +3751,88 @@ const { initializeApp } = createAppBootstrap({
   qaControls: initializeQaControls,
   sentenceFilterControls: initializeSentenceFilterControls,
   audioControls: initializeAudioControls,
-  playExitControls: () => {
-    playExitButtons.forEach((btn) => {
-      bindClickOnce(btn, `app:play-exit:${btn.id || btn.className}`, () => {
-        gameFeelSoundManager.stopAmbient();
-        worldSoundscape.stop();
-        exitPlayModeToHome();
-      });
-    });
-  },
+  playExitControls: createPlayExitControls({
+    playExitButtons,
+    bindClickOnce,
+    onExit: () => {
+      gameFeelSoundManager.stopAmbient();
+      worldSoundscape.stop();
+      exitPlayModeToHome();
+    },
+  }),
   homeScreen: initHomeScreen,
   chapterCoverScreen: initChapterCoverScreen,
   boardScreen: initBoardScreen,
   lessonScreen: initLessonScreen,
   statsScreen: initStatsScreen,
-  homeHandlers: {
-    onNavigate: (destination) => requestNavigation(destination),
-    onToggleModes: () => toggleHomeModesPanel(),
-    onCloseModes: () => closeHomeModesPanel(),
-    onToggleIntro: () => toggleStartIntroPanel(),
-    onCloseIntro: () => hideStartIntroPanel(),
-    onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
-    onSelectStartLevel: (button) => handleStartLevelSelection(button),
+  homeHandlers: createHomeHandlers({
+    requestNavigation,
+    toggleHomeModesPanel,
+    closeHomeModesPanel,
+    toggleStartIntroPanel,
+    hideStartIntroPanel,
+    setStartLevelMenuOpen,
+    handleStartLevelSelection,
     destinations: FLOW_DESTINATIONS,
-  },
-  chapterCoverHandlers: {
+  }),
+  chapterCoverHandlers: createChapterCoverHandlers({
     getSelectionState: () => getBoardEntryState(),
-    onAdvanceSelectorStep: (step) => {
-      syncBoardEntryFlowState({ step });
-    },
-    onSelectWorld: (worldId) => {
-      syncBoardEntryFlowState({
-        step: BOARD_SELECTOR_STEPS.DIFFICULTY,
-        worldId,
-        chapterId: getDefaultChapterForWorld(worldId)?.id || null,
-      });
-    },
-    onSelectDifficulty: (difficultyId) => {
-      syncBoardEntryFlowState({
-        step: BOARD_SELECTOR_STEPS.READY,
-        difficultyId,
-      });
-    },
-    onStartGame: (selection = {}) => {
-      const route = resolveBoardSelectionRoute(selection);
-      syncBoardEntryFlowState({
-        step: BOARD_SELECTOR_STEPS.PLAY,
-        worldId: route.worldId,
-        difficultyId: route.difficultyId,
-        chapterId: route.chapterId,
-      });
-      navigateTo(FLOW_DESTINATIONS.BOARD_PLAY);
-    },
-  },
-  boardHandlers: {
-    onRollDice: () => boardGameRollDice(),
-    onResizeWhileVisible: () => updateBoardGameTokenPosition(),
-    onActivate: () => {
-      if (!boardGameBootstrapped) initBoardGameMvp();
-    },
-  },
-  lessonHandlers: {
-    onNext: () => lessonFlow.nextQuestion(),
-    onRestart: () => lessonFlow.startQuiz(),
-    onOpenProgress: () => navigateTo(FLOW_DESTINATIONS.STATS),
-    onReturnHome: () => exitPlayModeToHome(),
-    onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
-    onSelectStartLevel: (button) => handleStartLevelSelection(button),
-  },
-  statsHandlers: {
-    onBeforeOpenTimeDetails: () => refreshTimeSummaryUI(),
-    onPeriodChange: (btn) => {
-      statsSelectedPeriod = btn.dataset.period || STATS_PERIODS.DAY;
-      syncToggleButtons(statsPeriodButtons, (item) => item === btn, { pressed: false });
-      refreshTimeSummaryUI();
-    },
-    onRewardTabChange: (btn) => {
-      statsRewardTab = btn.dataset.rewardTab || REWARD_TABS.DAYS;
-      statsRewardTabButtons.forEach((item) => {
-        const active = item === btn;
-        setActiveState(item, active);
-        setSelectedState(item, active);
-      });
-      progressUi?.renderRewardsTab();
-    },
-  },
+    syncBoardEntryFlowState,
+    getDefaultChapterForWorld,
+    resolveBoardSelectionRoute,
+    navigateTo,
+    boardSelectorSteps: BOARD_SELECTOR_STEPS,
+    boardPlayDestination: FLOW_DESTINATIONS.BOARD_PLAY,
+  }),
+  boardHandlers: createBoardHandlers({
+    boardGameRollDice,
+    updateBoardGameTokenPosition,
+    initBoardGameMvp,
+    isBoardGameBootstrapped: () => boardGameBootstrapped,
+  }),
+  lessonHandlers: createLessonHandlers({
+    lessonFlow,
+    navigateTo,
+    statsDestination: FLOW_DESTINATIONS.STATS,
+    exitPlayModeToHome,
+    setStartLevelMenuOpen,
+    handleStartLevelSelection,
+  }),
+  statsHandlers: createStatsHandlers({
+    syncToggleButtons,
+    setActiveState,
+    setSelectedState,
+    refreshTimeSummaryUI,
+    progressUi: () => progressUi,
+    setStatsSelectedPeriod: (value) => { statsSelectedPeriod = value; },
+    setStatsRewardTab: (value) => { statsRewardTab = value; },
+    statsPeriods: STATS_PERIODS,
+    rewardTabs: REWARD_TABS,
+    statsPeriodButtons,
+    statsRewardTabButtons,
+  }),
   bindManagedEvent,
   persistAllActiveTime,
   ensureStoppedIfHidden,
   stopTimeUiUpdater,
   audioEngine,
-  speechControls: () => {
-    if ("speechSynthesis" in window) {
-      loadVoices();
-      bindManagedEvent(window.speechSynthesis, "voiceschanged", "tts:voiceschanged", loadVoices);
-    }
-    bindManagedEvent(profileNameInput, "input", "profile:name-input", () => {
-      updateSettings({ profileName: profileNameInput.value.trim() });
-      persistCoreAppState();
-      updateProfileUI();
-    });
-  },
-  premiumControls: () => {
-    bindClickOnce(upgradePremiumBtn, "premium:upgrade", () => {
-      openPremiumModal("Төлбөрийн хэсэг удахгүй нээгдэнэ");
-    });
-    bindModalDismissal({
-      modalEl: premiumOverlay,
-      closeBtn: premiumOkBtn,
-      onClose: closePremiumModal,
-    });
-  },
+  speechControls: createSpeechControls({
+    bindManagedEvent,
+    loadVoices,
+    profileNameInput,
+    updateSettings,
+    persistCoreAppState,
+    updateProfileUI,
+  }),
+  premiumControls: createPremiumControls({
+    bindClickOnce,
+    bindModalDismissal,
+    upgradePremiumBtn,
+    openPremiumModal,
+    premiumOverlay,
+    premiumOkBtn,
+    closePremiumModal,
+  }),
   installPrompt: {
     installHintEl,
     installBtn,
@@ -3969,12 +3873,15 @@ const { initializeApp } = createAppBootstrap({
     });
     return buttonAudit;
   },
-  setInitialHomeUi: () => {
-    setStartLevelMenuOpen(false);
-    updateStartButtonLabel();
-    setAppMode(GAME_MODES.HOME);
-    syncToggleButtons(startLevelOptions, (btn) => btn.dataset.level === level, { pressed: false });
-  },
+  setInitialHomeUi: createInitialHomeUiSetter({
+    setStartLevelMenuOpen,
+    updateStartButtonLabel,
+    setAppMode,
+    homeMode: GAME_MODES.HOME,
+    syncToggleButtons,
+    startLevelOptions,
+    getLevel: () => level,
+  }),
 });
 
 export { initializeApp };
