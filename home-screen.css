@@ -20,22 +20,14 @@
 
 #start-screen.home-hub-card{
   padding:18px;
-  background:linear-gradient(180deg, rgba(7, 24, 38, .78), rgba(6, 18, 29, .66));
-  border:1px solid rgba(255,255,255,.12);
-  box-shadow:0 20px 42px rgba(0,0,0,.24);
+  background:transparent;
+  border:none;
+  box-shadow:none;
 }
 
 .home-header-main-simplified{
   align-items:center;
   gap:14px;
-}
-
-.home-profile-entry{
-  gap:6px;
-}
-
-.home-profile-label{
-  font-size:11px;
 }
 
 .home-header-simplified .subtitle{
@@ -45,34 +37,6 @@
 /* Home hub */
 .home-hub-shell{
   gap:var(--space-4);
-}
-
-.home-hub-kicker{
-  margin:0;
-}
-
-.home-hub-copy{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:var(--space-2);
-  text-align:center;
-}
-
-.home-hub-title{
-  max-width:18ch;
-}
-
-.home-hub-text{
-  max-width:38ch;
-}
-
-.home-flow-hint{
-  margin:0;
-  padding:8px 12px;
-  border-radius:999px;
-  border:1px solid rgba(255,255,255,.12);
-  background:rgba(255,255,255,.05);
 }
 
 .home-hub-actions{
@@ -227,15 +191,6 @@
     border-radius:20px;
   }
 
-  .home-hub-title{
-    max-width:none;
-    font-size:1.42rem;
-  }
-
-  .home-hub-text{
-    max-width:none;
-  }
-
   .home-hub-actions{
     grid-template-columns:1fr;
     gap:var(--space-2);
@@ -266,16 +221,6 @@
     padding:0;
   }
 
-  .home-hub-copy{
-    align-items:flex-start;
-    text-align:left;
-  }
-
-  .home-hub-title,
-  .home-hub-text,
-  .home-entry-meta{
-    max-width:none;
-  }
 
   .home-hub-primary{
     grid-column:auto;
@@ -308,15 +253,6 @@
     margin-bottom:14px;
   }
 
-  .home-header-simplified .logo-mark{
-    width:50px;
-    height:50px;
-  }
-
-  .home-profile-label{
-    font-size:10px;
-  }
-
   .home-hub-btn.premium-intro-btn,
   .home-hub-actions .nav-btn{
     min-height:48px;
@@ -337,19 +273,6 @@
   .home-header-main-simplified{
     flex-wrap:wrap;
     align-items:flex-start;
-  }
-
-  .home-brand-simplified,
-  .home-profile-entry{
-    width:100%;
-  }
-
-  .home-profile-entry{
-    align-items:flex-start;
-  }
-
-  .home-profile-label{
-    text-align:left;
   }
 
   .home-modes-panel{
