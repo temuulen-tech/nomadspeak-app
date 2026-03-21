@@ -3965,6 +3965,7 @@ const { initializeApp } = createAppBootstrap({
   setAppTimerManager: (value) => { appTimerManager = value; },
   setVaultManager: (value) => { vaultManager = value; },
   setScreenNavigator: (value) => { screenNavigator = value; },
+  getScreenNavigator: () => screenNavigator,
   getProgressState: () => progressState,
   getProfileName: () => appSettings.profileName,
   isPremium: () => appSettings.premium,
@@ -4328,20 +4329,6 @@ const { initializeApp } = createAppBootstrap({
       if (isVisible) showElement(installHintEl);
       else hideElement(installHintEl);
     },
-  },
-  activeScreenTracking: () => {
-    const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
-    if (initialVisibleScreen) {
-      const initialScreenId = SCREEN_IDS[initialVisibleScreen.id] || initialVisibleScreen.id;
-      const isHomeVisible = initialVisibleScreen === startScreen;
-      activeScreenId = initialScreenId;
-      SCREEN_REGISTRY[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
-      setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
-      startSession(initialScreenId);
-      startTimeUiUpdater();
-    } else {
-      setAppMode(GAME_MODES.HOME);
-    }
   },
   hasClickBinding,
   primaryButtonAudit: () => {

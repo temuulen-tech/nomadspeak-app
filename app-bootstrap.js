@@ -117,7 +117,6 @@ export function createAppBootstrap(deps = {}) {
     speechControls,
     premiumControls,
     installPrompt,
-    activeScreenTracking,
     hasClickBinding,
     primaryButtonAudit,
     setInitialHomeUi,
@@ -395,7 +394,7 @@ export function createAppBootstrap(deps = {}) {
     updateInstallHintVisibility();
   }
 
-  function initializeActiveScreenTracking() { activeScreenTracking(); }
+  function initializeActiveScreenTracking() { deps.getScreenNavigator()?.initializeActiveScreen(); }
 
   function auditPrimaryButtonWiring() {
     const missingBindings = primaryButtonAudit().filter(({ element, key }) => !hasClickBinding(element, key));

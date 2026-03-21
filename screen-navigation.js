@@ -38,10 +38,14 @@ export function createScreenNavigator({
   screenVisibility = {},
   timers = {},
 }) {
-  function showScreen(screenId) {
-    const resolvedScreenId = typeof screenId === "string"
+  function resolveScreenId(screenId) {
+    return typeof screenId === "string"
       ? screenId
       : Object.keys(screens).find((id) => screens[id] === screenId);
+  }
+
+  function showScreen(screenId) {
+    const resolvedScreenId = resolveScreenId(screenId);
     if (!resolvedScreenId || !screens[resolvedScreenId]) return;
 
     const targetScreen = screens[resolvedScreenId];
@@ -188,8 +192,30 @@ export function createScreenNavigator({
     navigateTo(destination);
   }
 
+  function initializeActiveScreen() {
+    const initialVisibleScreen = document.querySelector(".card:not(.hidden)");
+    if (!initialVisibleScreen) {
+      setAppMode(GAME_MODES.HOME);
+      return;
+    }
+
+    const initialScreenId = resolveScreenId(initialVisibleScreen.id);
+    const isHomeVisible = initialVisibleScreen === state.startScreen;
+
+    setActiveScreenId(initialScreenId);
+    screenRegistry[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
+    setAppMode(isHomeVisible ? GAME_MODES.HOME : GAME_MODES.LEARNING);
+
+    const domScreenId = initialVisibleScreen.id ? (screenIds[initialVisibleScreen.id] || initialVisibleScreen.id) : null;
+    if (document.body) document.body.dataset.activeScreen = domScreenId || "home";
+
+    startSession(initialScreenId);
+    startTimeUiUpdater();
+  }
+
   return {
     navigateTo,
+    initializeActiveScreen,
     requestNavigation,
     showScreen,
     syncBoardEntryFlowState,
