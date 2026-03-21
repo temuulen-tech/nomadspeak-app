@@ -8,29 +8,20 @@ function qaLevelLabel(levelKey) {
 }
 
 export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
-  const {
-    getQaGameLevel,
-    setQaGameLevel,
-    getQaContentSetId,
-    setQaContentSetId,
-    getQaRoundPool,
-    setQaRoundPool,
-    getQaRoundIndex,
-    setQaRoundIndex,
-    getQaBank,
-    setQaBank,
-    getQaQuestionBuilt,
-    setQaQuestionBuilt,
-    getQaAnswerBuilt,
-    setQaAnswerBuilt,
-    isQaQuestionSolved,
-    setQaQuestionSolved,
-    getQaElapsedSeconds,
-    setQaElapsedSeconds,
-    getQaUnlockedRewards,
-    setQaUnlockedRewards,
-    setQaTimerStartedAt,
-  } = state;
+  const runtimeState = {
+    qaGameLevel: state.qaGameLevel ?? null,
+    qaContentSetId: state.qaContentSetId ?? null,
+    qaRoundPool: Array.isArray(state.qaRoundPool) ? state.qaRoundPool : [],
+    qaRoundIndex: Number.isFinite(state.qaRoundIndex) ? state.qaRoundIndex : 0,
+    qaBank: Array.isArray(state.qaBank) ? state.qaBank : [],
+    qaQuestionBuilt: Array.isArray(state.qaQuestionBuilt) ? state.qaQuestionBuilt : [],
+    qaAnswerBuilt: Array.isArray(state.qaAnswerBuilt) ? state.qaAnswerBuilt : [],
+    qaQuestionSolved: Boolean(state.qaQuestionSolved),
+    qaElapsedSeconds: Number.isFinite(state.qaElapsedSeconds) ? state.qaElapsedSeconds : 0,
+    qaUnlockedRewards: Number.isFinite(state.qaUnlockedRewards) ? state.qaUnlockedRewards : 0,
+    qaTimerStartedAt: state.qaTimerStartedAt ?? null,
+    qaToastTimer: null,
+  };
 
   const {
     qaToastEl,
@@ -63,11 +54,13 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     showWorldFeedbackChip,
   } = actions;
 
-  let qaToastTimer = null;
+  function getState() {
+    return runtimeState;
+  }
 
   function getQaCurrentRound() {
-    const pool = getQaRoundPool();
-    return pool[getQaRoundIndex() % pool.length];
+    const pool = runtimeState.qaRoundPool;
+    return pool[runtimeState.qaRoundIndex % pool.length];
   }
 
   function showQaToast(message) {
@@ -75,8 +68,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaToastEl.textContent = message;
     setHidden(qaToastEl, false);
     toggleClass(qaToastEl, "show", true);
-    clearTimeout(qaToastTimer);
-    qaToastTimer = setTimeout(() => {
+    clearTimeout(runtimeState.qaToastTimer);
+    runtimeState.qaToastTimer = setTimeout(() => {
       toggleClass(qaToastEl, "show", false);
       setHidden(qaToastEl, true);
     }, 2200);
@@ -84,43 +77,41 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
   function updateQaBuiltTextPreview() {
     if (!qaFeedbackEl) return;
-    const questionText = formatQaBuiltLine(getQaQuestionBuilt().map((chip) => chip.token));
-    const answerText = formatQaBuiltLine(getQaAnswerBuilt().map((chip) => chip.token));
+    const questionText = formatQaBuiltLine(runtimeState.qaQuestionBuilt.map((chip) => chip.token));
+    const answerText = formatQaBuiltLine(runtimeState.qaAnswerBuilt.map((chip) => chip.token));
     qaFeedbackEl.textContent = `Q: ${questionText || "..."} | A: ${answerText || "..."}`;
   }
 
   function renderQaBuilder() {
     if (!qaQuestionLineEl || !qaAnswerLineEl || !qaWordBankEl) return;
-    const activeLine = isQaQuestionSolved() ? "answer" : "question";
-    const questionBuilt = getQaQuestionBuilt();
-    const answerBuilt = getQaAnswerBuilt();
-    const qaBank = getQaBank();
+    const activeLine = runtimeState.qaQuestionSolved ? "answer" : "question";
+    const { qaQuestionBuilt, qaAnswerBuilt, qaBank } = runtimeState;
 
-    qaQuestionLineEl.innerHTML = questionBuilt.length
-      ? questionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
+    qaQuestionLineEl.innerHTML = qaQuestionBuilt.length
+      ? qaQuestionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
       : '<span class="qa-placeholder">Асуултын мөрөнд үгсээ байрлуулна.</span>';
 
-    qaAnswerLineEl.innerHTML = answerBuilt.length
-      ? answerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
+    qaAnswerLineEl.innerHTML = qaAnswerBuilt.length
+      ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
       : '<span class="qa-placeholder">Хариултын мөрөнд үгсээ байрлуулна.</span>';
 
-    toggleClass(qaAnswerLineEl, "locked", !isQaQuestionSolved());
+    toggleClass(qaAnswerLineEl, "locked", !runtimeState.qaQuestionSolved);
 
     qaWordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
 
     qaWordBankEl.querySelectorAll(".qa-chip").forEach((btn) => {
       btn.addEventListener("click", () => {
-        const nextBank = [...getQaBank()];
-        const questionBuiltRef = [...getQaQuestionBuilt()];
-        const answerBuiltRef = [...getQaAnswerBuilt()];
+        const nextBank = [...runtimeState.qaBank];
+        const questionBuiltRef = [...runtimeState.qaQuestionBuilt];
+        const answerBuiltRef = [...runtimeState.qaAnswerBuilt];
         const chipIndex = nextBank.findIndex((chip) => chip.id === btn.dataset.chipId);
         if (chipIndex < 0) return;
         const [chip] = nextBank.splice(chipIndex, 1);
         if (activeLine === "question") questionBuiltRef.push(chip);
         else answerBuiltRef.push(chip);
-        setQaBank(nextBank);
-        setQaQuestionBuilt(questionBuiltRef);
-        setQaAnswerBuilt(answerBuiltRef);
+        runtimeState.qaBank = nextBank;
+        runtimeState.qaQuestionBuilt = questionBuiltRef;
+        runtimeState.qaAnswerBuilt = answerBuiltRef;
         renderQaBuilder();
         updateQaBuiltTextPreview();
       });
@@ -130,15 +121,15 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
       lineEl.querySelectorAll(".qa-chip.placed").forEach((btn) => {
         btn.addEventListener("click", () => {
           const source = btn.dataset.source;
-          const nextBank = [...getQaBank()];
-          const lineRef = source === "question" ? [...getQaQuestionBuilt()] : [...getQaAnswerBuilt()];
+          const nextBank = [...runtimeState.qaBank];
+          const lineRef = source === "question" ? [...runtimeState.qaQuestionBuilt] : [...runtimeState.qaAnswerBuilt];
           const idx = lineRef.findIndex((chip) => chip.id === btn.dataset.chipId);
           if (idx < 0) return;
           const [chip] = lineRef.splice(idx, 1);
           nextBank.push(chip);
-          setQaBank(nextBank);
-          if (source === "question") setQaQuestionBuilt(lineRef);
-          else setQaAnswerBuilt(lineRef);
+          runtimeState.qaBank = nextBank;
+          if (source === "question") runtimeState.qaQuestionBuilt = lineRef;
+          else runtimeState.qaAnswerBuilt = lineRef;
           renderQaBuilder();
           updateQaBuiltTextPreview();
         });
@@ -149,10 +140,10 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   function setupQaRound(options = {}) {
     const round = options.round || getQaCurrentRound();
     if (!round) {
-      setQaQuestionSolved(false);
-      setQaQuestionBuilt([]);
-      setQaAnswerBuilt([]);
-      setQaBank([]);
+      runtimeState.qaQuestionSolved = false;
+      runtimeState.qaQuestionBuilt = [];
+      runtimeState.qaAnswerBuilt = [];
+      runtimeState.qaBank = [];
       qaMnQuestionEl.textContent = "Энэ бүлгийн QA агуулга хараахан бэлэн болоогүй байна.";
       qaMnAnswerEl.textContent = "";
       qaEnQuestionEl.textContent = "";
@@ -166,10 +157,10 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
       ? options.wordBankTokens
       : getQaWordBankTokens(round);
 
-    setQaQuestionSolved(false);
-    setQaQuestionBuilt([]);
-    setQaAnswerBuilt([]);
-    setQaBank(qaShuffle(sourceTokens).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token })));
+    runtimeState.qaQuestionSolved = false;
+    runtimeState.qaQuestionBuilt = [];
+    runtimeState.qaAnswerBuilt = [];
+    runtimeState.qaBank = qaShuffle(sourceTokens).map((token, index) => ({ id: `${Date.now()}-${index}-${Math.random()}`, token }));
 
     qaMnQuestionEl.textContent = round.mnQuestion;
     qaMnAnswerEl.textContent = round.mnAnswer;
@@ -189,10 +180,10 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     if (!round) return;
     const targetQuestion = round.enQuestion.split(" ");
     const targetAnswer = round.enAnswer.split(" ");
-    const questionTokens = getQaQuestionBuilt().map((chip) => chip.token);
-    const answerTokens = getQaAnswerBuilt().map((chip) => chip.token);
+    const questionTokens = runtimeState.qaQuestionBuilt.map((chip) => chip.token);
+    const answerTokens = runtimeState.qaAnswerBuilt.map((chip) => chip.token);
 
-    if (!isQaQuestionSolved()) {
+    if (!runtimeState.qaQuestionSolved) {
       if (questionTokens.length !== targetQuestion.length) {
         qaFeedbackEl.textContent = "Асуултын үгийн тоо дутуу/илүү байна.";
         return;
@@ -202,7 +193,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
         qaFeedbackEl.textContent = "Асуулт буруу байна. Дахин оролдоорой.";
         return;
       }
-      setQaQuestionSolved(true);
+      runtimeState.qaQuestionSolved = true;
       qaFeedbackEl.textContent = "✅ Асуулт зөв! Одоо хариултаа бүтээнэ үү.";
       renderQaBuilder();
       return;
@@ -219,7 +210,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     }
 
     qaFeedbackEl.textContent = "🎉 Баяр хүргэе! Дараагийн тойрог...";
-    setQaRoundIndex((getQaRoundIndex() + 1) % getQaRoundPool().length);
+    runtimeState.qaRoundIndex = (runtimeState.qaRoundIndex + 1) % runtimeState.qaRoundPool.length;
     setupQaRound();
   }
 
@@ -234,20 +225,20 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function buildQaSentencesModalHtml() {
-    const qaGameLevel = getQaGameLevel();
-    const qaContentSetId = getQaContentSetId();
-    const rounds = getQaRoundPool().length ? getQaRoundPool() : qaRoundPoolForLevel(qaGameLevel || DIFFICULTY_LEVELS.BEGINNER, qaContentSetId);
+    const rounds = runtimeState.qaRoundPool.length
+      ? runtimeState.qaRoundPool
+      : qaRoundPoolForLevel(runtimeState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER, runtimeState.qaContentSetId);
     return rounds
       .map((round) => `<p>${round.enQuestion} - ${round.enAnswer}</p><p>${round.mnQuestion} - ${round.mnAnswer}</p>`)
       .join("");
   }
 
   function selectQaLevel(levelKey) {
-    const nextContentSetId = getActiveLearningSelection().qaSetId || getQaContentSetId();
-    setQaGameLevel(levelKey);
-    setQaContentSetId(nextContentSetId);
-    setQaRoundPool(qaRoundPoolForLevel(levelKey, nextContentSetId));
-    setQaRoundIndex(0);
+    const nextContentSetId = getActiveLearningSelection().qaSetId || runtimeState.qaContentSetId;
+    runtimeState.qaGameLevel = levelKey;
+    runtimeState.qaContentSetId = nextContentSetId;
+    runtimeState.qaRoundPool = qaRoundPoolForLevel(levelKey, nextContentSetId);
+    runtimeState.qaRoundIndex = 0;
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
@@ -255,20 +246,24 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     startQaTimer();
   }
 
+  function resetRuntimeState() {
+    runtimeState.qaBank = [];
+    runtimeState.qaQuestionBuilt = [];
+    runtimeState.qaAnswerBuilt = [];
+    runtimeState.qaQuestionSolved = false;
+    runtimeState.qaElapsedSeconds = 0;
+    runtimeState.qaUnlockedRewards = 0;
+    runtimeState.qaTimerStartedAt = null;
+  }
+
   function resetQaGameScreen() {
-    const initialLevel = getQaGameLevel() || DIFFICULTY_LEVELS.BEGINNER;
-    const nextContentSetId = getActiveLearningSelection().qaSetId || getQaContentSetId();
-    setQaContentSetId(nextContentSetId);
-    setQaGameLevel(initialLevel);
-    setQaRoundPool(qaRoundPoolForLevel(initialLevel, nextContentSetId));
-    setQaRoundIndex(0);
-    setQaBank([]);
-    setQaQuestionBuilt([]);
-    setQaAnswerBuilt([]);
-    setQaQuestionSolved(false);
-    setQaElapsedSeconds(0);
-    setQaUnlockedRewards(0);
-    setQaTimerStartedAt(null);
+    const initialLevel = runtimeState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
+    const nextContentSetId = getActiveLearningSelection().qaSetId || runtimeState.qaContentSetId;
+    runtimeState.qaContentSetId = nextContentSetId;
+    runtimeState.qaGameLevel = initialLevel;
+    runtimeState.qaRoundPool = qaRoundPoolForLevel(initialLevel, nextContentSetId);
+    runtimeState.qaRoundIndex = 0;
+    resetRuntimeState();
     stopQaTimer();
     updateQaTimerUi();
     renderQaRewards();
@@ -284,9 +279,9 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function loadRound(round) {
-    setQaGameLevel(DIFFICULTY_LEVELS.INTERMEDIATE);
-    setQaRoundPool([round]);
-    setQaRoundIndex(0);
+    runtimeState.qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
+    runtimeState.qaRoundPool = [round];
+    runtimeState.qaRoundIndex = 0;
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
@@ -297,6 +292,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   return {
+    getState,
+    getQaCurrentRound,
     showQaToast,
     renderQaBuilder,
     updateQaBuiltTextPreview,
@@ -307,6 +304,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     buildQaSentencesModalHtml,
     selectQaLevel,
     resetQaGameScreen,
+    resetRuntimeState,
     loadRound,
     openHelpModal: () => openQaModal("Тоглоомын тайлбар", `<p>${QA_LONG_EXPLANATION_TEXT}</p>`),
     openSentencesModal: () => openQaModal("Бүтэн өгүүлбэрүүд", buildQaSentencesModalHtml()),

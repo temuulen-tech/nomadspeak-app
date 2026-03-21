@@ -28,7 +28,15 @@ import {
   updateSettings,
   updateStreak,
 } from "./actions.js";
-import { setSoundEnabled as setGlobalSoundEnabled } from "./audio.js";
+import {
+  isAudioInteractionUnlocked,
+  isAudioPrimed,
+  markAudioPrimed,
+  playTone,
+  primeAudioContext,
+  setSoundEnabled as setGlobalSoundEnabled,
+  unlockAudioInteraction,
+} from "./audio.js";
 import { initHomeScreen } from "./home-screen.js";
 import { initChapterCoverScreen } from "./chapter-cover-screen.js";
 import { BOARD_WORLD_CHAPTERS, getChapterConfig, getDefaultChapterForWorld, resolveBoardSelectionRoute, resolveChapterContent } from "./chapters.js";
@@ -382,11 +390,6 @@ hydrateRewardStripImages({
 
 // ---- State ----
 let level = DIFFICULTY_LEVELS.BEGINNER;
-let questions = [];
-let currentIndex = 0;
-let score = 0;
-let locked = false;
-let lessonReviewMode = false;
 
 let sentenceItems = [];
 let sentenceFilter = DIFFICULTY_LEVELS.BEGINNER;
@@ -428,21 +431,6 @@ const SENTENCE_GAME_REWARD_LEVEL_KEY = "sentenceGameRewardLevel";
 const SENTENCE_GAME_LAST_TICK_KEY = "sentenceGameLastTick";
 const SENTENCE_GAME_DIFFICULTY_KEY = "sentenceGameDifficulty";
 
-let qaGameLevel = null;
-let qaContentSetId = null;
-let qaRoundPool = [];
-let qaRoundIndex = 0;
-let qaBank = [];
-let qaQuestionBuilt = [];
-let qaAnswerBuilt = [];
-let qaQuestionSolved = false;
-let qaElapsedSeconds = 0;
-let qaUnlockedRewards = 0;
-let qaTimerStartedAt = null;
-let qaToastTimer = null;
-let lessonElapsedSeconds = 0;
-let lessonUnlockedRewards = 0;
-let lessonTimerStartedAt = null;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
 let sentencesTimerInterval = null;
@@ -455,9 +443,6 @@ const APP_TIME_DAILY_TOTALS_KEY = STORAGE_KEYS.appTimeDailyTotals;
 const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
 const FREE_DAILY_XP_LIMIT = 10;
 let appSettings = getCoreState().settings;
-let audioContext = null;
-let audioPrimed = false;
-let audioInteractionUnlocked = false;
 const BACKGROUND_AUDIO_ENABLED = true;
 function syncCoreStateReferences() {
   const coreState = getCoreState();
@@ -596,7 +581,8 @@ function saveSentenceListItem(item) {
 }
 
 function saveCurrentLessonItem() {
-  const item = questions[currentIndex];
+  const lessonState = lessonFlow.getState();
+  const item = lessonState.questions[lessonState.currentIndex];
   if (!item) return;
   const options = buildOptions(item.a);
   const optionMnMap = options.reduce((acc, option) => {
@@ -621,7 +607,7 @@ function saveCurrentLessonItem() {
 }
 
 function saveCurrentQaRound() {
-  const round = getQaCurrentRound();
+  const round = qaFlow.getQaCurrentRound();
   if (!round) return;
   const payload = {
     id: `qna:${round.id}`,
@@ -629,7 +615,7 @@ function saveCurrentQaRound() {
     mnAnswer: round.mnAnswer,
     enQuestion: round.enQuestion,
     enAnswer: round.enAnswer,
-    level: levelName(qaGameLevel || "beginner"),
+    level: levelName(qaFlow.getState().qaGameLevel || "beginner"),
     timestamp: Date.now(),
   };
   const key = vaultKeyForScreen("qna");
@@ -1021,13 +1007,7 @@ function speakBannerText(text) {
 
 
 function resetLessonProgress() {
-  questions = [];
-  currentIndex = 0;
-  lessonReviewMode = false;
-  locked = false;
-  lessonElapsedSeconds = 0;
-  lessonUnlockedRewards = 0;
-  lessonTimerStartedAt = null;
+  lessonFlow.resetRuntimeState();
   stopLessonTimer();
   updateLessonTimerUI();
   renderLessonRewards();
@@ -1173,7 +1153,7 @@ const audioEngine = {
   start(worldId = WORLD_IDS.SEA, mode = GAME_MODES.LESSON) {
     this.worldId = worldId;
     this.activeMode = mode;
-    if (!appSettings.soundEnabled || !audioInteractionUnlocked || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
+    if (!appSettings.soundEnabled || !isAudioInteractionUnlocked() || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
       this.stop(true);
       return;
     }
@@ -1674,8 +1654,8 @@ function giveDebugRewards() {
   sentenceGameClimbLevel = 5;
   sentenceGameRewardLevel = 5;
   sentenceGameActiveSeconds = Math.max(sentenceGameActiveSeconds, 120 * 60);
-  lessonUnlockedRewards = Math.max(lessonUnlockedRewards, REWARD_ICON_SEQUENCE.length);
-  qaUnlockedRewards = Math.max(qaUnlockedRewards, REWARD_ICON_SEQUENCE.length);
+  lessonFlow.getState().unlockedRewards = Math.max(lessonFlow.getState().unlockedRewards, REWARD_ICON_SEQUENCE.length);
+  qaFlow.getState().qaUnlockedRewards = Math.max(qaFlow.getState().qaUnlockedRewards, REWARD_ICON_SEQUENCE.length);
   sentencesUnlockedRewards = Math.max(sentencesUnlockedRewards, REWARD_ICON_SEQUENCE.length);
   loadProgressState();
   applyProgressPatch((progress) => {
@@ -1717,8 +1697,8 @@ function resetDebugProgress() {
   sentenceGameRewardLevel = 0;
   sentenceGameActiveSeconds = 0;
   sentenceGameLastTick = Date.now();
-  lessonUnlockedRewards = 0;
-  qaUnlockedRewards = 0;
+  lessonFlow.getState().unlockedRewards = 0;
+  qaFlow.getState().qaUnlockedRewards = 0;
   sentencesUnlockedRewards = 0;
   updateSettings({
     premium: false,
@@ -1754,9 +1734,10 @@ function unlockAllDebugChapters() {
 }
 
 function updateTopbar() {
+  const lessonState = lessonFlow.getState();
   levelLabel.textContent = levelName(level);
-  scoreEl.textContent = score;
-  progressEl.textContent = `${currentIndex + 1}/${questions.length}`;
+  scoreEl.textContent = lessonState.score;
+  progressEl.textContent = `${lessonState.currentIndex + 1}/${lessonState.questions.length}`;
 }
 
 // ---- UI switch ----
@@ -1788,29 +1769,12 @@ function updateSoundToggleState() {
   });
 }
 
-function getAudioContext() {
-  if (!(window.AudioContext || window.webkitAudioContext)) return null;
-  if (!audioContext) {
-    const AudioCtx = window.AudioContext || window.webkitAudioContext;
-    audioContext = new AudioCtx();
-  }
-  return audioContext;
-}
-
-function primeAudioContext() {
-  const ctx = getAudioContext();
-  if (!ctx) return;
-  if (ctx.state === "suspended") {
-    ctx.resume();
-  }
-}
-
 function ensureAudioUnlocked() {
-  if (audioPrimed) return;
-  audioPrimed = true;
+  if (isAudioPrimed()) return;
+  markAudioPrimed();
 
   const unlock = () => {
-    audioInteractionUnlocked = true;
+    unlockAudioInteraction();
     primeAudioContext();
     const activeScreen = document.body?.dataset.activeScreen || "home";
     if (appSettings.soundEnabled) {
@@ -1823,33 +1787,6 @@ function ensureAudioUnlocked() {
 
   window.addEventListener("pointerdown", unlock, true);
   window.addEventListener("keydown", unlock, true);
-}
-
-function playTone({ frequency, type, duration, volume, attack = 0.005, release = 0.05 }) {
-  if (!appSettings.soundEnabled || !audioInteractionUnlocked) return;
-  const ctx = getAudioContext();
-  if (!ctx) return;
-
-  if (ctx.state === "suspended") {
-    ctx.resume();
-  }
-
-  const now = ctx.currentTime;
-  const osc = ctx.createOscillator();
-  const gain = ctx.createGain();
-
-  osc.type = type;
-  osc.frequency.setValueAtTime(frequency, now);
-
-  gain.gain.setValueAtTime(0, now);
-  gain.gain.linearRampToValueAtTime(volume, now + attack);
-  gain.gain.exponentialRampToValueAtTime(0.0001, now + duration + release);
-
-  osc.connect(gain);
-  gain.connect(ctx.destination);
-
-  osc.start(now);
-  osc.stop(now + duration + release + 0.02);
 }
 
 function playSuccessSound() {
@@ -2979,7 +2916,7 @@ function renderQaRewards() {
   renderLinearRewardBar({
     rewardBarEl: qaRewardBarEl,
     rewardImageEls: qaRewardImageEls,
-    unlockedRewards: qaUnlockedRewards,
+    unlockedRewards: qaFlow.getState().qaUnlockedRewards,
     totalSteps: QA_REWARD_STEPS.length,
   });
 }
@@ -2988,7 +2925,7 @@ function renderLessonRewards() {
   renderLinearRewardBar({
     rewardBarEl: lessonRewardBarEl,
     rewardImageEls: lessonRewardImageEls,
-    unlockedRewards: lessonUnlockedRewards,
+    unlockedRewards: lessonFlow.getState().unlockedRewards,
     totalSteps: QA_REWARD_STEPS.length,
   });
 }
@@ -3007,17 +2944,17 @@ const updateSentencesTimerRewards = createTimedRewardTrack({
 });
 
 const updateLessonTimerRewards = createTimedRewardTrack({
-  getElapsedSeconds: () => lessonElapsedSeconds,
-  getUnlockedRewards: () => lessonUnlockedRewards,
-  setUnlockedRewards: (value) => { lessonUnlockedRewards = value; },
+  getElapsedSeconds: () => lessonFlow.getState().elapsedSeconds,
+  getUnlockedRewards: () => lessonFlow.getState().unlockedRewards,
+  setUnlockedRewards: (value) => { lessonFlow.getState().unlockedRewards = value; },
   rewardSteps: QA_REWARD_STEPS,
   render: renderLessonRewards,
 });
 
 const updateQaTimerRewards = createTimedRewardTrack({
-  getElapsedSeconds: () => qaElapsedSeconds,
-  getUnlockedRewards: () => qaUnlockedRewards,
-  setUnlockedRewards: (value) => { qaUnlockedRewards = value; },
+  getElapsedSeconds: () => qaFlow.getState().qaElapsedSeconds,
+  getUnlockedRewards: () => qaFlow.getState().qaUnlockedRewards,
+  setUnlockedRewards: (value) => { qaFlow.getState().qaUnlockedRewards = value; },
   rewardSteps: QA_REWARD_STEPS,
   render: renderQaRewards,
   onUnlock: (_count, step) => {
@@ -3088,10 +3025,10 @@ function updateQaTimerUI() {
 }
 
 const lessonTimer = createSessionElapsedTimer({
-  getElapsedSeconds: () => lessonElapsedSeconds,
-  setElapsedSeconds: (value) => { lessonElapsedSeconds = value; },
-  getStartedAt: () => lessonTimerStartedAt,
-  setStartedAt: (value) => { lessonTimerStartedAt = value; },
+  getElapsedSeconds: () => lessonFlow.getState().elapsedSeconds,
+  setElapsedSeconds: (value) => { lessonFlow.getState().elapsedSeconds = value; },
+  getStartedAt: () => lessonFlow.getState().timerStartedAt,
+  setStartedAt: (value) => { lessonFlow.getState().timerStartedAt = value; },
   onTick: updateLessonTimerUI,
 });
 
@@ -3104,10 +3041,10 @@ function startLessonTimer() {
 }
 
 const qaTimer = createSessionElapsedTimer({
-  getElapsedSeconds: () => qaElapsedSeconds,
-  setElapsedSeconds: (value) => { qaElapsedSeconds = value; },
-  getStartedAt: () => qaTimerStartedAt,
-  setStartedAt: (value) => { qaTimerStartedAt = value; },
+  getElapsedSeconds: () => qaFlow.getState().qaElapsedSeconds,
+  setElapsedSeconds: (value) => { qaFlow.getState().qaElapsedSeconds = value; },
+  getStartedAt: () => qaFlow.getState().qaTimerStartedAt,
+  setStartedAt: (value) => { qaFlow.getState().qaTimerStartedAt = value; },
   onTick: updateQaTimerUI,
 });
 
@@ -3121,18 +3058,7 @@ function startQaTimer() {
 
 const lessonFlow = createLessonFlow({
   state: {
-    getLevel: () => level,
-    setQuestions: (value) => { questions = value; },
-    getQuestions: () => questions,
-    setCurrentIndex: (value) => { currentIndex = value; },
-    getCurrentIndex: () => currentIndex,
-    setScore: (value) => { score = value; },
-    getScore: () => score,
-    getLocked: () => locked,
-    setLocked: (value) => { locked = value; },
-    setLessonReviewMode: (value) => { lessonReviewMode = value; },
-    isLessonReviewMode: () => lessonReviewMode,
-    getLessonUnlockedRewards: () => lessonUnlockedRewards,
+    level,
   },
   dom: {
     finalTextEl,
@@ -3169,29 +3095,7 @@ const lessonFlow = createLessonFlow({
 });
 
 const qaFlow = createQaFlow({
-  state: {
-    getQaGameLevel: () => qaGameLevel,
-    setQaGameLevel: (value) => { qaGameLevel = value; },
-    getQaContentSetId: () => qaContentSetId,
-    setQaContentSetId: (value) => { qaContentSetId = value; },
-    getQaRoundPool: () => qaRoundPool,
-    setQaRoundPool: (value) => { qaRoundPool = value; },
-    getQaRoundIndex: () => qaRoundIndex,
-    setQaRoundIndex: (value) => { qaRoundIndex = value; },
-    getQaBank: () => qaBank,
-    setQaBank: (value) => { qaBank = value; },
-    getQaQuestionBuilt: () => qaQuestionBuilt,
-    setQaQuestionBuilt: (value) => { qaQuestionBuilt = value; },
-    getQaAnswerBuilt: () => qaAnswerBuilt,
-    setQaAnswerBuilt: (value) => { qaAnswerBuilt = value; },
-    isQaQuestionSolved: () => qaQuestionSolved,
-    setQaQuestionSolved: (value) => { qaQuestionSolved = value; },
-    getQaElapsedSeconds: () => qaElapsedSeconds,
-    setQaElapsedSeconds: (value) => { qaElapsedSeconds = value; },
-    getQaUnlockedRewards: () => qaUnlockedRewards,
-    setQaUnlockedRewards: (value) => { qaUnlockedRewards = value; },
-    setQaTimerStartedAt: (value) => { qaTimerStartedAt = value; },
-  },
+  state: {},
   dom: {
     qaToastEl,
     qaLevelSelectBtn,
@@ -3226,7 +3130,10 @@ const qaFlow = createQaFlow({
 const handleStartLevelSelection = createStartLevelSelectionHandler({
   startLevelOptions,
   syncToggleButtons,
-  setLevel: (value) => { level = value; },
+  setLevel: (value) => {
+    level = value;
+    lessonFlow.setLevel(value);
+  },
   markExplicitSelection: (value) => { hasExplicitStartLevelSelection = value; },
   updateStartButtonLabel,
   setStartLevelMenuOpen,
@@ -3497,7 +3404,7 @@ const { initializeApp } = createAppBootstrap({
     qaGameScreen,
     profileScreen,
     destinations: FLOW_DESTINATIONS,
-    hasQaGameLevel: () => Boolean(qaGameLevel),
+    hasQaGameLevel: () => Boolean(qaFlow.getState().qaGameLevel),
   },
   boardEntry: {
     getState: getBoardEntryState,
