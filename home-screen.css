@@ -1,227 +1,48 @@
-/* Home screen layout refinements and responsive tweaks */
+/* Home screen: hero/intro area, hub cards, mode panel, and responsive layout */
 
-@media (max-width:900px){
-  body{
-    padding:14px;
-  }
-
-  .phone-preview-shell{
-    width:min(100%, 420px);
-    padding:10px;
-    border-radius:28px;
-  }
-
-  .app{
-    max-width:390px;
-  }
-
-  .header-right,
-  .header-nav,
-  .status-bar{
-    width:100%;
-  }
-
-  .header-nav{
-    grid-template-columns:1fr;
-  }
-
-  .home-header-actions{
-    grid-template-columns:1fr;
-  }
-
-  .home-action-card{
-    padding:12px;
-  }
-
-  .home-header-main-simplified{
-    gap:10px;
-  }
-
-  .home-hub-card{
-    padding:16px;
-    border-radius:20px;
-  }
-
-  .home-hub-title{
-    max-width:none;
-    font-size:1.42rem;
-  }
-
-  .home-hub-text{
-    max-width:none;
-  }
-
-  .home-hub-actions{
-    grid-template-columns:1fr;
-    gap:8px;
-  }
-
-  .home-hero-block{
-    grid-template-columns:1fr;
-    gap:14px;
-  }
-
-  .home-hero-title{
-    font-size:1.42rem;
-  }
-
-  .home-hub-actions{
-    grid-template-columns:1fr;
-  }
-
-  .home-header-main-simplified{
-    align-items:flex-start;
-  }
-
-  #start-screen{
-    min-height:auto;
-  }
-
-  .header-nav .nav-btn{
-    max-width:none;
-  }
+/* Home shell and header */
+#home-shell{
+  gap:var(--space-6);
+  padding-bottom:var(--space-2);
 }
 
-@media (max-width:420px){
-  .header{
-    gap:12px;
-    margin-bottom:14px;
-  }
-
-  .logo-mark{
-    width:50px;
-    height:50px;
-  }
-
-  .subtitle{
-    max-width:none;
-    font-size:13px;
-  }
-
-  .home-header-actions .header-nav .nav-btn,
-  .premium-intro-btn{
-    min-height:48px;
-  }
-
-  .home-modes-panel{
-    padding:8px;
-  }
-
-  .home-modes-option{
-    font-size:13px;
-    padding:10px;
-  }
-
-  .home-hero-aside{
-    padding:14px;
-  }
+#start-screen{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-3);
+  min-height:auto;
+  overflow:visible;
 }
 
-
-@media (max-width:900px){
-  #home-shell{
-    gap:var(--space-5);
-  }
-
-  .header{
-    gap:var(--space-4);
-    margin-bottom:var(--space-1);
-  }
-
-  .home-header-actions{
-    gap:var(--space-4);
-  }
-
-  .header-nav--compact{
-    grid-template-columns:repeat(3, minmax(0, 1fr));
-  }
-
-  .home-header-actions .header-nav{
-    grid-template-columns:repeat(auto-fit, minmax(150px, 1fr));
-  }
-}
-
-@media (max-width:600px){
-  .header{
-    margin-bottom:var(--space-1);
-  }
-
-  #home-shell{
-    gap:var(--space-4);
-  }
-
-  #start-screen{
-    gap:var(--space-3);
-    padding:0;
-  }
-
-  .premium-intro-btn--compact{
-    min-height:auto;
-  }
-
-  .home-hub-actions{
-    grid-template-columns:1fr;
-  }
-
-  .home-hub-primary{
-    grid-column:auto;
-  }
-
-  .home-modes-panel{
-    position:static;
-    margin-top:var(--space-2);
-  }
-
-  .home-header-actions .header-nav{
-    grid-template-columns:repeat(auto-fit, minmax(140px, 1fr));
-    gap:var(--space-2);
-    padding:var(--space-2);
-  }
-
-  .start-intro-panel{
-    padding:var(--space-4);
-  }
-}
-
-@media (max-width:360px){
-  .home-header-actions .header-nav{
-    grid-template-columns:1fr;
-  }
-}
-
-@media (max-width:420px){
-  .home-profile-entry{
-    gap:6px;
-  }
-
-  .home-profile-label{
-    font-size:10px;
-  }
-
-  .home-hero-stat-label{
-    font-size:10px;
-  }
-
-  .home-hero-title{
-    max-width:100%;
-    line-height:1.16;
-  }
-
-  .start-intro-summary{
-    grid-template-columns:1fr;
-  }
-
-  .start-intro-panel-head{
-    flex-direction:column;
-    align-items:flex-start;
-  }
-}
-
-/* Step 4: Home mode panel cleanup */
 .home-hub-card{
   position:relative;
 }
 
+#start-screen.home-hub-card{
+  padding:18px;
+  background:linear-gradient(180deg, rgba(7, 24, 38, .78), rgba(6, 18, 29, .66));
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 20px 42px rgba(0,0,0,.24);
+}
+
+.home-header-main-simplified{
+  align-items:center;
+  gap:14px;
+}
+
+.home-profile-entry{
+  gap:6px;
+}
+
+.home-profile-label{
+  font-size:11px;
+}
+
+.home-header-simplified .subtitle{
+  max-width:none;
+}
+
+/* Home hub */
 .home-hub-shell{
   gap:var(--space-4);
 }
@@ -235,6 +56,7 @@
   flex-direction:column;
   align-items:center;
   gap:var(--space-2);
+  text-align:center;
 }
 
 .home-hub-title{
@@ -251,6 +73,20 @@
   align-items:stretch;
 }
 
+.home-hub-actions > *{
+  min-width:0;
+}
+
+.home-hub-primary{
+  grid-column:span 2;
+}
+
+.home-hub-btn,
+.home-entry-card,
+.home-modes-panel{
+  overflow-wrap:anywhere;
+}
+
 .home-modes-menu-wrap{
   display:flex;
   flex-direction:column;
@@ -263,14 +99,6 @@
   gap:var(--space-2);
   justify-content:flex-start;
   min-height:100%;
-}
-
-.start-intro-panel{
-  margin-top:var(--space-4);
-}
-
-.start-intro-list{
-  gap:var(--space-2);
 }
 
 .home-entry-card--primary{
@@ -297,6 +125,7 @@
   max-width:26ch;
 }
 
+/* Home mode panel */
 .home-modes-panel{
   top:calc(100% + 6px);
   padding:var(--space-4);
@@ -304,6 +133,8 @@
   border-color:rgba(255,255,255,.14);
   background:linear-gradient(180deg, rgba(7,24,36,.985), rgba(4,15,25,.96));
   box-shadow:0 22px 38px rgba(0,0,0,.34);
+  max-height:min(70vh, calc(var(--app-viewport-height) - 140px));
+  overflow:auto;
 }
 
 .home-modes-panel-head{
@@ -355,16 +186,59 @@
   color:rgba(235,247,241,.72);
 }
 
+/* Home intro/help panel */
 .start-intro-panel{
   margin-top:2px;
   padding:var(--space-4);
 }
 
-@media (max-width:780px){
-  .home-hub-shell{
-    gap:var(--space-4);
+.start-intro-panel-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:var(--space-3);
+}
+
+.start-intro-list{
+  gap:var(--space-2);
+}
+
+/* Responsive home layout */
+@media (max-width:900px){
+  #home-shell{
+    gap:var(--space-5);
   }
 
+  .home-header-main-simplified{
+    gap:10px;
+    align-items:flex-start;
+  }
+
+  .home-hub-card{
+    padding:16px;
+    border-radius:20px;
+  }
+
+  .home-hub-title{
+    max-width:none;
+    font-size:1.42rem;
+  }
+
+  .home-hub-text{
+    max-width:none;
+  }
+
+  .home-hub-actions{
+    grid-template-columns:1fr;
+    gap:var(--space-2);
+  }
+
+  #start-screen{
+    min-height:auto;
+  }
+}
+
+@media (max-width:780px){
   .home-modes-grid{
     grid-template-columns:1fr;
   }
@@ -375,6 +249,15 @@
 }
 
 @media (max-width:600px){
+  #home-shell{
+    gap:var(--space-4);
+  }
+
+  #start-screen{
+    gap:var(--space-3);
+    padding:0;
+  }
+
   .home-hub-copy{
     align-items:flex-start;
     text-align:left;
@@ -386,8 +269,8 @@
     max-width:none;
   }
 
-  .home-hub-actions{
-    gap:var(--space-2);
+  .home-hub-primary{
+    grid-column:auto;
   }
 
   .home-modes-menu-wrap{
@@ -395,8 +278,10 @@
   }
 
   .home-modes-panel{
+    position:static;
     margin-top:0;
     padding:var(--space-3);
+    max-height:min(62vh, calc(var(--app-viewport-height) - 120px));
   }
 
   .home-modes-panel-head{
@@ -406,5 +291,35 @@
 
   .home-modes-panel-hint{
     text-align:left;
+  }
+}
+
+@media (max-width:420px){
+  .home-header-simplified{
+    gap:12px;
+    margin-bottom:14px;
+  }
+
+  .home-header-simplified .logo-mark{
+    width:50px;
+    height:50px;
+  }
+
+  .home-profile-label{
+    font-size:10px;
+  }
+
+  .home-hub-btn.premium-intro-btn,
+  .home-hub-actions .nav-btn{
+    min-height:48px;
+  }
+
+  .home-modes-panel{
+    padding:8px;
+  }
+
+  .home-modes-option{
+    font-size:13px;
+    padding:10px;
   }
 }
