@@ -48,6 +48,7 @@ import { createQaControls } from "./qa-wiring.js";
 import { createAudioControls } from "./audio-wiring.js";
 import { createSentenceFilterControls, createSentenceGameControls } from "./sentence-game-wiring.js";
 import { createVaultManager } from "./vault-manager.js";
+import { createVaultUiBridge } from "./vault-ui-bridge.js";
 import { createAppTimerManager } from "./app-timer.js";
 import { createSentenceGameRewardManager } from "./sentence-game-reward-manager.js";
 import { createSessionElapsedTimer } from "./session-elapsed-timer.js";
@@ -60,16 +61,6 @@ import {
   setStartLevelMenuOpen as renderStartLevelMenuOpen,
   updateStartButtonLabel as renderStartButtonLabel,
 } from "./render-home.js";
-import {
-  renderBoardScreen,
-  updateBoardToken,
-  renderBoardChapterPanel,
-  renderBoardMeta,
-  renderBoardRollState,
-  renderBoardChallenge,
-  renderBoardFeedbackVisual,
-  renderBoardPopup,
-} from "./render-board.js";
 import {
   bindClickOnce,
   bindManagedEvent,
@@ -92,7 +83,6 @@ import {
   hydrateRewardImagesByLevel,
   hydrateRewardStripImages,
 } from "./render-rewards.js";
-import { BOARD_GAME_CONFIG, buildBoardGameTiles, boardTileEmoji } from "./board-game.js";
 import {
   SENTENCE_GAME_CLIMB_POSITIONS,
   SENTENCE_GAME_CORRECT_TOAST,
@@ -128,8 +118,11 @@ import {
   renderSentencesRewardStrip,
   startLevelLabel,
 } from "./progress-ui.js";
-import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
+import { getWorldAudioTrack } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
+import { createAudioEngine, createWorldSoundscape, SOUND_EVENT_HOOKS } from "./app-audio-manager.js";
+import { createBoardRuntime } from "./board-runtime.js";
+import { showWorldFeedbackChip as renderWorldFeedbackChip, updateCompanionLine as updateCompanionLineUi } from "./world-ui.js";
 import { getAppDom } from "./app-dom.js";
 import {
   createBoardHandlers,
@@ -154,8 +147,6 @@ import {
   REWARD_TABS,
   SCREEN_NAMES,
   STATS_PERIODS,
-  getDifficultyOption,
-  WORLD_IDS,
 } from "./constants.js";
 
 // ======================
@@ -463,13 +454,6 @@ function persistCoreAppState() {
   saveCoreState();
 }
 
-const SOUND_EVENT_HOOKS = {
-  diceRoll: "dice-roll",
-  answerCorrect: "answer-correct",
-  answerWrong: "answer-wrong",
-  chestReward: "chest-reward",
-  progression: "progression",
-};
 
 let progressState = getCoreState().progress;
 let statsSelectedPeriod = STATS_PERIODS.DAY;
@@ -545,13 +529,6 @@ function lessonMnTranslation(value) {
     || "";
 }
 
-function saveCurrentSentencesItem() {
-  const visible = filteredSentences();
-  if (!visible.length) return;
-  const active = visible.find((item) => String(item.id) === String(speakingSentenceId || ""));
-  saveSentenceListItem(active || visible[0]);
-}
-
 let appTimerManager = null;
 let vaultManager = null;
 let screenNavigator = null;
@@ -563,82 +540,6 @@ const completionBanner = createCompletionBannerController({
   speakText: speakBannerText,
   playTone,
 });
-
-function vaultKeyForScreen(screenId) {
-  return vaultManager?.keyForScreen(screenId) || `repeatVault_${screenId}`;
-}
-
-function updateVaultBadge(key) {
-  vaultManager?.updateBadge(key);
-}
-
-function renderVaultModal(key) {
-  vaultManager?.renderModal(key);
-}
-
-function saveSentenceListItem(item) {
-  vaultManager?.saveSentenceListItem(item);
-}
-
-function saveCurrentLessonItem() {
-  const lessonState = lessonFlow.getState();
-  const item = lessonState.questions[lessonState.currentIndex];
-  if (!item) return;
-  const options = buildOptions(item.a);
-  const optionMnMap = options.reduce((acc, option) => {
-    acc[option] = lessonMnTranslation(option);
-    return acc;
-  }, {});
-  const payload = {
-    id: `lesson:${item.q.toLowerCase().trim()}`,
-    questionText: item.q,
-    questionMn: item.qMn || lessonMnTranslation(item.q),
-    correctAnswer: item.a,
-    correctAnswerMn: item.aMn || lessonMnTranslation(item.a),
-    options,
-    optionMnMap,
-    level: levelName(level),
-    timestamp: Date.now(),
-  };
-  const key = vaultKeyForScreen(SCREEN_NAMES.LESSON);
-  const result = vaultManager?.saveToVault(key, payload);
-  updateVaultBadge(key);
-  vaultManager?.showSaveResult(result);
-}
-
-function saveCurrentQaRound() {
-  const round = qaFlow.getQaCurrentRound();
-  if (!round) return;
-  const payload = {
-    id: `qna:${round.id}`,
-    mnQuestion: round.mnQuestion,
-    mnAnswer: round.mnAnswer,
-    enQuestion: round.enQuestion,
-    enAnswer: round.enAnswer,
-    level: levelName(qaFlow.getState().qaGameLevel || "beginner"),
-    timestamp: Date.now(),
-  };
-  const key = vaultKeyForScreen("qna");
-  const result = vaultManager?.saveToVault(key, payload);
-  updateVaultBadge(key);
-  vaultManager?.showSaveResult(result);
-}
-
-function saveCurrentSentenceGameItem() {
-  const item = sentenceGameSentence();
-  if (!item) return;
-  const payload = {
-    id: `sentenceGame:${String(item.en || "").toLowerCase().trim()}`,
-    enSentence: item.en,
-    mnTranslation: item.mn || "",
-    level: levelName(sentenceGameDifficulty),
-    timestamp: Date.now(),
-  };
-  const key = vaultKeyForScreen("sentenceGame");
-  const result = vaultManager?.saveToVault(key, payload);
-  updateVaultBadge(key);
-  vaultManager?.showSaveResult(result);
-}
 
 function showScreen(screenId) {
   screenNavigator?.showScreen(screenId);
@@ -655,7 +556,6 @@ function navigateTo(destination) {
 function requestNavigation(destination) {
   screenNavigator?.requestNavigation(destination);
 }
-
 
 function getLocalDateKey(date = new Date()) {
   return appTimerManager?.getLocalDateKey(date) || "";
@@ -748,6 +648,76 @@ function closePremiumModal() {
   if (!premiumOverlay) return;
   closeModal(premiumOverlay);
 }
+
+const audioEngine = createAudioEngine({
+  getAppSettings: () => appSettings,
+  isAudioInteractionUnlocked,
+  getWorldAudioTrack,
+  backgroundAudioEnabled: BACKGROUND_AUDIO_ENABLED,
+});
+
+const { worldSoundscape, gameFeelSoundManager } = createWorldSoundscape({
+  audioEngine,
+  getAppSettings: () => appSettings,
+  playTone,
+  playSuccessSound: () => playSuccessSound(),
+  playErrorSound: () => playErrorSound(),
+});
+
+function updateCompanionLine(mode, tone = "idle") {
+  updateCompanionLineUi(mode, tone, { lessonCompanionLineEl, sentencesCompanionLineEl });
+}
+
+function showWorldFeedbackChip(text, tone = "reward") {
+  showWorldFeedbackChipUi(text, tone);
+}
+
+const showWorldFeedbackChipUi = (text, tone = "reward") => renderWorldFeedbackChip(worldFeedbackHubEl, text, tone);
+
+const boardRuntime = createBoardRuntime({
+  dom: appDom.board,
+  appDom,
+  getBoardEntryState,
+  gameFeelSoundManager,
+  persistActionRewards,
+});
+
+const {
+  boardGameRollDice,
+  initBoardGameMvp: initializeBoardGameRuntime,
+  updateBoardGameTokenPosition,
+  syncBoardGameDebugState,
+} = boardRuntime;
+
+function initBoardGameMvp() {
+  boardGameBootstrapped = true;
+  initializeBoardGameRuntime();
+}
+
+const vaultUiBridge = createVaultUiBridge({
+  getVaultManager: () => vaultManager,
+  filteredSentences,
+  getSpeakingSentenceId: () => speakingSentenceId,
+  lessonFlow,
+  buildOptions,
+  lessonMnTranslation,
+  levelName,
+  getLessonLevel: () => level,
+  qaFlow,
+  getSentenceGameSentence: () => sentenceGameSentence(),
+  getSentenceGameDifficulty: () => sentenceGameDifficulty,
+});
+
+const {
+  vaultKeyForScreen,
+  updateVaultBadge,
+  renderVaultModal,
+  saveSentenceListItem,
+  saveCurrentSentencesItem,
+  saveCurrentLessonItem,
+  saveCurrentQaRound,
+  saveCurrentSentenceGameItem,
+} = vaultUiBridge;
 
 const sentenceGameRewardManager = createSentenceGameRewardManager({
   storageKeys: {
@@ -1011,625 +981,6 @@ function resetLessonProgress() {
   stopLessonTimer();
   updateLessonTimerUI();
   renderLessonRewards();
-}
-
-// ---- Board Game MVP ----
-
-const BOARD_GAME_CHALLENGES_WORLD1 = [
-  { id: "c1", tileNumber: 2, promptMn: "ЮУ", options: ["What", "Where", "When", "Why"], answer: "What", tip: "Асуух үг" },
-  { id: "c2", tileNumber: 3, promptMn: "ХААНА", options: ["Where", "Who", "How", "Which"], answer: "Where", tip: "Асуух үг" },
-  { id: "c3", tileNumber: 4, promptMn: "ХЭН", options: ["Who", "When", "Why", "What"], answer: "Who", tip: "Асуух үг" },
-  { id: "c4", tileNumber: 6, promptMn: "ХЭЗЭЭ", options: ["When", "Where", "How", "Who"], answer: "When", tip: "Асуух үг" },
-  { id: "c5", tileNumber: 8, promptMn: "ЯАГААД", options: ["Why", "What", "Where", "Whose"], answer: "Why", tip: "Асуух үг" },
-  { id: "c6", tileNumber: 9, promptMn: "САЙН БАЙНА УУ", options: ["Hello / How are you?", "Good night", "Please sit", "I am hungry"], answer: "Hello / How are you?", tip: "Энгийн яриа" },
-  { id: "c7", tileNumber: 11, promptMn: "БИ ЯВЖ БАЙНА", options: ["I am going", "I am eating", "I am sleeping", "I am waiting"], answer: "I am going", tip: "Хөдөлгөөний үйл үг" },
-  { id: "c8", tileNumber: 13, promptMn: "БИД ИРЛЭЭ", options: ["We arrived", "We forgot", "We traded", "We left"], answer: "We arrived", tip: "Аяллын үйлдэл" },
-  { id: "c9", tileNumber: 15, promptMn: "СОЛИЛЦОО", options: ["Trade / Exchange", "Storm", "Ship", "Danger"], answer: "Trade / Exchange", tip: "Солилцооны үг" },
-  { id: "c10", tileNumber: 17, promptMn: "БЭЛЭГ", options: ["Gift", "Map", "Sword", "Harbor"], answer: "Gift", tip: "Зүйл заах үг" },
-  { id: "c11", tileNumber: 19, promptMn: "АЛТ", options: ["Gold", "Salt", "Forest", "Road"], answer: "Gold", tip: "Зүйл заах үг" },
-  { id: "c12", tileNumber: 21, promptMn: "АЮУЛ", options: ["Danger", "Music", "Festival", "Bridge"], answer: "Danger", tip: "Амьдралын үг" },
-  { id: "c13", tileNumber: 23, promptMn: "ХООЛ", options: ["Food", "Horse", "Ocean", "Village"], answer: "Food", tip: "Амьдралын үг" },
-  { id: "c14", tileNumber: 24, promptMn: "УС", options: ["Water", "Fire", "Wind", "Stone"], answer: "Water", tip: "Амьдралын үг" },
-  { id: "c15", tileNumber: 26, promptMn: "ДУУСЛАА", options: ["Finished", "Started", "Returned", "Lost"], answer: "Finished", tip: "Дуусгах үг" },
-];
-
-
-const boardGameState = {
-  levelId: WORLD_IDS.WORLD_1,
-  tiles: [],
-  challenges: BOARD_GAME_CHALLENGES_WORLD1,
-  player: { currentTile: 1, token: "⛵", xp: 0, coins: 0 },
-  dice: { sides: 6, lastRoll: null, canRoll: true, rolling: false },
-  movement: { isMoving: false },
-  challenge: { activeChallenge: null, pendingRoll: 0, resolvedTile: 1 },
-  feedback: { message: "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.", type: "info" },
-};
-
-const GAME_FEEL_MOTION = {
-  tilePulseMs: 900,
-  rewardPopMs: 850,
-  penaltyMs: 520,
-  moveStepMs: 210,
-};
-
-const GAME_FEEL_SOUND_EVENTS = {
-  ambient: "ambient",
-  dice: "dice",
-  correct: "correct",
-  wrong: "wrong",
-  reward: "reward",
-  chest: "chest",
-  finish: "finish",
-};
-
-const ADVENTURE_COMPANION_LINES = {
-  lesson: {
-    idle: "Өнөөдрийн аяллаа эхлүүлэхэд бэлэн. Зөв хариулт бүр таны замыг гэрэлтүүлнэ.",
-    success: "Гайхалтай! Одон зам таны өмнө улам гэрэлтлээ.",
-    error: "Зүгээр ээ, баатар аа. Дараагийн алхам дээрээ эрчээ нэмээрэй.",
-    reward: "Шагналын авдар ойртож байна. Эрчээ битгий суллаарай.",
-  },
-  sentences: {
-    idle: "Өгүүлбэр бүрийг амилуулж сонсоорой. Дуугаа дарж аяллын хэлээ хөгжүүлээрэй.",
-    success: "Чи өгүүлбэрийн хэмнэлийг маш сайн барьж байна.",
-    reward: "Сайхан ахиц! Түүхэн замд шинэ тэмдэг нээгдлээ.",
-  },
-};
-
-function showWorldFeedbackChip(text, tone = "reward") {
-  if (!worldFeedbackHubEl || !text) return;
-  const chip = document.createElement("div");
-  chip.className = `world-feedback-chip world-feedback-${tone}`;
-  chip.textContent = text;
-  worldFeedbackHubEl.appendChild(chip);
-  requestAnimationFrame(() => chip.classList.add("show"));
-  setTimeout(() => {
-    chip.classList.remove("show");
-    setTimeout(() => chip.remove(), 260);
-  }, 1700);
-}
-
-function updateCompanionLine(mode, tone = "idle") {
-  if (mode === "lesson" && lessonCompanionLineEl) {
-    lessonCompanionLineEl.textContent = ADVENTURE_COMPANION_LINES.lesson[tone] || ADVENTURE_COMPANION_LINES.lesson.idle;
-  }
-  if (mode === "sentences" && sentencesCompanionLineEl) {
-    sentencesCompanionLineEl.textContent = ADVENTURE_COMPANION_LINES.sentences[tone] || ADVENTURE_COMPANION_LINES.sentences.idle;
-  }
-}
-
-const audioEngine = {
-  worldId: WORLD_IDS.SEA,
-  activeMode: GAME_MODES.HOME,
-  worldTracks: {},
-  failedTracks: new Set(),
-  activeTrackAudio: null,
-  fadeRequestId: 0,
-  resolveTrack(worldId = this.worldId) {
-    return getWorldAudioTrack(worldId);
-  },
-  ensureTrack(worldId = this.worldId) {
-    if (this.failedTracks.has(worldId)) return null;
-    const track = this.resolveTrack(worldId);
-    if (!track) return null;
-    if (!this.worldTracks[worldId]) {
-      const audio = new Audio(track.src);
-      audio.loop = track.loop !== false;
-      audio.preload = "auto";
-      audio.volume = 0;
-      audio.addEventListener("error", () => {
-        this.failedTracks.add(worldId);
-        if (this.activeTrackAudio === audio) {
-          this.stop(true);
-        }
-      });
-      this.worldTracks[worldId] = audio;
-    }
-    return this.worldTracks[worldId];
-  },
-  fadeTrack(audio, targetVolume, durationMs = 1200, onDone = null) {
-    if (!audio) {
-      if (typeof onDone === "function") onDone();
-      return;
-    }
-    if (this.fadeRequestId) cancelAnimationFrame(this.fadeRequestId);
-    const initialVolume = Number.isFinite(audio.volume) ? audio.volume : 0;
-    const startTime = performance.now();
-    const safeDuration = Math.max(durationMs, 1);
-    const runFade = (now) => {
-      const elapsed = now - startTime;
-      const progress = Math.min(elapsed / safeDuration, 1);
-      const nextVolume = initialVolume + ((targetVolume - initialVolume) * progress);
-      audio.volume = Math.max(0, Math.min(1, nextVolume));
-      if (progress >= 1) {
-        this.fadeRequestId = 0;
-        if (typeof onDone === "function") onDone();
-        return;
-      }
-      this.fadeRequestId = requestAnimationFrame(runFade);
-    };
-    this.fadeRequestId = requestAnimationFrame(runFade);
-  },
-  start(worldId = WORLD_IDS.SEA, mode = GAME_MODES.LESSON) {
-    this.worldId = worldId;
-    this.activeMode = mode;
-    if (!appSettings.soundEnabled || !isAudioInteractionUnlocked() || mode === GAME_MODES.HOME || !BACKGROUND_AUDIO_ENABLED) {
-      this.stop(true);
-      return;
-    }
-    const track = this.resolveTrack(worldId);
-    if (!track) {
-      this.stop(true);
-      return;
-    }
-    const audio = this.ensureTrack(worldId);
-    if (!audio) return;
-
-    if (this.activeTrackAudio && this.activeTrackAudio !== audio) {
-      this.stop(true);
-    }
-    this.activeTrackAudio = audio;
-    audio.loop = track.loop !== false;
-    const targetVolume = track.volume ?? 0.2;
-    const fadeInMs = track.fadeInMs ?? 1600;
-
-    const playPromise = audio.play();
-    if (playPromise && typeof playPromise.catch === "function") {
-      playPromise.catch(() => {
-        // Playback can fail until browser fully allows media; we'll retry on next interaction.
-      });
-    }
-    this.fadeTrack(audio, targetVolume, fadeInMs);
-  },
-  stop(immediate = false) {
-    const audio = this.activeTrackAudio || this.ensureTrack(this.worldId);
-    if (!audio) return;
-
-    if (this.fadeRequestId) cancelAnimationFrame(this.fadeRequestId);
-    this.fadeRequestId = 0;
-    if (immediate) {
-      audio.volume = 0;
-      audio.pause();
-      audio.currentTime = 0;
-      this.activeTrackAudio = null;
-      return;
-    }
-    const track = this.resolveTrack(this.worldId) || {};
-    this.fadeTrack(audio, 0, track.fadeOutMs ?? 1000, () => {
-      audio.pause();
-      audio.currentTime = 0;
-      this.activeTrackAudio = null;
-    });
-  },
-  onVisibilityChange() {
-    if (document.hidden) {
-      this.stop();
-      return;
-    }
-    this.start(this.worldId, this.activeMode);
-  },
-};
-
-const worldSoundscape = {
-  start(mode = GAME_MODES.LESSON) {
-    audioEngine.start(WORLD_IDS.SEA, mode);
-  },
-  stop() {
-    audioEngine.stop();
-  },
-  play(eventName) {
-    if (!appSettings.soundEnabled) return;
-    if (eventName === "reward") {
-      playTone({ frequency: 1046, type: "sine", duration: 0.08, volume: 0.09, attack: 0.003, release: 0.06 });
-      setTimeout(() => playTone({ frequency: 1318, type: "triangle", duration: 0.1, volume: 0.08, attack: 0.004, release: 0.08 }), 55);
-      return;
-    }
-    if (eventName === "soft-fail") {
-      playTone({ frequency: 210, type: "sawtooth", duration: 0.08, volume: 0.07, attack: 0.002, release: 0.07 });
-    }
-  },
-};
-
-const gameFeelSoundManager = {
-  playSoundHook(eventName) {
-    if (!appSettings.soundEnabled) return;
-    if (eventName === SOUND_EVENT_HOOKS.diceRoll) {
-      playTone({ frequency: 420, type: "triangle", duration: 0.06, volume: 0.08, attack: 0.003, release: 0.05 });
-      setTimeout(() => playTone({ frequency: 260, type: "triangle", duration: 0.08, volume: 0.07, attack: 0.004, release: 0.06 }), 70);
-      return;
-    }
-    if (eventName === SOUND_EVENT_HOOKS.answerCorrect) {
-      playSuccessSound();
-      return;
-    }
-    if (eventName === SOUND_EVENT_HOOKS.answerWrong) {
-      playErrorSound();
-      return;
-    }
-    if (eventName === SOUND_EVENT_HOOKS.chestReward) {
-      playTone({ frequency: 320, type: "square", duration: 0.1, volume: 0.07, attack: 0.001, release: 0.08 });
-      setTimeout(() => playTone({ frequency: 760, type: "triangle", duration: 0.11, volume: 0.09, attack: 0.004, release: 0.07 }), 95);
-      return;
-    }
-    if (eventName === SOUND_EVENT_HOOKS.progression) {
-      [660, 880, 1174].forEach((freq, i) => {
-        setTimeout(() => playTone({ frequency: freq, type: "triangle", duration: 0.1, volume: 0.11, attack: 0.005, release: 0.08 }), i * 90);
-      });
-    }
-  },
-  play(eventName) {
-    const map = {
-      [GAME_FEEL_SOUND_EVENTS.dice]: SOUND_EVENT_HOOKS.diceRoll,
-      [GAME_FEEL_SOUND_EVENTS.correct]: SOUND_EVENT_HOOKS.answerCorrect,
-      [GAME_FEEL_SOUND_EVENTS.wrong]: SOUND_EVENT_HOOKS.answerWrong,
-      [GAME_FEEL_SOUND_EVENTS.reward]: SOUND_EVENT_HOOKS.progression,
-      [GAME_FEEL_SOUND_EVENTS.chest]: SOUND_EVENT_HOOKS.chestReward,
-      [GAME_FEEL_SOUND_EVENTS.finish]: SOUND_EVENT_HOOKS.progression,
-    };
-    const hook = map[eventName];
-    if (hook) this.playSoundHook(hook);
-  },
-  startAmbient() {
-    audioEngine.start(WORLD_IDS.SEA, GAME_MODES.BOARD_GAME);
-  },
-  stopAmbient() {
-    audioEngine.stop();
-  },
-};
-
-function gameFeelAnimate(el, className, duration = 600) {
-  if (!el) return;
-  el.classList.remove(className);
-  void el.offsetWidth;
-  el.classList.add(className);
-  setTimeout(() => el.classList.remove(className), duration);
-}
-
-function spawnBoardParticles(type = "reward") {
-  if (!boardGameParticlesEl) return;
-  const count = type === "finish" ? 14 : 8;
-  for (let i = 0; i < count; i += 1) {
-    const particle = document.createElement("span");
-    particle.className = `board-particle is-${type}`;
-    particle.style.left = `${10 + Math.random() * 80}%`;
-    particle.style.animationDelay = `${Math.random() * 180}ms`;
-    particle.style.animationDuration = `${700 + Math.random() * 500}ms`;
-    boardGameParticlesEl.appendChild(particle);
-    setTimeout(() => particle.remove(), 1500);
-  }
-}
-
-function showBoardGamePopup(type, text) {
-  renderBoardPopup({ hubEl: boardGameFeedbackHubEl, type, text });
-}
-
-function applyBoardGameTileMoment(tileType) {
-  const activeTile = boardGameBoardEl?.querySelector(`[data-tile="${boardGameState.player.currentTile}"]`);
-  if (tileType === "checkpoint") gameFeelAnimate(activeTile, "gf-checkpoint-glow", 1000);
-  if (tileType === "reward") gameFeelAnimate(activeTile, "gf-reward-pop", GAME_FEEL_MOTION.rewardPopMs);
-  if (tileType === "penalty") gameFeelAnimate(activeTile, "gf-penalty-flash", GAME_FEEL_MOTION.penaltyMs);
-  if (tileType === "finish") {
-    gameFeelAnimate(activeTile, "gf-chest-open", 1200);
-    spawnBoardParticles("finish");
-  }
-}
-
-function boardLevelConfig() {
-  return BOARD_GAME_CONFIG.levels[boardGameState.levelId];
-}
-
-function boardTileByNumber(tileNumber) {
-  return boardGameState.tiles.find((tile) => tile.tileNumber === tileNumber) || boardGameState.tiles[0];
-}
-
-function boardGameChapterByTile(tileNumber) {
-  const chapter = boardLevelConfig().chapters.find((item) => tileNumber >= item.startTile && tileNumber <= item.endTile);
-  return chapter || boardLevelConfig().chapters[0];
-}
-
-function boardGameChallengeByTile(tileNumber) {
-  return boardGameState.challenges.find((challenge) => challenge.tileNumber === tileNumber) || null;
-}
-
-function renderBoardGameTiles() {
-  renderBoardScreen({
-    boardEl: boardGameBoardEl,
-    tokenEl: boardGameTokenEl,
-    tiles: boardGameState.tiles,
-    currentTile: boardGameState.player.currentTile,
-    tileEmoji: boardTileEmoji,
-    animate: gameFeelAnimate,
-    tokenStepClass: "gf-token-step",
-    tokenStepDuration: GAME_FEEL_MOTION.moveStepMs,
-  });
-}
-
-function updateBoardGameTokenPosition() {
-  updateBoardToken({
-    boardEl: boardGameBoardEl,
-    tokenEl: boardGameTokenEl,
-    currentTile: boardGameState.player.currentTile,
-    tokenStepClass: "gf-token-step",
-    tokenStepDuration: GAME_FEEL_MOTION.moveStepMs,
-    animate: gameFeelAnimate,
-  });
-}
-
-function updateBoardGameChapterPanel() {
-  const chapter = boardGameChapterByTile(boardGameState.player.currentTile);
-  const storyPanelEl = appDom.board.getStoryPanelEl();
-  renderBoardChapterPanel({
-    chapter,
-    titleEl: boardGameChapterTitleEl,
-    textEl: boardGameChapterTextEl,
-    indexEl: boardGameChapterIndexEl,
-    storyPanelEl,
-    animate: gameFeelAnimate,
-  });
-}
-
-function updateBoardGameMetaUi() {
-  renderBoardMeta({
-    currentTile: boardGameState.player.currentTile,
-    totalTiles: boardLevelConfig().totalTiles,
-    lastRoll: boardGameState.dice.lastRoll,
-    feedback: boardGameState.feedback.message,
-    xp: boardGameState.player.xp,
-    coins: boardGameState.player.coins,
-    positionEl: boardGamePositionEl,
-    totalTilesEl: boardGameTotalTilesEl,
-    lastRollEl: boardGameLastRollEl,
-    feedbackEl: boardGameFeedbackEl,
-    xpEl: boardGameXpEl,
-    coinsEl: boardGameCoinsEl,
-  });
-}
-
-function updateBoardGameScreenTitle() {
-  if (!boardGameScreenTitleEl) return;
-  const route = resolveBoardSelectionRoute(getBoardEntryState());
-  const worldLabel = route.selectedWorld?.title || getSelectableBoardWorlds()[0]?.label || "Колумб ба Шинэ тивийнхэн";
-  const difficultyLabel = getDifficultyOption(route.difficultyId)?.label || "Анхан";
-  boardGameScreenTitleEl.textContent = `Та битгий уурлаарай · ${worldLabel} · ${difficultyLabel}`;
-}
-
-function setBoardGameRollEnabled(enabled) {
-  boardGameState.dice.canRoll = enabled;
-  renderBoardRollState({ enabled, rollBtn: boardGameRollBtn, diceEl: boardGameDiceEl });
-}
-
-function renderBoardGameChallenge() {
-  const challenge = boardGameState.challenge.activeChallenge;
-  const panelEl = appDom.board.getChallengePanelEl();
-  renderBoardChallenge({
-    challenge,
-    titleEl: boardGameChallengeTitleEl,
-    textEl: boardGameChallengeTextEl,
-    optionsEl: boardGameOptionsEl,
-    panelEl,
-    onSelectOption: (option) => handleBoardGameAnswer(option),
-  });
-}
-
-function applyBoardTileEffect(tile) {
-  const effect = boardLevelConfig().tileEffects[tile.tileType];
-  if (!effect) return "";
-
-  boardGameState.player.xp = Math.max(0, boardGameState.player.xp + (effect.xp || 0));
-  boardGameState.player.coins = Math.max(0, boardGameState.player.coins + (effect.coins || 0));
-
-  if ((effect.xp || 0) > 0 || (effect.coins || 0) > 0) {
-    const route = resolveBoardSelectionRoute(getBoardEntryState());
-    const rewardBaseEventId = [
-      "board",
-      route.selectedWorld?.id || getBoardEntryState().worldId || "world",
-      route.difficultyId || getBoardEntryState().difficultyId || "difficulty",
-      tile.chapterId || "chapter",
-      tile.tileNumber,
-      tile.tileType,
-    ].join(":");
-
-    persistActionRewards({
-      xp: Math.max(0, effect.xp || 0),
-      coins: Math.max(0, effect.coins || 0),
-      progressEventId: `${rewardBaseEventId}:progress`,
-      rewardEventId: `${rewardBaseEventId}:wallet`,
-    });
-  }
-
-  if (tile.tileType === "reward") return `Шагналын нүд: +${effect.xp} туршлага, +${effect.coins} зоос.`;
-  if (tile.tileType === "penalty") return `Торгуулийн нүд: ${effect.xp} туршлага, ${effect.coins} зоос.`;
-  if (tile.tileType === "checkpoint") return `Шалган нэвтрэх нүдэнд хүрлээ: +${effect.xp} туршлага, +${effect.coins} зоос.`;
-  if (tile.tileType === "finish") return `Барианы нүдийг давлаа: +${effect.xp} туршлага, +${effect.coins} зоос.`;
-  return "";
-}
-
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
-}
-
-async function animateBoardGameDice(roll) {
-  if (!boardGameDiceEl) return;
-  boardGameState.dice.rolling = true;
-  boardGameDiceEl.classList.add("gf-dice-roll");
-  gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.dice);
-  for (let i = 0; i < 14; i += 1) {
-    const randomFace = Math.floor(Math.random() * 6) + 1;
-    boardGameDiceEl.dataset.face = String(randomFace);
-    await sleep(72);
-  }
-  boardGameDiceEl.dataset.face = String(roll);
-  boardGameDiceEl.classList.remove("gf-dice-roll");
-  boardGameState.dice.rolling = false;
-}
-
-async function animateBoardGameMovement(fromTile, toTile) {
-  if (toTile === fromTile) return;
-  boardGameState.movement.isMoving = true;
-  const step = toTile > fromTile ? 1 : -1;
-  for (let tile = fromTile + step; step > 0 ? tile <= toTile : tile >= toTile; tile += step) {
-    boardGameState.player.currentTile = tile;
-    updateBoardGameChapterPanel();
-    updateBoardGameMetaUi();
-    updateBoardGameTokenPosition();
-    await sleep(GAME_FEEL_MOTION.moveStepMs);
-  }
-  boardGameState.movement.isMoving = false;
-}
-
-function setBoardGameFeedback(message, type = "info") {
-  boardGameState.feedback.message = message;
-  boardGameState.feedback.type = type;
-  renderBoardFeedbackVisual({ feedbackEl: boardGameFeedbackEl, type, animate: gameFeelAnimate });
-  showBoardGamePopup(type, message);
-  updateBoardGameMetaUi();
-}
-
-function applyPostLandingTileFeedback(tile) {
-  if (tile.tileType === "story") {
-    setBoardGameFeedback("Өгүүлэмжийн нүд: хоёр ертөнц сониуч бөгөөд болгоомжтойгоор бие биеэ ажиглана.", "story");
-    return;
-  }
-  const effectMessage = applyBoardTileEffect(tile);
-  if (effectMessage) {
-    setBoardGameFeedback(effectMessage, tile.tileType);
-    applyBoardGameTileMoment(tile.tileType);
-    if (tile.tileType === "reward") {
-      gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.reward);
-      spawnBoardParticles("reward");
-    }
-    if (tile.tileType === "penalty") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.wrong);
-    if (tile.tileType === "checkpoint") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.chest);
-    if (tile.tileType === "finish") gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.finish);
-  }
-}
-
-async function resolveBoardLanding(tileNumber, rolledValue) {
-  const tile = boardTileByNumber(tileNumber);
-  boardGameState.challenge.pendingRoll = rolledValue;
-  boardGameState.challenge.resolvedTile = tileNumber;
-  boardGameState.challenge.activeChallenge = boardGameChallengeByTile(tileNumber);
-
-  applyPostLandingTileFeedback(tile);
-  renderBoardGameChallenge();
-  updateBoardGameMetaUi();
-
-  if (!boardGameState.challenge.activeChallenge) {
-    if (tile.tileType === "finish") setBoardGameRollEnabled(false);
-    else setBoardGameRollEnabled(true);
-  }
-}
-
-async function handleBoardGameAnswer(selectedOption) {
-  const challenge = boardGameState.challenge.activeChallenge;
-  if (!challenge) return;
-
-  const optionButtons = boardGameOptionsEl ? [...boardGameOptionsEl.querySelectorAll("button")] : [];
-  optionButtons.forEach((btn) => {
-    btn.disabled = true;
-    if (btn.textContent === challenge.answer) btn.classList.add("correct");
-    if (btn.textContent === selectedOption && selectedOption !== challenge.answer) btn.classList.add("wrong");
-  });
-
-  const wasCorrect = selectedOption === challenge.answer;
-  if (wasCorrect) {
-    boardGameState.player.xp += 20;
-    boardGameState.player.coins += 12;
-    const route = resolveBoardSelectionRoute(getBoardEntryState());
-    const rewardBaseEventId = [
-      "board-challenge",
-      route.selectedWorld?.id || getBoardEntryState().worldId || "world",
-      route.difficultyId || getBoardEntryState().difficultyId || "difficulty",
-      challenge.id || boardGameState.player.currentTile,
-      boardGameState.player.currentTile,
-      "success",
-    ].join(":");
-    persistActionRewards({
-      xp: 20,
-      coins: 12,
-      progressEventId: `${rewardBaseEventId}:progress`,
-      rewardEventId: `${rewardBaseEventId}:wallet`,
-    });
-    setBoardGameFeedback(`Зөв! ${challenge.promptMn} = ${challenge.answer}. Байрлалаа хадгалж, +20 туршлага, +12 зоос авлаа.`, "success");
-    gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.correct);
-    spawnBoardParticles("reward");
-    gameFeelAnimate(boardGameOptionsEl, "gf-reward-pop", GAME_FEEL_MOTION.rewardPopMs);
-    boardGameState.challenge.activeChallenge = null;
-    renderBoardGameChallenge();
-    if (boardGameState.player.currentTile === boardLevelConfig().totalTiles) setBoardGameRollEnabled(false);
-    else setBoardGameRollEnabled(true);
-    return;
-  }
-
-  setBoardGameFeedback(`Буруу хариулт. ${challenge.promptMn} нь ${challenge.answer} гэсэн утгатай. ${boardGameState.challenge.pendingRoll} нүд ухарна.`, "penalty");
-  gameFeelSoundManager.play(GAME_FEEL_SOUND_EVENTS.wrong);
-  gameFeelAnimate(boardGameTokenEl, "gf-penalty-shake", GAME_FEEL_MOTION.penaltyMs);
-  await sleep(450);
-
-  const fromTile = boardGameState.player.currentTile;
-  const toTile = Math.max(1, fromTile - boardGameState.challenge.pendingRoll);
-  await animateBoardGameMovement(fromTile, toTile);
-
-  boardGameState.challenge.activeChallenge = null;
-  renderBoardGameChallenge();
-
-  const retreatTile = boardTileByNumber(toTile);
-  if (retreatTile.tileType === "checkpoint") {
-    setBoardGameFeedback("Та шалган нэвтрэх нүд рүү ухарлаа. Дахин төвлөрч шоо шиднэ үү.", "checkpoint");
-  }
-
-  setBoardGameRollEnabled(true);
-  updateBoardGameMetaUi();
-}
-
-async function boardGameRollDice() {
-  if (!boardGameState.dice.canRoll || boardGameState.movement.isMoving || boardGameState.dice.rolling) return;
-
-  setBoardGameRollEnabled(false);
-  const roll = Math.floor(Math.random() * boardGameState.dice.sides) + 1;
-  const fromTile = boardGameState.player.currentTile;
-  const toTile = Math.min(boardLevelConfig().totalTiles, fromTile + roll);
-
-  boardGameState.dice.lastRoll = roll;
-  await animateBoardGameDice(roll);
-  await animateBoardGameMovement(fromTile, toTile);
-  await resolveBoardLanding(toTile, roll);
-}
-
-function initBoardGameMvp() {
-  boardGameBootstrapped = true;
-  boardGameState.tiles = buildBoardGameTiles(boardLevelConfig());
-  boardGameState.player.currentTile = 1;
-  boardGameState.player.xp = 0;
-  boardGameState.player.coins = 0;
-  boardGameState.dice.lastRoll = null;
-  boardGameState.challenge.activeChallenge = null;
-  boardGameState.feedback.message = "Түүхэн аяллаа эхлүүлэхийн тулд шоо шиднэ үү.";
-
-  updateBoardGameScreenTitle();
-  renderBoardGameTiles();
-  updateBoardGameChapterPanel();
-  renderBoardGameChallenge();
-  updateBoardGameMetaUi();
-  updateBoardGameTokenPosition();
-  setBoardGameRollEnabled(true);
-  if (boardGameDiceEl) boardGameDiceEl.dataset.face = "1";
-  if (boardGameFeedbackHubEl) boardGameFeedbackHubEl.innerHTML = "";
-  gameFeelSoundManager.startAmbient();
-}
-
-function syncBoardGameDebugState(tileNumber, message = "Debug jump completed.") {
-  const nextTile = Math.max(1, Math.min(boardLevelConfig().totalTiles, Math.floor(Number(tileNumber) || 1)));
-  boardGameState.player.currentTile = nextTile;
-  boardGameState.dice.lastRoll = null;
-  boardGameState.challenge.activeChallenge = null;
-  boardGameState.feedback.message = message;
-  renderBoardGameTiles();
-  updateBoardGameChapterPanel();
-  renderBoardGameChallenge();
-  updateBoardGameMetaUi();
-  updateBoardGameTokenPosition();
-  setBoardGameRollEnabled(true);
 }
 
 function jumpToBoardChapter(chapterId = BOARD_WORLD_CHAPTERS[0]?.id) {
