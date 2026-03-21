@@ -37,37 +37,50 @@
 
 
 
-/* Force lesson answers into full-width horizontal mobile cards */
+/* Direct lesson answer option override: force full-width horizontal stacked buttons */
 #quiz-screen .question-text-wrap,
-#quiz-screen .options,
-#quiz-screen .lesson-answers-grid{
+#quiz-screen .question-text-wrap > .options,
+#quiz-screen .question-text-wrap > .lesson-answers-grid,
+#quiz-screen #options.lesson-answers-grid{
   width:100%;
   min-width:0;
   max-width:none;
 }
 
-#quiz-screen .lesson-answers-grid{
-  display:grid !important;
-  grid-template-columns:minmax(0, 1fr) !important;
-  grid-auto-flow:row !important;
+#quiz-screen .question-text-wrap{
+  display:flex;
+  flex-direction:column;
   align-items:stretch;
-  justify-items:stretch;
-  justify-content:stretch;
-  gap:14px;
-  margin:0;
 }
 
-#quiz-screen .lesson-answers-grid .option,
-#quiz-screen #options > .option{
+#quiz-screen #options.lesson-answers-grid,
+#quiz-screen .question-text-wrap > .lesson-answers-grid{
   display:flex !important;
+  flex-direction:column !important;
+  flex-wrap:nowrap !important;
+  grid-template-columns:none !important;
+  grid-auto-flow:row !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+  justify-content:flex-start !important;
+  gap:14px;
+  margin:0;
+  padding:0;
+}
+
+#quiz-screen #options.lesson-answers-grid > .option,
+#quiz-screen .lesson-answers-grid > .option{
+  display:flex !important;
+  flex:0 0 auto !important;
   flex-direction:row !important;
   align-items:center;
   justify-content:center;
   width:100% !important;
   inline-size:100% !important;
-  max-width:none !important;
   min-width:0 !important;
   min-inline-size:0 !important;
+  max-width:none !important;
+  max-inline-size:none !important;
   min-height:56px;
   padding:14px 18px;
   box-sizing:border-box;
@@ -75,17 +88,18 @@
   writing-mode:horizontal-tb !important;
   text-orientation:mixed !important;
   white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:anywhere;
   text-align:center;
   line-height:1.4;
-  overflow-wrap:anywhere;
-  word-break:normal;
 }
 
-#quiz-screen .lesson-answers-grid .option,
-#quiz-screen .lesson-answers-grid .option::before,
-#quiz-screen .lesson-answers-grid .option > *{
+#quiz-screen #options.lesson-answers-grid > .option,
+#quiz-screen #options.lesson-answers-grid > .option::before,
+#quiz-screen #options.lesson-answers-grid > .option > *{
   writing-mode:horizontal-tb !important;
   text-orientation:mixed !important;
+  white-space:normal !important;
 }
 .lesson-finish-summary{
   display:flex;
