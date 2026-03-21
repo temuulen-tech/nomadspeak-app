@@ -120,6 +120,7 @@ import {
 } from "./progress-ui.js";
 import { getWorldAudioTrack } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
+import { findMongolianVoice, getToastType, normalizeToastSpeechText, speakMongolianText } from "./speech-utils.js";
 import { createAudioEngine, createWorldSoundscape, SOUND_EVENT_HOOKS } from "./app-audio-manager.js";
 import { createBoardRuntime } from "./board-runtime.js";
 import { showWorldFeedbackChip as renderWorldFeedbackChip, updateCompanionLine as updateCompanionLineUi } from "./world-ui.js";
@@ -935,44 +936,33 @@ function toggleHomeModesPanel() {
 }
 
 function mongolianVoice() {
-  const voices = (availableVoices || []).filter(v => (v.lang || "").toLowerCase().startsWith("mn"));
-  if (!voices.length) return null;
-
-  const femaleHints = ["female", "woman", "эм", "эмэгтэй", "girl", "bolorma", "saraa", "anu", "naraa"];
-  const femaleVoice = voices.find(v => {
-    const name = (v.name || "").toLowerCase();
-    return femaleHints.some(hint => name.includes(hint));
-  });
-
-  return femaleVoice || voices[0];
+  return findMongolianVoice(availableVoices);
 }
 
 function toastSpeechText(message = "") {
-  return String(message || "").replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim();
+  return normalizeToastSpeechText(message);
 }
 
 function toastTypeFromMessage(message = "") {
-  if (message === SENTENCE_GAME_CORRECT_TOAST) return "success";
-  if (message === SENTENCE_GAME_INCORRECT_TOAST) return "fail";
-  if (message === SENTENCE_GAME_SHOW_CORRECT_TOAST) return "hint";
-  return "unknown";
+  return getToastType(message, {
+    correct: SENTENCE_GAME_CORRECT_TOAST,
+    incorrect: SENTENCE_GAME_INCORRECT_TOAST,
+    hint: SENTENCE_GAME_SHOW_CORRECT_TOAST,
+  });
 }
 
 function speakBannerText(text) {
   if (!appSettings.soundEnabled) return;
   if (!("speechSynthesis" in window)) return;
 
-  window.speechSynthesis.cancel();
-
-  const mnVoice = mongolianVoice();
-  if (!mnVoice) return;
-
-  const utterance = new SpeechSynthesisUtterance(text);
-  utterance.lang = mnVoice.lang || "mn-MN";
-  utterance.voice = mnVoice;
-  utterance.rate = appSettings.ttsSettings.rate;
-  utterance.pitch = 1;
-  window.speechSynthesis.speak(utterance);
+  speakMongolianText({
+    text,
+    voices: availableVoices,
+    rate: appSettings.ttsSettings.rate,
+    cancelFirst: true,
+    speechSynthesisRef: window.speechSynthesis,
+    utteranceFactory: (value) => new SpeechSynthesisUtterance(value),
+  });
 }
 
 
@@ -1979,32 +1969,29 @@ function speakSentenceGameToast(message, handlers = {}) {
   const textToSpeak = toastSpeechText(message);
   if (!textToSpeak) return;
 
-  const utterance = new SpeechSynthesisUtterance(textToSpeak);
-  const mnVoice = mongolianVoice();
   const toastType = handlers.toastType || toastTypeFromMessage(message);
-
-  utterance.lang = "mn-MN";
-  if (mnVoice) {
-    utterance.voice = mnVoice;
-    utterance.lang = (mnVoice.lang || "").toLowerCase().startsWith("mn") ? mnVoice.lang : "mn-MN";
-  } else {
-    utterance.lang = "mn";
-  }
-  utterance.rate = appSettings.ttsSettings.rate;
-  utterance.pitch = 1;
-  utterance.onstart = () => {
-    console.log(`[SentenceGameToast][${toastType}] speech start`);
-    if (typeof handlers.onstart === "function") handlers.onstart();
-  };
-  utterance.onend = () => {
-    console.log(`[SentenceGameToast][${toastType}] speech end`);
-    if (typeof handlers.onend === "function") handlers.onend();
-  };
-  utterance.onerror = () => {
-    console.log(`[SentenceGameToast][${toastType}] speech end (error)`);
-    if (typeof handlers.onend === "function") handlers.onend();
-  };
-  window.speechSynthesis.speak(utterance);
+  const spoken = speakMongolianText({
+    text: textToSpeak,
+    voices: availableVoices,
+    rate: appSettings.ttsSettings.rate,
+    speechSynthesisRef: window.speechSynthesis,
+    utteranceFactory: (value) => new SpeechSynthesisUtterance(value),
+    configureUtterance: (utterance) => {
+      utterance.onstart = () => {
+        console.log(`[SentenceGameToast][${toastType}] speech start`);
+        if (typeof handlers.onstart === "function") handlers.onstart();
+      };
+      utterance.onend = () => {
+        console.log(`[SentenceGameToast][${toastType}] speech end`);
+        if (typeof handlers.onend === "function") handlers.onend();
+      };
+      utterance.onerror = () => {
+        console.log(`[SentenceGameToast][${toastType}] speech end (error)`);
+        if (typeof handlers.onend === "function") handlers.onend();
+      };
+    },
+  });
+  if (!spoken?.utterance) return;
 }
 
 function scheduleSentenceGameToastHide(targetTimestamp) {
