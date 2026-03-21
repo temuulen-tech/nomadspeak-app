@@ -146,7 +146,7 @@ body[data-active-screen="board-game"] .app{
 /* ---- Board Game MVP ---- */
 .board-game-world-chip{ margin:0 0 8px; }
 
-
+/* Board screen layout shell */
 .board-game-content-shell{
   --board-safe-top:max(env(safe-area-inset-top), 8px);
   --board-safe-bottom:max(env(safe-area-inset-bottom), 10px);
@@ -166,6 +166,7 @@ body[data-active-screen="board-game"] .app{
   padding-bottom:var(--board-safe-bottom);
 }
 
+/* Header area */
 .board-game-top-cluster{
   position:relative;
   z-index:10;
@@ -334,6 +335,7 @@ body[data-active-screen="board-game"] .app{
   color:rgba(243,245,247,.88);
 }
 
+/* Map / board area */
 .board-game-layout{
   display:flex;
   flex:1 1 auto;
@@ -479,7 +481,7 @@ body[data-active-screen="board-game"] .app{
 .board-game-scene-story{
   position:relative;
   z-index:5;
-  margin:0;
+  margin:0 auto;
   width:100%;
 }
 .board-game-scene-story p{margin:0;}
@@ -599,6 +601,7 @@ body[data-active-screen="board-game"] .app{
   overflow:hidden;
 }
 
+/* Info and action areas */
 .board-game-bottom-dock{
   position:relative;
   z-index:8;
@@ -908,6 +911,37 @@ body[data-active-screen="board-game"] .app{
 .tile-type-story{ background:radial-gradient(90% 100% at 30% 22%, rgba(220,233,255,.4), rgba(104,133,186,.62) 56%, rgba(45,58,107,.95)); color:#ecf0ff; }
 .tile-type-finish{ background:radial-gradient(90% 100% at 30% 22%, rgba(255,244,186,.5), rgba(224,176,71,.66) 56%, rgba(119,84,20,.96)); color:#fff4d4; }
 
+@media (max-width:920px){
+  .board-game-bottom-dock{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-controls-panel{
+    min-height:auto;
+  }
+}
+
+@media (max-width:560px){
+  .board-game-topbar{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .board-game-topbar-side,
+  .board-game-topbar-side-end{
+    justify-content:stretch;
+  }
+
+  .board-topbar-exit,
+  .board-topbar-sound{
+    width:100%;
+  }
+
+  .board-game-board{
+    padding-left:18px;
+    padding-right:18px;
+  }
+}
+
 @media (max-width:520px){
   .board-game-content-shell{
     --board-shell-gap:10px;
@@ -958,12 +992,9 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-scene-story{
-    padding:9px 10px;
-  }
-
-  .board-game-scene-story{
     width:100%;
     max-width:none;
+    padding:9px 10px;
   }
 
   .board-game-stage{
@@ -1021,9 +1052,6 @@ body[data-active-screen="board-game"] .app{
     padding-left:12px;
     padding-right:12px;
   }
-}
-
-@media (max-width:520px){
   .board-popup{
     width:100%;
   }
