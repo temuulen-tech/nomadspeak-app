@@ -76,12 +76,81 @@ button,
 .level-btn,
 .nav-btn,
 .sentence-game-tile{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
   min-height:40px;
-  min-width:0;
+  min-width:96px;
   line-height:1.25;
+  text-align:center;
   white-space:normal;
-  overflow-wrap:anywhere;
-  word-break:break-word;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  overflow-wrap:break-word;
+  word-break:keep-all;
+}
+
+.button-label-safe,
+button,
+.choice-btn,
+.mode-btn,
+.stats-chip,
+.stats-pill,
+.filter-chip,
+.kpi-card,
+.reward-chip,
+.chip,
+.pill,
+.tag,
+.status-pill,
+.chip-title,
+.screen-title-chip,
+.chip-label,
+.chip-time,
+.today-time,
+.stats-section-chip,
+.stats-kpi-block,
+.stats-kpi-value,
+.stats-kpi-meta,
+.stats-reward-card,
+.stats-reward-tab,
+.stats-reward-title,
+.stats-reward-subtitle,
+.stats-reward-range,
+.stats-reward-tier,
+.stats-reward-threshold,
+.stats-reward-rating,
+.home-entry-card,
+.home-modes-option,
+.board-game-meta-chip,
+.board-game-option-btn{
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  white-space:normal;
+  word-break:keep-all;
+  overflow-wrap:break-word;
+  hyphens:none;
+}
+
+button > *,
+.choice-btn > *,
+.mode-btn > *,
+.stats-chip > *,
+.stats-pill > *,
+.filter-chip > *,
+.kpi-card > *,
+.reward-chip > *,
+.chip > *,
+.pill > *,
+.tag > *,
+.home-entry-card > *,
+.home-modes-option > *,
+.stats-kpi-block > *,
+.stats-reward-card > *{
+  min-width:0;
+  max-width:100%;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
 }
 
 .install-hint{
@@ -505,11 +574,17 @@ button,
 }
 
 .pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:96px;
+  min-height:40px;
   border:1px solid rgba(255,255,255,.12);
   background:rgba(0,0,0,.18);
   padding:8px 12px;
   border-radius:999px;
   font-size:14px;
+  text-align:center;
 }
 
 .card{
@@ -545,6 +620,8 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  min-width:96px;
+  min-height:40px;
   max-width:100%;
   font-weight:800;
   padding:14px 20px;
@@ -564,6 +641,8 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  min-width:96px;
+  min-height:40px;
   max-width:100%;
   padding:4px 10px;
   border-radius:10px;
@@ -583,6 +662,8 @@ button,
   align-items:center;
   justify-content:center;
   width:fit-content;
+  min-width:96px;
+  min-height:40px;
   max-width:100%;
   padding:6px 12px;
   border-radius:999px;
