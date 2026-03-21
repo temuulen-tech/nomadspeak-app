@@ -41,6 +41,8 @@ import { createAudioControls } from "./audio-wiring.js";
 import { createSentenceFilterControls, createSentenceGameControls } from "./sentence-game-wiring.js";
 import { createVaultManager } from "./vault-manager.js";
 import { createAppTimerManager } from "./app-timer.js";
+import { createSentenceGameRewardManager } from "./sentence-game-reward-manager.js";
+import { createSessionElapsedTimer } from "./session-elapsed-timer.js";
 import { createScreenNavigator } from "./screen-navigation.js";
 import { REWARD_ICON_SEQUENCE } from "./assets.js";
 import {
@@ -393,8 +395,6 @@ let sentenceGameActiveSeconds = 0;
 let sentenceGameRewardLevel = 0;
 let sentenceGameLastActivityAt = 0;
 let sentenceGameLastTick = 0;
-let sentenceGameActiveTimer = null;
-let sentenceGameRewardBannerTimer = null;
 let sentenceGameDifficulty = DIFFICULTY_LEVELS.BEGINNER;
 
 const SENTENCE_GAME_ACTIVE_SECONDS_KEY = "sentenceGameActiveSeconds";
@@ -412,12 +412,10 @@ let qaAnswerBuilt = [];
 let qaQuestionSolved = false;
 let qaElapsedSeconds = 0;
 let qaUnlockedRewards = 0;
-let qaTimerInterval = null;
 let qaTimerStartedAt = null;
 let qaToastTimer = null;
 let lessonElapsedSeconds = 0;
 let lessonUnlockedRewards = 0;
-let lessonTimerInterval = null;
 let lessonTimerStartedAt = null;
 let sentencesElapsedSeconds = 0;
 let sentencesUnlockedRewards = 0;
@@ -840,6 +838,86 @@ function openPremiumModal(message, title = "Дээд багц") {
 function closePremiumModal() {
   if (!premiumOverlay) return;
   closeModal(premiumOverlay);
+}
+
+const sentenceGameRewardManager = createSentenceGameRewardManager({
+  storageKeys: {
+    activeSecondsKey: SENTENCE_GAME_ACTIVE_SECONDS_KEY,
+    rewardLevelKey: SENTENCE_GAME_REWARD_LEVEL_KEY,
+    lastTickKey: SENTENCE_GAME_LAST_TICK_KEY,
+  },
+  rewardThresholds: SENTENCE_GAME_REWARD_THRESHOLDS,
+  rewardBanners: SENTENCE_GAME_REWARD_BANNERS,
+  idleTimeoutSeconds: SENTENCE_GAME_IDLE_TIMEOUT_SECONDS,
+  dom: {
+    rewardBannerEl: sentenceGameRewardBannerEl,
+    rewardImageEls: sentenceGameRewardImageEls,
+  },
+  state: {
+    getActiveSeconds: () => sentenceGameActiveSeconds,
+    setActiveSeconds: (value) => { sentenceGameActiveSeconds = value; },
+    getRewardLevel: () => sentenceGameRewardLevel,
+    setRewardLevel: (value) => { sentenceGameRewardLevel = value; },
+    getLastActivityAt: () => sentenceGameLastActivityAt,
+    setLastActivityAt: (value) => { sentenceGameLastActivityAt = value; },
+    getLastTick: () => sentenceGameLastTick,
+    setLastTick: (value) => { sentenceGameLastTick = value; },
+  },
+  actions: {
+    loadProgressState,
+    syncProgressForToday,
+    applyProgressPatch,
+    syncCoreStateReferences,
+    persistProgressState,
+    getProgressState: () => progressState,
+    getTodayKey,
+    updateHeaderStatus,
+    updateStatsUI,
+    isStatsVisible: () => !isHidden(statsScreen),
+    isSentenceGameVisible: sentenceGameScreenVisible,
+    isSoundEnabled: () => appSettings.soundEnabled,
+    playTone,
+  },
+});
+
+function sentenceGameRewardLevelFromSeconds(seconds = 0) {
+  return sentenceGameRewardManager.getRewardLevelFromSeconds(seconds);
+}
+
+function persistSentenceGameRewardState() {
+  sentenceGameRewardManager.persistState();
+}
+
+function loadSentenceGameRewardState() {
+  sentenceGameRewardManager.loadState();
+}
+
+function reconcileRewardTierProgress() {
+  return sentenceGameRewardManager.reconcileRewardTierProgress();
+}
+
+function renderSentenceGameRewardState() {
+  sentenceGameRewardManager.renderRewardState();
+}
+
+function updateSentenceGameRewardLevel(options = {}) {
+  sentenceGameRewardManager.updateRewardLevel(options);
+}
+
+function flushSentenceGameActiveTimeTick() {
+  return sentenceGameRewardManager.flushActiveTimeTick();
+}
+
+function markSentenceGameActivity() {
+  sentenceGameRewardManager.markActivity();
+}
+
+function beginSentenceGameSession() {
+  sentenceGameRewardManager.beginSession();
+}
+
+function endSentenceGameSession() {
+  sentenceGameRewardManager.endSession();
 }
 
 function canEarnMoreSentenceGameXp(amount = 0) {
@@ -2127,210 +2205,8 @@ function playSentenceGameLevelDownSound() {
   });
 }
 
-function sentenceGameRewardLevelFromSeconds(seconds = 0) {
-  let level = 0;
-  SENTENCE_GAME_REWARD_THRESHOLDS.forEach((threshold, index) => {
-    if (seconds >= threshold) level = index + 1;
-  });
-  return level;
-}
-
-function persistSentenceGameRewardState() {
-  try {
-    const storedActiveRaw = Number(localStorage.getItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY));
-    const storedRewardRaw = Number(localStorage.getItem(SENTENCE_GAME_REWARD_LEVEL_KEY));
-    const storedTickRaw = Number(localStorage.getItem(SENTENCE_GAME_LAST_TICK_KEY));
-    const safeActiveSeconds = Math.max(0, Math.floor(sentenceGameActiveSeconds));
-    const safeRewardLevel = Math.max(0, Math.min(5, Math.floor(sentenceGameRewardLevel)));
-    const safeLastTick = sentenceGameLastTick || Date.now();
-
-    localStorage.setItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY, String(Math.max(Number.isFinite(storedActiveRaw) ? Math.floor(storedActiveRaw) : 0, safeActiveSeconds)));
-    localStorage.setItem(SENTENCE_GAME_REWARD_LEVEL_KEY, String(Math.max(Number.isFinite(storedRewardRaw) ? Math.floor(storedRewardRaw) : 0, safeRewardLevel)));
-    localStorage.setItem(SENTENCE_GAME_LAST_TICK_KEY, String(Math.max(Number.isFinite(storedTickRaw) ? storedTickRaw : 0, safeLastTick)));
-  } catch (error) {
-    // noop
-  }
-}
-
-function loadSentenceGameRewardState() {
-  try {
-    const activeRaw = Number(localStorage.getItem(SENTENCE_GAME_ACTIVE_SECONDS_KEY));
-    const rewardRaw = Number(localStorage.getItem(SENTENCE_GAME_REWARD_LEVEL_KEY));
-    const tickRaw = Number(localStorage.getItem(SENTENCE_GAME_LAST_TICK_KEY));
-
-    sentenceGameActiveSeconds = Number.isFinite(activeRaw) ? Math.max(0, Math.floor(activeRaw)) : 0;
-    sentenceGameRewardLevel = Number.isFinite(rewardRaw) ? Math.max(0, Math.min(5, Math.floor(rewardRaw))) : 0;
-    sentenceGameLastTick = Number.isFinite(tickRaw) ? tickRaw : Date.now();
-  } catch (error) {
-    sentenceGameActiveSeconds = 0;
-    sentenceGameRewardLevel = 0;
-    sentenceGameLastTick = Date.now();
-  }
-
-  const computedLevel = sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds);
-  sentenceGameRewardLevel = Math.max(sentenceGameRewardLevel, computedLevel);
-}
-
-function reconcileRewardTierProgress() {
-  loadProgressState({ rehydrate: false });
-  const derivedRewardTier = Math.max(progressState.rewardTierUnlocked || 1, sentenceGameRewardLevel || 0);
-  if (derivedRewardTier <= (progressState.rewardTierUnlocked || 1)) return false;
-
-  applyProgressPatch((progress) => {
-    progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, derivedRewardTier);
-  }, "progress");
-  syncCoreStateReferences();
-  persistProgressState();
-  return true;
-}
-
-function renderSentenceGameRewardState() {
-  sentenceGameRewardImageEls.forEach((imgEl) => {
-    const level = Number(imgEl.dataset.level || 0);
-    const active = level > 0 && level === sentenceGameRewardLevel;
-    const tileEl = imgEl.closest(".reward-tile");
-    if (tileEl) {
-      tileEl.classList.toggle("is-active", active);
-      tileEl.classList.toggle("is-unlocked", level > 0 && level <= sentenceGameRewardLevel);
-      tileEl.classList.toggle("is-locked", !(level > 0 && level <= sentenceGameRewardLevel));
-    }
-    imgEl.classList.toggle("active", active);
-    imgEl.classList.toggle("is-active", active);
-    imgEl.classList.toggle("is-unlocked", level > 0 && level <= sentenceGameRewardLevel);
-    imgEl.classList.toggle("is-locked", !(level > 0 && level <= sentenceGameRewardLevel));
-  });
-
-}
-
-function playSentenceGameUnlockChime(level) {
-  if (!appSettings.soundEnabled) return;
-  const patterns = {
-    1: [660, 792, 990],
-    2: [740, 932, 1175],
-    3: [784, 988, 1319],
-    4: [880, 1109, 1480],
-    5: [988, 1319, 1760],
-  };
-  (patterns[level] || patterns[1]).forEach((frequency, index) => {
-    setTimeout(() => {
-      playTone({ frequency, type: "triangle", duration: 0.09, volume: 0.12, attack: 0.005, release: 0.09 });
-    }, index * 86);
-  });
-}
-
-function showSentenceGameRewardBanner(level) {
-  if (!sentenceGameRewardBannerEl || level < 1 || level > 5) return;
-
-  if (sentenceGameRewardBannerTimer) {
-    clearTimeout(sentenceGameRewardBannerTimer);
-    sentenceGameRewardBannerTimer = null;
-  }
-
-  sentenceGameRewardBannerEl.textContent = SENTENCE_GAME_REWARD_BANNERS[level - 1];
-  sentenceGameRewardBannerEl.classList.remove("hidden", "hide", "show");
-  void sentenceGameRewardBannerEl.offsetWidth;
-  sentenceGameRewardBannerEl.classList.add("show");
-
-  sentenceGameRewardBannerTimer = setTimeout(() => {
-    sentenceGameRewardBannerEl.classList.remove("show");
-    sentenceGameRewardBannerEl.classList.add("hide");
-    setTimeout(() => {
-      sentenceGameRewardBannerEl.classList.add("hidden");
-      sentenceGameRewardBannerEl.classList.remove("hide");
-    }, 280);
-  }, 4300);
-
-  playSentenceGameUnlockChime(level);
-}
-
-function updateSentenceGameRewardLevel({ allowBanner = false } = {}) {
-  const nextLevel = sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds);
-  if (nextLevel > sentenceGameRewardLevel) {
-    sentenceGameRewardLevel = nextLevel;
-    renderSentenceGameRewardState();
-    persistSentenceGameRewardState();
-    if (allowBanner) showSentenceGameRewardBanner(nextLevel);
-    return;
-  }
-
-  sentenceGameRewardLevel = Math.max(sentenceGameRewardLevel, nextLevel);
-  renderSentenceGameRewardState();
-}
-
-function flushSentenceGameActiveTimeTick() {
-  if (!sentenceGameLastActivityAt) return false;
-  const now = Date.now();
-  const elapsedSinceActivity = Math.floor((now - sentenceGameLastActivityAt) / 1000);
-  const activeSeconds = Math.max(0, Math.min(SENTENCE_GAME_IDLE_TIMEOUT_SECONDS, elapsedSinceActivity));
-  const tickBase = sentenceGameLastTick || sentenceGameLastActivityAt;
-  const elapsedFromTick = Math.max(0, Math.floor((now - tickBase) / 1000));
-  const addSeconds = Math.min(activeSeconds, elapsedFromTick);
-
-  if (addSeconds <= 0) return false;
-
-  sentenceGameActiveSeconds += addSeconds;
-  sentenceGameLastTick = now;
-
-  loadProgressState();
-  syncProgressForToday();
-  applyProgressPatch((progress) => {
-    progress.todaySecondsRemainder = (progress.todaySecondsRemainder || 0) + addSeconds;
-    if (progress.todaySecondsRemainder >= 60) {
-      const gainedMinutes = Math.floor(progress.todaySecondsRemainder / 60);
-      progress.todayMinutes += gainedMinutes;
-      progress.todaySecondsRemainder = progress.todaySecondsRemainder % 60;
-    }
-    progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, sentenceGameRewardLevelFromSeconds(sentenceGameActiveSeconds) || 1);
-    progress.lastStatsDate = getTodayKey();
-  }, "progress");
-  syncCoreStateReferences();
-
-  updateSentenceGameRewardLevel({ allowBanner: true });
-  persistSentenceGameRewardState();
-  renderSentenceGameRewardState();
-  updateHeaderStatus();
-  if (!isHidden(statsScreen)) updateStatsUI();
-  return true;
-}
-
-function startSentenceGameActiveTimer() {
-  if (sentenceGameActiveTimer) return;
-  sentenceGameActiveTimer = setInterval(() => {
-    flushSentenceGameActiveTimeTick();
-  }, 1000);
-}
-
-function stopSentenceGameActiveTimer() {
-  if (!sentenceGameActiveTimer) return;
-  clearInterval(sentenceGameActiveTimer);
-  sentenceGameActiveTimer = null;
-}
-
 function sentenceGameScreenVisible() {
   return sentenceGameScreen && !isHidden(sentenceGameScreen);
-}
-
-function markSentenceGameActivity() {
-  if (!sentenceGameScreenVisible()) return;
-  flushSentenceGameActiveTimeTick();
-  sentenceGameLastActivityAt = Date.now();
-  sentenceGameLastTick = sentenceGameLastActivityAt;
-  persistSentenceGameRewardState();
-}
-
-function beginSentenceGameSession() {
-  sentenceGameLastActivityAt = Date.now();
-  sentenceGameLastTick = sentenceGameLastActivityAt;
-  renderSentenceGameRewardState();
-  startSentenceGameActiveTimer();
-  persistSentenceGameRewardState();
-}
-
-function endSentenceGameSession() {
-  flushSentenceGameActiveTimeTick();
-  stopSentenceGameActiveTimer();
-  sentenceGameLastTick = Date.now();
-  persistSentenceGameRewardState();
 }
 
 function updateSentenceGameClimbFromOutcome(outcome) {
@@ -3433,62 +3309,44 @@ function getActiveLearningSelection() {
   return resolveChapterContent({ worldId, chapterId, difficultyId });
 }
 
-function syncLessonElapsedSeconds() {
-  if (!lessonTimerStartedAt) return;
-  const runningSeconds = Math.floor((Date.now() - lessonTimerStartedAt) / 1000);
-  lessonElapsedSeconds = Math.max(lessonElapsedSeconds, runningSeconds);
-}
-
 function updateLessonTimerUI() {
-  syncLessonElapsedSeconds();
   updateLessonTimerRewards();
 }
 
-function stopLessonTimer() {
-  syncLessonElapsedSeconds();
-  if (lessonTimerInterval) {
-    clearInterval(lessonTimerInterval);
-    lessonTimerInterval = null;
-  }
-  lessonTimerStartedAt = null;
-}
-
-function startLessonTimer() {
-  if (lessonTimerInterval) return;
-  lessonTimerStartedAt = Date.now() - (lessonElapsedSeconds * 1000);
-  updateLessonTimerUI();
-  lessonTimerInterval = setInterval(() => {
-    updateLessonTimerUI();
-  }, 1000);
-}
-
-function syncQaElapsedSeconds() {
-  if (!qaTimerStartedAt) return;
-  const runningSeconds = Math.floor((Date.now() - qaTimerStartedAt) / 1000);
-  qaElapsedSeconds = Math.max(qaElapsedSeconds, runningSeconds);
-}
-
 function updateQaTimerUI() {
-  syncQaElapsedSeconds();
   updateQaTimerRewards();
 }
 
+const lessonTimer = createSessionElapsedTimer({
+  getElapsedSeconds: () => lessonElapsedSeconds,
+  setElapsedSeconds: (value) => { lessonElapsedSeconds = value; },
+  getStartedAt: () => lessonTimerStartedAt,
+  setStartedAt: (value) => { lessonTimerStartedAt = value; },
+  onTick: updateLessonTimerUI,
+});
+
+function stopLessonTimer() {
+  lessonTimer.stop();
+}
+
+function startLessonTimer() {
+  lessonTimer.start();
+}
+
+const qaTimer = createSessionElapsedTimer({
+  getElapsedSeconds: () => qaElapsedSeconds,
+  setElapsedSeconds: (value) => { qaElapsedSeconds = value; },
+  getStartedAt: () => qaTimerStartedAt,
+  setStartedAt: (value) => { qaTimerStartedAt = value; },
+  onTick: updateQaTimerUI,
+});
+
 function stopQaTimer() {
-  syncQaElapsedSeconds();
-  if (qaTimerInterval) {
-    clearInterval(qaTimerInterval);
-    qaTimerInterval = null;
-  }
-  qaTimerStartedAt = null;
+  qaTimer.stop();
 }
 
 function startQaTimer() {
-  if (qaTimerInterval) return;
-  qaTimerStartedAt = Date.now() - (qaElapsedSeconds * 1000);
-  updateQaTimerUI();
-  qaTimerInterval = setInterval(() => {
-    updateQaTimerUI();
-  }, 1000);
+  qaTimer.start();
 }
 
 const lessonFlow = createLessonFlow({
