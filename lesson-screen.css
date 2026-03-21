@@ -84,7 +84,7 @@
     display:flex;
     flex-direction:column;
     align-items:stretch;
-    gap:12px;
+    gap:var(--space-3);
   }
 
   #quiz-screen .lesson-title{
@@ -96,20 +96,20 @@
     order:2;
     justify-self:stretch;
     align-items:stretch;
-    gap:10px;
-    padding:12px;
+    gap:var(--space-3);
+    padding:var(--space-3);
   }
 
   #quiz-screen .time-widget{
     order:3;
     margin:0;
-    gap:8px;
+    gap:var(--space-2);
   }
 
   #quiz-screen .lesson-controls-panel .topbar{
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
-    gap:8px;
+    gap:var(--space-2);
     width:100%;
   }
 
@@ -118,7 +118,7 @@
   #quiz-screen .lesson-audio-controls{
     display:grid;
     grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
-    gap:8px;
+    gap:var(--space-2);
     width:100%;
   }
 
@@ -140,8 +140,8 @@
 
   #quiz-screen .sentence-game-reward-middle{
     margin-top:10px;
-    padding:12px 10px;
-    gap:12px;
+    padding:var(--space-3);
+    gap:var(--space-3);
   }
 
   #quiz-screen .sentence-game-reward-row{
@@ -158,13 +158,13 @@
   }
 
   #quiz-screen .question-text-wrap{
-    margin-top:8px;
-    gap:12px;
+    margin-top:var(--space-2);
+    gap:var(--space-3);
   }
 
   #quiz-screen .lesson-question-row{
     margin-top:0;
-    gap:10px;
+    gap:var(--space-3);
   }
 }
 
