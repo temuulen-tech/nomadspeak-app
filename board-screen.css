@@ -184,18 +184,16 @@ body[data-active-screen="board-game"] .app{
 .board-game-top-cluster{
   position:relative;
   z-index:10;
-  display:grid;
-  gap:4px;
   width:min(100%, 980px);
   margin:0 auto;
 }
 
 .board-game-header-panel{
   display:grid;
-  gap:8px;
+  gap:12px;
   width:100%;
   margin:0;
-  padding:8px 10px;
+  padding:12px;
   border-radius:var(--board-panel-radius);
   background:
     linear-gradient(180deg, rgba(255,244,208,.05), rgba(255,244,208,0)),
@@ -205,17 +203,10 @@ body[data-active-screen="board-game"] .app{
   box-sizing:border-box;
 }
 
-.board-game-header-actions{
+.board-game-nav-row{
   display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:8px;
-}
-
-.board-game-header-info-row{
-  display:grid;
-  grid-template-columns:minmax(0, .92fr) minmax(0, 1.08fr);
-  gap:8px;
-  align-items:stretch;
+  grid-template-columns:repeat(2, minmax(100px, 1fr));
+  gap:10px;
 }
 
 .board-game-header-button{
@@ -224,10 +215,10 @@ body[data-active-screen="board-game"] .app{
   align-items:flex-start;
   justify-content:center;
   gap:4px;
-  min-width:0;
-  min-height:48px;
+  min-width:100px;
+  min-height:52px;
   width:100%;
-  padding:10px 12px;
+  padding:12px 14px;
   border-radius:16px;
   text-align:left;
   writing-mode:horizontal-tb;
@@ -267,40 +258,55 @@ body[data-active-screen="board-game"] .app{
   color:rgba(255,247,214,.85);
 }
 
-.board-game-header-status-card{
+.board-game-status-panel{
   display:grid;
-  gap:8px;
-  min-width:0;
-  padding:10px 12px;
+  gap:10px;
+  padding:12px;
   border-radius:16px;
   border:1px solid rgba(208, 255, 217, .16);
   background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
 
+.board-game-status-summary{
+  display:grid;
+  gap:6px;
+}
+
+.board-game-status-panel-label,
+#board-game-screen-title,
+#board-game-chapter-text{
+  margin:0;
+}
+
+#board-game-screen-title{
+  justify-self:stretch;
+  padding:6px 10px;
+  line-height:1.2;
+}
+
+.board-game-status-grid{
+  display:grid;
+  grid-template-columns:repeat(4, minmax(100px, 1fr));
+  gap:10px;
+}
+
+.board-game-status-card{
+  display:grid;
+  gap:4px;
+  min-width:100px;
+  min-height:64px;
+  padding:10px 12px;
+  border-radius:14px;
+  background:rgba(8,20,26,.5);
+  border:1px solid rgba(255,225,148,.18);
+}
 
 .board-game-status-label,
 .board-game-status-value{
   display:block;
   width:100%;
   min-width:0;
-}
-
-.board-game-header-status-metrics{
-  display:grid;
-  grid-template-columns:repeat(3, minmax(0, 1fr));
-  gap:8px;
-}
-
-.board-game-status-metric{
-  display:grid;
-  gap:2px;
-  min-width:0;
-  min-height:42px;
-  padding:8px 10px;
-  border-radius:14px;
-  background:rgba(8,20,26,.5);
-  border:1px solid rgba(255,225,148,.18);
 }
 
 .board-game-status-label{
@@ -998,27 +1004,18 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-header-panel{
-    gap:8px;
+    gap:10px;
     padding:10px 12px;
   }
 
-  .board-game-header-actions{
-    grid-template-columns:minmax(0, 1fr);
+  .board-game-nav-row,
+  .board-game-status-grid{
+    grid-template-columns:repeat(2, minmax(100px, 1fr));
     gap:8px;
-  }
-
-  .board-game-header-status-metrics{
-    grid-template-columns:repeat(3, minmax(0, 1fr));
-    gap:8px;
-  }
-
-  .board-game-header-info-row{
-    grid-template-columns:minmax(0, 1fr);
-    gap:6px;
   }
 
   .board-game-header-button,
-  .board-game-status-metric{
+  .board-game-status-card{
     min-height:52px;
     padding:12px 14px;
   }
@@ -1095,15 +1092,13 @@ body[data-active-screen="board-game"] .app{
 
 /* Mobile stability pass: reduce crowding in board top bar, board frame, and bottom dock */
 @media (max-width:640px){
-  .board-game-header-info-row{
-    grid-template-columns:minmax(0, 1fr);
+  .board-game-nav-row,
+  .board-game-status-grid{
+    grid-template-columns:minmax(100px, 1fr);
   }
 
-  .board-game-header-actions{
-    grid-template-columns:minmax(0, 1fr);
-  }
-
-  .board-game-header-button{
+  .board-game-header-button,
+  .board-game-status-card{
     min-height:54px;
   }
 
@@ -1143,7 +1138,8 @@ body[data-active-screen="board-game"] .app{
     padding:10px;
   }
 
-  .board-game-header-button-label{
+  .board-game-header-button-label,
+  .board-game-status-value{
     font-size:.95rem;
   }
 
@@ -1190,8 +1186,7 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-header-button,
-.board-game-header-status-card,
-.board-game-status-metric,
+.board-game-status-card,
 .board-game-feedback-label,
 .board-game-dice-label,
 .board-game-helper-label,

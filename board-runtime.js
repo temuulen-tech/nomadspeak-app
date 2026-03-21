@@ -162,7 +162,8 @@ export function createBoardRuntime({
     const route = resolveBoardSelectionRoute(getBoardEntryState());
     const worldLabel = route.selectedWorld?.title || getSelectableBoardWorlds()[0]?.label || "Колумб ба Шинэ тивийнхэн";
     const difficultyLabel = getDifficultyOption(route.difficultyId)?.label || "Анхан";
-    dom.screenTitleEl.textContent = `Та битгий уурлаарай · ${worldLabel} · ${difficultyLabel}`;
+    dom.screenTitleEl.textContent = `Та битгий уурлаарай · ${worldLabel}`;
+    if (dom.difficultyEl) dom.difficultyEl.textContent = difficultyLabel;
   }
 
   function setBoardGameRollEnabled(enabled) {

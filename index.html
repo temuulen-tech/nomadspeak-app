@@ -509,7 +509,7 @@
             <div class="board-game-content-shell">
               <div class="board-game-top-cluster">
                 <section class="board-game-header-panel" aria-label="Тоглоомын дээд удирдлага" aria-live="polite">
-                  <div class="board-game-header-actions">
+                  <div class="board-game-nav-row">
                     <button class="primary play-exit-btn game-exit-btn learning-exit-btn board-game-header-button board-game-header-button--exit" type="button">
                       <span class="board-game-header-button-label">Тоглоомоос гарах</span>
                       <span class="board-game-header-button-subtitle">Нүүр рүү шууд буцна</span>
@@ -519,33 +519,32 @@
                       <span class="board-game-header-button-subtitle">Өмнөх / бүлгийн нүүр</span>
                     </button>
                   </div>
-                  <div class="board-game-visually-hidden" aria-hidden="true">
-                    <h2 class="screen-title-chip chip-title learning-title-block" id="board-game-screen-title">Та битгий уурлаарай · Колумб ба Шинэ тивийнхэн</h2>
-                    <strong class="board-game-status-value" id="today-time-board">00:00:00</strong>
-                  </div>
-                  <div class="board-game-header-info-row">
-                    <article class="board-game-header-status-card">
-                      <div class="board-game-header-status-metrics">
-                        <div class="board-game-status-metric chip-label">
-                          <span class="board-game-status-label">XP</span>
-                          <strong class="board-game-status-value" id="board-game-xp">0</strong>
-                        </div>
-                        <div class="board-game-status-metric chip-label">
-                          <span class="board-game-status-label">Зоос</span>
-                          <strong class="board-game-status-value" id="board-game-coins">0</strong>
-                        </div>
-                        <div class="board-game-status-metric chip-label">
-                          <span class="board-game-status-label">Бүлэг</span>
-                          <strong class="board-game-status-value"><span id="board-game-chapter-index">1</span>/4</strong>
-                        </div>
-                      </div>
-                    </article>
-                    <div class="board-game-scene-story board-game-story-panel" aria-live="polite">
-                      <div class="board-game-story-copy">
-                        <p class="chip-label board-game-story-label">Бүлгийн мэдээлэл</p>
-                        <p class="chip-label" id="board-game-chapter-title">Бүлгийн гарчиг</p>
-                        <p class="muted" id="board-game-chapter-text">Энэ бүлэгт түүхэн үйл явдлыг олон өнцгөөс тайлбарлана.</p>
-                      </div>
+                  <div class="board-game-status-panel">
+                    <div class="board-game-status-summary board-game-story-panel">
+                      <p class="chip-label board-game-status-panel-label">Самбарын төлөв</p>
+                      <h2 class="screen-title-chip chip-title learning-title-block" id="board-game-screen-title">Та битгий уурлаарай · Колумб ба Шинэ тивийнхэн</h2>
+                      <p class="muted" id="board-game-chapter-text">Энэ бүлэгт түүхэн үйл явдлыг олон өнцгөөс тайлбарлана.</p>
+                    </div>
+                    <div class="board-game-status-grid">
+                      <article class="board-game-status-card chip-label">
+                        <span class="board-game-status-label">Түвшин</span>
+                        <strong class="board-game-status-value" id="board-game-difficulty-label">Анхан</strong>
+                      </article>
+                      <article class="board-game-status-card chip-label">
+                        <span class="board-game-status-label">Ахиц</span>
+                        <strong class="board-game-status-value"><span id="board-game-chapter-index">1</span>/4 бүлэг</strong>
+                      </article>
+                      <article class="board-game-status-card chip-label">
+                        <span class="board-game-status-label">Өнөөдрийн хугацаа</span>
+                        <strong class="board-game-status-value" id="today-time-board">00:00:00</strong>
+                      </article>
+                      <article class="board-game-status-card chip-label">
+                        <span class="board-game-status-label">XP / Зоос</span>
+                        <strong class="board-game-status-value"><span id="board-game-xp">0</span> XP · <span id="board-game-coins">0</span></strong>
+                      </article>
+                    </div>
+                    <div class="board-game-visually-hidden" aria-hidden="true">
+                      <p id="board-game-chapter-title">Бүлгийн гарчиг</p>
                     </div>
                   </div>
                 </section>
