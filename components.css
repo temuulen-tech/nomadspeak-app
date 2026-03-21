@@ -1984,6 +1984,15 @@ button,
   overflow-wrap:anywhere;
 }
 
+.home-entry-card,
+.home-entry-card .home-entry-title,
+.home-entry-card .home-entry-subtitle,
+.home-entry-card .home-entry-meta{
+  overflow-wrap:normal;
+  word-break:keep-all;
+  hyphens:none;
+}
+
 .home-modes-panel{
   max-height:min(70vh, calc(var(--app-viewport-height) - 140px));
   overflow:auto;
