@@ -39,15 +39,27 @@
 
 .home-profile-btn{
   flex:0 0 auto;
+  background:rgba(8, 29, 36, .72);
+  border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 10px 20px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+.home-profile-btn::before{
+  opacity:0;
+}
+
+.home-profile-btn:hover,
+.home-profile-btn:focus-visible{
+  box-shadow:0 12px 24px rgba(0,0,0,.22), inset 0 1px 0 rgba(255,255,255,.12);
 }
 
 .home-header-main-simplified{
   justify-content:space-between;
-  padding:16px 18px;
-  border:1px solid rgba(255,255,255,.1);
-  border-radius:22px;
-  background:linear-gradient(135deg, rgba(8,29,36,.9), rgba(15,41,53,.72));
-  box-shadow:0 18px 34px rgba(0,0,0,.2), inset 0 1px 0 rgba(255,255,255,.06);
+  padding:6px 0 0;
+  border:none;
+  border-radius:0;
+  background:transparent;
+  box-shadow:none;
 }
 
 .home-brand-simplified{
@@ -268,7 +280,7 @@
   .home-header-main-simplified{
     gap:10px;
     align-items:flex-start;
-    padding:14px 16px;
+    padding:6px 0 0;
   }
 
   .home-hero-panel{
