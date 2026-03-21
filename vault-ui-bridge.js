@@ -4,12 +4,12 @@ export function createVaultUiBridge({
   getVaultManager,
   filteredSentences,
   getSpeakingSentenceId,
-  lessonFlow,
+  getLessonFlow,
   buildOptions,
   lessonMnTranslation,
   levelName,
   getLessonLevel,
-  qaFlow,
+  getQaFlow,
   getSentenceGameSentence,
   getSentenceGameDifficulty,
 }) {
@@ -37,7 +37,8 @@ export function createVaultUiBridge({
   }
 
   function saveCurrentLessonItem() {
-    const lessonState = lessonFlow.getState();
+    const lessonState = getLessonFlow?.()?.getState?.();
+    if (!lessonState) return;
     const item = lessonState.questions[lessonState.currentIndex];
     if (!item) return;
     const options = buildOptions(item.a);
@@ -63,7 +64,8 @@ export function createVaultUiBridge({
   }
 
   function saveCurrentQaRound() {
-    const round = qaFlow.getQaCurrentRound();
+    const qaFlow = getQaFlow?.();
+    const round = qaFlow?.getQaCurrentRound?.();
     if (!round) return;
     const payload = {
       id: `qna:${round.id}`,
@@ -71,7 +73,7 @@ export function createVaultUiBridge({
       mnAnswer: round.mnAnswer,
       enQuestion: round.enQuestion,
       enAnswer: round.enAnswer,
-      level: levelName(qaFlow.getState().qaGameLevel || "beginner"),
+      level: levelName(qaFlow?.getState?.().qaGameLevel || "beginner"),
       timestamp: Date.now(),
     };
     const key = vaultKeyForScreen("qna");
