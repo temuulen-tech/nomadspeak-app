@@ -69,7 +69,6 @@ import {
   hideElement,
   isHidden,
   setActiveState,
-  setCheckedState,
   setDisabledState,
   setExpandedState,
   setHidden,
@@ -77,7 +76,6 @@ import {
   setSelectedState,
   showElement,
   syncToggleButtons,
-  toggleClass,
 } from "./ui.js";
 import { bindModalDismissal, closeModal, openModal } from "./modal.js";
 import {
@@ -85,7 +83,7 @@ import {
   hydrateRewardStripImages,
 } from "./render-rewards.js";
 import {
-  SENTENCE_GAME_CLIMB_POSITIONS,
+  SENTENCE_GAME_DEBUG,
   SENTENCE_GAME_IDLE_TIMEOUT_SECONDS,
   SENTENCE_GAME_REWARD_BANNERS,
   SENTENCE_GAME_REWARD_THRESHOLDS,
@@ -93,7 +91,6 @@ import {
 } from "./sentence-game.js";
 import {
   QA_REWARD_STEPS,
-  QA_ROUNDS,
 } from "./qa-game.js";
 import { initDebugTools } from "./debug-tools.js";
 import {
@@ -106,8 +103,9 @@ import {
 } from "./progress-ui.js";
 import { getWorldAudioTrack } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
-import { findMongolianVoice, getToastType, normalizeToastSpeechText, speakMongolianText } from "./speech-utils.js";
-import { createAudioEngine, createWorldSoundscape, SOUND_EVENT_HOOKS } from "./app-audio-manager.js";
+import { speakMongolianText } from "./speech-utils.js";
+import { createAudioEngine, createWorldSoundscape } from "./app-audio-manager.js";
+import { createSentenceGameClimbController, createSentenceGameTipController, createSpeechStateController } from "./script-support.js";
 import { createBoardRuntime } from "./board-runtime.js";
 import { showWorldFeedbackChip as renderWorldFeedbackChip, updateCompanionLine as updateCompanionLineUi } from "./world-ui.js";
 import { getAppDom } from "./app-dom.js";
@@ -369,13 +367,6 @@ hydrateRewardStripImages({
 // ---- State ----
 let level = DIFFICULTY_LEVELS.BEGINNER;
 
-let availableVoices = [];
-
-let sentenceGameTipSpeaking = false;
-let sentenceGameClimbLevel = 0;
-let sentenceGameLastRenderedClimbLevel = 0;
-let sentenceGamePeakPulseTimer = null;
-let sentenceGameAttemptResolved = false;
 let sentenceGameActiveSeconds = 0;
 let sentenceGameRewardLevel = 0;
 let sentenceGameLastActivityAt = 0;
@@ -399,6 +390,20 @@ const APP_TIME_ACTIVE_SESSION_KEY = STORAGE_KEYS.appTimeActiveSession;
 const FREE_DAILY_XP_LIMIT = 10;
 let appSettings = getCoreState().settings;
 const BACKGROUND_AUDIO_ENABLED = true;
+const speechState = createSpeechStateController({
+  getAppSettings: () => appSettings,
+});
+
+const {
+  loadVoices,
+  getAvailableVoices,
+  mongolianVoice,
+  selectedEnglishVoice,
+  toastSpeechText,
+  toastTypeFromMessage,
+  speakBannerText,
+} = speechState;
+
 function syncCoreStateReferences() {
   const coreState = getCoreState();
   progressState = coreState.progress;
@@ -627,15 +632,60 @@ const { worldSoundscape, gameFeelSoundManager } = createWorldSoundscape({
   playErrorSound: () => playErrorSound(),
 });
 
+const sentenceGameClimbController = createSentenceGameClimbController({
+  appDom,
+  dom: {
+    climbEl: sentenceGameClimbEl,
+    climberEl: sentenceGameClimberEl,
+    rewardIconEl: sentenceGameRewardIconEl,
+  },
+  storageKey: SENTENCE_GAME_CLIMB_STORAGE_KEY,
+  getAppSettings: () => appSettings,
+  gameFeelSoundManager,
+  playTone,
+});
+
+const {
+  loadClimbLevel: loadSentenceGameClimbLevel,
+  persistClimbLevel: persistSentenceGameClimbLevel,
+  renderClimb: renderSentenceGameClimb,
+  updateFromOutcome: updateSentenceGameClimbFromOutcome,
+  getClimbLevel: getSentenceGameClimbLevel,
+  setClimbLevel: setSentenceGameClimbLevel,
+} = sentenceGameClimbController;
+
+const sentenceGameTipController = createSentenceGameTipController({
+  dom: {
+    tipPanelEl: sentenceGameTipPanelEl,
+    tipToggleBtn: sentenceGameTipToggleBtn,
+    tipTextEl: sentenceGameTipTextEl,
+    tipCloseRowEl: sentenceGameTipCloseRowEl,
+    tipSpeakBtn: sentenceGameTipSpeakBtn,
+    tipStopBtn: sentenceGameTipStopBtn,
+  },
+  getAppSettings: () => appSettings,
+  getMongolianVoice: mongolianVoice,
+  markSentenceGameActivity: () => markSentenceGameActivity(),
+});
+
+const {
+  updateTipControls: updateSentenceGameTipControls,
+  stopTipSpeech: stopSentenceGameTipSpeech,
+  closeTipPanel: closeSentenceGameTipPanel,
+  toggleTipPanel: toggleSentenceGameTipPanel,
+  showTipText: showSentenceGameTipText,
+  speakTip: speakSentenceGameTip,
+} = sentenceGameTipController;
+
 function updateCompanionLine(mode, tone = "idle") {
   updateCompanionLineUi(mode, tone, { lessonCompanionLineEl, sentencesCompanionLineEl });
 }
 
+const showWorldFeedbackChipUi = (text, tone = "reward") => renderWorldFeedbackChip(worldFeedbackHubEl, text, tone);
+
 function showWorldFeedbackChip(text, tone = "reward") {
   showWorldFeedbackChipUi(text, tone);
 }
-
-const showWorldFeedbackChipUi = (text, tone = "reward") => renderWorldFeedbackChip(worldFeedbackHubEl, text, tone);
 
 const boardRuntime = createBoardRuntime({
   dom: appDom.board,
@@ -942,37 +992,6 @@ function toggleHomeModesPanel() {
   setHomeModesPanelOpen(shouldOpen);
 }
 
-function mongolianVoice() {
-  return findMongolianVoice(availableVoices);
-}
-
-function toastSpeechText(message = "") {
-  return normalizeToastSpeechText(message);
-}
-
-function toastTypeFromMessage(message = "") {
-  return getToastType(message, {
-    correct: SENTENCE_GAME_CORRECT_TOAST,
-    incorrect: SENTENCE_GAME_INCORRECT_TOAST,
-    hint: SENTENCE_GAME_SHOW_CORRECT_TOAST,
-  });
-}
-
-function speakBannerText(text) {
-  if (!appSettings.soundEnabled) return;
-  if (!("speechSynthesis" in window)) return;
-
-  speakMongolianText({
-    text,
-    voices: availableVoices,
-    rate: appSettings.ttsSettings.rate,
-    cancelFirst: true,
-    speechSynthesisRef: window.speechSynthesis,
-    utteranceFactory: (value) => new SpeechSynthesisUtterance(value),
-  });
-}
-
-
 function resetLessonProgress() {
   lessonFlow.resetRuntimeState();
   stopLessonTimer();
@@ -999,7 +1018,7 @@ function giveDebugXp(amount = 10) {
 }
 
 function giveDebugRewards() {
-  sentenceGameClimbLevel = 5;
+  setSentenceGameClimbLevel(5);
   sentenceGameRewardLevel = 5;
   sentenceGameActiveSeconds = Math.max(sentenceGameActiveSeconds, 120 * 60);
   lessonFlow.getState().unlockedRewards = Math.max(lessonFlow.getState().unlockedRewards, REWARD_ICON_SEQUENCE.length);
@@ -1013,7 +1032,7 @@ function giveDebugRewards() {
   }, "progress");
   syncCoreStateReferences();
   persistSentenceGameRewardState();
-  renderSentenceGameClimb(sentenceGameClimbLevel);
+  renderSentenceGameClimb(getSentenceGameClimbLevel());
   renderSentenceGameRewardState();
   renderSentencesRewards();
   renderLessonRewards();
@@ -1041,7 +1060,7 @@ function resetDebugProgress() {
 
   resetCoreState(createDefaultCoreState());
   syncCoreStateReferences();
-  sentenceGameClimbLevel = 0;
+  setSentenceGameClimbLevel(0);
   sentenceGameRewardLevel = 0;
   sentenceGameActiveSeconds = 0;
   sentenceGameLastTick = Date.now();
@@ -1062,7 +1081,7 @@ function resetDebugProgress() {
   loadProfileName();
   loadProgressState();
   updateSoundToggleState();
-  renderSentenceGameClimb(sentenceGameClimbLevel);
+  renderSentenceGameClimb(getSentenceGameClimbLevel());
   renderSentenceGameRewardState();
   renderSentencesRewards();
   renderLessonRewards();
@@ -1159,193 +1178,11 @@ function playWrongSound() {
   playErrorSound();
 }
 
-function stageRewardIconSvg(stage = 0) {
-  if (stage === 1) {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 2.5v18.5" stroke="#ffe6bf" stroke-width="2.1" stroke-linecap="round"/><path d="M6.3 4h12l-2.8 4.1 2.8 4.1h-12z" fill="#e53a3a" stroke="#ffd1d1" stroke-width="1.2"/></svg>';
-  }
-  if (stage === 2) {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.8l2.6 5.3 5.8.8-4.2 4.1 1 5.6-5.2-2.7-5.2 2.7 1-5.6-4.2-4.1 5.8-.8z" fill="#ff4f58" stroke="#ffe8b0" stroke-width="1.2"/><circle cx="12" cy="12" r="9" fill="none" stroke="#ff7880" stroke-opacity=".55" stroke-width="1.4"/></svg>';
-  }
-  if (stage === 3) {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.6" fill="#f4bf44" stroke="#ffe6a7" stroke-width="1.6"/><circle cx="12" cy="12" r="4.4" fill="none" stroke="#b17815" stroke-width="1.4"/><path d="M12 6.6v10.8M6.6 12h10.8" stroke="#f8d88e" stroke-width="1" opacity=".8"/></svg>';
-  }
-  if (stage === 4) {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5.1h10v3.2c0 3.7-2.2 6.6-5 6.6s-5-3-5-6.6z" fill="#edbe5f" stroke="#ffe8b2" stroke-width="1.2"/><path d="M4.8 5.8h2c0 2.5-.9 3.8-2.8 3.8V7.8c.5 0 .8-.3.8-2zm14.4 0h-2c0 2.5.9 3.8 2.8 3.8V7.8c-.5 0-.8-.3-.8-2z" fill="#f9d782"/><path d="M10 14.9h4v2.8h-4zM8.2 18h7.6v2.2H8.2z" fill="#d69c2e"/></svg>';
-  }
-  if (stage === 5) {
-    return '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.1l6.8 6.9L12 21.9 5.2 9z" fill="#7deaff" stroke="#dcf9ff" stroke-width="1.3"/><path d="M12 2.1v19.8M5.2 9h13.6" stroke="#45bfd6" stroke-width="1.1"/></svg>';
-  }
-  return "";
-}
-
-function persistSentenceGameClimbLevel() {
-  try {
-    localStorage.setItem(SENTENCE_GAME_CLIMB_STORAGE_KEY, String(sentenceGameClimbLevel));
-  } catch (error) {
-    // noop
-  }
-}
-
-function loadSentenceGameClimbLevel() {
-  try {
-    const raw = localStorage.getItem(SENTENCE_GAME_CLIMB_STORAGE_KEY);
-    const parsed = Number(raw);
-    if (Number.isFinite(parsed)) {
-      sentenceGameClimbLevel = Math.max(0, Math.min(5, Math.round(parsed)));
-      sentenceGameLastRenderedClimbLevel = sentenceGameClimbLevel;
-      return;
-    }
-  } catch (error) {
-    // noop
-  }
-  sentenceGameClimbLevel = 0;
-  sentenceGameLastRenderedClimbLevel = 0;
-}
-
-function renderSentenceGameClimb(level = 0, options = {}) {
-  if (!sentenceGameClimberEl || !sentenceGameClimbEl) return;
-  const position = SENTENCE_GAME_CLIMB_POSITIONS[level] || SENTENCE_GAME_CLIMB_POSITIONS[0];
-  sentenceGameClimberEl.style.setProperty("--x", `${position.x}px`);
-  sentenceGameClimberEl.style.setProperty("--y", `${position.y}px`);
-  sentenceGameClimbEl.setAttribute("aria-label", `Mountain climb progress level ${level} of 5`);
-
-  if (sentenceGameRewardIconEl) {
-    sentenceGameRewardIconEl.innerHTML = stageRewardIconSvg(level);
-  }
-
-  appDom.queries.getSentenceGamePeaks().forEach((peakEl) => {
-    const peak = Number(peakEl.dataset.peak || 0);
-    peakEl.classList.toggle("active", peak > 0 && peak <= level);
-    peakEl.classList.remove("pulse");
-  });
-
-  if (options.pulsePeak && level > 0) {
-    const reachedPeak = appDom.queries.getSentenceGamePeak(level);
-    if (reachedPeak) {
-      void reachedPeak.getBoundingClientRect();
-      reachedPeak.classList.add("pulse");
-      if (sentenceGamePeakPulseTimer) clearTimeout(sentenceGamePeakPulseTimer);
-      sentenceGamePeakPulseTimer = setTimeout(() => {
-        reachedPeak.classList.remove("pulse");
-      }, 620);
-    }
-  }
-}
-
-function playSentenceGameLevelUpSound(stage) {
-  if (!appSettings.soundEnabled || stage < 1 || stage > 5) return;
-  gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.progression);
-  const stagePatterns = {
-    1: [620, 740, 930],
-    2: [660, 880, 1100],
-    3: [720, 960, 1280],
-    4: [784, 1046, 1396],
-    5: [880, 1174, 1568],
-  };
-  const notes = stagePatterns[stage] || stagePatterns[1];
-  notes.forEach((freq, index) => {
-    setTimeout(() => {
-      playTone({ frequency: freq, type: "triangle", duration: 0.08, volume: 0.11 + stage * 0.01, attack: 0.006, release: 0.09 });
-    }, index * 78);
-  });
-}
-
-function playSentenceGameLevelDownSound() {
-  if (!appSettings.soundEnabled) return;
-  gameFeelSoundManager.playSoundHook(SOUND_EVENT_HOOKS.answerWrong);
-  [300, 230, 170].forEach((freq, index) => {
-    setTimeout(() => {
-      playTone({ frequency: freq, type: "sawtooth", duration: 0.09, volume: 0.095, attack: 0.002, release: 0.08 });
-    }, index * 62);
-  });
-}
-
 function sentenceGameScreenVisible() {
   return sentenceGameScreen && !isHidden(sentenceGameScreen);
 }
 
-function updateSentenceGameClimbFromOutcome(outcome) {
-  if (!outcome) return;
-  const previousLevel = sentenceGameClimbLevel;
-  if (outcome === "success") {
-    sentenceGameClimbLevel = Math.min(5, sentenceGameClimbLevel + 1);
-  }
-  if (outcome === "fail") {
-    sentenceGameClimbLevel = Math.max(0, sentenceGameClimbLevel - 1);
-  }
-
-  if (sentenceGameClimbLevel === previousLevel) {
-    renderSentenceGameClimb(sentenceGameClimbLevel);
-    return;
-  }
-
-  const leveledUp = sentenceGameClimbLevel > previousLevel;
-  sentenceGameClimberEl?.setAttribute("data-animating", "true");
-  renderSentenceGameClimb(sentenceGameClimbLevel, { pulsePeak: leveledUp });
-  persistSentenceGameClimbLevel();
-  sentenceGameLastRenderedClimbLevel = sentenceGameClimbLevel;
-
-  if (leveledUp) {
-    playSentenceGameLevelUpSound(sentenceGameClimbLevel);
-  } else {
-    playSentenceGameLevelDownSound();
-  }
-
-  setTimeout(() => {
-    sentenceGameClimberEl?.setAttribute("data-animating", "false");
-  }, 620);
-}
-
 // ---- Speech & sentences ----
-function loadVoices() {
-  if (!("speechSynthesis" in window)) return;
-  availableVoices = window.speechSynthesis.getVoices();
-}
-
-function englishVoices() {
-  return availableVoices.filter(v => {
-    const lang = (v.lang || "").toLowerCase();
-    return lang.startsWith("en-us") || lang.startsWith("en-gb") || lang.startsWith("en");
-  });
-}
-
-function bestEnglishVoice() {
-  const voices = englishVoices();
-  if (!voices.length) return null;
-
-  return (
-    voices.find(v => (v.lang || "").toLowerCase().startsWith("en-us")) ||
-    voices.find(v => (v.lang || "").toLowerCase().startsWith("en-gb")) ||
-    voices[0]
-  );
-}
-
-function voiceMatchesHint(voice, selectedVoiceType) {
-  const name = (voice.name || "").toLowerCase();
-
-  if (selectedVoiceType === "male") {
-    return ["male", "man", "david", "guy", "daniel", "james", "mark", "tom", "john", "matthew", "michael", "george"].some(hint => name.includes(hint));
-  }
-
-  if (selectedVoiceType === "female") {
-    return ["female", "woman", "zira", "susan", "samantha", "jenny", "anna", "victoria", "emma", "kate", "sara", "aria"].some(hint => name.includes(hint));
-  }
-
-  return false;
-}
-
-function selectedEnglishVoice() {
-  const voices = englishVoices();
-  if (!voices.length) return null;
-
-  if (appSettings.ttsSettings.voice === "male" || appSettings.ttsSettings.voice === "female") {
-    const hinted = voices.find(v => voiceMatchesHint(v, appSettings.ttsSettings.voice));
-    if (hinted) return hinted;
-  }
-
-  return bestEnglishVoice();
-}
-
 function loadTtsSettings() {
   syncCoreStateReferences();
 }
@@ -1368,91 +1205,6 @@ function updateTtsControlState() {
   if (ttsRateValueEl) {
     ttsRateValueEl.textContent = `${appSettings.ttsSettings.rate.toFixed(2)}x`;
   }
-}
-
-function stopSentenceGameTipSpeech() {
-  if (!("speechSynthesis" in window)) return;
-  window.speechSynthesis.cancel();
-  sentenceGameTipSpeaking = false;
-  updateSentenceGameTipControls();
-}
-
-function updateSentenceGameTipControls() {
-  if (sentenceGameTipSpeakBtn) {
-    setDisabledState(sentenceGameTipSpeakBtn, sentenceGameTipSpeaking);
-  }
-
-  if (sentenceGameTipStopBtn) {
-    sentenceGameTipStopBtn.hidden = !sentenceGameTipSpeaking;
-    setDisabledState(sentenceGameTipStopBtn, !sentenceGameTipSpeaking);
-  }
-}
-
-function closeSentenceGameTipPanel() {
-  markSentenceGameActivity();
-  if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
-  stopSentenceGameTipSpeech();
-  setExpandedState(sentenceGameTipToggleBtn, sentenceGameTipPanelEl, false);
-
-  if (sentenceGameTipTextEl) {
-    setHidden(sentenceGameTipTextEl, true);
-  }
-  if (sentenceGameTipCloseRowEl) {
-    setHidden(sentenceGameTipCloseRowEl, true);
-  }
-}
-
-function toggleSentenceGameTipPanel() {
-  markSentenceGameActivity();
-  if (!sentenceGameTipPanelEl || !sentenceGameTipToggleBtn) return;
-  const willOpen = isHidden(sentenceGameTipPanelEl);
-  setExpandedState(sentenceGameTipToggleBtn, sentenceGameTipPanelEl, willOpen);
-  if (!willOpen) {
-    closeSentenceGameTipPanel();
-    return;
-  }
-  updateSentenceGameTipControls();
-}
-
-function showSentenceGameTipText() {
-  markSentenceGameActivity();
-  if (sentenceGameTipTextEl) {
-    setHidden(sentenceGameTipTextEl, false);
-  }
-  if (sentenceGameTipCloseRowEl) {
-    setHidden(sentenceGameTipCloseRowEl, false);
-  }
-}
-
-function speakSentenceGameTip() {
-  markSentenceGameActivity();
-  if (!appSettings.soundEnabled) return;
-  if (!("speechSynthesis" in window)) return;
-  stopSentenceGameTipSpeech();
-
-  const utterance = new SpeechSynthesisUtterance(SENTENCE_GAME_TIP_TEXT);
-  const mnVoice = mongolianVoice();
-  if (mnVoice) {
-    utterance.voice = mnVoice;
-    utterance.lang = mnVoice.lang || "mn-MN";
-  } else {
-    utterance.lang = "mn-MN";
-  }
-  utterance.rate = appSettings.ttsSettings.rate;
-  utterance.onstart = () => {
-    sentenceGameTipSpeaking = true;
-    updateSentenceGameTipControls();
-  };
-  utterance.onend = () => {
-    sentenceGameTipSpeaking = false;
-    closeSentenceGameTipPanel();
-  };
-  utterance.onerror = () => {
-    sentenceGameTipSpeaking = false;
-    updateSentenceGameTipControls();
-  };
-
-  window.speechSynthesis.speak(utterance);
 }
 
 let hasExplicitStartLevelSelection = false;
@@ -1592,7 +1344,7 @@ sentenceRuntime = createSentenceRuntime({
   deps: {
     getCurrentLevel: () => level,
     getSelectedEnglishVoice: selectedEnglishVoice,
-    getAvailableVoices: () => availableVoices,
+    getAvailableVoices,
     getAppSettings: () => appSettings,
     getActiveLearningSelection,
     updateCompanionLine,
@@ -2089,7 +1841,7 @@ const { initializeApp } = createAppBootstrap({
   ensureAudioUnlocked,
   loadSentenceGameClimbLevel,
   renderSentenceGameClimb,
-  getSentenceGameClimbLevel: () => sentenceGameClimbLevel,
+  getSentenceGameClimbLevel,
   loadSentenceGameRewardState,
   updateSentenceGameRewardLevel,
   reconcileRewardTierProgress,
