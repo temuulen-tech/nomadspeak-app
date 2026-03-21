@@ -1056,3 +1056,93 @@ body[data-active-screen="board-game"] .app{
     width:100%;
   }
 }
+
+/* Mobile stability pass: reduce crowding in board top bar, board frame, and bottom dock */
+@media (max-width:640px){
+  .board-game-topbar{
+    grid-template-columns:minmax(0, 1fr);
+    gap:10px;
+  }
+
+  .board-game-topbar-side,
+  .board-game-topbar-side-end{
+    justify-content:stretch;
+  }
+
+  .board-topbar-exit,
+  .board-topbar-sound{
+    width:100%;
+  }
+
+  .board-game-topbar-status,
+  .board-game-meta-row{
+    width:100%;
+  }
+
+  .board-game-meta-chip{
+    flex:1 1 calc(50% - 6px);
+    justify-content:center;
+  }
+
+  .board-game-board-frame{
+    min-height:clamp(250px, 42vh, 360px);
+    padding:14px 12px 18px;
+  }
+
+  .board-game-board{
+    width:100%;
+    gap:8px;
+    padding:14px 8px 12px 16px;
+  }
+
+  .board-game-feedback-strip{
+    min-height:0;
+  }
+
+  .board-game-feedback-hub{
+    position:static;
+    width:100%;
+    justify-items:stretch;
+    margin-top:8px;
+  }
+
+  .board-popup{
+    margin-top:0;
+  }
+}
+
+@media (max-width:420px){
+  .board-game-content-shell{
+    padding-inline:8px;
+  }
+
+  .board-game-meta-chip{
+    flex:1 1 100%;
+  }
+
+  .board-game-board-frame{
+    border-radius:18px;
+  }
+
+  .board-game-board{
+    padding-left:10px;
+  }
+
+  .board-game-tile{
+    width:30px;
+    height:30px;
+    min-height:30px;
+  }
+
+  .board-game-tile::after{
+    width:16px;
+    right:-14px;
+    top:14px;
+  }
+
+  .board-game-voyager{
+    left:8px;
+    bottom:10px;
+  }
+}
+

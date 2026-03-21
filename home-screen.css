@@ -323,3 +323,29 @@
     padding:10px;
   }
 }
+
+/* Mobile stability pass: prevent home header/profile crowding on very narrow screens */
+@media (max-width:420px){
+  .home-header-main-simplified{
+    flex-wrap:wrap;
+    align-items:flex-start;
+  }
+
+  .home-brand-simplified,
+  .home-profile-entry{
+    width:100%;
+  }
+
+  .home-profile-entry{
+    align-items:flex-start;
+  }
+
+  .home-profile-label{
+    text-align:left;
+  }
+
+  .home-modes-panel{
+    max-height:min(58vh, calc(var(--app-viewport-height) - 132px));
+  }
+}
+

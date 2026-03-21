@@ -740,3 +740,43 @@ body{
     grid-template-columns:repeat(2,minmax(0,1fr));
   }
 }
+
+/* Mobile stability pass: keep shared learning headers wrapping safely on narrow screens */
+@media (max-width:560px){
+  .learning-master-row{
+    flex-wrap:wrap;
+    align-items:stretch;
+  }
+
+  .learning-master-row > *,
+  .learning-master-row-1 .learning-exit-btn,
+  .learning-master-row-1 .learning-alltime-btn,
+  .learning-master-row-2 > :first-child,
+  .learning-master-row-2 > :last-child,
+  .learning-master-row-3 > :first-child,
+  .learning-master-row-3 > :last-child,
+  .learning-master-row-4 > :first-child,
+  .learning-master-row-4 > :last-child{
+    flex:1 1 100%;
+    max-width:100%;
+  }
+
+  .learning-header-row{
+    gap:8px;
+  }
+
+  .learning-title-block,
+  .learning-today-time,
+  .learning-status-inline{
+    width:100%;
+  }
+
+  .learning-today-time{
+    margin-left:0;
+  }
+
+  .learning-status-inline{
+    justify-content:flex-start;
+  }
+}
+

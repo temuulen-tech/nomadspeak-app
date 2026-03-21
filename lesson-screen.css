@@ -179,3 +179,30 @@
     max-width:none;
   }
 }
+
+/* Mobile stability pass: keep lesson reward strip and controls from clipping on small screens */
+@media (max-width:560px){
+  #quiz-screen .sentence-game-reward-row{
+    gap:8px;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-tile{
+    flex:1 1 100%;
+    max-width:none;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-img{
+    width:88px;
+    height:88px;
+  }
+
+  #quiz-screen .lesson-controls-panel,
+  #quiz-screen .question-text-wrap,
+  #quiz-screen .lesson-question-row,
+  #quiz-screen .options,
+  #quiz-screen .actions{
+    width:100%;
+    min-width:0;
+  }
+}
+
