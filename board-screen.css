@@ -256,7 +256,7 @@ body[data-active-screen="board-game"] .app{
 .board-game-meta-row{
   margin:0;
   display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
   gap:10px;
   align-items:stretch;
   width:100%;
@@ -269,12 +269,12 @@ body[data-active-screen="board-game"] .app{
   writing-mode:horizontal-tb;
   text-orientation:mixed;
   display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  gap:4px;
+  flex-direction:row;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
   width:100%;
-  min-width:0;
+  min-width:120px;
   max-width:none;
   min-height:56px;
   padding:10px 12px;
@@ -297,18 +297,19 @@ body[data-active-screen="board-game"] .app{
 .board-game-meta-chip > span,
 .board-game-meta-chip > small,
 .board-game-action-card > span{
-  display:block;
-  width:100%;
+  display:inline;
+  width:auto;
   white-space:normal;
   word-break:keep-all;
   overflow-wrap:break-word;
-  text-align:left;
+  text-align:inherit;
   line-height:1.25;
 }
 
 .board-game-meta-chip strong{
   font-size:.96rem;
   color:#fff4c9;
+  flex:0 0 auto;
 }
 
 .board-topbar-exit,
@@ -1020,7 +1021,7 @@ body[data-active-screen="board-game"] .app{
   .board-game-topbar-cards,
   .board-game-topbar-status,
   .board-game-meta-row{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
     gap:10px;
     width:100%;
   }
@@ -1029,7 +1030,7 @@ body[data-active-screen="board-game"] .app{
   .board-game-action-card{
     font-size:.7rem;
     padding:10px 12px;
-    min-width:0;
+    min-width:120px;
     min-height:56px;
   }
 
@@ -1112,13 +1113,13 @@ body[data-active-screen="board-game"] .app{
   .board-game-topbar-cards,
   .board-game-topbar-status,
   .board-game-meta-row{
-    grid-template-columns:repeat(2, minmax(0, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
     width:100%;
   }
 
   .board-game-meta-chip,
   .board-game-action-card{
-    min-width:0;
+    min-width:120px;
   }
 
   .board-game-board-frame{
@@ -1148,14 +1149,6 @@ body[data-active-screen="board-game"] .app{
   }
 }
 
-@media (max-width:520px){
-  .board-game-topbar-status,
-  .board-game-topbar-cards,
-  .board-game-meta-row{
-    grid-template-columns:minmax(0, 1fr);
-  }
-}
-
 @media (max-width:420px){
   .board-game-content-shell{
     padding-inline:8px;
@@ -1164,12 +1157,12 @@ body[data-active-screen="board-game"] .app{
   .board-game-topbar-cards,
   .board-game-topbar-status,
   .board-game-meta-row{
-    grid-template-columns:minmax(0, 1fr);
+    grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
   }
 
   .board-game-meta-chip,
   .board-game-action-card{
-    min-width:0;
+    min-width:120px;
   }
 
   .board-game-board-frame{
