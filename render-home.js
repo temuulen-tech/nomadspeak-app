@@ -13,11 +13,13 @@ function homeEls() {
     introPanel: document.getElementById("intro-panel"),
     startBtn: document.getElementById("start-btn"),
     startLevelDropdown: document.getElementById("start-level-dropdown"),
+    homeFlowHint: document.getElementById("home-flow-hint"),
   };
 }
 
-export function renderHomeScreen({ levelLabel } = {}) {
+export function renderHomeScreen({ levelLabel, homeFlowHint } = {}) {
   if (levelLabel) updateStartButtonLabel(levelLabel);
+  if (homeFlowHint) updateHomeFlowHint(homeFlowHint);
 }
 
 export function updateStartButtonLabel(label) {
@@ -42,4 +44,10 @@ export function setStartIntroOpen(isOpen) {
   const { introPanel, introToggleBtn } = homeEls();
   if (!introPanel || !introToggleBtn) return;
   setExpandedState(introToggleBtn, introPanel, isOpen);
+}
+
+export function updateHomeFlowHint(label) {
+  const { homeFlowHint } = homeEls();
+  if (!homeFlowHint) return;
+  setText(homeFlowHint, label);
 }
