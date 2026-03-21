@@ -150,7 +150,7 @@ body[data-active-screen="board-game"] .app{
 .board-game-content-shell{
   --board-safe-top:max(env(safe-area-inset-top), 8px);
   --board-safe-bottom:max(env(safe-area-inset-bottom), 10px);
-  --board-shell-gap:14px;
+  --board-shell-gap:12px;
   --board-panel-radius:20px;
   --board-panel-padding:14px;
   --board-chip-height:40px;
@@ -162,8 +162,22 @@ body[data-active-screen="board-game"] .app{
   z-index:1;
   min-height:100%;
   padding-inline:12px;
-  padding-top:calc(var(--board-safe-top) + 4px);
+  padding-top:var(--board-safe-top);
   padding-bottom:var(--board-safe-bottom);
+}
+
+
+.board-game-visually-hidden{
+  position:absolute;
+  width:1px;
+  height:1px;
+  padding:0;
+  margin:-1px;
+  overflow:hidden;
+  clip:rect(0, 0, 0, 0);
+  clip-path:inset(50%);
+  white-space:nowrap;
+  border:0;
 }
 
 /* Header area */
@@ -171,14 +185,14 @@ body[data-active-screen="board-game"] .app{
   position:relative;
   z-index:10;
   display:grid;
-  gap:10px;
+  gap:8px;
   width:min(100%, 980px);
   margin:0 auto;
 }
 
 .board-game-header-panel{
   display:grid;
-  gap:12px;
+  gap:10px;
   width:100%;
   margin:0;
   padding:var(--board-panel-padding);
@@ -235,7 +249,7 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-header-button-label{
-  font-size:1rem;
+  font-size:.95rem;
   font-weight:800;
   line-height:1.25;
 }
@@ -248,22 +262,16 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-header-status-card{
   display:grid;
-  gap:12px;
+  gap:10px;
   min-width:0;
-  padding:14px 16px;
+  padding:12px 14px;
   border-radius:18px;
   border:1px solid rgba(208, 255, 217, .16);
   background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
 }
 
-.board-game-header-status-copy{
-  display:grid;
-  gap:6px;
-  min-width:0;
-}
 
-.board-game-status-eyebrow,
 .board-game-status-label,
 .board-game-status-value{
   display:block;
@@ -273,16 +281,16 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-header-status-metrics{
   display:grid;
-  grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:10px;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:8px;
 }
 
 .board-game-status-metric{
   display:grid;
   gap:4px;
   min-width:0;
-  min-height:52px;
-  padding:12px 14px;
+  min-height:48px;
+  padding:10px 12px;
   border-radius:14px;
   background:rgba(8,20,26,.5);
   border:1px solid rgba(255,225,148,.18);
@@ -290,13 +298,13 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-status-label{
   margin:0;
-  font-size:.78rem;
+  font-size:.74rem;
   color:rgba(255,241,194,.78);
   line-height:1.3;
 }
 
 .board-game-status-value{
-  font-size:1rem;
+  font-size:.95rem;
   font-weight:800;
   color:#fff7cb;
   line-height:1.3;
@@ -978,25 +986,25 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-top-cluster{
-    gap:8px;
+    gap:6px;
     width:100%;
   }
 
   .board-game-header-panel{
-    gap:10px;
-    padding:12px;
+    gap:8px;
+    padding:10px 12px;
   }
 
-  .board-game-header-actions,
-  .board-game-header-status-metrics{
+  .board-game-header-actions{
     grid-template-columns:minmax(0, 1fr);
     gap:10px;
   }
 
-  #board-game-screen .board-game-header-status-card .screen-title-chip{
-    font-size:.9rem;
-    padding:0;
+  .board-game-header-status-metrics{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:8px;
   }
+
 
   .board-game-header-button,
   .board-game-status-metric{
@@ -1156,15 +1164,6 @@ body[data-active-screen="board-game"] .app{
 }
 
 
-.board-game-header-button,
-.board-game-header-status-card,
-#board-game-screen .board-game-header-status-card .screen-title-chip{
-  writing-mode:horizontal-tb;
-  text-orientation:mixed;
-  white-space:normal;
-  word-break:normal;
-  overflow-wrap:anywhere;
-}
 
 
 .board-game-header-panel *,
@@ -1174,7 +1173,7 @@ body[data-active-screen="board-game"] .app{
 .board-game-challenge-panel *{
   min-width:0;
 }
-#board-game-screen .board-game-header-status-card .screen-title-chip,
+
 .board-game-header-button,
 .board-game-header-status-card,
 .board-game-status-metric,
