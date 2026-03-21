@@ -150,9 +150,9 @@ body[data-active-screen="board-game"] .app{
 .board-game-content-shell{
   --board-safe-top:max(env(safe-area-inset-top), 8px);
   --board-safe-bottom:max(env(safe-area-inset-bottom), 10px);
-  --board-shell-gap:12px;
-  --board-panel-radius:20px;
-  --board-panel-padding:14px;
+  --board-shell-gap:8px;
+  --board-panel-radius:18px;
+  --board-panel-padding:10px;
   --board-chip-height:40px;
   --board-control-size:48px;
   display:grid;
@@ -185,17 +185,17 @@ body[data-active-screen="board-game"] .app{
   position:relative;
   z-index:10;
   display:grid;
-  gap:8px;
+  gap:4px;
   width:min(100%, 980px);
   margin:0 auto;
 }
 
 .board-game-header-panel{
   display:grid;
-  gap:10px;
+  gap:8px;
   width:100%;
   margin:0;
-  padding:var(--board-panel-padding);
+  padding:8px 10px;
   border-radius:var(--board-panel-radius);
   background:
     linear-gradient(180deg, rgba(255,244,208,.05), rgba(255,244,208,0)),
@@ -208,7 +208,14 @@ body[data-active-screen="board-game"] .app{
 .board-game-header-actions{
   display:grid;
   grid-template-columns:repeat(2, minmax(0, 1fr));
-  gap:10px;
+  gap:8px;
+}
+
+.board-game-header-info-row{
+  display:grid;
+  grid-template-columns:minmax(0, .92fr) minmax(0, 1.08fr);
+  gap:8px;
+  align-items:stretch;
 }
 
 .board-game-header-button{
@@ -216,11 +223,11 @@ body[data-active-screen="board-game"] .app{
   flex-direction:column;
   align-items:flex-start;
   justify-content:center;
-  gap:6px;
+  gap:4px;
   min-width:0;
-  min-height:56px;
+  min-height:48px;
   width:100%;
-  padding:14px 16px;
+  padding:10px 12px;
   border-radius:16px;
   text-align:left;
   writing-mode:horizontal-tb;
@@ -249,23 +256,23 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-header-button-label{
-  font-size:.95rem;
+  font-size:.88rem;
   font-weight:800;
   line-height:1.25;
 }
 
 .board-game-header-button-subtitle{
-  font-size:.78rem;
-  line-height:1.35;
+  font-size:.72rem;
+  line-height:1.25;
   color:rgba(255,247,214,.85);
 }
 
 .board-game-header-status-card{
   display:grid;
-  gap:10px;
+  gap:8px;
   min-width:0;
-  padding:12px 14px;
-  border-radius:18px;
+  padding:10px 12px;
+  border-radius:16px;
   border:1px solid rgba(208, 255, 217, .16);
   background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
@@ -287,10 +294,10 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-status-metric{
   display:grid;
-  gap:4px;
+  gap:2px;
   min-width:0;
-  min-height:48px;
-  padding:10px 12px;
+  min-height:42px;
+  padding:8px 10px;
   border-radius:14px;
   background:rgba(8,20,26,.5);
   border:1px solid rgba(255,225,148,.18);
@@ -298,7 +305,7 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-status-label{
   margin:0;
-  font-size:.74rem;
+  font-size:.68rem;
   color:rgba(255,241,194,.78);
   line-height:1.3;
 }
@@ -313,9 +320,9 @@ body[data-active-screen="board-game"] .app{
 .board-game-scene-story{
   display:grid;
   align-content:start;
-  gap:8px;
+  gap:4px;
   width:100%;
-  max-width:820px;
+  max-width:none;
   margin:0 auto;
   padding:var(--board-panel-padding);
   border-radius:var(--board-panel-radius);
@@ -330,7 +337,7 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-story-copy{
   display:grid;
-  gap:6px;
+  gap:4px;
 }
 
 .board-game-story-label,
@@ -346,12 +353,12 @@ body[data-active-screen="board-game"] .app{
 
 #board-game-chapter-title{
   justify-self:stretch;
-  padding:8px 12px;
-  line-height:1.3;
+  padding:6px 10px;
+  line-height:1.2;
 }
 
 #board-game-chapter-text{
-  line-height:1.48;
+  line-height:1.32;
   color:rgba(243,245,247,.88);
 }
 
@@ -522,11 +529,11 @@ body[data-active-screen="board-game"] .app{
   align-items:center;
   justify-content:center;
   width:min(100%, 980px);
-  min-height:clamp(320px, 52vh, 620px);
+  min-height:clamp(208px, 28vh, 300px);
   min-width:0;
   margin:0 auto;
   border-radius:24px;
-  padding:24px 24px 28px;
+  padding:12px 14px 14px;
   background:linear-gradient(180deg, rgba(9,30,40,.3), rgba(9,20,30,.14));
   border:1px solid rgba(255,233,168,.2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px rgba(0,0,0,.18);
@@ -611,8 +618,8 @@ body[data-active-screen="board-game"] .app{
 .board-game-feedback-hub{
   position:absolute;
   z-index:7;
-  top:18px;
-  right:18px;
+  top:10px;
+  right:10px;
   display:grid;
   justify-items:end;
   gap:8px;
@@ -626,7 +633,7 @@ body[data-active-screen="board-game"] .app{
   position:relative;
   z-index:8;
   display:grid;
-  grid-template-columns:minmax(0, 1.35fr) minmax(220px, .8fr);
+  grid-template-columns:minmax(0, 1.45fr) minmax(180px, .72fr);
   gap:var(--board-shell-gap);
   align-items:start;
   width:min(100%, 980px);
@@ -641,15 +648,15 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-feedback-strip{
   position:relative;
-  min-height:104px;
+  min-height:72px;
   border-radius:var(--board-panel-radius);
-  padding:var(--board-panel-padding) 16px;
+  padding:10px 12px;
   border:1px solid rgba(255,229,164,.35);
   background:linear-gradient(160deg, rgba(7,18,25,.82), rgba(8,26,32,.58));
   backdrop-filter:blur(2px);
   display:grid;
   align-content:start;
-  gap:8px;
+  gap:6px;
   box-shadow:0 10px 24px rgba(0,0,0,.16);
 }
 
@@ -667,8 +674,8 @@ body[data-active-screen="board-game"] .app{
   width:100%;
   min-width:120px;
   max-width:none;
-  min-height:44px;
-  padding:8px 12px;
+  min-height:32px;
+  padding:4px 8px;
   border-radius:12px;
   box-sizing:border-box;
   overflow:hidden;
@@ -676,15 +683,15 @@ body[data-active-screen="board-game"] .app{
   text-align:center;
 }
 
-.board-game-feedback-strip p{margin:0;font-size:.82rem;line-height:1.48;}
+.board-game-feedback-strip p{margin:0;font-size:.78rem;line-height:1.34;}
 
 .board-game-controls-panel{
   position:relative;
   display:grid;
   justify-items:center;
   align-content:start;
-  gap:12px;
-  padding:var(--board-panel-padding) 12px 16px;
+  gap:8px;
+  padding:10px 10px 12px;
   border-radius:var(--board-panel-radius);
   border:1px solid rgba(255,232,172,.26);
   background:linear-gradient(180deg, rgba(6,18,24,.82), rgba(12,31,40,.7));
@@ -701,8 +708,8 @@ body[data-active-screen="board-game"] .app{
   display:flex;
   align-items:center;
   justify-content:center;
-  font-size:.72rem;
-  padding:9px 12px;
+  font-size:.68rem;
+  padding:6px 10px;
   border-radius:12px;
   background:rgba(3,16,22,.68);
   border:1px solid rgba(255,223,145,.24);
@@ -722,7 +729,7 @@ body[data-active-screen="board-game"] .app{
   border:1px solid rgba(255,233,168,.26);
   border-radius:var(--board-panel-radius);
   background:linear-gradient(160deg, rgba(8,20,28,.92), rgba(8,32,35,.89));
-  padding:0 var(--board-panel-padding);
+  padding:0 10px;
   max-height:0;
   overflow:hidden;
   opacity:0;
@@ -733,17 +740,17 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-challenge-panel.show{
-  padding:var(--board-panel-padding);
-  max-height:280px;
+  padding:10px;
+  max-height:220px;
   opacity:1;
   pointer-events:auto;
 }
 .board-game-challenge-panel p{margin:0;}
-.board-game-helper-copy{display:grid;gap:8px;}
-#board-game-challenge-title{font-weight:800;font-size:.84rem;line-height:1.35;overflow-wrap:anywhere;}
-#board-game-challenge-text{margin-top:0;font-size:.74rem;line-height:1.48;}
+.board-game-helper-copy{display:grid;gap:4px;}
+#board-game-challenge-title{font-weight:800;font-size:.78rem;line-height:1.22;overflow-wrap:anywhere;}
+#board-game-challenge-text{margin-top:0;font-size:.7rem;line-height:1.28;}
 
-.board-game-options{ margin-top:12px; display:grid; gap:8px; }
+.board-game-options{ margin-top:8px; display:grid; gap:6px; }
 
 .board-game-tile{
   width:34px;
@@ -997,7 +1004,7 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-header-actions{
     grid-template-columns:minmax(0, 1fr);
-    gap:10px;
+    gap:8px;
   }
 
   .board-game-header-status-metrics{
@@ -1005,6 +1012,10 @@ body[data-active-screen="board-game"] .app{
     gap:8px;
   }
 
+  .board-game-header-info-row{
+    grid-template-columns:minmax(0, 1fr);
+    gap:6px;
+  }
 
   .board-game-header-button,
   .board-game-status-metric{
@@ -1028,14 +1039,14 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-board-frame{
     width:100%;
-    min-height:clamp(280px, 48vh, 420px);
-    padding:18px 16px 22px;
+    min-height:clamp(196px, 24vh, 260px);
+    padding:10px 10px 12px;
   }
 
   .board-game-board{
     width:min(100%, 360px);
-    gap:10px;
-    padding:18px 12px 16px 22px;
+    gap:8px;
+    padding:8px 6px 8px 14px;
   }
 
   .board-game-feedback-hub{
@@ -1084,6 +1095,10 @@ body[data-active-screen="board-game"] .app{
 
 /* Mobile stability pass: reduce crowding in board top bar, board frame, and bottom dock */
 @media (max-width:640px){
+  .board-game-header-info-row{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
   .board-game-header-actions{
     grid-template-columns:minmax(0, 1fr);
   }
@@ -1093,14 +1108,14 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-board-frame{
-    min-height:clamp(250px, 42vh, 360px);
-    padding:14px 12px 18px;
+    min-height:clamp(180px, 22vh, 220px);
+    padding:8px 8px 10px;
   }
 
   .board-game-board{
     width:100%;
-    gap:8px;
-    padding:14px 8px 12px 16px;
+    gap:6px;
+    padding:8px 6px 8px 12px;
   }
 
   .board-game-feedback-strip{
