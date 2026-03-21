@@ -176,84 +176,69 @@ body[data-active-screen="board-game"] .app{
   margin:0 auto;
 }
 
-.board-game-topbar{
-  position:relative;
-  min-height:0;
+.board-game-status-panel{
   width:100%;
-  min-width:0;
-  padding:var(--board-panel-padding);
   margin:0;
-  display:grid;
-  grid-template-columns:minmax(0, 1fr);
-  align-items:stretch;
-  gap:12px;
+  padding:var(--board-panel-padding);
   border-radius:var(--board-panel-radius);
   background:
     linear-gradient(180deg, rgba(255,244,208,.05), rgba(255,244,208,0)),
-    linear-gradient(160deg, rgba(8,27,35,.88), rgba(10,40,34,.7));
-  border:1px solid rgba(229,207,141,.28);
-  backdrop-filter:blur(8px);
+    linear-gradient(160deg, rgba(14,76,49,.96), rgba(10,58,37,.9));
+  border:1px solid rgba(170, 233, 173, .22);
   box-shadow:0 16px 34px rgba(0,0,0,.22);
   box-sizing:border-box;
 }
 
-.board-game-topbar::after{
-  content:"";
-  position:absolute;
-  inset:1px;
-  border-radius:inherit;
-  border:1px solid rgba(255,255,255,.04);
-  pointer-events:none;
-}
-
-.board-game-topbar-main,
-.board-game-topbar-side,
-.board-game-topbar-side-end{
+.board-game-status-grid{
   display:grid;
+  grid-template-columns:repeat(2, minmax(0, 1fr));
   gap:10px;
-  min-width:0;
-}
-
-.board-game-topbar-main > *,
-.board-game-topbar-side > *,
-.board-game-topbar-side-end > *{
   width:100%;
   min-width:0;
-  box-sizing:border-box;
 }
 
-.board-game-topbar-title-block{
-  display:grid;
+.board-game-status-card{
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:flex-start;
   gap:6px;
   min-width:0;
-}
-
-.board-game-topbar-kicker{
-  margin:0;
-  opacity:.9;
-  letter-spacing:.04em;
-  justify-self:start;
-}
-
-#board-game-screen .board-game-topbar .screen-title-chip{
-  margin:0;
-  padding:10px 14px;
-  font-size:.88rem;
-  line-height:1.35;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  display:block;
-  white-space:normal;
-  background:linear-gradient(160deg, rgba(14,42,50,.94), rgba(10,30,38,.8));
-  border-color:rgba(255,225,148,.26);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  min-height:64px;
   width:100%;
+  padding:12px 14px;
+  border-radius:16px;
   box-sizing:border-box;
+  border:1px solid rgba(208, 255, 217, .16);
+  background:linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,.04));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.08);
+  text-align:left;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  white-space:normal;
+  word-break:normal;
+  overflow-wrap:anywhere;
 }
 
-.board-game-topbar-status,
-.board-game-topbar-cards,
-.board-game-meta-row{
+.board-game-status-card--title{
+  grid-column:1 / -1;
+  min-height:unset;
+}
+
+.board-game-status-card--action{
+  align-items:flex-start;
+}
+
+.board-game-status-eyebrow,
+.board-game-status-label,
+.board-game-status-value{
+  display:block;
+  width:100%;
+  min-width:0;
+}
+
+.board-game-status-eyebrow,
+.board-game-status-label{
   margin:0;
   display:grid;
   grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
@@ -312,20 +297,15 @@ body[data-active-screen="board-game"] .app{
   flex:0 0 auto;
 }
 
-.board-topbar-exit,
-.board-topbar-sound{
-  min-width:0;
-  max-width:none;
-}
-.board-game-topbar .board-game-action-card,
-.board-game-topbar .board-game-meta-chip{
-  position:static;
-  inset:auto;
-  flex-basis:auto;
+.board-game-status-card--metric .board-game-status-value{
+  color:#fff7cb;
 }
 
-.board-game-topbar .board-game-action-card{
-  justify-content:center;
+.board-game-status-card button,
+.board-game-status-card strong,
+.board-game-status-card span{
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
 }
 
 .board-game-scene-story{
@@ -1154,7 +1134,7 @@ body[data-active-screen="board-game"] .app{
     padding-inline:8px;
   }
 
-  .board-game-topbar-cards,
+Й  .board-game-topbar-cards,
   .board-game-topbar-status,
   .board-game-meta-row{
     grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
@@ -1192,29 +1172,25 @@ body[data-active-screen="board-game"] .app{
 }
 
 
-
-.board-game-meta-chip,
-#board-game-screen .board-game-topbar .screen-title-chip{
+.board-game-status-card,
+#board-game-screen .board-game-status-card .screen-title-chip{
   writing-mode:horizontal-tb;
   text-orientation:mixed;
   white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:break-word;
+  word-break:normal;
+  overflow-wrap:anywhere;
 }
 
 
-.board-game-topbar *,
+.board-game-status-panel *,
 .board-game-scene-story *,
 .board-game-controls-panel *,
 .board-game-feedback-strip *,
 .board-game-challenge-panel *{
   min-width:0;
 }
-
-#board-game-screen .board-game-topbar .screen-title-chip,
-.board-game-meta-chip,
-.board-topbar-exit,
-.board-topbar-sound,
+#board-game-screen .board-game-status-card .screen-title-chip,
+.board-game-status-card,
 .board-game-feedback-label,
 .board-game-dice-label,
 .board-game-helper-label,
