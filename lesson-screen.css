@@ -380,3 +380,58 @@
     min-width:0;
   }
 }
+
+/* Final quiz answer-button guardrail: keep lesson answers full-width, horizontal, and stacked. */
+#quiz-screen .question-text-wrap{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+}
+
+#quiz-screen .question-text-wrap > .options,
+#quiz-screen #options.lesson-answers-grid,
+#quiz-screen .question-text-wrap > .lesson-answers-grid{
+  display:grid !important;
+  grid-template-columns:minmax(0, 1fr) !important;
+  grid-auto-flow:row !important;
+  width:100% !important;
+  min-width:0 !important;
+  max-width:100% !important;
+  align-items:stretch !important;
+  justify-items:stretch !important;
+}
+
+#quiz-screen #options.lesson-answers-grid > .option,
+#quiz-screen .question-text-wrap .lesson-answers-grid > .option,
+#quiz-screen .question-text-wrap .option{
+  display:flex !important;
+  flex-direction:row !important;
+  justify-content:flex-start !important;
+  align-items:center !important;
+  width:100% !important;
+  min-width:100% !important;
+  max-width:100% !important;
+  inline-size:100% !important;
+  min-inline-size:100% !important;
+  max-inline-size:100% !important;
+  box-sizing:border-box !important;
+  white-space:normal !important;
+  word-break:normal !important;
+  overflow-wrap:anywhere !important;
+  text-align:left !important;
+  writing-mode:horizontal-tb !important;
+  text-orientation:mixed !important;
+}
+
+#quiz-screen .question-text-wrap .option::before,
+#quiz-screen .question-text-wrap .option > *{
+  writing-mode:horizontal-tb !important;
+  text-orientation:mixed !important;
+}
+
+#quiz-screen .actions,
+#quiz-screen button,
+#quiz-screen .primary,
+#quiz-screen .secondary{
+  min-width:0;
+}
