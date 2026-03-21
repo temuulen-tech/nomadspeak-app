@@ -121,6 +121,7 @@ import {
 } from "./progress-ui.js";
 import { getSelectableBoardWorlds, getWorldAudioTrack, getWorldConfig } from "./worlds.js";
 import { createAppBootstrap } from "./app-bootstrap.js";
+import { getAppDom } from "./app-dom.js";
 import {
   createBoardHandlers,
   createChapterCoverHandlers,
@@ -156,215 +157,227 @@ import {
 // ---- Lesson content lives in lesson.js; script.js keeps orchestration only. ----
 
 // ---- DOM ----
-const startScreen = document.getElementById("start-screen");
-const quizScreen = document.getElementById("quiz-screen");
-const sentencesScreen = document.getElementById("sentences-screen");
-const statsScreen = document.getElementById("stats-screen");
-const sentenceGameScreen = document.getElementById("sentence-game-screen");
-const qaGameScreen = document.getElementById("qa-game-screen");
-const boardGameIntroScreen = document.getElementById("board-game-intro-screen");
-const boardGameScreen = document.getElementById("board-game-screen");
-const profileScreen = document.getElementById("profile-screen");
-const endScreen = document.getElementById("end-screen");
+const appDom = getAppDom();
+const {
+  screens: {
+    startScreen,
+    quizScreen,
+    sentencesScreen,
+    statsScreen,
+    sentenceGameScreen,
+    qaGameScreen,
+    boardGameIntroScreen,
+    boardGameScreen,
+    profileScreen,
+    endScreen,
+  },
+  lesson: {
+    topbar,
+    levelLabel,
+    scoreEl,
+    progressEl,
+    questionEl,
+    optionsEl,
+    resultEl,
+    startBtn,
+    introToggleBtn,
+    introPanel,
+    finalTextEl,
+    lessonFlowCopyEl,
+    lessonRewardCopyEl,
+    lessonFinishTitleEl,
+    lessonFinishCopyEl,
+    startLevelDropdown,
+    startLevelOptions,
+    lessonRewardBarEl,
+    lessonVaultBtn,
+    lessonVaultBadge,
+    lessonSaveBtn,
+    lessonCompanionLineEl,
+  },
+  home: {
+    navModesBtn,
+    homeModesPanel,
+  },
+  sentences: {
+    levelPickerEl: sentencesLevelPickerEl,
+    levelPickerBtn: sentencesLevelPickerBtn,
+    levelOptionsEl: sentencesLevelOptionsEl,
+    levelOptionButtons: sentencesLevelOptionButtons,
+    sentencesListEl,
+    rewardStripEl: sentencesRewardStripEl,
+    vaultBtn: sentencesVaultBtn,
+    vaultBadge: sentencesVaultBadge,
+    saveBtn: sentencesSaveBtn,
+    companionLineEl: sentencesCompanionLineEl,
+  },
+  sentenceGame: {
+    dropzoneEl: sentenceGameDropzoneEl,
+    poolEl: sentenceGamePoolEl,
+    undoBtn: sentenceGameUndoBtn,
+    showCorrectBtn: sentenceGameShowCorrectBtn,
+    retryBtn: sentenceGameRetryBtn,
+    prevBtn: sentenceGamePrevBtn,
+    nextBtn: sentenceGameNextBtn,
+    feedbackEl: sentenceGameFeedbackEl,
+    toastEl: sentenceGameToastEl,
+    correctPanelEl: sentenceGameCorrectPanelEl,
+    correctEnEl: sentenceGameCorrectEnEl,
+    correctMnEl: sentenceGameCorrectMnEl,
+    tipToggleBtn: sentenceGameTipToggleBtn,
+    tipPanelEl: sentenceGameTipPanelEl,
+    tipTextEl: sentenceGameTipTextEl,
+    tipSpeakBtn: sentenceGameTipSpeakBtn,
+    tipStopBtn: sentenceGameTipStopBtn,
+    tipReadBtn: sentenceGameTipReadBtn,
+    tipCloseRowEl: sentenceGameTipCloseRowEl,
+    tipCloseBtn: sentenceGameTipCloseBtn,
+    climbEl: sentenceGameClimbEl,
+    climberEl: sentenceGameClimberEl,
+    rewardIconEl: sentenceGameRewardIconEl,
+    rewardBannerEl: sentenceGameRewardBannerEl,
+    rewardRowEl: sentenceGameRewardRowEl,
+    rewardImageEls: sentenceGameRewardImageEls,
+    difficultyToggleBtn: sentenceGameDifficultyToggleBtn,
+    difficultyPanelEl: sentenceGameDifficultyPanelEl,
+    difficultyButtons: sentenceGameDifficultyButtons,
+    vaultBtn: sentenceGameVaultBtn,
+    vaultBadge: sentenceGameVaultBadge,
+    saveBtn: sentenceGameSaveBtn,
+  },
+  qa: {
+    rewardBarEl: qaRewardBarEl,
+    toastEl: qaToastEl,
+    levelSelectBtn: qaLevelSelectBtn,
+    levelOptionsEl: qaLevelOptionsEl,
+    levelButtons: qaLevelButtons,
+    roundPanelEl: qaRoundPanelEl,
+    toggleQuestionBtn: qaToggleQuestionBtn,
+    toggleAnswerBtn: qaToggleAnswerBtn,
+    mnQuestionEl: qaMnQuestionEl,
+    mnAnswerEl: qaMnAnswerEl,
+    enQuestionWrap: qaEnQuestionWrap,
+    enAnswerWrap: qaEnAnswerWrap,
+    enQuestionEl: qaEnQuestionEl,
+    enAnswerEl: qaEnAnswerEl,
+    questionLineEl: qaQuestionLineEl,
+    answerLineEl: qaAnswerLineEl,
+    wordBankEl: qaWordBankEl,
+    checkBtn: qaCheckBtn,
+    feedbackEl: qaFeedbackEl,
+    showSentencesBtn: qaShowSentencesBtn,
+    showHelpBtn: qaShowHelpBtn,
+    modalEl: qaModalEl,
+    modalTitleEl: qaModalTitleEl,
+    modalBodyEl: qaModalBodyEl,
+    modalCloseBtn: qaModalCloseBtn,
+    vaultBtn: qaVaultBtn,
+    vaultBadge: qaVaultBadge,
+    saveBtn: qaSaveBtn,
+  },
+  profile: {
+    premiumOverlay,
+    premiumTitleEl,
+    premiumMessageEl,
+    premiumOkBtn,
+    upgradePremiumBtn,
+    profileNameInput,
+    profileNameSaved,
+    profileTotalXpEl,
+    profileLevelEl,
+    profileStreakDaysEl,
+    profileDailyProgressEl,
+    profileRewardStageEl,
+    profilePlanStatusEl,
+  },
+  stats: {
+    statsTotalXpEl,
+    statsLevelEl,
+    statsStreakEl,
+    statsTodayProgressEl,
+    statsTodayMinutesEl,
+    statsThisWeekTimeEl,
+    statsLastWeekTimeEl,
+    statsThisMonthTimeEl,
+    statsLast7DaysEl,
+    statsPeriodButtons,
+    statsKpiLabelEl,
+    statsKpiValueEl,
+    statsKpiNormEl,
+    statsKpiPercentEl,
+    statsThermometerFillEl,
+    statsThermometerMarkerEl,
+    statsThermometerTierEl,
+    statsRewardTabButtons,
+    statsRewardCardsEl,
+    todayTimeEls,
+    timeDetailsYesterdayEl,
+    timeDetailsThisWeekEl,
+    timeDetailsLastWeekEl,
+    timeDetailsThisMonthEl,
+    timeDetailsLastMonthEl,
+  },
+  board: {
+    boardEl: boardGameBoardEl,
+    tokenEl: boardGameTokenEl,
+    rollBtn: boardGameRollBtn,
+    positionEl: boardGamePositionEl,
+    totalTilesEl: boardGameTotalTilesEl,
+    lastRollEl: boardGameLastRollEl,
+    chapterTitleEl: boardGameChapterTitleEl,
+    chapterTextEl: boardGameChapterTextEl,
+    challengeTitleEl: boardGameChallengeTitleEl,
+    challengeTextEl: boardGameChallengeTextEl,
+    screenTitleEl: boardGameScreenTitleEl,
+    feedbackEl: boardGameFeedbackEl,
+    optionsEl: boardGameOptionsEl,
+    diceEl: boardGameDiceEl,
+    xpEl: boardGameXpEl,
+    coinsEl: boardGameCoinsEl,
+    chapterIndexEl: boardGameChapterIndexEl,
+    feedbackHubEl: boardGameFeedbackHubEl,
+    particlesEl: boardGameParticlesEl,
+  },
+  appChrome: {
+    completionBannerEl,
+    completionBannerTextEl,
+    installHintEl,
+    installBtn,
+    worldFeedbackHubEl,
+    voiceOptionButtons,
+    ttsRateSlider,
+    ttsRateValueEl,
+    soundToggleButtons,
+    playExitButtons,
+  },
+  vault: {
+    modalEl: vaultModalEl,
+    titleEl: vaultModalTitleEl,
+    bodyEl: vaultModalBodyEl,
+    closeBtn: vaultModalCloseBtn,
+    replayBtn: vaultReplayBtn,
+    deleteBtn: vaultDeleteBtn,
+    learnedBtn: vaultLearnedBtn,
+  },
+  rewards: {
+    levelImageEls: rewardLevelImageEls,
+    sentenceGameRewardImageEls: rewardStripImageEls,
+    qaRewardImageEls,
+    lessonRewardImageEls,
+  },
+} = appDom;
+
 let debugUnlockedChapterIds = BOARD_WORLD_CHAPTERS[0] ? [BOARD_WORLD_CHAPTERS[0].id] : [];
 
 hydrateRewardImagesByLevel({
-  imageEls: document.querySelectorAll(".reward-img[data-level]"),
+  imageEls: rewardLevelImageEls,
   rewardIcons: REWARD_ICON_SEQUENCE,
 });
 
 hydrateRewardStripImages({
-  imageEls: document.querySelectorAll("#sentence-game-reward-row .reward-img"),
+  imageEls: rewardStripImageEls,
   rewardIcons: REWARD_ICON_SEQUENCE,
 });
-
-const topbar = document.getElementById("topbar");
-const levelLabel = document.getElementById("level-label");
-const scoreEl = document.getElementById("score");
-const progressEl = document.getElementById("progress");
-
-let questionEl = document.getElementById("question");
-let optionsEl = document.getElementById("options");
-let resultEl = document.getElementById("result");
-
-const startBtn = document.getElementById("start-btn");
-const introToggleBtn = document.getElementById("intro-toggle-btn");
-const introPanel = document.getElementById("intro-panel");
-const finalTextEl = document.getElementById("final-text");
-const lessonFlowCopyEl = document.getElementById("lesson-flow-copy");
-const lessonRewardCopyEl = document.getElementById("lesson-reward-copy");
-const lessonFinishTitleEl = document.getElementById("lesson-finish-title");
-const lessonFinishCopyEl = document.getElementById("lesson-finish-copy");
-
-const navModesBtn = document.getElementById("nav-modes-btn");
-const homeModesPanel = document.getElementById("home-modes-panel");
-
-const startLevelDropdown = document.getElementById("start-level-dropdown");
-const startLevelOptions = document.querySelectorAll(".start-level-option");
-const sentencesLevelPickerEl = document.getElementById("sentences-level-picker");
-const sentencesLevelPickerBtn = document.getElementById("sentences-level-picker-btn");
-const sentencesLevelOptionsEl = document.getElementById("sentences-level-options");
-const sentencesLevelOptionButtons = document.querySelectorAll(".sentences-level-option");
-const sentencesListEl = document.getElementById("sentences-list");
-const voiceOptionButtons = document.querySelectorAll(".tts-option-btn[data-voice]");
-const ttsRateSlider = document.getElementById("tts-rate-slider");
-const ttsRateValueEl = document.getElementById("tts-rate-value");
-const soundToggleButtons = document.querySelectorAll(".sound-toggle-btn");
-const playExitButtons = document.querySelectorAll(".play-exit-btn, .game-exit-btn");
-const sentenceGameDropzoneEl = document.getElementById("sentence-game-dropzone");
-const sentenceGamePoolEl = document.getElementById("sentence-game-pool");
-const sentenceGameUndoBtn = document.getElementById("sentence-game-undo-btn");
-const sentenceGameShowCorrectBtn = document.getElementById("sentence-game-show-correct-btn");
-const sentenceGameRetryBtn = document.getElementById("sentence-game-retry-btn");
-const sentenceGamePrevBtn = document.getElementById("sentence-game-prev-btn");
-const sentenceGameNextBtn = document.getElementById("sentence-game-next-btn");
-const sentenceGameFeedbackEl = document.getElementById("sentence-game-feedback");
-const sentenceGameToastEl = document.getElementById("sentence-game-toast");
-const sentenceGameCorrectPanelEl = document.getElementById("sentence-game-correct-panel");
-const sentenceGameCorrectEnEl = document.getElementById("sentence-game-correct-en");
-const sentenceGameCorrectMnEl = document.getElementById("sentence-game-correct-mn");
-const sentenceGameTipToggleBtn = document.getElementById("sentence-game-tip-toggle-btn");
-const sentenceGameTipPanelEl = document.getElementById("sentence-game-tip-panel");
-const sentenceGameTipTextEl = document.getElementById("sentence-game-tip-text");
-const sentenceGameTipSpeakBtn = document.getElementById("sentence-game-tip-speak-btn");
-const sentenceGameTipStopBtn = document.getElementById("sentence-game-tip-stop-btn");
-const sentenceGameTipReadBtn = document.getElementById("sentence-game-tip-read-btn");
-const sentenceGameTipCloseRowEl = document.getElementById("sentence-game-tip-close-row");
-const sentenceGameTipCloseBtn = document.getElementById("sentence-game-tip-close-btn");
-const sentenceGameClimbEl = document.getElementById("sentence-game-climb");
-const sentenceGameClimberEl = document.getElementById("sentence-game-climber");
-const sentenceGameRewardIconEl = document.getElementById("sentence-game-reward-icon");
-const sentenceGameRewardBannerEl = document.getElementById("sentence-game-reward-banner");
-const sentenceGameRewardRowEl = document.getElementById("sentence-game-reward-row");
-const sentenceGameRewardImageEls = sentenceGameRewardRowEl ? sentenceGameRewardRowEl.querySelectorAll(".reward-img") : [];
-const sentenceGameDifficultyToggleBtn = document.getElementById("sentence-game-difficulty-toggle-btn");
-const sentenceGameDifficultyPanelEl = document.getElementById("sentence-game-difficulty-panel");
-const sentenceGameDifficultyButtons = document.querySelectorAll(".sentence-game-difficulty-btn");
-const completionBannerEl = document.getElementById("completion-banner");
-const completionBannerTextEl = completionBannerEl ? completionBannerEl.querySelector(".banner-text") : null;
-const DEFAULT_COMPLETION_TEXT = "Алтан цагаа боловсролдоо зориулсан танд баярлалаа. Өдөр тутмын дадал “Амжилтын үндэс” шүү. Танд улам их амжилт хүсье.";
-const DAILY_GOAL_COMPLETION_TEXT = "Өнөөдөр чиний хийсэн ганцхан цагийн дадлага бүр нэгдсээр далай мэт мэдлэгийг бий болгодог. Гэрэлт ирээдүйгээ бүтээж байгаа чамд улам их амжилт хүсье. Шинэ зууны иргэн танд урт холын аялалдаа гарч байгаад баярлалаа.";
-
-
-const premiumOverlay = document.getElementById("premium-overlay");
-const premiumTitleEl = document.getElementById("premium-title");
-const premiumMessageEl = document.getElementById("premium-message");
-const premiumOkBtn = document.getElementById("premium-ok-btn");
-const upgradePremiumBtn = document.getElementById("upgrade-premium-btn");
-const profileNameInput = document.getElementById("profile-name-input");
-const profileNameSaved = document.getElementById("profile-name-saved");
-const profileTotalXpEl = document.getElementById("profile-total-xp");
-const profileLevelEl = document.getElementById("profile-level");
-const profileStreakDaysEl = document.getElementById("profile-streak-days");
-const profileDailyProgressEl = document.getElementById("profile-daily-progress");
-const profileRewardStageEl = document.getElementById("profile-reward-stage");
-const profilePlanStatusEl = document.getElementById("profile-plan-status");
-const statsTotalXpEl = document.getElementById("stats-total-xp");
-const statsLevelEl = document.getElementById("stats-level");
-const statsStreakEl = document.getElementById("stats-streak");
-const statsTodayProgressEl = document.getElementById("stats-today-progress");
-const statsTodayMinutesEl = document.getElementById("stats-today-minutes");
-const statsThisWeekTimeEl = document.getElementById("stats-this-week-time");
-const statsLastWeekTimeEl = document.getElementById("stats-last-week-time");
-const statsThisMonthTimeEl = document.getElementById("stats-this-month-time");
-const statsLast7DaysEl = document.getElementById("stats-last-7-days");
-const statsPeriodButtons = document.querySelectorAll(".stats-period-btn");
-const statsKpiLabelEl = document.getElementById("stats-kpi-label");
-const statsKpiValueEl = document.getElementById("stats-kpi-value");
-const statsKpiNormEl = document.getElementById("stats-kpi-norm");
-const statsKpiPercentEl = document.getElementById("stats-kpi-percent");
-const statsThermometerFillEl = document.getElementById("stats-thermometer-fill");
-const statsThermometerMarkerEl = document.getElementById("stats-thermometer-marker");
-const statsThermometerTierEl = document.getElementById("stats-thermometer-tier");
-const statsRewardTabButtons = document.querySelectorAll(".stats-reward-tab");
-const statsRewardCardsEl = document.getElementById("stats-reward-cards");
-const todayTimeEls = document.querySelectorAll("[id^='today-time-']");
-const timeDetailsYesterdayEl = document.getElementById("time-details-yesterday");
-const timeDetailsThisWeekEl = document.getElementById("time-details-this-week");
-const timeDetailsLastWeekEl = document.getElementById("time-details-last-week");
-const timeDetailsThisMonthEl = document.getElementById("time-details-this-month");
-const timeDetailsLastMonthEl = document.getElementById("time-details-last-month");
-
-const qaRewardBarEl = document.getElementById("qa-reward-bar");
-const qaRewardImageEls = () => qaRewardBarEl ? qaRewardBarEl.querySelectorAll(".reward-img") : [];
-const lessonRewardBarEl = document.getElementById("lesson-reward-bar");
-const lessonRewardImageEls = () => lessonRewardBarEl ? lessonRewardBarEl.querySelectorAll(".reward-img") : [];
-const sentencesRewardStripEl = document.getElementById("sentences-reward-strip");
-const qaToastEl = document.getElementById("qa-toast");
-const qaLevelSelectBtn = document.getElementById("qa-level-select-btn");
-const qaLevelOptionsEl = document.getElementById("qa-level-options");
-const qaLevelButtons = document.querySelectorAll("[data-qa-level]");
-const qaRoundPanelEl = document.getElementById("qa-round-panel");
-const qaToggleQuestionBtn = document.getElementById("qa-toggle-question-btn");
-const qaToggleAnswerBtn = document.getElementById("qa-toggle-answer-btn");
-const qaMnQuestionEl = document.getElementById("qa-mn-question");
-const qaMnAnswerEl = document.getElementById("qa-mn-answer");
-const qaEnQuestionWrap = document.getElementById("qa-en-question-wrap");
-const qaEnAnswerWrap = document.getElementById("qa-en-answer-wrap");
-const qaEnQuestionEl = document.getElementById("qa-en-question");
-const qaEnAnswerEl = document.getElementById("qa-en-answer");
-const qaQuestionLineEl = document.getElementById("qa-question-line");
-const qaAnswerLineEl = document.getElementById("qa-answer-line");
-const qaWordBankEl = document.getElementById("qa-word-bank");
-const qaCheckBtn = document.getElementById("qa-check-btn");
-const qaFeedbackEl = document.getElementById("qa-feedback");
-const qaShowSentencesBtn = document.getElementById("qa-show-sentences-btn");
-const qaShowHelpBtn = document.getElementById("qa-show-help-btn");
-const qaModalEl = document.getElementById("qa-modal");
-const qaModalTitleEl = document.getElementById("qa-modal-title");
-const qaModalBodyEl = document.getElementById("qa-modal-body");
-const qaModalCloseBtn = document.getElementById("qa-modal-close-btn");
-
-let statsSelectedPeriod = STATS_PERIODS.DAY;
-let statsRewardTab = REWARD_TABS.DAYS;
-const installHintEl = document.getElementById("install-hint");
-const installBtn = document.getElementById("install-btn");
-const worldFeedbackHubEl = document.getElementById("world-feedback-hub");
-const lessonCompanionLineEl = document.getElementById("lesson-companion-line");
-const sentencesCompanionLineEl = document.getElementById("sentences-companion-line");
-
-const boardGameBoardEl = document.getElementById("board-game-board");
-const boardGameTokenEl = document.getElementById("board-game-token");
-const boardGameRollBtn = document.getElementById("board-game-roll-btn") || document.getElementById("board-game-dice");
-const boardGamePositionEl = document.getElementById("board-game-position");
-const boardGameTotalTilesEl = document.getElementById("board-game-total-tiles");
-const boardGameLastRollEl = document.getElementById("board-game-last-roll");
-const boardGameChapterTitleEl = document.getElementById("board-game-chapter-title");
-const boardGameChapterTextEl = document.getElementById("board-game-chapter-text");
-const boardGameChallengeTitleEl = document.getElementById("board-game-challenge-title");
-const boardGameChallengeTextEl = document.getElementById("board-game-challenge-text");
-const boardGameScreenTitleEl = document.getElementById("board-game-screen-title");
-const boardGameFeedbackEl = document.getElementById("board-game-feedback");
-const boardGameOptionsEl = document.getElementById("board-game-options");
-const boardGameDiceEl = document.getElementById("board-game-dice");
-const boardGameXpEl = document.getElementById("board-game-xp");
-const boardGameCoinsEl = document.getElementById("board-game-coins");
-const boardGameChapterIndexEl = document.getElementById("board-game-chapter-index");
-
-
-const boardGameFeedbackHubEl = document.getElementById("board-game-feedback-hub");
-const boardGameParticlesEl = document.getElementById("board-game-particles");
-
-
-const lessonVaultBtn = document.getElementById("lesson-vault-btn");
-const lessonVaultBadge = document.getElementById("lesson-vault-badge");
-const lessonSaveBtn = document.getElementById("lesson-save-btn");
-const sentencesVaultBtn = document.getElementById("sentences-vault-btn");
-const sentencesVaultBadge = document.getElementById("sentences-vault-badge");
-const sentencesSaveBtn = document.getElementById("sentences-save-btn");
-const sentenceGameVaultBtn = document.getElementById("sentence-game-vault-btn");
-const sentenceGameVaultBadge = document.getElementById("sentence-game-vault-badge");
-const sentenceGameSaveBtn = document.getElementById("sentence-game-save-btn");
-const qaVaultBtn = document.getElementById("qa-vault-btn");
-const qaVaultBadge = document.getElementById("qa-vault-badge");
-const qaSaveBtn = document.getElementById("qa-save-btn");
-const vaultModalEl = document.getElementById("vault-modal");
-const vaultModalTitleEl = document.getElementById("vault-modal-title");
-const vaultModalBodyEl = document.getElementById("vault-modal-body");
-const vaultModalCloseBtn = document.getElementById("vault-modal-close-btn");
-const vaultReplayBtn = document.getElementById("vault-replay-btn");
-const vaultDeleteBtn = document.getElementById("vault-delete-btn");
-const vaultLearnedBtn = document.getElementById("vault-learned-btn");
 
 // ---- State ----
 let level = DIFFICULTY_LEVELS.BEGINNER;
@@ -1546,7 +1559,7 @@ function updateBoardGameTokenPosition() {
 
 function updateBoardGameChapterPanel() {
   const chapter = boardGameChapterByTile(boardGameState.player.currentTile);
-  const storyPanelEl = document.querySelector(".board-game-story-panel");
+  const storyPanelEl = appDom.board.getStoryPanelEl();
   renderBoardChapterPanel({
     chapter,
     titleEl: boardGameChapterTitleEl,
@@ -1589,7 +1602,7 @@ function setBoardGameRollEnabled(enabled) {
 
 function renderBoardGameChallenge() {
   const challenge = boardGameState.challenge.activeChallenge;
-  const panelEl = document.querySelector(".board-game-challenge-panel");
+  const panelEl = appDom.board.getChallengePanelEl();
   renderBoardChallenge({
     challenge,
     titleEl: boardGameChallengeTitleEl,
@@ -2091,14 +2104,14 @@ function renderSentenceGameClimb(level = 0, options = {}) {
     sentenceGameRewardIconEl.innerHTML = stageRewardIconSvg(level);
   }
 
-  document.querySelectorAll(".sentence-game-peak").forEach((peakEl) => {
+  appDom.queries.getSentenceGamePeaks().forEach((peakEl) => {
     const peak = Number(peakEl.dataset.peak || 0);
     peakEl.classList.toggle("active", peak > 0 && peak <= level);
     peakEl.classList.remove("pulse");
   });
 
   if (options.pulsePeak && level > 0) {
-    const reachedPeak = document.querySelector(`.sentence-game-peak[data-peak="${level}"]`);
+    const reachedPeak = appDom.queries.getSentenceGamePeak(level);
     if (reachedPeak) {
       void reachedPeak.getBoundingClientRect();
       reachedPeak.classList.add("pulse");
@@ -3845,17 +3858,17 @@ const { initializeApp } = createAppBootstrap({
   primaryButtonAudit: () => {
     const buttonAudit = [
       { name: "home modes", element: navModesBtn, key: "home:toggle-modes" },
-      { name: "home lesson", element: document.getElementById("nav-lesson-btn"), key: "home:navigate-lesson" },
-      { name: "home sentences", element: document.getElementById("nav-sentences-btn"), key: "home:navigate-sentences" },
-      { name: "home sentence game", element: document.getElementById("nav-sentence-game-btn"), key: "home:navigate-sentence-game" },
-      { name: "home q&a", element: document.getElementById("nav-qa-game-btn"), key: "home:navigate-qa-game" },
-      { name: "home board game", element: document.getElementById("nav-board-game-btn"), key: "home:navigate-board-game" },
-      { name: "home stats", element: document.getElementById("nav-stats-btn"), key: "home:navigate-stats" },
-      { name: "home profile", element: document.getElementById("nav-profile-btn"), key: "home:navigate-profile" },
+      { name: "home lesson", element: appDom.audit.primaryButtons.homeLesson, key: "home:navigate-lesson" },
+      { name: "home sentences", element: appDom.audit.primaryButtons.homeSentences, key: "home:navigate-sentences" },
+      { name: "home sentence game", element: appDom.audit.primaryButtons.homeSentenceGame, key: "home:navigate-sentence-game" },
+      { name: "home q&a", element: appDom.audit.primaryButtons.homeQaGame, key: "home:navigate-qa-game" },
+      { name: "home board game", element: appDom.audit.primaryButtons.homeBoardGame, key: "home:navigate-board-game" },
+      { name: "home stats", element: appDom.audit.primaryButtons.homeStats, key: "home:navigate-stats" },
+      { name: "home profile", element: appDom.audit.primaryButtons.homeProfile, key: "home:navigate-profile" },
       { name: "lesson start level", element: startBtn, key: "lesson:start-level-menu-toggle" },
-      { name: "board continue", element: document.getElementById("board-game-intro-continue-btn"), key: "board-entry:continue" },
+      { name: "board continue", element: appDom.audit.primaryButtons.boardContinue, key: "board-entry:continue" },
       { name: "board roll", element: boardGameRollBtn, key: "board:roll-button" },
-      { name: "lesson next", element: document.getElementById("next-btn"), key: "lesson:next" },
+      { name: "lesson next", element: appDom.audit.lessonNextBtn, key: "lesson:next" },
     ];
     soundToggleButtons.forEach((button, index) => {
       buttonAudit.push({
