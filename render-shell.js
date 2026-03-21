@@ -151,9 +151,15 @@ const SHELL_TARGETS = [
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
         </div>
         <p class="muted" id="final-text">Таны оноо: 0</p>
+        <div class="lesson-finish-summary control-panel-gold-outline">
+          <p class="chip-label" id="lesson-finish-title">Хичээл дууслаа — одоо авсан ахиц, шагналаа хараарай.</p>
+          <p class="muted" id="lesson-finish-copy">Хураасан XP, цуврал, өдөр тутмын ахиц эндээс дараагийн алхмаа ойлгомжтой харуулна.</p>
+        </div>
 
         <div class="end-actions">
+          <button class="secondary" id="lesson-progress-btn" type="button">Ахиц &amp; шагналаа харах</button>
           <button class="primary" id="restart-btn">Дахин эхлэх</button>
+          <button class="secondary" id="lesson-home-btn" type="button">Нүүр рүү буцах</button>
         </div>
       </section>
     `,

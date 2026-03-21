@@ -7,11 +7,21 @@ export function renderLessonScreen({ question, options = [], onPickAnswer } = {}
   const questionEl = document.getElementById("question");
   const optionsEl = document.getElementById("options");
   const resultEl = document.getElementById("result");
+  const flowCopyEl = document.getElementById("lesson-flow-copy");
+  const nextBtn = document.getElementById("next-btn");
+  const flowStepEls = [...document.querySelectorAll(".lesson-flow-step")];
 
   if (resultEl) {
     resultEl.textContent = "";
     resultEl.className = "result hidden";
   }
+
+  if (flowCopyEl) flowCopyEl.textContent = "Асуултаа уншаад зөв хариултаа сонгоно уу.";
+  if (nextBtn) {
+    nextBtn.disabled = true;
+    nextBtn.textContent = "Хариулсны дараа дараагийн алхам нээгдэнэ";
+  }
+  flowStepEls.forEach((stepEl, index) => stepEl.classList.toggle("is-active", index === 0));
 
   if (questionEl) questionEl.textContent = question || "";
   if (!optionsEl) return;
@@ -26,9 +36,12 @@ export function renderLessonScreen({ question, options = [], onPickAnswer } = {}
   });
 }
 
-export function renderLessonAnswerState({ selectedButton, correctAnswer, selectedAnswer, revealed = true } = {}) {
+export function renderLessonAnswerState({ selectedButton, correctAnswer, selectedAnswer, revealed = true, nextActionLabel = "Дараагийн асуулт руу" } = {}) {
   const optionsEl = document.getElementById("options");
   const resultEl = document.getElementById("result");
+  const nextBtn = document.getElementById("next-btn");
+  const flowCopyEl = document.getElementById("lesson-flow-copy");
+  const flowStepEls = [...document.querySelectorAll(".lesson-flow-step")];
   const buttons = optionsEl ? [...optionsEl.querySelectorAll(".option")] : [];
 
   buttons.forEach((btn) => {
@@ -40,10 +53,23 @@ export function renderLessonAnswerState({ selectedButton, correctAnswer, selecte
   if (selectedButton) selectedButton.classList.add(isCorrect ? "correct" : "wrong");
 
   if (resultEl) {
-    resultEl.textContent = isCorrect ? "✅ Зөв!" : `❌ Буруу! Зөв нь: ${correctAnswer}`;
+    resultEl.textContent = isCorrect
+      ? "✅ Зөв! Одоо дараагийн алхам руу орно уу."
+      : `❌ Буруу! Зөв нь: ${correctAnswer}. Одоо үргэлжлүүлээд дараагийн асуулт руу орж болно.`;
     resultEl.classList.add(isCorrect ? "ok" : "bad");
     if (revealed) resultEl.classList.remove("hidden");
   }
+
+  if (flowCopyEl) {
+    flowCopyEl.textContent = isCorrect
+      ? "Сайн байна! Үр дүнгээ хараад дараагийн асуулт руу шилжинэ үү."
+      : "Зөв хариултыг харлаа. Одоо дараагийн асуултаар ахицаа үргэлжлүүлээрэй.";
+  }
+  if (nextBtn) {
+    nextBtn.disabled = false;
+    nextBtn.textContent = nextActionLabel;
+  }
+  flowStepEls.forEach((stepEl, index) => stepEl.classList.toggle("is-active", index === 2));
 
   return { isCorrect };
 }

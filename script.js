@@ -182,6 +182,10 @@ const startBtn = document.getElementById("start-btn");
 const introToggleBtn = document.getElementById("intro-toggle-btn");
 const introPanel = document.getElementById("intro-panel");
 const finalTextEl = document.getElementById("final-text");
+const lessonFlowCopyEl = document.getElementById("lesson-flow-copy");
+const lessonRewardCopyEl = document.getElementById("lesson-reward-copy");
+const lessonFinishTitleEl = document.getElementById("lesson-finish-title");
+const lessonFinishCopyEl = document.getElementById("lesson-finish-copy");
 
 const navModesBtn = document.getElementById("nav-modes-btn");
 const homeModesPanel = document.getElementById("home-modes-panel");
@@ -3362,6 +3366,7 @@ function renderQuestion() {
   updateTopbar();
   updateHeaderStatus();
   updateCompanionLine(GAME_MODES.LESSON, "idle");
+  updateLessonFlowUi();
 }
 
 function pickAnswer(buttonEl, selected) {
@@ -3375,6 +3380,7 @@ function pickAnswer(buttonEl, selected) {
     correctAnswer: correct,
     selectedAnswer: selected,
     revealed: true,
+    nextActionLabel: currentIndex >= questions.length - 1 ? "Үр дүн, шагналаа харах" : "Дараагийн асуулт руу",
   });
 
   if (isCorrect) {
@@ -3409,8 +3415,19 @@ function nextQuestion() {
 }
 
 function endQuiz() {
+  const totalQuestions = questions.length;
+  const percent = totalQuestions > 0 ? Math.round((score / totalQuestions) * 100) : 0;
+  const rewardCount = lessonUnlockedRewards;
   if (finalTextEl) {
     finalTextEl.textContent = `Таны оноо: ${score} / ${questions.length}  •  Түвшин: ${levelName(level)}`;
+  }
+  if (lessonFinishTitleEl) {
+    lessonFinishTitleEl.textContent = `Хичээл дууслаа — ${score}/${totalQuestions} зөв, ${percent}% амжилттай.`;
+  }
+  if (lessonFinishCopyEl) {
+    lessonFinishCopyEl.textContent = rewardCount > 0
+      ? `Та ${rewardCount} шатны шагнал нээж, өнөөдрийн ахицаа шинэчиллээ. Одоо ахиц & шагналын дэлгэц рүү орж үр дүнгээ харна уу.`
+      : "Энэ удаа шагналын шат нээгдээгүй ч XP, өдөр тутмын ахиц хадгалагдсан. Одоо ахицын дэлгэц рүү орж үр дүнгээ харна уу.";
   }
   showScreen(endScreen);
 
@@ -3481,7 +3498,10 @@ const updateQaTimerRewards = createTimedRewardTrack({
 
 function updateStartButtonLabel() {
   renderStartButtonLabel(startLevelLabel(level));
-  renderHomeScreen({ levelLabel: startLevelLabel(level) });
+  renderHomeScreen({
+    levelLabel: startLevelLabel(level),
+    homeFlowHint: `Одоогийн түвшин: ${startLevelLabel(level)} — эхлээд хичээлээ эхлүүлээд, дараа нь ахиц ба шагналаа хараарай.`,
+  });
 }
 
 function setStartLevelMenuOpen(isOpen) {
@@ -3497,6 +3517,21 @@ function exitPlayModeToHome() {
   stopSession();
   resetLessonProgress();
   navigateTo(SCREEN_NAMES.HOME);
+}
+
+function updateLessonFlowUi() {
+  if (lessonFlowCopyEl) {
+    lessonFlowCopyEl.textContent = "Асуултаа уншаад зөв хариултаа сонгоно уу.";
+  }
+
+  if (lessonRewardCopyEl) {
+    const currentQuestionNumber = Math.min(currentIndex + 1, questions.length || 1);
+    const nextRewardLevel = Math.min(lessonUnlockedRewards + 1, QA_REWARD_STEPS.length);
+    const nextReward = QA_REWARD_STEPS[nextRewardLevel - 1];
+    lessonRewardCopyEl.textContent = nextReward
+      ? `${currentQuestionNumber}/${questions.length} асуулт • дараагийн шагнал: ${nextReward.label}`
+      : `${currentQuestionNumber}/${questions.length} асуулт • бүх шагнал нээгдсэн байна.`;
+  }
 }
 
 function updateSentencesTimerUI() {
@@ -4238,6 +4273,8 @@ const { initializeApp } = createAppBootstrap({
   lessonHandlers: {
     onNext: () => nextQuestion(),
     onRestart: () => startQuiz(),
+    onOpenProgress: () => navigateTo(FLOW_DESTINATIONS.STATS),
+    onReturnHome: () => exitPlayModeToHome(),
     onSetStartLevelMenuOpen: (isOpen) => setStartLevelMenuOpen(isOpen),
     onSelectStartLevel: (button) => handleStartLevelSelection(button),
   },

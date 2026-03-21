@@ -13,12 +13,16 @@ export function initLessonScreen(handlers = {}) {
   const wireControls = () => {
     const nextBtn = document.getElementById("next-btn");
     const restartBtn = document.getElementById("restart-btn");
+    const progressBtn = document.getElementById("lesson-progress-btn");
+    const homeBtn = document.getElementById("lesson-home-btn");
     const startBtn = document.getElementById("start-btn");
     const startLevelDropdown = document.getElementById("start-level-dropdown");
     const startLevelOptions = Array.from(document.querySelectorAll(".start-level-option"));
 
     bindClickOnce(nextBtn, "lesson:next", () => handlers.onNext?.());
     bindClickOnce(restartBtn, "lesson:restart", () => handlers.onRestart?.());
+    bindClickOnce(progressBtn, "lesson:open-progress", () => handlers.onOpenProgress?.());
+    bindClickOnce(homeBtn, "lesson:return-home", () => handlers.onReturnHome?.());
 
     bindClickOnce(startBtn, "lesson:start-level-menu-toggle", () => {
       if (!startLevelDropdown) return;

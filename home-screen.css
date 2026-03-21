@@ -67,6 +67,14 @@
   max-width:38ch;
 }
 
+.home-flow-hint{
+  margin:0;
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.12);
+  background:rgba(255,255,255,.05);
+}
+
 .home-hub-actions{
   grid-template-columns:minmax(0, 1.5fr) repeat(2, minmax(0, .78fr));
   gap:var(--space-3);
@@ -348,4 +356,3 @@
     max-height:min(58vh, calc(var(--app-viewport-height) - 132px));
   }
 }
-

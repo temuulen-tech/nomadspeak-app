@@ -1,5 +1,48 @@
 /* Lesson screen-specific layout refinements */
 
+.lesson-flow-panel{
+  display:flex;
+  flex-direction:column;
+  gap:var(--space-2);
+  margin-top:10px;
+  padding:var(--space-3);
+}
+
+.lesson-flow-steps{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+}
+
+.lesson-flow-step{
+  padding:8px 12px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.1);
+  background:rgba(255,255,255,.04);
+  color:rgba(235,247,241,.72);
+  font-size:12px;
+  font-weight:700;
+}
+
+.lesson-flow-step.is-active{
+  border-color:rgba(123,255,162,.46);
+  background:rgba(123,255,162,.12);
+  color:#f7fbff;
+}
+
+.lesson-flow-copy,
+.lesson-reward-copy{
+  margin:0;
+}
+
+.lesson-finish-summary{
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  margin-top:16px;
+  padding:14px;
+}
+
 @media (min-width:900px){
   #quiz-screen .sentence-game-reward-row{
     flex-wrap:nowrap;
@@ -144,6 +187,10 @@
     gap:var(--space-3);
   }
 
+  #quiz-screen .lesson-flow-panel{
+    margin-top:10px;
+  }
+
   #quiz-screen .sentence-game-reward-row{
     margin-top:0;
     justify-content:center;
@@ -205,4 +252,3 @@
     min-width:0;
   }
 }
-

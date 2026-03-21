@@ -99,6 +99,7 @@
           <p class="chip-label home-hub-kicker">Өнөөдрийн төв удирдлага</p>
           <h2 class="home-hub-title">Өнөөдрийн дараагийн алхмаа сонгоорой.</h2>
           <p class="muted home-hub-text">Гол орцуудыг урд эгнээнд гаргаж, хамгийн хэрэгтэй үйлдлүүдийг илүү цэвэр дарааллаар байрлууллаа.</p>
+          <p class="chip-label home-flow-hint" id="home-flow-hint">Эхлээд хичээлээ сонгоод, дараа нь шагнал ба ахицаа харна.</p>
         </div>
 
         <div class="home-hub-actions" aria-label="Үндсэн навигаци">
@@ -221,6 +222,15 @@
           <p class="companion-line" id="lesson-companion-line">Өнөөдрийн аяллаа эхлүүлэхэд бэлэн. Зөв хариулт бүр таны замыг гэрэлтүүлнэ.</p>
         </div>
       </section>
+      <section class="lesson-flow-panel control-panel-gold-outline" aria-label="Хичээлийн дараалал">
+        <div class="lesson-flow-steps" id="lesson-flow-steps">
+          <span class="lesson-flow-step is-active">1. Асуултаа унш</span>
+          <span class="lesson-flow-step">2. Хариултаа сонго</span>
+          <span class="lesson-flow-step">3. Үр дүнгээ хараад үргэлжлүүл</span>
+        </div>
+        <p class="lesson-flow-copy muted" id="lesson-flow-copy">Асуултаа уншаад зөв хариултаа сонгоно уу.</p>
+        <p class="lesson-reward-copy chip-label" id="lesson-reward-copy">Энэ хичээлд 5 алхмаар шагнал нээгдэнэ.</p>
+      </section>
       <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Хичээлийн шагнал нээгдэх явц">
           <article class="reward-tile learning-progress-item" data-level="1">
@@ -259,7 +269,7 @@
       <div class="result hidden" id="result"></div>
 
       <div class="actions">
-        <button class="secondary" id="next-btn">Дараачийн асуултруу орох</button>
+        <button class="secondary" id="next-btn" disabled>Хариулсны дараа дараагийн алхам нээгдэнэ</button>
       </div>
       </div>
     </section>
