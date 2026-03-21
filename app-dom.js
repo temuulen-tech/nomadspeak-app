@@ -57,7 +57,6 @@ const home = {
   navQaGameBtn: byId("nav-qa-game-btn"),
   navBoardGameBtn: byId("nav-board-game-btn"),
   navStatsBtn: byId("nav-stats-btn"),
-  navProfileBtn: byId("nav-profile-btn"),
 };
 
 const sentences = {
@@ -265,7 +264,6 @@ export function getAppDom() {
         homeQaGame: home.navQaGameBtn,
         homeBoardGame: home.navBoardGameBtn,
         homeStats: home.navStatsBtn,
-        homeProfile: home.navProfileBtn,
         lessonStartLevel: lesson.startBtn,
         boardContinue: board.getContinueBtn(),
       },
