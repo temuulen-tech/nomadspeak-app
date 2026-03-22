@@ -91,6 +91,21 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
     const statusShellEl = qaScreenEl.querySelector(".learning-status-shell.qa-status-shell");
     const compactStatusBarEl = statusShellEl?.querySelector('[data-game-status="qa"]');
+    const debugMarkerId = "qa-real-status-block-debug";
+
+    if (statusShellEl && !statusShellEl.querySelector(`#${debugMarkerId}`)) {
+      const debugMarkerEl = document.createElement("div");
+      debugMarkerEl.id = debugMarkerId;
+      debugMarkerEl.textContent = "[QA-REAL-STATUS-BLOCK]";
+      debugMarkerEl.setAttribute("data-qa-debug-marker", "real-status-block");
+      debugMarkerEl.style.color = "#b00020";
+      debugMarkerEl.style.fontWeight = "900";
+      debugMarkerEl.style.fontSize = "0.95rem";
+      debugMarkerEl.style.letterSpacing = "0.08em";
+      debugMarkerEl.style.textTransform = "uppercase";
+      debugMarkerEl.style.marginBottom = "0.35rem";
+      statusShellEl.insertBefore(debugMarkerEl, compactStatusBarEl || statusShellEl.firstChild);
+    }
 
     statusShellEl?.querySelectorAll('progress, input[type="range"], .progress, .progress-track, .slider, .slider-track, .reward-row')
       .forEach((el) => el.remove());
