@@ -15,7 +15,7 @@ import {
   updateCoreState,
 } from "./state.js";
 import { DIFFICULTY_LEVELS } from "./constants.js";
-import { buildReviewItemKey, normalizeReviewItem } from "./smart-review.js";
+import { buildReviewItemKey, normalizeReviewItem, normalizeReviewQueue } from "./smart-review.js";
 import { getSelectableBoardWorlds } from "./worlds.js";
 
 function persistCoreState() {
@@ -178,9 +178,12 @@ export function recordLessonCheckpoint({ today = null, yesterday = null, countLe
 }
 
 export function queueLessonReviewItem({
+  itemType = "lesson",
   worldId = "",
   chapterId = "",
   level = "",
+  qaSetId = "",
+  roundId = "",
   questionText = "",
   questionMn = "",
   correctAnswer = "",
@@ -188,7 +191,7 @@ export function queueLessonReviewItem({
   options = [],
   optionMnMap = {},
 } = {}) {
-  const key = buildReviewItemKey({ worldId, chapterId, level, question: questionText, answer: correctAnswer });
+  const key = buildReviewItemKey({ itemType, worldId, chapterId, level, roundId, question: questionText, answer: correctAnswer });
   if (!key || !String(questionText || "").trim() || !String(correctAnswer || "").trim()) return null;
 
   let queuedItem = null;
@@ -196,7 +199,7 @@ export function queueLessonReviewItem({
     const queue = Array.isArray(core.reviewQueue) ? core.reviewQueue : [];
     const existing = queue.find((item) => item.key === key);
     const base = normalizeReviewItem({
-      key, worldId, chapterId, level, questionText, questionMn, correctAnswer, correctAnswerMn, options, optionMnMap,
+      key, itemType, worldId, chapterId, level, qaSetId, roundId, questionText, questionMn, correctAnswer, correctAnswerMn, options, optionMnMap,
       missedCount: (existing?.missedCount || 0) + 1,
       queuedAt: existing?.queuedAt || Date.now(),
       lastMissedAt: Date.now(),
@@ -211,8 +214,7 @@ export function queueLessonReviewItem({
       queuedItem = base;
     }
 
-    queue.sort((a, b) => (b.missedCount - a.missedCount) || ((b.lastMissedAt || 0) - (a.lastMissedAt || 0)));
-    core.reviewQueue = queue.slice(0, 60);
+    core.reviewQueue = normalizeReviewQueue(queue);
     queuedItem = core.reviewQueue.find((item) => item.key === key) || queuedItem;
   }, "reviewQueue");
 

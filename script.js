@@ -1513,6 +1513,9 @@ const qaFlow = createQaFlow({
     updateQaTimerUi: updateQaTimerUI,
     renderQaRewards,
     showWorldFeedbackChip,
+    getCoreState,
+    queueLessonReviewItem,
+    resolveLessonReviewItem,
   },
 });
 

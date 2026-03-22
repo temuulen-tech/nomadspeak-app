@@ -2,8 +2,32 @@ function normalizeText(value = "") {
   return String(value || "").trim();
 }
 
-export function buildReviewItemKey({ worldId = "", chapterId = "", level = "", question = "", answer = "" } = {}) {
-  return [worldId, chapterId, level, normalizeText(question).toLowerCase(), normalizeText(answer).toLowerCase()]
+function normalizeItemType(value = "lesson") {
+  return value === "qa" ? "qa" : "lesson";
+}
+
+function normalizeRoundId(value = "") {
+  return normalizeText(value);
+}
+
+export function buildReviewItemKey({
+  itemType = "lesson",
+  worldId = "",
+  chapterId = "",
+  level = "",
+  question = "",
+  answer = "",
+  roundId = "",
+} = {}) {
+  return [
+    normalizeItemType(itemType),
+    worldId,
+    chapterId,
+    level,
+    normalizeRoundId(roundId),
+    normalizeText(question).toLowerCase(),
+    normalizeText(answer).toLowerCase(),
+  ]
     .map((part) => String(part || "").trim())
     .filter(Boolean)
     .join("::");
@@ -12,14 +36,17 @@ export function buildReviewItemKey({ worldId = "", chapterId = "", level = "", q
 export function normalizeReviewItem(rawItem = {}) {
   const item = rawItem && typeof rawItem === "object" ? rawItem : {};
   const options = Array.isArray(item.options)
-    ? [...new Set(item.options.map((option) => normalizeText(option)).filter(Boolean))].slice(0, 8)
+    ? [...new Set(item.options.map((option) => normalizeText(option)).filter(Boolean))].slice(0, 16)
     : [];
 
   return {
     key: normalizeText(item.key),
+    itemType: normalizeItemType(item.itemType),
     worldId: normalizeText(item.worldId),
     chapterId: normalizeText(item.chapterId),
     level: normalizeText(item.level),
+    qaSetId: normalizeText(item.qaSetId),
+    roundId: normalizeRoundId(item.roundId),
     questionText: normalizeText(item.questionText),
     questionMn: normalizeText(item.questionMn),
     correctAnswer: normalizeText(item.correctAnswer),
@@ -39,9 +66,11 @@ export function normalizeReviewQueue(rawQueue = []) {
   rawQueue.forEach((entry) => {
     const item = normalizeReviewItem(entry);
     const fallbackKey = buildReviewItemKey({
+      itemType: item.itemType,
       worldId: item.worldId,
       chapterId: item.chapterId,
       level: item.level,
+      roundId: item.roundId,
       question: item.questionText,
       answer: item.correctAnswer,
     });
@@ -56,7 +85,8 @@ export function normalizeReviewQueue(rawQueue = []) {
   return [...deduped.values()]
     .sort((left, right) => {
       if (right.missedCount !== left.missedCount) return right.missedCount - left.missedCount;
-      return (right.lastMissedAt || 0) - (left.lastMissedAt || 0);
+      if ((right.lastMissedAt || 0) !== (left.lastMissedAt || 0)) return (right.lastMissedAt || 0) - (left.lastMissedAt || 0);
+      return (left.queuedAt || 0) - (right.queuedAt || 0);
     })
     .slice(0, 60);
 }

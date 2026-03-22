@@ -255,7 +255,7 @@ export const ANIMATION_HOOKS = {
 };
 
 // Increment this when the persisted save shape changes in a backwards-compatible migration.
-export const CURRENT_SAVE_VERSION = 1;
+export const CURRENT_SAVE_VERSION = 2;
 
 export const STORAGE_KEYS = {
   TTS_SETTINGS: "nomadspeak:tts:v1",

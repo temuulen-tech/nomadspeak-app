@@ -125,7 +125,7 @@ export function createLessonFlow({
       level: runtimeState.level,
     }));
     const savedReviewItems = (getCoreState()?.reviewQueue || [])
-      .filter((item) => item.level === runtimeState.level && item.worldId === chapterContent.worldId)
+      .filter((item) => item.itemType === "lesson" && item.level === runtimeState.level && item.worldId === chapterContent.worldId)
       .slice(0, REVIEW_BATCH_LIMIT)
       .map((item) => cloneLessonQuestion({
         q: item.questionText,
