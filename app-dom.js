@@ -107,7 +107,6 @@ const sentenceGame = {
 };
 
 const qa = {
-  rewardBarEl: byId("qa-reward-bar"),
   toastEl: byId("qa-toast"),
   levelSelectBtn: byId("qa-level-select-btn"),
   levelOptionsEl: byId("qa-level-options"),
