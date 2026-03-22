@@ -15,6 +15,7 @@ import {
   updateCoreState,
 } from "./state.js";
 import { DIFFICULTY_LEVELS } from "./constants.js";
+import { buildReviewItemKey, normalizeReviewItem } from "./smart-review.js";
 import { getSelectableBoardWorlds } from "./worlds.js";
 
 function persistCoreState() {
@@ -140,6 +141,96 @@ export function completeLesson({ xpEarned = 0, today = null, yesterday = null, c
   }, "progress");
 
   return nextProgress;
+}
+
+
+export function recordLessonCheckpoint({ today = null, yesterday = null, countLesson = false, rewardTierUnlocked = null, eventId = "" } = {}) {
+  const normalizedEventId = normalizeRewardEventId(eventId);
+  if (normalizedEventId && hasProcessedRewardEvent(getCoreState(), normalizedEventId)) return getCoreState().progress;
+
+  let nextProgress = getCoreState().progress;
+  commitCoreMutation((core) => {
+    if (hasProcessedRewardEvent(core, normalizedEventId)) {
+      nextProgress = core.progress;
+      return;
+    }
+
+    const progress = core.progress;
+    const firstActivityToday = today && progress.lastActiveDate !== today;
+
+    if (today && firstActivityToday) {
+      progress.streak = progress.lastActiveDate === yesterday ? progress.streak + 1 : 1;
+      progress.lastActiveDate = today;
+    }
+
+    if (today) progress.lastStatsDate = today;
+    if (countLesson) progress.todayCount += 1;
+
+    if (Number.isFinite(Number(rewardTierUnlocked))) {
+      progress.rewardTierUnlocked = Math.max(progress.rewardTierUnlocked || 1, Math.floor(Number(rewardTierUnlocked)));
+    }
+
+    nextProgress = syncDerivedProgress(progress);
+    markProcessedRewardEvent(core, normalizedEventId);
+  }, "progress");
+
+  return nextProgress;
+}
+
+export function queueLessonReviewItem({
+  worldId = "",
+  chapterId = "",
+  level = "",
+  questionText = "",
+  questionMn = "",
+  correctAnswer = "",
+  correctAnswerMn = "",
+  options = [],
+  optionMnMap = {},
+} = {}) {
+  const key = buildReviewItemKey({ worldId, chapterId, level, question: questionText, answer: correctAnswer });
+  if (!key || !String(questionText || "").trim() || !String(correctAnswer || "").trim()) return null;
+
+  let queuedItem = null;
+  commitCoreMutation((core) => {
+    const queue = Array.isArray(core.reviewQueue) ? core.reviewQueue : [];
+    const existing = queue.find((item) => item.key === key);
+    const base = normalizeReviewItem({
+      key, worldId, chapterId, level, questionText, questionMn, correctAnswer, correctAnswerMn, options, optionMnMap,
+      missedCount: (existing?.missedCount || 0) + 1,
+      queuedAt: existing?.queuedAt || Date.now(),
+      lastMissedAt: Date.now(),
+      lastReviewedAt: existing?.lastReviewedAt || null,
+    });
+
+    if (existing) {
+      Object.assign(existing, base);
+      queuedItem = existing;
+    } else {
+      queue.unshift(base);
+      queuedItem = base;
+    }
+
+    queue.sort((a, b) => (b.missedCount - a.missedCount) || ((b.lastMissedAt || 0) - (a.lastMissedAt || 0)));
+    core.reviewQueue = queue.slice(0, 60);
+    queuedItem = core.reviewQueue.find((item) => item.key === key) || queuedItem;
+  }, "reviewQueue");
+
+  return queuedItem;
+}
+
+export function resolveLessonReviewItem(reviewKey = "") {
+  const normalizedKey = String(reviewKey || "").trim();
+  if (!normalizedKey) return getCoreState().reviewQueue || [];
+
+  let reviewQueue = getCoreState().reviewQueue || [];
+  commitCoreMutation((core) => {
+    const queue = Array.isArray(core.reviewQueue) ? core.reviewQueue : [];
+    core.reviewQueue = queue.filter((item) => item.key !== normalizedKey);
+    reviewQueue = core.reviewQueue;
+  }, "reviewQueue");
+
+  return reviewQueue;
 }
 
 export function claimReward({ rewardTierUnlocked = null, coins = 0, gems = 0, eventId = "" } = {}) {
