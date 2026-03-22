@@ -976,8 +976,32 @@
   margin-bottom:0;
 }
 
-.qa-status-shell{
-  background:linear-gradient(90deg, rgba(8,35,45,.92), rgba(19,56,69,.82));
+#qa-game-screen #qa-runtime-status-bar{
+  display:flex;
+  align-items:center;
+  gap:18px;
+  flex-wrap:wrap;
+  margin:8px 0 0;
+  padding:8px 12px;
+  border:0;
+  border-radius:12px;
+  background:rgba(8,35,45,.92);
+  color:#fff4d5;
+  box-shadow:none;
+}
+
+#qa-game-screen .qa-runtime-status-text{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  font-size:.82rem;
+  line-height:1.2;
+  white-space:nowrap;
+}
+
+#qa-game-screen .qa-runtime-status-text span{
+  font-weight:700;
+  color:#ffffff;
 }
 
 #qa-game-screen .qa-round-panel{

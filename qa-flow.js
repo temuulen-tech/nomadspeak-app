@@ -89,8 +89,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     const qaScreenEl = qaRoundPanelEl?.closest("#qa-game-screen") || document.getElementById("qa-game-screen");
     if (!qaScreenEl) return;
 
-    const statusShellEl = qaScreenEl.querySelector(".learning-status-shell.qa-status-shell");
-    const compactStatusBarEl = statusShellEl?.querySelector('[data-game-status="qa"]');
+    const statusShellEl = qaScreenEl.querySelector("#qa-runtime-status-bar");
 
     statusShellEl?.querySelectorAll('progress, input[type="range"], .progress, .progress-track, .slider, .slider-track, .reward-row')
       .forEach((el) => el.remove());
@@ -98,7 +97,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaScreenEl.querySelectorAll(".learning-progress-frame, .game-status-progress-hidden, .qa-status-progress-track, .qa-status-track")
       .forEach((el) => {
         if (el === qaRoundPanelEl || el.contains(qaRoundPanelEl)) return;
-        if (statusShellEl?.contains(el) || compactStatusBarEl?.contains(el)) return;
+        if (statusShellEl?.contains(el)) return;
         el.remove();
       });
   }
