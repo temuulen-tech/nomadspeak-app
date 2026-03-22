@@ -146,6 +146,7 @@
     </div>
 
     <!-- QUIZ SCREEN -->
+    <!-- TODO(source-map): Lesson top action buttons/status/reward bar are duplicated across learning screens. Extract a shared learning-header/reward fragment after the screen map is validated. -->
     <section class="card hidden learning-screen" id="quiz-screen">
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
@@ -243,6 +244,7 @@
 
 
     <!-- SENTENCES SCREEN -->
+    <!-- TODO(source-map): Sentences screen repeats the learning top action buttons + status + reward strip pattern. Unify with lesson/QA/sentence game in a shared source-of-truth module. -->
     <section class="card hidden learning-screen" id="sentences-screen">
       <div class="learning-screen-shell">
       <div class="panel-header sentences-panel-header learning-layout-header learning-header-compact">
@@ -343,6 +345,7 @@
     </section>
 
     <!-- SENTENCE GAME SCREEN -->
+    <!-- TODO(source-map): Sentence game shares the same top utility controls and status-bar pattern as lesson/sentences/QA, but reward/time UI is managed separately. Consolidate carefully in follow-up cleanup. -->
     <section class="card hidden learning-screen" id="sentence-game-screen">
       <div class="learning-screen-shell">
       <div class="sentence-game-toast" id="sentence-game-toast" role="status" aria-live="polite" aria-hidden="true"></div>
@@ -569,6 +572,7 @@
 
 
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
+    <!-- TODO(source-map): QA status area is a high-risk duplicate because it has custom runtime cleanup in qa-flow.js plus hardcoded header/status markup here. Move toward a shared status-bar renderer. -->
     <section class="card hidden learning-screen" id="qa-game-screen">
       <div class="learning-screen-shell">
         <div class="learning-layout-header learning-header-compact qa-game-header">
@@ -595,6 +599,7 @@
           </div>
         </div>
 
+        <!-- TODO(source-map): Reward/time-reward UI and QA runtime status should converge on shared render helpers instead of screen-specific hardcoded markup. -->
         <div class="qa-runtime-status-bar" id="qa-runtime-status-bar" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
           <span class="qa-runtime-status-text">Түвшин: <span id="qa-status-level">Анхан</span></span>
           <span class="qa-runtime-status-text">Оноо: <span id="qa-status-score">0</span></span>
