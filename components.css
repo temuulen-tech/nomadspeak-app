@@ -187,9 +187,9 @@ button > *,
 /* Shared top in-game action button system */
 .top-action-buttons{
   --top-action-gap:12px;
-  --top-action-min-height:64px;
+  --top-action-min-height:40px;
   --top-action-min-width:96px;
-  --top-action-padding-y:12px;
+  --top-action-padding-y:7px;
   --top-action-padding-x:14px;
   --top-action-radius:14px;
   display:grid;
@@ -238,7 +238,7 @@ button > *,
   padding:var(--top-action-padding-y) var(--top-action-padding-x);
   border-radius:var(--top-action-radius);
   text-align:center;
-  line-height:1.25;
+  line-height:1.15;
   white-space:normal;
   word-break:keep-all;
   overflow-wrap:break-word;
@@ -336,8 +336,8 @@ button > *,
   .top-action-buttons .filter-btn,
   .top-action-buttons .sentence-game-difficulty-toggle,
   .top-action-buttons .board-game-header-button{
-    min-height:60px;
-    padding:10px 12px;
+    min-height:40px;
+    padding:7px 12px;
     font-size:12px;
   }
 }
