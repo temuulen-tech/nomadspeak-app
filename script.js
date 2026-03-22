@@ -790,6 +790,7 @@ const sentenceGameRewardManager = createSentenceGameRewardManager({
   idleTimeoutSeconds: SENTENCE_GAME_IDLE_TIMEOUT_SECONDS,
   dom: {
     rewardBannerEl: sentenceGameRewardBannerEl,
+    rewardRowEl: sentenceGameRewardRowEl,
     rewardImageEls: sentenceGameRewardImageEls,
   },
   state: {

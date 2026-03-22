@@ -458,3 +458,24 @@
 #quiz-screen .learning-action-grid .start-level-dropdown{
   min-width:0;
 }
+
+#quiz-screen .sentence-game-reward-row.reward-row--single{
+  gap:0;
+}
+
+#quiz-screen .sentence-game-reward-row.reward-row--single .reward-tile{
+  display:none;
+  flex:0 1 auto;
+  width:min(100%, 220px);
+  max-width:220px;
+  margin:0;
+}
+
+#quiz-screen .sentence-game-reward-row.reward-row--single .reward-tile.is-visible{
+  display:flex;
+}
+
+#quiz-screen .sentence-game-reward-row.reward-row--single .reward-img{
+  width:clamp(104px, 12vw, 148px);
+  height:clamp(104px, 12vw, 148px);
+}

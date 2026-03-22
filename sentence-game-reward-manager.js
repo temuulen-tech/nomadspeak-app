@@ -75,16 +75,25 @@ export function createSentenceGameRewardManager({
   }
 
   function renderRewardState() {
+    const rewardLevel = Math.max(0, Math.min(5, Math.floor(state.getRewardLevel?.() || 0)));
+    const visibleLevel = rewardLevel > 0 ? rewardLevel : 1;
+    dom.rewardRowEl?.classList.add("reward-row--single");
+    if (dom.rewardRowEl) {
+      dom.rewardRowEl.dataset.visibleRewardLevel = String(visibleLevel);
+      dom.rewardRowEl.dataset.nextRewardLevel = String(Math.min(rewardLevel + 1, 5));
+    }
     dom.rewardImageEls?.forEach((imgEl) => {
-      const level = Number(imgEl.dataset.level || 0);
-      const rewardLevel = state.getRewardLevel?.() || 0;
+      const level = Number(imgEl.dataset.level || imgEl.closest(".reward-tile")?.dataset.level || 0);
       const active = level > 0 && level === rewardLevel;
       const unlocked = level > 0 && level <= rewardLevel;
+      const visible = level > 0 && level === visibleLevel;
       const tileEl = imgEl.closest(".reward-tile");
       if (tileEl) {
         tileEl.classList.toggle("is-active", active);
         tileEl.classList.toggle("is-unlocked", unlocked);
         tileEl.classList.toggle("is-locked", !unlocked);
+        tileEl.classList.toggle("is-visible", visible);
+        tileEl.hidden = !visible;
       }
       imgEl.classList.toggle("active", active);
       imgEl.classList.toggle("is-active", active);
