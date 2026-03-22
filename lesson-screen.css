@@ -37,6 +37,36 @@
 
 
 
+#quiz-screen .panel-header,
+#quiz-screen .learning-layout-header,
+#quiz-screen .learning-master-top,
+#quiz-screen .top-action-buttons{
+  width:100%;
+  min-width:0;
+  max-width:100%;
+}
+
+#quiz-screen .top-action-buttons,
+#quiz-screen .learning-action-grid{
+  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+}
+
+#quiz-screen .top-action-buttons > .learning-master-row,
+#quiz-screen .learning-action-grid > .learning-master-row{
+  display:contents;
+}
+
+#quiz-screen .top-action-buttons > .learning-master-row > *,
+#quiz-screen .learning-action-grid > .learning-master-row > *,
+#quiz-screen .top-action-buttons .start-level-picker,
+#quiz-screen .top-action-buttons .sentences-level-picker,
+#quiz-screen .top-action-buttons .sentence-game-difficulty-wrap,
+#quiz-screen .top-action-buttons .qa-level-picker{
+  min-width:0;
+  width:100%;
+  max-width:100%;
+}
+
 /* Direct lesson answer option override: keep lesson answers full-width and horizontal */
 #quiz-screen .question-text-wrap,
 #quiz-screen .question-text-wrap > .options,
@@ -137,6 +167,8 @@
   #quiz-screen .top-action-buttons{
     grid-template-columns:repeat(3, minmax(0, 1fr));
     align-items:stretch;
+    width:100%;
+    min-width:0;
   }
 
   #quiz-screen .learning-master-row,
@@ -327,13 +359,16 @@
 
 @media (max-width:420px){
   #quiz-screen .lesson-controls-row,
-  #quiz-screen .lesson-top-controls,
   #quiz-screen .lesson-audio-controls,
   #quiz-screen .lesson-controls-panel .topbar,
   #quiz-screen .sentence-game-reward-row .reward-tile{
     grid-template-columns:1fr;
     flex-basis:100%;
     max-width:none;
+  }
+
+  #quiz-screen .lesson-top-controls{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
   }
 }
 
