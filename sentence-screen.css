@@ -976,13 +976,17 @@
   background:linear-gradient(90deg, rgba(8,35,45,.92), rgba(19,56,69,.82));
 }
 
+#qa-game-screen #qa-round-panel,
 #qa-game-screen .qa-round-content{
-  margin-top:0;
-  padding:12px;
+  margin:0;
+  padding:0;
   border:0;
+  border-top:0;
+  border-bottom:0;
   border-radius:0;
-  background:transparent;
+  background:none;
   box-shadow:none;
+  outline:none;
 }
 .qa-toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
 .qa-builder-lines{display:grid;gap:10px;margin:12px 0;}
