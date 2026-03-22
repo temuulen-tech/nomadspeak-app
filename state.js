@@ -9,6 +9,7 @@
  */
 
 import { BOARD_SELECTOR_STEPS, CURRENT_SAVE_VERSION, DIFFICULTY_LEVELS, SCREEN_NAMES } from "./constants.js";
+import { normalizeReviewQueue } from "./smart-review.js";
 import { getChapterConfig, getDefaultChapterForWorld } from "./chapters.js";
 import { DEFAULT_WORLD_ID, getSelectableBoardWorlds } from "./worlds.js";
 
@@ -166,6 +167,7 @@ export function createDefaultCoreState() {
     unlockedChapterIds: [],
     selectedWorldId: DEFAULT_WORLD_ID,
     selectedDifficultyId: DIFFICULTY_LEVELS.BEGINNER,
+    reviewQueue: [],
   };
 }
 
@@ -200,6 +202,7 @@ export function normalizeCoreState(rawCore = {}) {
       ? source.selectedWorldId
       : defaults.selectedWorldId,
     selectedDifficultyId: Object.values(DIFFICULTY_LEVELS).includes(source.selectedDifficultyId) ? source.selectedDifficultyId : defaults.selectedDifficultyId,
+    reviewQueue: normalizeReviewQueue(source.reviewQueue),
   };
 }
 
@@ -248,6 +251,7 @@ export function buildCoreStateFromStorage(rawSave = {}) {
     unlockedChapterIds: source.unlockedChapterIds,
     selectedWorldId: source.selectedWorldId,
     selectedDifficultyId: source.selectedDifficultyId,
+    reviewQueue: source.reviewQueue,
   });
 }
 

@@ -22,6 +22,7 @@ export const STORAGE_KEYS = {
   processedRewardIds: "nomadspeak:processed-reward-ids",
   selectedWorldId: "nomadspeak:selected-world-id",
   selectedDifficultyId: "nomadspeak:selected-difficulty-id",
+  reviewQueue: "nomadspeak:review-queue",
 };
 
 function buildSerializableAppState(coreState = {}) {
@@ -41,6 +42,7 @@ function buildSerializableAppState(coreState = {}) {
     unlockedChapterIds: coreState.unlockedChapterIds ?? [],
     selectedWorldId: coreState.selectedWorldId ?? "",
     selectedDifficultyId: coreState.selectedDifficultyId ?? "",
+    reviewQueue: coreState.reviewQueue ?? [],
   };
 }
 
@@ -116,6 +118,7 @@ export function loadAppState() {
     unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, snapshotState.unlockedChapterIds ?? null),
     selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, snapshotState.selectedWorldId ?? ""),
     selectedDifficultyId: loadString(STORAGE_KEYS.selectedDifficultyId, snapshotState.selectedDifficultyId ?? ""),
+    reviewQueue: loadJson(STORAGE_KEYS.reviewQueue, snapshotState.reviewQueue ?? null),
   };
 }
 
@@ -135,6 +138,7 @@ export function saveAppState(coreState = {}) {
   saveJson(STORAGE_KEYS.unlockedChapterIds, serializableState.unlockedChapterIds);
   saveString(STORAGE_KEYS.selectedWorldId, serializableState.selectedWorldId);
   saveString(STORAGE_KEYS.selectedDifficultyId, serializableState.selectedDifficultyId);
+  saveJson(STORAGE_KEYS.reviewQueue, serializableState.reviewQueue);
   return coreState;
 }
 
