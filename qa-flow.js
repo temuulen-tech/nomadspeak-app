@@ -85,6 +85,24 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     return pool[runtimeState.qaRoundIndex % pool.length];
   }
 
+  function normalizeQaStatusUi() {
+    const qaScreenEl = qaRoundPanelEl?.closest("#qa-game-screen") || document.getElementById("qa-game-screen");
+    if (!qaScreenEl) return;
+
+    const statusShellEl = qaScreenEl.querySelector(".learning-status-shell.qa-status-shell");
+    const compactStatusBarEl = statusShellEl?.querySelector('[data-game-status="qa"]');
+
+    statusShellEl?.querySelectorAll('progress, input[type="range"], .progress, .progress-track, .slider, .slider-track, .reward-row')
+      .forEach((el) => el.remove());
+
+    qaScreenEl.querySelectorAll(".learning-progress-frame, .game-status-progress-hidden, .qa-status-progress-track, .qa-status-track")
+      .forEach((el) => {
+        if (el === qaRoundPanelEl || el.contains(qaRoundPanelEl)) return;
+        if (statusShellEl?.contains(el) || compactStatusBarEl?.contains(el)) return;
+        el.remove();
+      });
+  }
+
   function buildSavedReviewRounds(levelKey, contentSetId) {
     const selection = getActiveLearningSelection() || {};
     const chapterId = selection.chapter?.id || "";
@@ -222,6 +240,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function setupQaRound(options = {}) {
+    normalizeQaStatusUi();
     const round = options.round || getQaCurrentRound();
     if (!round) {
       runtimeState.qaQuestionSolved = false;
@@ -324,6 +343,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function selectQaLevel(levelKey) {
+    normalizeQaStatusUi();
     const selection = getActiveLearningSelection() || {};
     const nextContentSetId = selection.qaSetId || runtimeState.qaContentSetId;
     const regularRounds = qaRoundPoolForLevel(levelKey, nextContentSetId).map((round) => cloneQaRound(round, {
@@ -366,6 +386,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function resetQaGameScreen() {
+    normalizeQaStatusUi();
     const initialLevel = runtimeState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
     const nextContentSetId = getActiveLearningSelection().qaSetId || runtimeState.qaContentSetId;
     runtimeState.qaContentSetId = nextContentSetId;
@@ -389,6 +410,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function loadRound(round) {
+    normalizeQaStatusUi();
     runtimeState.qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
     runtimeState.qaRoundPool = [cloneQaRound(round, {
       source: round?.source || "saved-review",
