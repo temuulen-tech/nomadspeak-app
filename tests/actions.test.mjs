@@ -77,3 +77,35 @@ test('reward events are only applied once per event id', () => {
     'board:tile:5:wallet',
   ]);
 });
+
+test('review queue survives save and reload without duplicating entries', () => {
+  actions.queueLessonReviewItem({
+    itemType: 'lesson',
+    worldId: 'world1',
+    chapterId: 'ch1',
+    level: constants.DIFFICULTY_LEVELS.BEGINNER,
+    questionText: 'Hello?',
+    questionMn: 'Сайн уу?',
+    correctAnswer: 'Hi',
+    correctAnswerMn: 'Сайн',
+    options: ['Hi', 'Bye'],
+  });
+  actions.queueLessonReviewItem({
+    itemType: 'lesson',
+    worldId: 'world1',
+    chapterId: 'ch1',
+    level: constants.DIFFICULTY_LEVELS.BEGINNER,
+    questionText: 'Hello?',
+    questionMn: 'Сайн уу?',
+    correctAnswer: 'Hi',
+    correctAnswerMn: 'Сайн',
+    options: ['Hi', 'Bye'],
+  });
+
+  const reloaded = actions.loadCoreState();
+
+  assert.equal(reloaded.reviewQueue.length, 1);
+  assert.equal(reloaded.reviewQueue[0].questionText, 'Hello?');
+  assert.equal(reloaded.reviewQueue[0].missedCount, 2);
+  assert.equal(reloaded.reviewQueue[0].key, 'lesson::world1::ch1::beginner::hello?::hi');
+});

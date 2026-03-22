@@ -7,6 +7,7 @@ import { STORAGE_KEYS as APP_STORAGE_KEYS } from "./constants.js";
 
 export const STORAGE_KEYS = {
   appStateSnapshot: "nomadspeak:app-state-snapshot",
+  appStateSnapshotBackup: "nomadspeak:app-state-snapshot-backup",
   ttsSettings: APP_STORAGE_KEYS.TTS_SETTINGS,
   legacyTtsRate: APP_STORAGE_KEYS.LEGACY_TTS_RATE,
   soundEnabled: APP_STORAGE_KEYS.SOUND_ENABLED,
@@ -43,6 +44,38 @@ function buildSerializableAppState(coreState = {}) {
     selectedWorldId: coreState.selectedWorldId ?? "",
     selectedDifficultyId: coreState.selectedDifficultyId ?? "",
     reviewQueue: coreState.reviewQueue ?? [],
+  };
+}
+
+function loadSnapshotState(key) {
+  const snapshot = loadJson(key, null);
+  return snapshot && typeof snapshot === "object" ? snapshot : null;
+}
+
+function buildLegacyStateFromKeys(snapshotState = {}) {
+  const snapshotSettings = snapshotState.settings && typeof snapshotState.settings === "object" ? snapshotState.settings : {};
+  const hasStoredValue = (value) => value !== null && value !== "";
+
+  return {
+    progress: loadJson(STORAGE_KEYS.progressSettings, snapshotState.progress ?? null),
+    settings: {
+      ttsSettings: loadJson(STORAGE_KEYS.ttsSettings, snapshotSettings.ttsSettings ?? null),
+      soundEnabled: hasStoredValue(loadString(STORAGE_KEYS.soundEnabled, null))
+        ? loadBoolean(STORAGE_KEYS.soundEnabled, true)
+        : Boolean(snapshotSettings.soundEnabled),
+      premium: hasStoredValue(loadString(STORAGE_KEYS.premium, null))
+        ? loadBoolean(STORAGE_KEYS.premium, false)
+        : Boolean(snapshotSettings.premium),
+      profileName: loadString(STORAGE_KEYS.profileName, snapshotSettings.profileName ?? ""),
+      legacyTtsRate: Number(loadString(STORAGE_KEYS.legacyTtsRate, String(snapshotSettings.legacyTtsRate ?? ""))),
+    },
+    rewardsWallet: loadJson(STORAGE_KEYS.rewardsWallet, snapshotState.rewardsWallet ?? null),
+    processedRewardIds: loadJson(STORAGE_KEYS.processedRewardIds, snapshotState.processedRewardIds ?? null),
+    learnedWords: loadJson(STORAGE_KEYS.learnedWords, snapshotState.learnedWords ?? null),
+    unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, snapshotState.unlockedChapterIds ?? null),
+    selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, snapshotState.selectedWorldId ?? ""),
+    selectedDifficultyId: loadString(STORAGE_KEYS.selectedDifficultyId, snapshotState.selectedDifficultyId ?? ""),
+    reviewQueue: loadJson(STORAGE_KEYS.reviewQueue, snapshotState.reviewQueue ?? null),
   };
 }
 
@@ -94,38 +127,20 @@ export function loadBoolean(key, fallback = false) {
 }
 
 export function loadAppState() {
-  const snapshot = loadJson(STORAGE_KEYS.appStateSnapshot, null);
-  const snapshotState = snapshot && typeof snapshot === "object" ? snapshot : {};
-  const snapshotSettings = snapshotState.settings && typeof snapshotState.settings === "object" ? snapshotState.settings : {};
-  const hasStoredValue = (value) => value !== null && value !== "";
+  const primarySnapshot = loadSnapshotState(STORAGE_KEYS.appStateSnapshot);
+  if (primarySnapshot) return primarySnapshot;
 
-  return {
-    progress: loadJson(STORAGE_KEYS.progressSettings, snapshotState.progress ?? null),
-    settings: {
-      ttsSettings: loadJson(STORAGE_KEYS.ttsSettings, snapshotSettings.ttsSettings ?? null),
-      soundEnabled: hasStoredValue(loadString(STORAGE_KEYS.soundEnabled, null))
-        ? loadBoolean(STORAGE_KEYS.soundEnabled, true)
-        : Boolean(snapshotSettings.soundEnabled),
-      premium: hasStoredValue(loadString(STORAGE_KEYS.premium, null))
-        ? loadBoolean(STORAGE_KEYS.premium, false)
-        : Boolean(snapshotSettings.premium),
-      profileName: loadString(STORAGE_KEYS.profileName, snapshotSettings.profileName ?? ""),
-      legacyTtsRate: Number(loadString(STORAGE_KEYS.legacyTtsRate, String(snapshotSettings.legacyTtsRate ?? ""))),
-    },
-    rewardsWallet: loadJson(STORAGE_KEYS.rewardsWallet, snapshotState.rewardsWallet ?? null),
-    processedRewardIds: loadJson(STORAGE_KEYS.processedRewardIds, snapshotState.processedRewardIds ?? null),
-    learnedWords: loadJson(STORAGE_KEYS.learnedWords, snapshotState.learnedWords ?? null),
-    unlockedChapterIds: loadJson(STORAGE_KEYS.unlockedChapterIds, snapshotState.unlockedChapterIds ?? null),
-    selectedWorldId: loadString(STORAGE_KEYS.selectedWorldId, snapshotState.selectedWorldId ?? ""),
-    selectedDifficultyId: loadString(STORAGE_KEYS.selectedDifficultyId, snapshotState.selectedDifficultyId ?? ""),
-    reviewQueue: loadJson(STORAGE_KEYS.reviewQueue, snapshotState.reviewQueue ?? null),
-  };
+  const backupSnapshot = loadSnapshotState(STORAGE_KEYS.appStateSnapshotBackup);
+  if (backupSnapshot) return backupSnapshot;
+
+  return buildLegacyStateFromKeys({});
 }
 
 export function saveAppState(coreState = {}) {
   const serializableState = buildSerializableAppState(coreState);
   const settings = serializableState.settings || {};
-  saveJson(STORAGE_KEYS.appStateSnapshot, serializableState);
+  const previousSnapshot = loadSnapshotState(STORAGE_KEYS.appStateSnapshot);
+  if (previousSnapshot) saveJson(STORAGE_KEYS.appStateSnapshotBackup, previousSnapshot);
   saveJson(STORAGE_KEYS.progressSettings, serializableState.progress);
   saveJson(STORAGE_KEYS.ttsSettings, settings.ttsSettings ?? null);
   if (settings.ttsSettings?.rate != null) saveString(STORAGE_KEYS.legacyTtsRate, String(settings.ttsSettings.rate));
@@ -139,6 +154,7 @@ export function saveAppState(coreState = {}) {
   saveString(STORAGE_KEYS.selectedWorldId, serializableState.selectedWorldId);
   saveString(STORAGE_KEYS.selectedDifficultyId, serializableState.selectedDifficultyId);
   saveJson(STORAGE_KEYS.reviewQueue, serializableState.reviewQueue);
+  saveJson(STORAGE_KEYS.appStateSnapshot, serializableState);
   return coreState;
 }
 
