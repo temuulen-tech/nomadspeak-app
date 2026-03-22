@@ -91,6 +91,45 @@ test('progress, rewards, settings, and board selections survive save and reload'
   assert.deepEqual(reloaded.settings.ttsSettings, { voice: 'female', rate: 1.1 });
 });
 
+test('snapshot state wins over stale split keys during reloads', () => {
+  actions.completeLesson({
+    xpEarned: 15,
+    today: '2026-03-20',
+    yesterday: '2026-03-19',
+    countLesson: true,
+    rewardTierUnlocked: 2,
+    eventId: 'snapshot:progress:1',
+  });
+  actions.claimReward({
+    coins: 10,
+    eventId: 'snapshot:reward:1',
+  });
+  actions.queueLessonReviewItem({
+    itemType: 'qa',
+    worldId: 'world1',
+    chapterId: 'ch1',
+    level: constants.DIFFICULTY_LEVELS.BEGINNER,
+    qaSetId: 'qa1',
+    roundId: 'round-1',
+    questionText: 'Where are you?',
+    questionMn: 'Чи хаана байна?',
+    correctAnswer: 'I am here.',
+    correctAnswerMn: 'Би энд байна.',
+    options: ['I', 'am', 'here.'],
+  });
+
+  localStorage.setItem('nomadspeak:progress-settings', JSON.stringify({ xp: 0, streak: 0 }));
+  localStorage.setItem('nomadspeak:rewards-wallet', JSON.stringify({ coins: 0, gems: 0 }));
+  localStorage.setItem('nomadspeak:review-queue', JSON.stringify([]));
+
+  const reloaded = actions.loadCoreState();
+
+  assert.equal(reloaded.progress.xp, 50);
+  assert.equal(reloaded.rewardsWallet.coins, 10);
+  assert.equal(reloaded.reviewQueue.length, 1);
+  assert.equal(reloaded.reviewQueue[0].roundId, 'round-1');
+});
+
 test('content-ready ownership stays mapped to dedicated modules instead of script.js', () => {
   assert.equal(constants.CONTENT_READY_BASELINE.phase, 54);
   assert.equal(constants.CONTENT_READY_BASELINE.status, 'content-ready');
