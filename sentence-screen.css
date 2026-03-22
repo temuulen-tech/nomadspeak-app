@@ -382,22 +382,6 @@
   width:100%;
 }
 
-.sentence-game-reward-middle{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-}
-
-.sentence-game-rewards-block{
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:8px;
-  padding:8px 10px;
-}
-
 .sentence-game-reward-banner{
   margin:0 0 8px;
   padding:10px 14px;
@@ -988,10 +972,6 @@
   .tts-rate-compact{
     min-width:220px;
   }
-}
-
-#qa-game-screen .sentence-game-reward-middle{
-  margin:10px 0;
 }
 
 /* Q&A sentence builder game */
