@@ -565,26 +565,28 @@ body{
 .game-status-bar{
   display:flex;
   align-items:center;
-  justify-content:flex-start;
+  justify-content:space-between;
   gap:20px;
   flex-wrap:nowrap;
   width:100%;
+  min-width:0;
   padding:0;
   border:0;
   border-radius:0;
   background:transparent;
   color:inherit;
   box-shadow:none;
-  overflow-x:auto;
+  overflow:hidden;
 }
 
 .learning-status-segment,
 .game-status-text{
   display:inline-flex;
   align-items:center;
+  justify-content:flex-start;
   gap:4px;
-  flex:0 0 auto;
-  min-width:max-content;
+  flex:1 1 0;
+  min-width:0;
   font-size:.82rem;
   line-height:1.2;
   padding:0;
