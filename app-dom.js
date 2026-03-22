@@ -69,7 +69,6 @@ const sentences = {
   vaultBtn: byId("sentences-vault-btn"),
   vaultBadge: byId("sentences-vault-badge"),
   saveBtn: byId("sentences-save-btn"),
-  companionLineEl: byId("sentences-companion-line"),
 };
 
 const sentenceGame = {
