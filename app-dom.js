@@ -45,7 +45,6 @@ const lesson = {
   lessonVaultBtn: byId("lesson-vault-btn"),
   lessonVaultBadge: byId("lesson-vault-badge"),
   lessonSaveBtn: byId("lesson-save-btn"),
-  lessonCompanionLineEl: byId("lesson-companion-line"),
 };
 
 const home = {
