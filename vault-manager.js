@@ -243,7 +243,7 @@ export function createVaultManager({
     if (!modalEl || !bodyEl || !titleEl) return;
     const screenId = Object.keys(VAULT_KEY_BY_SCREEN).find((id) => VAULT_KEY_BY_SCREEN[id] === key);
     const list = loadVault(key);
-    const meta = VAULT_SCREEN_META[screenId] || { title: "Дахин давтах / Дараа харах" };
+    const meta = VAULT_SCREEN_META[screenId] || { title: "Хадгалсан дасгал" };
     titleEl.textContent = meta.title;
 
     let selectedId = list.length ? list[0].id : "";

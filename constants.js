@@ -85,6 +85,13 @@ export const STATS_PERIODS = {
   MONTH: "month",
 };
 
+
+export const STANDARDIZED_UI_LABELS = {
+  savedExercises: "Хадгалсан дасгал",
+  saveExercise: "Дасгалыг хадгалах",
+  timeDetails: "Тоглосон хугацаанууд",
+};
+
 export const REWARD_TABS = {
   DAYS: "days",
   WEEKS: "weeks",

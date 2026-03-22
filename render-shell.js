@@ -101,7 +101,7 @@ const SHELL_TARGETS = [
         <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
         <div class="panel-header">
           <h2 class="screen-title-chip chip-title">👤 Профайл</h2>
-          <div class="time-widget"><button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button></div>
+          <div class="time-widget"><button class="secondary time-details-btn" type="button">Тоглосон хугацаанууд</button></div>
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
         </div>
 
@@ -146,7 +146,7 @@ const SHELL_TARGETS = [
           <h2 class="screen-title-chip chip-title">Дууслаа 🎉</h2>
           <div class="time-widget">
             <div class="today-time chip-time">Өнөөдрийн хугацаа: <span id="today-time-end">00:00:00</span></div>
-            <button class="secondary time-details-btn" type="button">Бүх хугацаагаа харах</button>
+            <button class="secondary time-details-btn" type="button">Тоглосон хугацаанууд</button>
           </div>
           <button class="secondary sound-toggle-btn" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
         </div>

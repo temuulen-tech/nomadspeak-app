@@ -4,6 +4,7 @@
  */
 
 import { mountAppShell } from "./render-shell.js";
+import { applyStandardizedButtonLabels } from "./standardized-labels.js";
 
 function updateViewportHeightVars() {
   const docEl = document.documentElement;
@@ -21,6 +22,7 @@ function updateViewportHeightVars() {
 async function bootstrapApp() {
   document.documentElement.dataset.appBoot = "mounting";
   mountAppShell();
+  applyStandardizedButtonLabels();
   updateViewportHeightVars();
 
   const { initializeApp } = await import("./script.js");
