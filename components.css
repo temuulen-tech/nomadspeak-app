@@ -809,7 +809,7 @@ button > *,
 .control-panel-gold-outline{
   border:1px solid rgba(255,218,126,.72);
   border-radius:14px;
-  box-shadow:0 0 0 1px rgba(255,239,185,.16) inset, 0 0 16px rgba(255,203,92,.22);
+  box-shadow:0 0 16px rgba(255,203,92,.22);
 }
 
 #quiz-screen .time-widget{
@@ -823,11 +823,8 @@ button > *,
   justify-self:end;
   display:flex;
   flex-direction:column;
-  align-items:flex-end;
+  align-items:stretch;
   gap:8px;
-  padding:10px;
-  border-radius:14px;
-  border:1px solid rgba(255,255,255,.14);
   background:rgba(4,18,27,.56);
 }
 
