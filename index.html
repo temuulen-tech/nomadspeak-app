@@ -182,10 +182,10 @@
           <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-lesson">00:00:00</span></div>
         </div>
         <div class="learning-status-shell lesson-controls-panel hidden" id="topbar" role="status" aria-label="Хичээлийн төлөв">
-          <div class="learning-status-inline">
-            <span class="learning-status-segment"><span class="learning-status-label">Түвшин:</span> <span id="level-label">Анхан</span></span>
-            <span class="learning-status-segment"><span class="learning-status-label">Оноо:</span> <span id="score">0</span></span>
-            <span class="learning-status-segment"><span class="learning-status-label">Асуулт:</span> <span id="progress">0/0</span></span>
+          <div class="learning-status-inline game-status-bar" data-game-status="lesson">
+            <span class="game-status-text"><span class="learning-status-label">Түвшин:</span> <span id="level-label">Анхан</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Оноо:</span> <span id="score">0</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Асуулт:</span> <span id="progress">0/0</span></span>
           </div>
         </div>
       </div>
@@ -198,7 +198,7 @@
         <p class="lesson-flow-copy muted" id="lesson-flow-copy">Асуултаа уншаад зөв хариултаа сонгоно уу.</p>
         <p class="lesson-reward-copy chip-label" id="lesson-reward-copy">Энэ хичээлд 5 алхмаар шагнал нээгдэнэ.</p>
       </section>
-      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Хичээлийн шагнал нээгдэх явц">
           <article class="reward-tile learning-progress-item" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -272,14 +272,14 @@
           <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentences">00:00:00</span></div>
         </div>
         <div class="learning-status-shell" role="status" aria-label="Өгүүлбэрийн хичээлийн төлөв">
-          <div class="learning-status-inline">
-          <span class="learning-status-segment"><span class="learning-status-label">Түвшин:</span> <span>Анхан</span></span>
-          <span class="learning-status-segment"><span class="learning-status-label">Оноо:</span> <span>0</span></span>
-          <span class="learning-status-segment"><span class="learning-status-label">Асуулт:</span> <span>0/0</span></span>
+          <div class="learning-status-inline game-status-bar" data-game-status="sentences">
+            <span class="game-status-text"><span class="learning-status-label">Түвшин:</span> <span id="sentences-status-level">Анхан</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Оноо:</span> <span id="sentences-status-score">0</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Асуулт:</span> <span id="sentences-status-progress">0/0</span></span>
           </div>
         </div>
       </div>
-      <div class="control-panel-gold-outline learning-progress-compact learning-progress-frame">
+      <div class="control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden">
       <div class="sentences-reward-strip reward-row rewards-group learning-progress-compact" id="sentences-reward-strip" aria-label="Өгүүлбэрийн горимын шагналын явц">
         <article class="reward-tile learning-progress-item" data-reward-index="0" data-level="1">
           <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -374,14 +374,14 @@
             <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-sentence-game">00:00:00</span></div>
           </div>
           <div class="learning-status-shell" role="status" aria-label="Өгүүлбэрийн тоглоомын төлөв">
-            <div class="learning-status-inline">
-            <span class="learning-status-segment"><span class="learning-status-label">Түвшин:</span> <span>Анхан</span></span>
-            <span class="learning-status-segment"><span class="learning-status-label">Оноо:</span> <span>0</span></span>
-            <span class="learning-status-segment"><span class="learning-status-label">Асуулт:</span> <span>0/0</span></span>
+            <div class="learning-status-inline game-status-bar" data-game-status="sentence-game">
+              <span class="game-status-text"><span class="learning-status-label">Түвшин:</span> <span id="sentence-game-status-level">Анхан</span></span>
+              <span class="game-status-text"><span class="learning-status-label">Оноо:</span> <span id="sentence-game-status-score">0</span></span>
+              <span class="game-status-text"><span class="learning-status-label">Асуулт:</span> <span id="sentence-game-status-progress">0/0</span></span>
             </div>
           </div>
         </div>
-        <div class="sentence-game-rewards-block control-panel-gold-outline learning-progress-compact learning-progress-frame" id="sentence-game-reward-middle">
+        <div class="sentence-game-rewards-block control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden" id="sentence-game-reward-middle">
           <div class="sentence-game-reward-row reward-row rewards-group" id="sentence-game-reward-row" aria-label="Шагнал нээгдэх явц">
             <article class="reward-tile learning-progress-item" data-level="1">
               <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
@@ -622,15 +622,15 @@
           <div class="today-time chip-time learning-today-time">Өнөөдрийн хугацаа: <span id="today-time-qa">00:00:00</span></div>
         </div>
         <div class="learning-status-shell" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
-          <div class="learning-status-inline">
-          <span class="learning-status-segment"><span class="learning-status-label">Түвшин:</span> <span>Анхан</span></span>
-          <span class="learning-status-segment"><span class="learning-status-label">Оноо:</span> <span>0</span></span>
-          <span class="learning-status-segment"><span class="learning-status-label">Асуулт:</span> <span>0/0</span></span>
+          <div class="learning-status-inline game-status-bar" data-game-status="qa">
+            <span class="game-status-text"><span class="learning-status-label">Түвшин:</span> <span id="qa-status-level">Анхан</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Оноо:</span> <span id="qa-status-score">0</span></span>
+            <span class="game-status-text"><span class="learning-status-label">Асуулт:</span> <span id="qa-status-progress">0/0</span></span>
           </div>
         </div>
       </div>
 
-      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame">
+      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden">
         <div class="sentence-game-reward-row reward-row rewards-group" id="qa-reward-bar" aria-label="Асуулт-хариултын шагнал нээгдэх явц">
           <article class="reward-tile learning-progress-item" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>

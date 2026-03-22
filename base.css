@@ -552,18 +552,21 @@ body{
 
 .learning-status-shell{
   width:100%;
-  padding:6px 10px;
-  border:1px solid rgba(255,218,126,.72);
+  padding:8px 14px;
+  border:1px solid rgba(255,218,126,.9);
   border-radius:14px;
-  background:linear-gradient(90deg, rgba(8,35,45,.72), rgba(19,56,69,.58));
+  background:linear-gradient(90deg, rgba(8,35,45,.92), rgba(19,56,69,.82));
   color:#fff4d5;
   overflow:hidden;
+  box-shadow:none;
 }
 
-.learning-status-inline{
+.learning-status-inline,
+.game-status-bar{
   display:flex;
   align-items:center;
-  gap:0;
+  justify-content:flex-start;
+  gap:20px;
   flex-wrap:nowrap;
   width:100%;
   padding:0;
@@ -575,27 +578,29 @@ body{
   overflow-x:auto;
 }
 
-.learning-status-segment{
+.learning-status-segment,
+.game-status-text{
   display:inline-flex;
   align-items:center;
   gap:4px;
-  flex:1 1 0;
+  flex:0 0 auto;
   min-width:max-content;
-  font-size:.76rem;
+  font-size:.82rem;
   line-height:1.2;
-  padding:2px 12px;
+  padding:0;
   white-space:nowrap;
 }
 
 .learning-status-segment + .learning-status-segment{
-  border-left:1px solid rgba(255,220,143,.18);
+  border-left:0;
 }
 
 .learning-status-label{
   color:rgba(255,244,213,.78);
 }
 
-.learning-status-segment > span:last-child{
+.learning-status-segment > span:last-child,
+.game-status-text > span:last-child{
   font-weight:700;
   color:#ffffff;
 }
@@ -605,6 +610,10 @@ body{
   border-radius:10px;
   padding:10px;
   box-shadow:none;
+}
+
+.game-status-progress-hidden{
+  display:none !important;
 }
 
 .learning-screen .sentence-game-reward-middle,
@@ -887,7 +896,8 @@ body{
 
   .learning-title-block,
   .learning-today-time,
-  .learning-status-inline{
+  .learning-status-inline,
+  .game-status-bar{
     width:100%;
   }
 
@@ -895,7 +905,8 @@ body{
     margin-left:0;
   }
 
-  .learning-status-inline{
+  .learning-status-inline,
+  .game-status-bar{
     justify-content:flex-start;
   }
 }

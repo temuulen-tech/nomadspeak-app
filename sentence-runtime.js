@@ -900,6 +900,8 @@ export function createSentenceRuntime({ dom = {}, deps = {} } = {}) {
     ensureSentenceItemsLoaded,
     currentSentence,
     getSentenceGameDifficulty: () => state.difficulty,
+    getSentenceGameHistory: () => state.history,
+    getSentenceGameIndex: () => state.index,
     setSentenceFilter: (value) => { state.sentenceFilter = value; },
     getSentenceFilter: () => state.sentenceFilter,
     getSentenceItems: () => state.sentenceItems,

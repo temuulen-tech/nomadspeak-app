@@ -137,6 +137,18 @@ const qa = {
   saveBtn: byId("qa-save-btn"),
 };
 
+const gameStatus = {
+  sentencesLevelEl: byId("sentences-status-level"),
+  sentencesScoreEl: byId("sentences-status-score"),
+  sentencesProgressEl: byId("sentences-status-progress"),
+  sentenceGameLevelEl: byId("sentence-game-status-level"),
+  sentenceGameScoreEl: byId("sentence-game-status-score"),
+  sentenceGameProgressEl: byId("sentence-game-status-progress"),
+  qaLevelEl: byId("qa-status-level"),
+  qaScoreEl: byId("qa-status-score"),
+  qaProgressEl: byId("qa-status-progress"),
+};
+
 const profile = {
   premiumOverlay: byId("premium-overlay"),
   premiumTitleEl: byId("premium-title"),
@@ -245,6 +257,7 @@ export function getAppDom() {
     sentences,
     sentenceGame,
     qa,
+    gameStatus,
     profile,
     stats,
     board,
