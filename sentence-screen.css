@@ -978,6 +978,7 @@
 
 #qa-game-screen #qa-round-panel,
 #qa-game-screen .qa-round-content{
+  display:contents;
   margin:0;
   padding:0;
   border:0;
