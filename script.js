@@ -181,7 +181,6 @@ const {
     lessonVaultBtn,
     lessonVaultBadge,
     lessonSaveBtn,
-    lessonCompanionLineEl,
   },
   home: {
     navModesBtn,
@@ -681,7 +680,7 @@ const {
 } = sentenceGameTipController;
 
 function updateCompanionLine(mode, tone = "idle") {
-  updateCompanionLineUi(mode, tone, { lessonCompanionLineEl, sentencesCompanionLineEl });
+  updateCompanionLineUi(mode, tone, { sentencesCompanionLineEl });
 }
 
 const showWorldFeedbackChipUi = (text, tone = "reward") => renderWorldFeedbackChip(worldFeedbackHubEl, text, tone);
