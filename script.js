@@ -262,6 +262,7 @@ const {
     vaultBadge: qaVaultBadge,
     saveBtn: qaSaveBtn,
   },
+  gameStatus,
   profile: {
     premiumOverlay,
     premiumTitleEl,
@@ -977,8 +978,39 @@ function updateStatsUI() {
   appTimerManager?.updateStatsUI();
 }
 
+function setSharedStatusValue(element, value, fallback = "0") {
+  if (element) element.textContent = value ?? fallback;
+}
+
+function updateSharedGameStatusBars() {
+  const lessonState = lessonFlow.getState();
+  setSharedStatusValue(levelLabel, levelName(level));
+  setSharedStatusValue(scoreEl, String(lessonState.score ?? 0));
+  setSharedStatusValue(progressEl, `${lessonState.questions?.length ? lessonState.currentIndex + 1 : 0}/${lessonState.questions?.length || 0}`);
+
+  const sentenceFilter = sentenceRuntime?.getSentenceFilter?.() || DIFFICULTY_LEVELS.BEGINNER;
+  const sentenceItems = filteredSentences();
+  setSharedStatusValue(gameStatus.sentencesLevelEl, startLevelLabel(sentenceFilter));
+  setSharedStatusValue(gameStatus.sentencesScoreEl, "0");
+  setSharedStatusValue(gameStatus.sentencesProgressEl, `${sentenceItems.length}/${sentenceItems.length}`);
+
+  const currentSentenceDifficulty = sentenceRuntime?.getSentenceGameDifficulty?.() || DIFFICULTY_LEVELS.BEGINNER;
+  const currentSentence = sentenceGameSentence();
+  const sentenceHistory = sentenceRuntime?.getSentenceGameHistory?.() || [];
+  const sentenceIndex = sentenceRuntime?.getSentenceGameIndex?.() ?? -1;
+  setSharedStatusValue(gameStatus.sentenceGameLevelEl, startLevelLabel(currentSentenceDifficulty));
+  setSharedStatusValue(gameStatus.sentenceGameScoreEl, sentenceRuntime?.sentenceGameIsSolved?.() ? "1" : "0");
+  setSharedStatusValue(gameStatus.sentenceGameProgressEl, currentSentence ? `${Math.max(sentenceIndex + 1, 1)}/${Math.max(sentenceHistory.length, 1)}` : "0/0");
+
+  const qaState = qaFlow.getState();
+  setSharedStatusValue(gameStatus.qaLevelEl, startLevelLabel(qaState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER));
+  setSharedStatusValue(gameStatus.qaScoreEl, String(qaState.qaUnlockedRewards || 0));
+  setSharedStatusValue(gameStatus.qaProgressEl, `${qaState.qaRoundPool?.length ? qaState.qaRoundIndex + 1 : 0}/${qaState.qaRoundPool?.length || 0}`);
+}
+
 function updateHeaderStatus() {
   appTimerManager?.updateHeaderStatus();
+  updateSharedGameStatusBars();
 }
 
 
@@ -1104,10 +1136,7 @@ function unlockAllDebugChapters() {
 }
 
 function updateTopbar() {
-  const lessonState = lessonFlow.getState();
-  levelLabel.textContent = levelName(level);
-  scoreEl.textContent = lessonState.score;
-  progressEl.textContent = `${lessonState.currentIndex + 1}/${lessonState.questions.length}`;
+  updateSharedGameStatusBars();
 }
 
 // ---- UI switch ----
@@ -1365,6 +1394,7 @@ sentenceRuntime = createSentenceRuntime({
     updateSentenceGameClimbFromOutcome,
     getSaveSentenceListItem: () => saveSentenceListItem,
     onSentenceItemsLoaded: updateHeaderStatus,
+    onSentenceGameRoundReady: updateHeaderStatus,
     onSentenceGameStateReset: enforceFreeXpGate,
     sentenceGameScreenVisible,
     shuffle,
@@ -1513,6 +1543,7 @@ const qaFlow = createQaFlow({
     updateQaTimerUi: updateQaTimerUI,
     renderQaRewards,
     showWorldFeedbackChip,
+    updateHeaderStatus,
     getCoreState,
     queueLessonReviewItem,
     resolveLessonReviewItem,

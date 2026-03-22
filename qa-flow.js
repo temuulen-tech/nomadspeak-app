@@ -70,6 +70,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     updateQaTimerUi,
     renderQaRewards,
     showWorldFeedbackChip,
+    updateHeaderStatus = () => {},
     getCoreState = () => ({}),
     queueLessonReviewItem = () => null,
     resolveLessonReviewItem = () => [],
@@ -300,6 +301,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaFeedbackEl.textContent = "🎉 Баяр хүргэе! Дараагийн тойрог...";
     runtimeState.qaRoundIndex = (runtimeState.qaRoundIndex + 1) % runtimeState.qaRoundPool.length;
     setupQaRound();
+    updateHeaderStatus();
   }
 
   function openQaModal(title, htmlBody) {
@@ -348,6 +350,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     }
     setupQaRound();
     startQaTimer();
+    updateHeaderStatus();
   }
 
   function resetRuntimeState() {
@@ -382,6 +385,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     }
     setupQaRound();
     startQaTimer();
+    updateHeaderStatus();
   }
 
   function loadRound(round) {
@@ -400,6 +404,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
     setupQaRound({ round: runtimeState.qaRoundPool[0], wordBankTokens: buildQaReviewOptions(round) });
     startQaTimer();
+    updateHeaderStatus();
   }
 
   return {
