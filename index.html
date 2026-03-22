@@ -571,28 +571,30 @@
     <!-- Q&A SENTENCE BUILDER GAME SCREEN -->
     <section class="card hidden learning-screen" id="qa-game-screen">
       <div class="learning-screen-shell">
-      <div class="panel-header learning-layout-header learning-header-compact">
-        <div class="learning-master-top learning-action-grid top-action-buttons">
-          <div class="learning-master-row learning-master-row-1">
-            <button class="primary play-exit-btn game-exit-btn learning-exit-btn top-action-button" type="button">Тоглоомоос гарах</button>
-            <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn top-action-button" type="button">Тоглосон хугацаанууд</button>
-          </div>
-          <div class="learning-master-row learning-master-row-2">
-            <button class="secondary vault-open-btn learning-utility-btn learning-utility-btn--stacked top-action-button" id="qa-vault-btn" type="button">Хадгалсан дасгал <span class="vault-badge" id="qa-vault-badge">0</span></button>
-            <div class="qa-level-picker">
-              <button class="secondary learning-level-btn top-action-button" id="qa-level-select-btn" type="button">Түвшин сонгох</button>
-              <div class="qa-level-options hidden" id="qa-level-options">
-                <button class="secondary" type="button" data-qa-level="beginner">Анхан</button>
-                <button class="secondary" type="button" data-qa-level="intermediate">Дунд</button>
-                <button class="secondary" type="button" data-qa-level="advanced">Дээд</button>
+        <div class="learning-layout-header learning-header-compact qa-game-header">
+          <div class="learning-master-top learning-action-grid top-action-buttons">
+            <div class="learning-master-row learning-master-row-1">
+              <button class="primary play-exit-btn game-exit-btn learning-exit-btn top-action-button" type="button">Тоглоомоос гарах</button>
+              <button class="secondary time-details-btn learning-utility-btn learning-alltime-btn top-action-button" type="button">Тоглосон хугацаанууд</button>
+            </div>
+            <div class="learning-master-row learning-master-row-2">
+              <button class="secondary vault-open-btn learning-utility-btn learning-utility-btn--stacked top-action-button" id="qa-vault-btn" type="button">Хадгалсан дасгал <span class="vault-badge" id="qa-vault-badge">0</span></button>
+              <div class="qa-level-picker">
+                <button class="secondary learning-level-btn top-action-button" id="qa-level-select-btn" type="button">Түвшин сонгох</button>
+                <div class="qa-level-options hidden" id="qa-level-options">
+                  <button class="secondary" type="button" data-qa-level="beginner">Анхан</button>
+                  <button class="secondary" type="button" data-qa-level="intermediate">Дунд</button>
+                  <button class="secondary" type="button" data-qa-level="advanced">Дээд</button>
+                </div>
               </div>
             </div>
-          </div>
-          <div class="learning-master-row learning-master-row-3">
-            <button class="secondary vault-save-btn learning-utility-btn learning-utility-btn--stacked top-action-button" id="qa-save-btn" type="button">Дасгалыг хадгалах</button>
-            <button class="secondary sound-toggle-btn learning-utility-btn top-action-button" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
+            <div class="learning-master-row learning-master-row-3">
+              <button class="secondary vault-save-btn learning-utility-btn learning-utility-btn--stacked top-action-button" id="qa-save-btn" type="button">Дасгалыг хадгалах</button>
+              <button class="secondary sound-toggle-btn learning-utility-btn top-action-button" type="button" aria-pressed="true">🔊 Дуу: АСААЛТТАЙ</button>
+            </div>
           </div>
         </div>
+
         <div class="learning-status-shell qa-status-shell" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
           <div class="learning-status-inline game-status-bar" data-game-status="qa">
             <span class="game-status-text"><span class="learning-status-label">Түвшин:</span> <span id="qa-status-level">Анхан</span></span>
@@ -600,43 +602,43 @@
             <span class="game-status-text"><span class="learning-status-label">Асуулт:</span> <span id="qa-status-progress">0/0</span></span>
           </div>
         </div>
-      </div>
 
-      <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
+        <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
 
-      <div class="qa-round-content" id="qa-round-panel">
-        <div class="qa-learning-tools">
-          <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
-          <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
-        </div>
-        <div class="qa-toggle-row">
-          <button class="secondary" id="qa-toggle-question-btn" type="button">Асуултыг харах</button>
-          <button class="secondary" id="qa-toggle-answer-btn" type="button">Хариултыг харах</button>
-        </div>
+        <div class="qa-round-panel" id="qa-round-panel">
+          <div class="qa-round-content">
+            <div class="qa-learning-tools">
+              <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
+              <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
+            </div>
+            <div class="qa-toggle-row">
+              <button class="secondary" id="qa-toggle-question-btn" type="button">Асуултыг харах</button>
+              <button class="secondary" id="qa-toggle-answer-btn" type="button">Хариултыг харах</button>
+            </div>
 
-        <p><strong>МН Асуулт:</strong> <span id="qa-mn-question"></span></p>
-        <p class="hidden" id="qa-en-question-wrap"><strong>АН Асуулт:</strong> <span id="qa-en-question"></span></p>
-        <p><strong>МН Хариулт:</strong> <span id="qa-mn-answer"></span></p>
-        <p class="hidden" id="qa-en-answer-wrap"><strong>АН Хариулт:</strong> <span id="qa-en-answer"></span></p>
+            <p><strong>МН Асуулт:</strong> <span id="qa-mn-question"></span></p>
+            <p class="hidden" id="qa-en-question-wrap"><strong>АН Асуулт:</strong> <span id="qa-en-question"></span></p>
+            <p><strong>МН Хариулт:</strong> <span id="qa-mn-answer"></span></p>
+            <p class="hidden" id="qa-en-answer-wrap"><strong>АН Хариулт:</strong> <span id="qa-en-answer"></span></p>
 
-        <div class="qa-builder-lines">
-          <div>
-            <p class="qa-line-label chip-label">Асуулт бүтээх мөр</p>
-            <div class="qa-build-line" id="qa-question-line"></div>
+            <div class="qa-builder-lines">
+              <div>
+                <p class="qa-line-label chip-label">Асуулт бүтээх мөр</p>
+                <div class="qa-build-line" id="qa-question-line"></div>
+              </div>
+              <div>
+                <p class="qa-line-label chip-label">Хариулт бүтээх мөр</p>
+                <div class="qa-build-line" id="qa-answer-line"></div>
+              </div>
+            </div>
+
+            <div class="qa-bank" id="qa-word-bank"></div>
+            <div class="qa-actions">
+              <button class="primary" id="qa-check-btn" type="button">Шалгах</button>
+            </div>
+            <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
           </div>
-          <div>
-            <p class="qa-line-label chip-label">Хариулт бүтээх мөр</p>
-            <div class="qa-build-line" id="qa-answer-line"></div>
-          </div>
         </div>
-
-        <div class="qa-bank" id="qa-word-bank"></div>
-        <div class="qa-actions">
-          <button class="primary" id="qa-check-btn" type="button">Шалгах</button>
-        </div>
-        <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
-      </div>
-
       </div>
     </section>
 

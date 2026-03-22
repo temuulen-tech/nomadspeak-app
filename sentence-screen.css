@@ -972,24 +972,34 @@
 }
 
 /* Q&A sentence builder game */
+#qa-game-screen .qa-game-header{
+  margin-bottom:0;
+}
+
 .qa-status-shell{
   background:linear-gradient(90deg, rgba(8,35,45,.92), rgba(19,56,69,.82));
 }
 
-#qa-game-screen #qa-round-panel,
+#qa-game-screen .qa-round-panel{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:0;
+}
+
 #qa-game-screen .qa-round-content{
-  display:contents;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:0;
   margin:0;
   padding:0;
   border:0;
-  border-top:0;
-  border-bottom:0;
-  border-radius:0;
   background:none;
   box-shadow:none;
   outline:none;
 }
-.qa-toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;}
+.qa-toggle-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:0;}
 .qa-builder-lines{display:grid;gap:10px;margin:12px 0;}
 .qa-line-label{font-weight:700;margin:0 0 6px;}
 .qa-build-line,.qa-bank{min-height:50px;border:1px dashed #c8d2ea;border-radius:12px;padding:8px;display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;background:rgba(0,0,0,.16);}
