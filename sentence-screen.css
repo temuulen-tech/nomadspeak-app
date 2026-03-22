@@ -976,7 +976,7 @@
   background:linear-gradient(90deg, rgba(8,35,45,.92), rgba(19,56,69,.82));
 }
 
-.qa-round-panel{
+#qa-game-screen .qa-round-content{
   margin-top:0;
   padding:12px;
   border:0;
@@ -1093,7 +1093,7 @@
   .sentence-game-pool,
   .qa-build-line,
   .qa-bank,
-  .qa-round-panel{
+  #qa-game-screen .qa-round-content{
     min-width:0;
     overflow-x:hidden;
   }
@@ -1121,7 +1121,7 @@
   }
 
   .sentence-row,
-  .qa-round-panel,
+  #qa-game-screen .qa-round-content,
   .sentence-game-tip-panel{
     overflow:hidden;
   }
