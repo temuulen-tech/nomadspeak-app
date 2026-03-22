@@ -404,6 +404,78 @@ body{
   min-width:0;
 }
 
+.learning-action-grid{
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:var(--space-2);
+  width:100%;
+  align-items:stretch;
+}
+
+.learning-action-grid > .learning-master-row{
+  display:contents;
+}
+
+.learning-action-grid > .learning-master-row > *,
+.learning-action-grid .start-level-picker,
+.learning-action-grid .sentences-level-picker,
+.learning-action-grid .sentence-game-difficulty-wrap,
+.learning-action-grid .qa-level-picker{
+  min-width:0;
+  width:100%;
+  max-width:none;
+}
+
+.learning-action-grid .primary,
+.learning-action-grid .secondary,
+.learning-action-grid .learning-utility-btn,
+.learning-action-grid .learning-level-btn,
+.learning-action-grid .filter-btn,
+.learning-action-grid .sentence-game-difficulty-toggle{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  inline-size:100%;
+  min-block-size:56px;
+  padding:12px 14px;
+  text-align:center;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:normal;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  line-height:1.25;
+}
+
+.learning-action-grid .learning-utility-btn--stacked{
+  gap:6px;
+}
+
+.learning-action-grid .vault-badge{
+  flex:0 0 auto;
+}
+
+.learning-action-grid .start-level-picker,
+.learning-action-grid .sentences-level-picker,
+.learning-action-grid .sentence-game-difficulty-wrap,
+.learning-action-grid .qa-level-picker{
+  position:relative;
+  align-self:stretch;
+  display:flex;
+  flex-direction:column;
+  justify-content:stretch;
+  gap:var(--space-2);
+  margin:0;
+}
+
+.learning-action-grid .start-level-dropdown,
+.learning-action-grid .sentences-level-options,
+.learning-action-grid .sentence-game-difficulty-panel,
+.learning-action-grid .qa-level-options{
+  width:100%;
+  max-width:none;
+}
+
 .learning-master-row > *{
   min-width:0;
 }
@@ -676,6 +748,10 @@ body{
     gap:8px;
   }
 
+  .learning-action-grid{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+  }
+
   .learning-progress-compact .reward-tile,
   .learning-progress-compact .learning-progress-item{
     flex:1 1 calc(33.333% - 8px);
@@ -691,6 +767,19 @@ body{
 @media (max-width:560px){
   .learning-master-row{
     flex-wrap:nowrap;
+  }
+
+  .learning-action-grid{
+    grid-template-columns:minmax(0, 1fr);
+  }
+
+  .learning-action-grid .primary,
+  .learning-action-grid .secondary,
+  .learning-action-grid .learning-utility-btn,
+  .learning-action-grid .learning-level-btn,
+  .learning-action-grid .filter-btn,
+  .learning-action-grid .sentence-game-difficulty-toggle{
+    min-block-size:52px;
   }
 
   .learning-screen .primary,
