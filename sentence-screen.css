@@ -386,16 +386,16 @@
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:14px;
-  padding:12px;
+  gap:8px;
+  padding:8px 10px;
 }
 
 .sentence-game-rewards-block{
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:14px;
-  padding:12px;
+  gap:8px;
+  padding:8px 10px;
 }
 
 .sentence-game-reward-banner{
@@ -521,6 +521,44 @@
 #quiz-screen .sentence-game-reward-row .reward-img{
   width:clamp(138px, 15.8vw, 202px);
   height:clamp(138px, 15.8vw, 202px);
+}
+
+.reward-row--single,
+.sentence-game-reward-row.reward-row--single{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:0;
+  padding:0;
+  gap:0;
+}
+
+.reward-row--single .reward-tile,
+.sentence-game-reward-row.reward-row--single .reward-tile{
+  display:none;
+  flex:0 1 auto;
+  width:min(100%, 180px);
+  max-width:180px;
+  padding:20px 10px 10px;
+  border-radius:14px;
+  opacity:1;
+}
+
+.reward-row--single .reward-tile.is-visible,
+.sentence-game-reward-row.reward-row--single .reward-tile.is-visible{
+  display:flex;
+}
+
+.reward-row--single .reward-img,
+.sentence-game-reward-row.reward-row--single .reward-img{
+  width:clamp(72px, 9vw, 112px);
+  height:clamp(72px, 9vw, 112px);
+}
+
+.reward-row--single .reward-label-chip,
+.sentence-game-reward-row.reward-row--single .reward-label-chip{
+  opacity:1;
+  visibility:visible;
 }
 
 .reward-label-chip{
