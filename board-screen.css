@@ -203,59 +203,14 @@ body[data-active-screen="board-game"] .app{
   box-sizing:border-box;
 }
 
+/* Top board action button layout inherits shared sizing/visual styling from components.css. */
 .board-game-nav-row{
-  display:grid;
-  grid-template-columns:repeat(2, minmax(100px, 1fr));
-  gap:10px;
+  gap:12px;
+  align-items:stretch;
 }
 
-.board-game-header-button{
-  display:flex;
-  flex-direction:column;
-  align-items:flex-start;
-  justify-content:center;
-  gap:4px;
-  min-width:100px;
-  min-height:52px;
-  width:100%;
-  padding:12px 14px;
-  border-radius:16px;
-  text-align:left;
-  writing-mode:horizontal-tb;
-  text-orientation:mixed;
-  white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:break-word;
-}
-
-.board-game-header-button--exit{
-  background:linear-gradient(180deg, #2fbf74, #219a5b);
-  border:1px solid rgba(235,255,235,.25);
-}
-
-.board-game-header-button--back{
-  background:linear-gradient(180deg, rgba(255,255,255,.12), rgba(255,255,255,.06));
-  border:1px solid rgba(255,240,194,.22);
-  color:#fff6cf;
-}
-
-.board-game-header-button-label,
-.board-game-header-button-subtitle{
-  display:block;
-  width:100%;
+.board-game-nav-row > *{
   min-width:0;
-}
-
-.board-game-header-button-label{
-  font-size:.88rem;
-  font-weight:800;
-  line-height:1.25;
-}
-
-.board-game-header-button-subtitle{
-  font-size:.72rem;
-  line-height:1.25;
-  color:rgba(255,247,214,.85);
 }
 
 .board-game-status-panel{
@@ -1008,13 +963,11 @@ body[data-active-screen="board-game"] .app{
     padding:10px 12px;
   }
 
-  .board-game-nav-row,
   .board-game-status-grid{
     grid-template-columns:repeat(2, minmax(100px, 1fr));
     gap:8px;
   }
 
-  .board-game-header-button,
   .board-game-status-card{
     min-height:52px;
     padding:12px 14px;
@@ -1092,12 +1045,10 @@ body[data-active-screen="board-game"] .app{
 
 /* Mobile stability pass: reduce crowding in board top bar, board frame, and bottom dock */
 @media (max-width:640px){
-  .board-game-nav-row,
   .board-game-status-grid{
     grid-template-columns:minmax(100px, 1fr);
   }
 
-  .board-game-header-button,
   .board-game-status-card{
     min-height:54px;
   }

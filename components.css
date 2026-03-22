@@ -182,6 +182,151 @@ button > *,
 }
 
 
+
+
+/* Shared top in-game action button system */
+.top-action-buttons{
+  --top-action-gap:12px;
+  --top-action-min-height:64px;
+  --top-action-padding-y:12px;
+  --top-action-padding-x:14px;
+  --top-action-radius:14px;
+  display:grid;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
+  gap:var(--top-action-gap);
+  width:100%;
+  align-items:stretch;
+}
+
+.top-action-buttons > .learning-master-row,
+.top-action-buttons > .board-game-nav-row{
+  display:contents;
+}
+
+.top-action-buttons > .learning-master-row > *,
+.top-action-buttons > .board-game-nav-row > *,
+.top-action-buttons .start-level-picker,
+.top-action-buttons .sentences-level-picker,
+.top-action-buttons .sentence-game-difficulty-wrap,
+.top-action-buttons .qa-level-picker{
+  width:100%;
+  min-width:0;
+  max-width:none;
+}
+
+.top-action-button,
+.top-action-buttons .top-action-button,
+.top-action-buttons .learning-level-btn,
+.top-action-buttons .learning-utility-btn,
+.top-action-buttons .filter-btn,
+.top-action-buttons .sentence-game-difficulty-toggle,
+.top-action-buttons .board-game-header-button{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-width:0;
+  min-height:var(--top-action-min-height);
+  height:100%;
+  padding:var(--top-action-padding-y) var(--top-action-padding-x);
+  border-radius:var(--top-action-radius);
+  text-align:center;
+  line-height:1.25;
+  white-space:normal;
+  overflow-wrap:anywhere;
+  word-break:keep-all;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  box-sizing:border-box;
+  align-self:stretch;
+}
+
+.top-action-button > *,
+.top-action-buttons .top-action-button > *,
+.top-action-buttons .board-game-header-button > *{
+  min-width:0;
+  max-width:100%;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+}
+
+.top-action-buttons .learning-utility-btn--stacked{
+  gap:6px;
+}
+
+.top-action-buttons .top-action-button .vault-badge{
+  flex:0 0 auto;
+}
+
+.top-action-buttons .start-level-picker,
+.top-action-buttons .sentences-level-picker,
+.top-action-buttons .sentence-game-difficulty-wrap,
+.top-action-buttons .qa-level-picker{
+  position:relative;
+  display:flex;
+  flex-direction:column;
+  justify-content:stretch;
+  gap:8px;
+  margin:0;
+  align-self:stretch;
+}
+
+.top-action-buttons .start-level-dropdown,
+.top-action-buttons .sentences-level-options,
+.top-action-buttons .sentence-game-difficulty-panel,
+.top-action-buttons .qa-level-options{
+  width:100%;
+  max-width:none;
+}
+
+.top-action-buttons .board-game-header-button{
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:center;
+  gap:4px;
+  text-align:left;
+}
+
+.top-action-buttons .board-game-header-button-label,
+.top-action-buttons .board-game-header-button-subtitle{
+  display:block;
+  width:100%;
+}
+
+.top-action-buttons .board-game-header-button-label{
+  font-size:.88rem;
+  font-weight:800;
+}
+
+.top-action-buttons .board-game-header-button-subtitle{
+  font-size:.72rem;
+  line-height:1.25;
+  color:rgba(255,247,214,.85);
+}
+
+@media (max-width:700px){
+  .top-action-buttons{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+    gap:10px;
+  }
+
+  .top-action-buttons--board{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+
+  .top-action-button,
+  .top-action-buttons .top-action-button,
+  .top-action-buttons .learning-level-btn,
+  .top-action-buttons .learning-utility-btn,
+  .top-action-buttons .filter-btn,
+  .top-action-buttons .sentence-game-difficulty-toggle,
+  .top-action-buttons .board-game-header-button{
+    min-height:60px;
+    padding:10px 12px;
+    font-size:12px;
+  }
+}
+
 /* Shared cards, headers, chips, and home/learning controls */
 .adventure-companion-panel{
   margin:12px 0;
@@ -2116,7 +2261,6 @@ button > *,
 .sentences-level-option,
 .board-game-world-option,
 .board-game-difficulty-option,
-.learning-utility-btn,
 .board-game-option-btn,
 .stats-reward-tab,
 .stats-period-btn{
@@ -2204,4 +2348,17 @@ button > *,
   .home-modes-panel{
     max-height:min(62vh, calc(var(--app-viewport-height) - 120px));
   }
+}
+
+.start-level-picker,
+.sentences-level-picker,
+.sentence-game-difficulty-wrap,
+.qa-level-picker{
+  width:100%;
+}
+
+.top-action-buttons .learning-level-btn,
+.top-action-buttons .top-action-button{
+  background: linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);
+  color:#f8fffb;
 }
