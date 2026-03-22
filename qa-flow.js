@@ -3,8 +3,24 @@ import { openModal, closeModal } from "./modal.js";
 import { QA_LONG_EXPLANATION_TEXT, formatQaBuiltLine, getQaContentSet, getQaWordBankTokens, qaRoundPoolForLevel, qaShuffle } from "./qa-game.js";
 import { setHidden, toggleClass } from "./ui.js";
 
+const QA_REVIEW_BATCH_LIMIT = 3;
+
 function qaLevelLabel(levelKey) {
   return levelKey === DIFFICULTY_LEVELS.INTERMEDIATE ? "Дунд" : levelKey === DIFFICULTY_LEVELS.ADVANCED ? "Дээд" : "Анхан";
+}
+
+function buildQaReviewOptions(round = {}) {
+  const questionTokens = String(round.enQuestion || "").split(" ").filter(Boolean);
+  const answerTokens = String(round.enAnswer || "").split(" ").filter(Boolean);
+  return [...questionTokens, ...answerTokens];
+}
+
+function cloneQaRound(round = {}, overrides = {}) {
+  return {
+    ...round,
+    wordBankTokens: Array.isArray(round.wordBankTokens) ? round.wordBankTokens.slice() : buildQaReviewOptions(round),
+    ...overrides,
+  };
 }
 
 export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
@@ -21,6 +37,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaUnlockedRewards: Number.isFinite(state.qaUnlockedRewards) ? state.qaUnlockedRewards : 0,
     qaTimerStartedAt: state.qaTimerStartedAt ?? null,
     qaToastTimer: null,
+    surfacedSavedReviewCount: 0,
+    queuedReviewKeysByRound: new Set(),
   };
 
   const {
@@ -52,6 +70,9 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     updateQaTimerUi,
     renderQaRewards,
     showWorldFeedbackChip,
+    getCoreState = () => ({}),
+    queueLessonReviewItem = () => null,
+    resolveLessonReviewItem = () => [],
   } = actions;
 
   function getState() {
@@ -61,6 +82,68 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   function getQaCurrentRound() {
     const pool = runtimeState.qaRoundPool;
     return pool[runtimeState.qaRoundIndex % pool.length];
+  }
+
+  function buildSavedReviewRounds(levelKey, contentSetId) {
+    const selection = getActiveLearningSelection() || {};
+    const chapterId = selection.chapter?.id || "";
+    const worldId = selection.worldId || getCoreState()?.selectedWorldId || "";
+    return (getCoreState()?.reviewQueue || [])
+      .filter((item) => (
+        item.itemType === "qa"
+        && item.level === levelKey
+        && item.worldId === worldId
+        && (!chapterId || item.chapterId === chapterId)
+      ))
+      .slice(0, QA_REVIEW_BATCH_LIMIT)
+      .map((item) => cloneQaRound({
+        id: item.roundId || item.key,
+        mnQuestion: item.questionMn,
+        mnAnswer: item.correctAnswerMn,
+        enQuestion: item.questionText,
+        enAnswer: item.correctAnswer,
+        wordBankTokens: Array.isArray(item.options) && item.options.length ? item.options.slice() : buildQaReviewOptions({
+          enQuestion: item.questionText,
+          enAnswer: item.correctAnswer,
+        }),
+      }, {
+        source: "saved-review",
+        reviewKey: item.key,
+        reviewItemType: item.itemType,
+        qaSetId: item.qaSetId || contentSetId,
+        roundId: item.roundId || item.key,
+        level: item.level || levelKey,
+        worldId: item.worldId || worldId,
+        chapterId: item.chapterId || chapterId,
+      }));
+  }
+
+  function queueCurrentQaRoundForReview(round, reason = "wrong-answer") {
+    if (!round) return null;
+    const reviewIdentity = round.reviewKey || round.roundId || round.id || `${round.enQuestion}::${round.enAnswer}`;
+    if (runtimeState.queuedReviewKeysByRound.has(reviewIdentity)) return round.reviewKey || null;
+
+    const selection = getActiveLearningSelection() || {};
+    const queuedReviewItem = queueLessonReviewItem({
+      itemType: "qa",
+      worldId: round.worldId || selection.worldId || getCoreState()?.selectedWorldId || "",
+      chapterId: round.chapterId || selection.chapter?.id || "",
+      level: round.level || runtimeState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER,
+      qaSetId: round.qaSetId || runtimeState.qaContentSetId || selection.qaSetId || "",
+      roundId: round.roundId || round.id || "",
+      questionText: round.enQuestion || "",
+      questionMn: round.mnQuestion || "",
+      correctAnswer: round.enAnswer || "",
+      correctAnswerMn: round.mnAnswer || "",
+      options: Array.isArray(round.wordBankTokens) && round.wordBankTokens.length ? round.wordBankTokens.slice() : buildQaReviewOptions(round),
+      optionMnMap: { reason },
+    });
+
+    if (queuedReviewItem?.key) {
+      round.reviewKey = queuedReviewItem.key;
+      runtimeState.queuedReviewKeysByRound.add(reviewIdentity);
+    }
+    return queuedReviewItem;
   }
 
   function showQaToast(message) {
@@ -186,11 +269,13 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     if (!runtimeState.qaQuestionSolved) {
       if (questionTokens.length !== targetQuestion.length) {
         qaFeedbackEl.textContent = "Асуултын үгийн тоо дутуу/илүү байна.";
+        queueCurrentQaRoundForReview(round, "question-length");
         return;
       }
       const isQuestionCorrect = questionTokens.every((token, idx) => token === targetQuestion[idx]);
       if (!isQuestionCorrect) {
         qaFeedbackEl.textContent = "Асуулт буруу байна. Дахин оролдоорой.";
+        queueCurrentQaRoundForReview(round, "question-order");
         return;
       }
       runtimeState.qaQuestionSolved = true;
@@ -201,14 +286,17 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
     if (answerTokens.length !== targetAnswer.length) {
       qaFeedbackEl.textContent = "Хариултын үгийн тоо дутуу/илүү байна.";
+      queueCurrentQaRoundForReview(round, "answer-length");
       return;
     }
     const isAnswerCorrect = answerTokens.every((token, idx) => token === targetAnswer[idx]);
     if (!isAnswerCorrect) {
       qaFeedbackEl.textContent = "Хариулт буруу байна. Дахин оролдоорой.";
+      queueCurrentQaRoundForReview(round, "answer-order");
       return;
     }
 
+    if (round.reviewKey) resolveLessonReviewItem(round.reviewKey);
     qaFeedbackEl.textContent = "🎉 Баяр хүргэе! Дараагийн тойрог...";
     runtimeState.qaRoundIndex = (runtimeState.qaRoundIndex + 1) % runtimeState.qaRoundPool.length;
     setupQaRound();
@@ -234,14 +322,30 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function selectQaLevel(levelKey) {
-    const nextContentSetId = getActiveLearningSelection().qaSetId || runtimeState.qaContentSetId;
+    const selection = getActiveLearningSelection() || {};
+    const nextContentSetId = selection.qaSetId || runtimeState.qaContentSetId;
+    const regularRounds = qaRoundPoolForLevel(levelKey, nextContentSetId).map((round) => cloneQaRound(round, {
+      source: "qa",
+      qaSetId: nextContentSetId,
+      roundId: round.id,
+      level: levelKey,
+      worldId: selection.worldId || getCoreState()?.selectedWorldId || "",
+      chapterId: selection.chapter?.id || "",
+    }));
+    const savedReviewRounds = buildSavedReviewRounds(levelKey, nextContentSetId);
+
     runtimeState.qaGameLevel = levelKey;
     runtimeState.qaContentSetId = nextContentSetId;
-    runtimeState.qaRoundPool = qaRoundPoolForLevel(levelKey, nextContentSetId);
+    runtimeState.qaRoundPool = [...savedReviewRounds, ...regularRounds];
     runtimeState.qaRoundIndex = 0;
+    runtimeState.surfacedSavedReviewCount = savedReviewRounds.length;
+    runtimeState.queuedReviewKeysByRound = new Set();
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
+    if (savedReviewRounds.length) {
+      showWorldFeedbackChip(`🔁 QA review: ${savedReviewRounds.length} алдсан тойрог эхэнд орлоо.`, "reward");
+    }
     setupQaRound();
     startQaTimer();
   }
@@ -254,6 +358,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     runtimeState.qaElapsedSeconds = 0;
     runtimeState.qaUnlockedRewards = 0;
     runtimeState.qaTimerStartedAt = null;
+    runtimeState.surfacedSavedReviewCount = 0;
+    runtimeState.queuedReviewKeysByRound = new Set();
   }
 
   function resetQaGameScreen() {
@@ -280,14 +386,19 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
   function loadRound(round) {
     runtimeState.qaGameLevel = DIFFICULTY_LEVELS.INTERMEDIATE;
-    runtimeState.qaRoundPool = [round];
+    runtimeState.qaRoundPool = [cloneQaRound(round, {
+      source: round?.source || "saved-review",
+      reviewKey: round?.reviewKey || null,
+      reviewItemType: round?.reviewItemType || "qa",
+      level: round?.level || DIFFICULTY_LEVELS.INTERMEDIATE,
+      roundId: round?.roundId || round?.id || null,
+      qaSetId: round?.qaSetId || runtimeState.qaContentSetId,
+    })];
     runtimeState.qaRoundIndex = 0;
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
-    const questionTokens = round.enQuestion.split(" ").filter(Boolean);
-    const answerTokens = round.enAnswer.split(" ").filter(Boolean);
-    setupQaRound({ round, wordBankTokens: [...questionTokens, ...answerTokens] });
+    setupQaRound({ round: runtimeState.qaRoundPool[0], wordBankTokens: buildQaReviewOptions(round) });
     startQaTimer();
   }
 
