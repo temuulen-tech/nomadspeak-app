@@ -85,6 +85,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     return pool[runtimeState.qaRoundIndex % pool.length];
   }
 
+  // TODO(source-map): QA uses a bespoke runtime wrapper for status/reward cleanup. Preserve this behavior via explicit adapter hooks before adopting any shared header/status renderer.
   function normalizeQaStatusUi() {
     const qaScreenEl = qaRoundPanelEl?.closest("#qa-game-screen") || document.getElementById("qa-game-screen");
     if (!qaScreenEl) return;

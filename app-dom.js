@@ -136,6 +136,7 @@ const qa = {
   saveBtn: byId("qa-save-btn"),
 };
 
+// TODO(source-map): Promote these per-screen status selectors into a shared status-bar config when lesson/sentences/sentence-game/QA converge on one renderer.
 const gameStatus = {
   sentencesLevelEl: byId("sentences-status-level"),
   sentencesScoreEl: byId("sentences-status-score"),
@@ -241,6 +242,7 @@ const vault = {
   learnedBtn: byId("vault-learned-btn"),
 };
 
+// TODO(source-map): Reward DOM ownership is split across static strips and screen-specific runtimes; centralize via render-rewards mode config before refactoring markup.
 const rewards = {
   levelImageEls: queryAll(".reward-img[data-level]"),
   sentenceGameRewardImageEls: queryAll("#sentence-game-reward-row .reward-img"),
