@@ -4,6 +4,12 @@
  */
 
 export const APP_SOURCE_MAP = {
+  assetRegistry: {
+    primaryRegistryFile: "assets.js",
+    planningRegistryFile: "asset-registry.js",
+    purpose: "Keep runtime asset ids in assets.js and track usage/duplication cleanup in asset-registry.js before broader migration work.",
+    nextMigrationFocus: "rewardArt",
+  },
   screens: {
     home: {
       id: "start-screen",

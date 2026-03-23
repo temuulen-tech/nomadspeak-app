@@ -365,6 +365,7 @@ body[data-active-screen="board-game"] .app{
 }
 
 .board-game-scene-backdrop::before{
+  /* TODO(asset-registry): Keep this CSS fallback aligned with assets.js / asset-registry.js until board backgrounds are fully hydrated from registry-owned values. */
   background-image:var(--board-world-bg-image, url("assets/visuals/worlds/sailors/backgrounds/world-bg-sailors-ship-deck-placeholder.svg"));
   background-repeat:no-repeat;
   background-size:cover;
