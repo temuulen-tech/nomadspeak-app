@@ -7,6 +7,7 @@
 import { BOARD_WORLD_CHAPTERS } from "./chapters.js";
 import { SCREEN_NAMES, STORAGE_KEYS } from "./constants.js";
 import { loadString, persistDebugModeSetting } from "./storage.js";
+import { attachValidationDebugHelpers } from "./ui-validation.js";
 
 const DEBUG_QUERY_PARAM = "debug";
 const DEBUG_ON_VALUES = new Set(["1", "true", "on", "yes", "dev"]);
@@ -105,6 +106,7 @@ export function initDebugTools(config = {}) {
   if (!isDebugModeEnabled()) return null;
 
   persistDebugMode(true);
+  attachValidationDebugHelpers(window);
 
   const root = document.createElement("div");
   root.className = "debug-panel-root";
