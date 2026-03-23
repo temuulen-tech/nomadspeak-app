@@ -33,6 +33,23 @@ test("ui validation snapshot keeps placement and duplicate hotspot references co
   assert.deepEqual(snapshot.placementOwners, APP_PLACEMENT_SYSTEM.placements);
   assert.equal(snapshot.duplicateRiskHotspots.length, APP_SOURCE_MAP.riskyDuplicateAreas.length);
   assert.ok(snapshot.riskyLegacyWrappers.some((entry) => entry.selector === "#qa-runtime-status-bar"));
+  assert.ok(snapshot.validationTargets.topActionButtons);
+});
+
+test("validation helpers expose targeted owner/render/checklist guidance for future UI work", () => {
+  const topActions = validation.getSharedUiOwnerHint("topActionButtons");
+  const statusChecklist = validation.getValidationChecklist("statusBar");
+  const qaChecklist = validation.getValidationChecklist("qaRuntimeWrappers");
+  const sentenceGameAdvice = validation.getActiveScreenRenderPath("sentence-game-screen");
+  const titleAdvice = validation.getRenderSourceAdvice("titleTimeChipArea");
+
+  assert.equal(topActions?.label, APP_SOURCE_MAP.sharedUiBlocks.topActionButtons.label);
+  assert.equal(topActions?.intendedPlacement?.order, APP_PLACEMENT_SYSTEM.placements.topActionButtons.correctRelativeOrder);
+  assert.ok(topActions?.intendedPlacement?.forbiddenContainers.includes(".question-text-wrap"));
+  assert.equal(statusChecklist?.validationArea, "placementConsistencyValidation");
+  assert.equal(qaChecklist?.label, "QA-specific runtime wrappers");
+  assert.equal(sentenceGameAdvice?.screenId, "sentence-game-screen");
+  assert.equal(titleAdvice?.type, "shared-ui-block");
 });
 
 test("repeated asset path report catches shared placeholder/path duplication hotspots", () => {
