@@ -199,6 +199,7 @@
         <p class="lesson-flow-copy muted" id="lesson-flow-copy">Асуултаа уншаад зөв хариултаа сонгоно уу.</p>
         <p class="lesson-reward-copy chip-label" id="lesson-reward-copy">Энэ хичээлд 5 алхмаар шагнал нээгдэнэ.</p>
       </section>
+      <!-- TODO(placement-system): Keep the lesson reward shell as a direct .learning-screen-shell child. Do not move it into header/status wrappers during shared UI migration. -->
       <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Хичээлийн шагнал нээгдэх явц">
           <article class="reward-tile learning-progress-item" data-level="1">
@@ -601,6 +602,7 @@
         </div>
 
         <!-- TODO(source-map): Reward/time-reward UI and QA runtime status should converge on shared render helpers instead of screen-specific hardcoded markup. -->
+        <!-- TODO(placement-system): QA status stays standalone below .qa-game-header; future reward/media blocks need adapter-owned containers outside this runtime shell. -->
         <div class="qa-runtime-status-bar" id="qa-runtime-status-bar" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
           <span class="qa-runtime-status-text">Түвшин: <span id="qa-status-level">Анхан</span></span>
           <span class="qa-runtime-status-text">Оноо: <span id="qa-status-score">0</span></span>

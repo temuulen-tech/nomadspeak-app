@@ -233,3 +233,242 @@ export const APP_SOURCE_MAP = {
     },
   ],
 };
+
+export const APP_PLACEMENT_SYSTEM = {
+  version: "phase-55-placement-foundation",
+  purpose: "Placement ownership map for repeated learning-screen UI blocks and future asset-bearing surfaces.",
+  guardrails: [
+    "Do not change Home screen layout or appearance while applying this map.",
+    "Use this map to decide parent containers/order before migrating shared UI fragments.",
+    "Prefer config and documentation updates over runtime refactors in this phase.",
+  ],
+  canonicalContainers: {
+    learningScreenShell: {
+      selector: ".learning-screen-shell",
+      role: "Top-level owner for lesson, sentences, sentence game, and QA screen block ordering.",
+    },
+    learningHeader: {
+      selector: ".learning-layout-header",
+      role: "Owns top action buttons and any title/time chip row before status/reward content.",
+    },
+    learningStatusShell: {
+      selector: ".learning-status-shell, #qa-runtime-status-bar",
+      role: "Owns score/progress/timer state blocks directly below header/title rows.",
+    },
+    contentBody: {
+      selector: "screen-specific content wrapper",
+      role: "Owns lesson flow, QA round content, sentence lists, or sentence-builder runtime content.",
+    },
+  },
+  orderRules: {
+    learningScreensDefault: [
+      "topActionButtons",
+      "titleTimeChipArea",
+      "statusBar",
+      "rewardPanel",
+      "audioControlPanel",
+      "lessonFlowPanel",
+      "qaContentPanel",
+      "sentenceQuizContentList",
+      "futureMediaStage",
+    ],
+    lessonAndSentencePattern: [
+      "topActionButtons -> titleTimeChipArea -> statusBar -> rewardPanel -> screen-specific control/content blocks",
+      "Reward should stay above the question/list content area unless a mode-specific adapter explicitly owns an inline banner.",
+    ],
+    qaPattern: [
+      "topActionButtons -> qa status shell -> qa round panel content",
+      "QA should not receive lesson/sentences reward wrappers inside #qa-runtime-status-bar without an adapter because qa-flow.js removes legacy progress-like nodes.",
+    ],
+    sentenceGamePattern: [
+      "topActionButtons -> titleTimeChipArea -> statusBar -> reward banner/row adapters -> tip/audio panel -> builder content/actions",
+      "Sentence-game reward banner can stay separate, but its ownership should still resolve through the shared reward placement entry.",
+    ],
+  },
+  placements: {
+    topActionButtons: {
+      blockName: "Top action buttons",
+      intendedScreens: ["lesson", "sentences", "sentenceGame", "qaGame"],
+      correctParentContainer: ".learning-layout-header > .top-action-buttons",
+      correctRelativeOrder: 1,
+      forbiddenOrLegacyContainers: [".question-text-wrap", ".qa-round-panel", ".sentences-list", "#screen-shell-aux"],
+      currentRuntimeSources: [
+        "index.html -> #quiz-screen .top-action-buttons",
+        "index.html -> #sentences-screen .top-action-buttons",
+        "index.html -> #sentence-game-screen .top-action-buttons",
+        "index.html -> #qa-game-screen .top-action-buttons",
+        "render-shell.js -> shell-only utility variants",
+      ],
+      riskNotes: [
+        "Highest duplication area; labels/order drift easily across learning screens.",
+        "Should migrate before status/reward so a single header contract exists.",
+      ],
+    },
+    titleTimeChipArea: {
+      blockName: "Title/time chip area",
+      intendedScreens: ["lesson", "sentences", "sentenceGame"],
+      correctParentContainer: ".learning-layout-header > .learning-header-row",
+      correctRelativeOrder: 2,
+      forbiddenOrLegacyContainers: ["#qa-runtime-status-bar", ".qa-round-panel", ".sentence-game-tip-panel"],
+      currentRuntimeSources: [
+        "index.html -> #quiz-screen .learning-header-row",
+        "index.html -> #sentences-screen .learning-header-row",
+        "index.html -> #sentence-game-screen .learning-header-row",
+        "render-shell.js -> end/profile partial time widgets",
+      ],
+      riskNotes: [
+        "QA currently has no equivalent title/time chip row, so parity should come through an adapter later.",
+      ],
+    },
+    statusBar: {
+      blockName: "Status bar",
+      intendedScreens: ["lesson", "sentences", "sentenceGame", "qaGame"],
+      correctParentContainer: "lesson/sentences/sentenceGame: .learning-layout-header + .learning-status-shell; QA: #qa-runtime-status-bar directly below .qa-game-header",
+      correctRelativeOrder: 3,
+      forbiddenOrLegacyContainers: [".lesson-flow-panel", ".qa-round-panel .qa-learning-tools", ".sentences-top-controls"],
+      currentRuntimeSources: [
+        "index.html -> #topbar .game-status-bar[data-game-status='lesson']",
+        "index.html -> #sentences-screen .game-status-bar[data-game-status='sentences']",
+        "index.html -> #sentence-game-screen .game-status-bar[data-game-status='sentence-game']",
+        "index.html -> #qa-runtime-status-bar",
+        "qa-flow.js -> normalizeQaStatusUi() cleanup adapter",
+      ],
+      riskNotes: [
+        "Status bar placement drift is already present because QA uses a separate shell and cleanup rules.",
+        "Do not insert reward/progress tracks into the QA status shell until qa-flow.js adapter rules are formalized.",
+      ],
+    },
+    rewardPanel: {
+      blockName: "Reward panel / reward strip",
+      intendedScreens: ["lesson", "sentences", "sentenceGame", "qaGame", "stats", "profile"],
+      correctParentContainer: "lesson/sentences/sentenceGame: direct child of .learning-screen-shell after status/header blocks; QA: adapter-owned runtime container outside #qa-runtime-status-bar; stats/profile: shell-owned reward containers",
+      correctRelativeOrder: 4,
+      forbiddenOrLegacyContainers: ["#qa-runtime-status-bar", ".learning-master-top", ".qa-learning-tools", ".question-row"],
+      currentRuntimeSources: [
+        "index.html -> #lesson-reward-bar",
+        "index.html -> #sentences-reward-strip",
+        "index.html -> #sentence-game-reward-row + #sentence-game-reward-banner",
+        "script.js -> qa reward bindings via qaRewardBarEl / qaRewardImageEls",
+        "render-rewards.js -> shared reward rendering helpers",
+        "sentence-game-reward-manager.js -> sentence-game reward adapter",
+      ],
+      riskNotes: [
+        "Reward block placement is inconsistent today across static strips, banners, and QA runtime bindings.",
+        "Most likely to break when assets or animation hooks arrive unless placement ownership is unified first.",
+      ],
+    },
+    audioControlPanel: {
+      blockName: "Audio/control panel",
+      intendedScreens: ["sentences", "sentenceGame", "qaGame"],
+      correctParentContainer: "sentences: .learning-screen-shell > .sentences-top-controls; sentenceGame: #sentence-game-tip-panel; QA: .qa-round-content > .qa-learning-tools",
+      correctRelativeOrder: 5,
+      forbiddenOrLegacyContainers: [".learning-layout-header", "#qa-runtime-status-bar", ".learning-header-row"],
+      currentRuntimeSources: [
+        "index.html -> .sentences-top-controls",
+        "index.html -> #sentence-game-tip-panel",
+        "index.html -> .qa-learning-tools",
+        "audio-wiring.js / sentence-game-wiring.js / qa-wiring.js -> runtime control ownership",
+      ],
+      riskNotes: [
+        "Duplicated per-screen control containers exist today; do not merge them blindly because their action inventories differ.",
+      ],
+    },
+    lessonFlowPanel: {
+      blockName: "Lesson flow panel",
+      intendedScreens: ["lesson"],
+      correctParentContainer: "#quiz-screen > .learning-screen-shell",
+      correctRelativeOrder: 5,
+      forbiddenOrLegacyContainers: [".learning-layout-header", ".question-row", "#screen-shell-aux"],
+      currentRuntimeSources: [
+        "index.html -> .lesson-flow-panel",
+        "render-lesson.js -> answer-state messaging",
+        "lesson-flow.js -> canonical lesson flow owner",
+      ],
+      riskNotes: [
+        "Keep lesson-flow.js as the owner; do not force QA or sentence-game wrappers into this panel shape yet.",
+      ],
+    },
+    qaContentPanel: {
+      blockName: "QA-specific content panel",
+      intendedScreens: ["qaGame"],
+      correctParentContainer: "#qa-game-screen > .learning-screen-shell > .qa-round-panel",
+      correctRelativeOrder: 5,
+      forbiddenOrLegacyContainers: [".learning-layout-header", "#qa-runtime-status-bar", "#screen-shell-aux"],
+      currentRuntimeSources: [
+        "index.html -> #qa-round-panel",
+        "qa-flow.js -> setupQaRound()/renderQaBuilder()",
+        "qa-wiring.js -> QA controls/runtime hookup",
+      ],
+      riskNotes: [
+        "QA runtime wrappers are the highest-risk placement problem because normalization currently removes legacy progress/reward shells.",
+      ],
+    },
+    sentenceQuizContentList: {
+      blockName: "Sentence/quiz content list area",
+      intendedScreens: ["lesson", "sentences", "sentenceGame"],
+      correctParentContainer: "screen-specific body container after header/status/reward/support blocks",
+      correctRelativeOrder: 6,
+      forbiddenOrLegacyContainers: [".learning-master-top", ".learning-header-row", "#qa-runtime-status-bar"],
+      currentRuntimeSources: [
+        "index.html -> #quiz-screen .question-text-wrap",
+        "index.html -> #sentences-screen #sentences-list",
+        "index.html -> #sentence-game-screen #sentence-game-dropzone + #sentence-game-pool + actions",
+      ],
+      riskNotes: [
+        "Content should remain below reward/control blocks so future placement migrations do not interleave feedback UI with active tasks.",
+      ],
+    },
+    futureMediaStage: {
+      blockName: "Future image/art/animation blocks",
+      intendedScreens: ["lesson", "sentences", "sentenceGame", "qaGame", "boardEntry", "board"],
+      correctParentContainer: "Dedicated media-stage child inside the screen-specific content body, never injected into top action/status wrappers",
+      correctRelativeOrder: 7,
+      forbiddenOrLegacyContainers: [".top-action-buttons", ".learning-header-row", "#qa-runtime-status-bar", ".reward-row", ".sentences-top-controls"],
+      currentRuntimeSources: [
+        "assets.js -> future asset ids",
+        "asset-registry.js -> migration planning for asset-bearing UI",
+        "index.html -> current reward images are the closest existing asset-bearing reference surface",
+      ],
+      riskNotes: [
+        "Future image/animation placement risk is high because no canonical media-stage container exists yet.",
+        "Create per-screen media-stage slots before adding images or animation blocks to avoid ad hoc wrapper insertion.",
+      ],
+    },
+  },
+  highestRiskHotspots: [
+    {
+      area: "QA runtime wrappers",
+      why: "normalizeQaStatusUi() actively removes progress/reward-like nodes, so shared fragment insertion can silently disappear or break order.",
+      migrationAdvice: "Define a QA adapter contract before moving shared status/reward renderers into QA.",
+    },
+    {
+      area: "Reward block placement",
+      why: "Lesson/sentences use static reward strips, sentence-game uses a banner + manager, and QA relies on runtime bindings without one stable parent container.",
+      migrationAdvice: "Introduce a reward placement registry before changing DOM structure.",
+    },
+    {
+      area: "Status bar placement drift",
+      why: "Lesson/sentences/sentence-game keep status inside header-adjacent shells while QA uses a standalone runtime bar.",
+      migrationAdvice: "Unify parent-container rules first, then extract rendering.",
+    },
+    {
+      area: "Duplicated per-screen control containers",
+      why: "Sentences, sentence-game, and QA all own their own support-control wrappers with similar intent but different structure.",
+      migrationAdvice: "Keep per-screen adapters while migrating only placement ownership first.",
+    },
+    {
+      area: "Future image/animation placement",
+      why: "Without a media-stage slot, future art and animation blocks are likely to be inserted into reward/header/control wrappers opportunistically.",
+      migrationAdvice: "Reserve media-stage ownership in the source map before new assets land.",
+    },
+  ],
+  recommendedFirstMigration: {
+    block: "topActionButtons",
+    why: [
+      "Most repeated shared block across learning screens.",
+      "Lowest-risk first extraction because it does not require changing reward or QA cleanup logic.",
+      "Creates the anchor order contract for the rest of the placement system.",
+    ],
+  },
+};
+
