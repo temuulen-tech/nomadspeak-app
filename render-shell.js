@@ -8,6 +8,7 @@ const SHELL_TARGETS = [
     id: "screen-shell-aux",
     html: `
       <!-- Extracted screen shells: stats, profile, and end screens. -->
+      <!-- TODO(source-map): Stats/profile/end already repeat smaller exit/time/sound utility subsets. Reuse the future shared top-action fragment here without forcing the full learning-screen header. -->
       <section class="card hidden stats-screen-shell" id="stats-screen">
         <div class="play-exit-row"><button class="primary play-exit-btn game-exit-btn" type="button">Тоглоомоос гарах</button></div>
         <div class="stats-screen-intro">
