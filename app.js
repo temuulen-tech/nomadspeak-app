@@ -4,6 +4,7 @@
  */
 
 import { mountAppShell } from "./render-shell.js";
+import { mountLearningTopActions } from "./shared-ui/learning-top-actions.js";
 import { applyStandardizedButtonLabels } from "./standardized-labels.js";
 
 function updateViewportHeightVars() {
@@ -22,6 +23,7 @@ function updateViewportHeightVars() {
 async function bootstrapApp() {
   document.documentElement.dataset.appBoot = "mounting";
   mountAppShell();
+  mountLearningTopActions();
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
 

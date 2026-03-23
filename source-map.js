@@ -88,12 +88,12 @@ export const APP_SOURCE_MAP = {
         "render-shell.js -> #profile-screen .panel-header",
         "render-shell.js -> #end-screen .panel-header",
       ],
-      currentFiles: ["index.html", "render-shell.js", "standardized-labels.js", "app-dom.js"],
+      currentFiles: ["index.html", "shared-ui/learning-top-actions.js", "render-shell.js", "standardized-labels.js", "app-dom.js"],
       duplicationStatus: "duplicated",
-      recommendedSourceOfTruth: "shared-ui/learning-top-actions.js or a render-shell fragment factory used by index.html + shell-mounted screens",
+      recommendedSourceOfTruth: "shared-ui/learning-top-actions.js",
       riskNotes: [
         "Highest-risk duplicate: exit/time/vault/save/sound controls drift across lesson, sentences, sentence game, QA, and shell screens.",
-        "Standardized labels already exist in standardized-labels.js, which makes this the safest first extraction target.",
+        "Standardized labels already exist in standardized-labels.js, which keeps the shared top-action renderer lightweight.",
       ],
     },
     statusBar: {
