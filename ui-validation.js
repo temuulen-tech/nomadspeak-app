@@ -42,32 +42,232 @@ function buildRepeatedAssetPathGroups() {
     .sort((a, b) => b.entries.length - a.entries.length || a.path.localeCompare(b.path));
 }
 
+const LEGACY_WRAPPER_KEYS = {
+  QA_RUNTIME_STATUS_BAR: "qa-runtime-status-bar",
+  LEARNING_MASTER_TOP: "learning-master-top",
+  SCREEN_SHELL_AUX: "screen-shell-aux",
+  QA_STATUS_PROGRESS_TRACK: "qa-status-progress-track",
+};
+
 const RISKY_LEGACY_WRAPPERS = [
   {
-    key: "qa-runtime-status-bar",
+    key: LEGACY_WRAPPER_KEYS.QA_RUNTIME_STATUS_BAR,
     selector: "#qa-runtime-status-bar",
     phaseOutReason: "QA status/reward cleanup is bespoke and can hide shared fragments inserted into the wrong wrapper.",
     replacementDirection: "Use a QA adapter contract backed by APP_PLACEMENT_SYSTEM.placements.statusBar/rewardPanel before sharing renderers.",
   },
   {
-    key: "learning-master-top",
+    key: LEGACY_WRAPPER_KEYS.LEARNING_MASTER_TOP,
     selector: ".learning-master-top",
     phaseOutReason: "Reward and status ownership drift when new shared blocks are dropped here ad hoc.",
     replacementDirection: "Route shared blocks through learning header + status + reward placement entries instead of umbrella wrappers.",
   },
   {
-    key: "screen-shell-aux",
+    key: LEGACY_WRAPPER_KEYS.SCREEN_SHELL_AUX,
     selector: "#screen-shell-aux",
     phaseOutReason: "Shell screens reuse utility subsets that can drift away from learning-screen top actions.",
     replacementDirection: "Adopt a shared top-action fragment subset instead of expanding shell-local variants.",
   },
   {
-    key: "qa-status-progress-track",
+    key: LEGACY_WRAPPER_KEYS.QA_STATUS_PROGRESS_TRACK,
     selector: ".qa-status-progress-track, .qa-status-track",
     phaseOutReason: "Legacy progress-like wrappers are explicitly removed during QA runtime normalization.",
     replacementDirection: "Keep progress/status ownership in the status-bar adapter rather than bespoke nested tracks.",
   },
 ];
+
+const FOCUS_BLOCK_VALIDATIONS = {
+  topActionButtons: {
+    blockKey: "topActionButtons",
+    label: "Top action buttons",
+    validationArea: "sharedUiUsageValidation",
+    whatShouldBeTrue: [
+      "The active screen uses the documented top-action owner instead of adding new button rows in local screen markup.",
+      "Exit/time/vault/save/sound actions stay aligned with the shared top-actions direction from APP_SOURCE_MAP.",
+    ],
+    whatUsuallyGoesWrong: [
+      "A single screen gets an extra wrapper or button order change and becomes the accidental source of truth.",
+      "Shell screens and learning screens drift on labels, aria copy, or control grouping.",
+    ],
+    whereRiskCurrentlyExists: [
+      "index.html learning-screen headers for lesson, sentences, sentence game, and QA.",
+      "render-shell.js utility/header rows for stats/profile/end variants.",
+    ],
+    quickVerify: [
+      "Check APP_SOURCE_MAP.sharedUiBlocks.topActionButtons.currentRenderPaths before editing any top-row buttons.",
+      "Confirm whether the change belongs in the shared fragment direction or only a screen adapter.",
+    ],
+  },
+  statusBar: {
+    blockKey: "statusBar",
+    label: "Status bar",
+    validationArea: "placementConsistencyValidation",
+    whatShouldBeTrue: [
+      "Lesson/sentences/sentence-game status stays in .learning-status-shell, while QA status stays in #qa-runtime-status-bar.",
+      "Status wrappers own status only; reward, media, and helper controls remain outside unless an adapter documents otherwise.",
+    ],
+    whatUsuallyGoesWrong: [
+      "Progress/reward nodes get dropped into a status container because it is nearby in the DOM.",
+      "QA receives the lesson status shell structure without preserving runtime cleanup rules.",
+    ],
+    whereRiskCurrentlyExists: [
+      "index.html duplicated status shells across learning screens.",
+      "qa-flow.js normalizeQaStatusUi() cleanup logic and app-dom.js selector ownership.",
+    ],
+    quickVerify: [
+      "Compare APP_PLACEMENT_SYSTEM.placements.statusBar parent/forbidden containers before changing status DOM.",
+      "Review qa-flow.js adapter expectations if the change touches #qa-runtime-status-bar.",
+    ],
+  },
+  rewardPanel: {
+    blockKey: "rewardPanel",
+    label: "Reward panel / time-reward area",
+    validationArea: "assetReferenceValidation",
+    whatShouldBeTrue: [
+      "Reward strips/banners use the shared reward rendering direction and preserve per-mode adapters.",
+      "Reward imagery references a registry-backed asset source instead of introducing new raw duplicate paths.",
+    ],
+    whatUsuallyGoesWrong: [
+      "Developers change one reward strip but forget stats/profile or sentence-game banner ownership.",
+      "New reward images are copied as raw HTML paths instead of using assets.js-backed ids.",
+    ],
+    whereRiskCurrentlyExists: [
+      "index.html lesson/sentences static reward markup.",
+      "sentence-game-reward-manager.js, progress-ui.js, render-rewards.js, and script.js QA reward bindings.",
+    ],
+    quickVerify: [
+      "Run getRepeatedAssetPathReport() and inspect reward-icons duplicate groups before adding reward imagery.",
+      "Check APP_SOURCE_MAP.sharedUiBlocks.rewardPanel.currentFiles to see every runtime owner involved.",
+    ],
+  },
+  audioControlPanel: {
+    blockKey: "audioControlPanel",
+    label: "Audio / control panel",
+    validationArea: "sharedUiUsageValidation",
+    whatShouldBeTrue: [
+      "Support controls stay in screen-specific adapter containers while following the shared utility-panel direction.",
+      "Audio/help/tip utilities are not moved into the learning header or status wrappers.",
+    ],
+    whatUsuallyGoesWrong: [
+      "Sentence, sentence-game, and QA controls get treated as interchangeable despite different wrapper contracts.",
+      "Sound or help actions are duplicated into the top-action row without documenting ownership.",
+    ],
+    whereRiskCurrentlyExists: [
+      "index.html .sentences-top-controls, #sentence-game-tip-panel, and .qa-learning-tools.",
+      "audio-wiring.js, sentence-game-wiring.js, and qa-wiring.js.",
+    ],
+    quickVerify: [
+      "Check APP_SOURCE_MAP.sharedUiBlocks.audioControlPanel before moving or reusing support controls.",
+      "Use getValidationChecklist('audioControlPanel') to review allowed vs. risky ownership notes quickly.",
+    ],
+  },
+  titleTimeChipArea: {
+    blockKey: "titleTimeChipArea",
+    label: "Title / time chip area",
+    validationArea: "renderSourceValidation",
+    whatShouldBeTrue: [
+      "Title/time chip rows stay adjacent to the shared learning header contract for lesson, sentences, and sentence game.",
+      "QA and shell screens only adopt this row through adapters, not copy-paste parity.",
+    ],
+    whatUsuallyGoesWrong: [
+      "A time chip change lands only on one learning screen.",
+      "QA is forced into the lesson row structure even though it uses a bespoke runtime header/status relationship.",
+    ],
+    whereRiskCurrentlyExists: [
+      "index.html .learning-header-row blocks and render-shell.js time-widget variants.",
+      "script.js/app-dom.js time updates that assume specific chip selectors.",
+    ],
+    quickVerify: [
+      "Check APP_SOURCE_MAP.sharedUiBlocks.titleTimeChipArea.currentRenderPaths before editing header chips.",
+      "Validate the intended screen owner with getRenderSourceAdvice('titleTimeChipArea').",
+    ],
+  },
+  qaRuntimeWrappers: {
+    label: "QA-specific runtime wrappers",
+    validationArea: "duplicateRiskHotspotReporting",
+    whatShouldBeTrue: [
+      "QA cleanup behavior remains explicit and adapter-owned before any shared fragment reuse.",
+      "Reward/status fragments inserted for QA respect the standalone runtime status shell and round-panel boundaries.",
+    ],
+    whatUsuallyGoesWrong: [
+      "Shared lesson wrappers get copied into QA and later removed by normalization.",
+      "Progress/reward DOM is inserted into #qa-runtime-status-bar, then disappears at runtime.",
+    ],
+    whereRiskCurrentlyExists: [
+      "qa-flow.js normalizeQaStatusUi() and index.html QA header/status markup.",
+      "APP_SOURCE_MAP.riskyDuplicateAreas entry for QA status area and runtime wrappers.",
+    ],
+    quickVerify: [
+      "Review getLegacyWrapperPhaseoutReport() for QA wrapper warnings before changing QA status/reward markup.",
+      "Use getValidationChecklist('qaRuntimeWrappers') before reusing any lesson/sentences fragment in QA.",
+    ],
+  },
+  repeatedAssetPaths: {
+    label: "Repeated asset paths",
+    validationArea: "assetReferenceValidation",
+    whatShouldBeTrue: [
+      "Repeated raw asset paths are tracked and reviewed before new content/UI introduces more duplication.",
+      "Developers can ask the validation layer which registry entry should own a path before adding it.",
+    ],
+    whatUsuallyGoesWrong: [
+      "A path is copied from HTML/CSS because it already works, bypassing assets.js and duplication notes.",
+      "Placeholder paths spread across multiple screens without a cleanup target.",
+    ],
+    whereRiskCurrentlyExists: [
+      "Reward icons, world cover placeholders, and board background fallbacks in asset-registry.js duplicate groups.",
+      "index.html and board-screen.css hardcoded path clusters.",
+    ],
+    quickVerify: [
+      "Run getRepeatedAssetPathReport() and getAssetSourceRecommendation(pathOrKey) before adding an image/audio path.",
+      "Check APP_ASSET_REGISTRY.categories.hardcodedReferences for known duplication hotspots.",
+    ],
+  },
+  riskyLegacyWrappers: {
+    label: "Risky legacy containers / wrappers",
+    validationArea: "placementConsistencyValidation",
+    whatShouldBeTrue: [
+      "Legacy wrappers are treated as migration hotspots, not expansion points for new shared UI.",
+      "Any future cleanup references the documented phase-out direction for each wrapper.",
+    ],
+    whatUsuallyGoesWrong: [
+      "A convenient umbrella wrapper keeps collecting new UI, which deepens future migration cost.",
+      "Developers forget which wrappers are temporary and which are intended long-term owners.",
+    ],
+    whereRiskCurrentlyExists: [
+      ".learning-master-top, #screen-shell-aux, #qa-runtime-status-bar, and legacy QA progress-track wrappers.",
+      "Placement drift around reward/status ownership when these wrappers gain more child UI.",
+    ],
+    quickVerify: [
+      "Run getLegacyWrapperPhaseoutReport() and avoid adding new shared children there unless explicitly documented.",
+      "Use createValidationSnapshot() to review phase-out guidance with duplicate hotspot context.",
+    ],
+  },
+};
+
+function getPlacementEntry(blockKey) {
+  return APP_PLACEMENT_SYSTEM.placements?.[blockKey] || null;
+}
+
+function getSharedUiBlock(blockKey) {
+  return APP_SOURCE_MAP.sharedUiBlocks?.[blockKey] || null;
+}
+
+function createRenderTargetMap() {
+  return Object.fromEntries(
+    Object.entries(APP_SOURCE_MAP.screens || {}).map(([key, screen]) => ([key, {
+      screenId: screen.id,
+      routeKey: screen.routeKey,
+      primaryFiles: screen.primaryFiles.slice(),
+      renderFunctions: screen.renderFunctions.slice(),
+      childAreas: screen.childAreas.slice(),
+    }]))
+  );
+}
+
+function getScreenKeyById(screenId = "") {
+  const normalized = String(screenId || "").trim();
+  return Object.entries(APP_SOURCE_MAP.screens || {}).find(([, screen]) => screen.id === normalized)?.[0] || null;
+}
 
 export const UI_VALIDATION_FOUNDATION = freezeClone({
   version: "phase-56-validation-foundation",
@@ -77,6 +277,7 @@ export const UI_VALIDATION_FOUNDATION = freezeClone({
     sharedUiMap: "docs/shared-ui-map.md",
     assetRegistry: "asset-registry.js",
     placementSystem: "docs/placement-system-map.md",
+    validationPlaybook: "docs/ui-validation-dev-checks.md",
   },
   areas: {
     renderSourceValidation: {
@@ -174,6 +375,7 @@ export const UI_VALIDATION_FOUNDATION = freezeClone({
     audioControlPanel: APP_SOURCE_MAP.sharedUiBlocks.audioControlPanel,
     titleTimeChipArea: APP_SOURCE_MAP.sharedUiBlocks.titleTimeChipArea,
   },
+  validationTargets: FOCUS_BLOCK_VALIDATIONS,
   qaRuntimeWrapperRisk: {
     owner: "qa-flow.js normalizeQaStatusUi()",
     validationRule: "Any shared status/reward extraction touching QA must preserve runtime cleanup through an explicit adapter instead of new nested wrappers.",
@@ -210,15 +412,83 @@ export function getLegacyWrapperPhaseoutReport() {
   return RISKY_LEGACY_WRAPPERS.slice();
 }
 
+export function getValidationChecklist(targetKey = "") {
+  const normalized = String(targetKey || "").trim();
+  return FOCUS_BLOCK_VALIDATIONS[normalized] || null;
+}
+
+export function getRenderSourceAdvice(target = "") {
+  const normalized = String(target || "").trim();
+  const block = getSharedUiBlock(normalized);
+  if (block) {
+    return {
+      type: "shared-ui-block",
+      key: normalized,
+      label: block.label,
+      currentRenderPaths: block.currentRenderPaths.slice(),
+      currentFiles: block.currentFiles.slice(),
+      recommendedSourceOfTruth: block.recommendedSourceOfTruth,
+    };
+  }
+
+  const screenKey = getScreenKeyById(normalized) || normalized;
+  const screen = APP_SOURCE_MAP.screens?.[screenKey] || null;
+  if (!screen) return null;
+
+  return {
+    type: "screen",
+    key: screenKey,
+    screenId: screen.id,
+    routeKey: screen.routeKey,
+    primaryFiles: screen.primaryFiles.slice(),
+    renderFunctions: screen.renderFunctions.slice(),
+    childAreas: screen.childAreas.slice(),
+  };
+}
+
+export function getSharedUiOwnerHint(blockKey = "") {
+  const sharedBlock = getSharedUiBlock(blockKey);
+  if (!sharedBlock) return null;
+
+  const placement = getPlacementEntry(blockKey);
+  return {
+    blockKey,
+    label: sharedBlock.label,
+    recommendedSourceOfTruth: sharedBlock.recommendedSourceOfTruth,
+    duplicationStatus: sharedBlock.duplicationStatus,
+    currentFiles: sharedBlock.currentFiles.slice(),
+    currentRenderPaths: sharedBlock.currentRenderPaths.slice(),
+    intendedPlacement: placement
+      ? {
+          parent: placement.correctParentContainer,
+          order: placement.correctRelativeOrder,
+          forbiddenContainers: placement.forbiddenOrLegacyContainers.slice(),
+        }
+      : null,
+  };
+}
+
+export function getActiveScreenRenderPath(screenId, options = {}) {
+  const activeId = screenId
+    || options.screenId
+    || options.document?.querySelector?.('.screen:not(.hidden)[id]')?.id
+    || options.document?.querySelector?.('[data-active-screen="true"][id]')?.id
+    || null;
+
+  if (!activeId) return null;
+  return getRenderSourceAdvice(activeId);
+}
+
 export function createValidationSnapshot() {
   return {
     version: UI_VALIDATION_FOUNDATION.version,
-    activeRenderTargets: getRenderSourceValidationSummary(),
+    activeRenderTargets: createRenderTargetMap(),
     sharedUiOwners: getSharedUiValidationSummary(),
     placementOwners: getPlacementValidationSummary(),
     repeatedAssetPaths: getRepeatedAssetPathReport(),
     duplicateRiskHotspots: APP_SOURCE_MAP.riskyDuplicateAreas.slice(),
     riskyLegacyWrappers: getLegacyWrapperPhaseoutReport(),
+    validationTargets: freezeClone(FOCUS_BLOCK_VALIDATIONS),
   };
 }
 
@@ -231,6 +501,7 @@ export function printValidationSnapshot(logger = console) {
   logger.info?.("Repeated asset paths", snapshot.repeatedAssetPaths);
   logger.info?.("Duplicate risk hotspots", snapshot.duplicateRiskHotspots);
   logger.info?.("Risky legacy wrappers", snapshot.riskyLegacyWrappers);
+  logger.info?.("Validation checklists", snapshot.validationTargets);
   logger.groupEnd?.();
   return snapshot;
 }
@@ -246,6 +517,10 @@ export function attachValidationDebugHelpers(target = window) {
     getRepeatedAssetPathReport,
     getAssetSourceRecommendation,
     getLegacyWrapperPhaseoutReport,
+    getValidationChecklist,
+    getRenderSourceAdvice,
+    getSharedUiOwnerHint,
+    getActiveScreenRenderPath,
     createValidationSnapshot,
     printValidationSnapshot,
   };
