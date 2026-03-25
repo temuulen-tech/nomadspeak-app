@@ -242,13 +242,6 @@
 }
 
 @media (max-width:600px){
-  .app{
-    overflow-y:auto;
-    overflow-x:hidden;
-    max-height:calc(var(--app-viewport-height) - 28px);
-    min-height:calc(var(--app-viewport-height) - 28px);
-  }
-
   .stats-panel{
     width:100%;
     padding:12px;
