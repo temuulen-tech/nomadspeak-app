@@ -149,6 +149,22 @@ export function createAppBootstrap(deps = {}) {
     }).catch(() => {});
   }
 
+  function isLocalLikeHost(host = window.location.hostname) {
+    if (!host) return false;
+    const normalizedHost = host.trim().toLowerCase();
+    if (["localhost", "127.0.0.1", "::1"].includes(normalizedHost) || normalizedHost.endsWith(".local")) {
+      return true;
+    }
+    if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(normalizedHost)) return true;
+    if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(normalizedHost)) return true;
+    const privateRange172 = normalizedHost.match(/^172\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/);
+    if (privateRange172) {
+      const secondOctet = Number(privateRange172[1]);
+      return secondOctet >= 16 && secondOctet <= 31;
+    }
+    return false;
+  }
+
   function isWrapperLikeRuntime() {
     const protocol = window.location.protocol;
     if (!["http:", "https:"].includes(protocol)) return true;
@@ -158,12 +174,10 @@ export function createAppBootstrap(deps = {}) {
 
   function registerServiceWorker() {
     if (!("serviceWorker" in navigator)) return;
-    const host = window.location.hostname;
-    const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1" || host.endsWith(".local");
     const isSecureContext = window.location.protocol === "https:";
     const searchParams = new URLSearchParams(window.location.search);
     const isServiceWorkerDisabled = searchParams.get("sw") === "off";
-    const shouldAvoidServiceWorker = isLocalHost || !isSecureContext || isWrapperLikeRuntime() || isServiceWorkerDisabled;
+    const shouldAvoidServiceWorker = isLocalLikeHost() || !isSecureContext || isWrapperLikeRuntime() || isServiceWorkerDisabled;
     if (shouldAvoidServiceWorker) {
       unregisterServiceWorkers();
       return;
