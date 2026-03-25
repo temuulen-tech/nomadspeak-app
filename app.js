@@ -56,8 +56,7 @@ async function unregisterServiceWorkersForDebug() {
 }
 
 function ensureShellMountPoint() {
-  const shellEl = document.querySelector(".phone-preview-shell");
-  const existingRoot = shellEl?.querySelector(".app") || document.querySelector(".app");
+  const existingRoot = document.querySelector(".app");
   if (existingRoot) {
     existingRoot.id = existingRoot.id || "app-root";
     return existingRoot;
@@ -77,18 +76,7 @@ function ensureShellMountPoint() {
   ].filter(Boolean);
 
   startNodes.forEach((node) => root.appendChild(node));
-  (shellEl || document.body).appendChild(root);
-  return root;
-}
-
-function enableDirectMobileBootIfNeeded(root) {
-  if (!root || !shouldUseDirectMobileBoot()) return root;
-
-  document.documentElement.dataset.bootMode = "direct-mobile";
-  const shell = root.closest(".phone-preview-shell");
-  if (!shell) return root;
-
-  shell.replaceWith(root);
+  document.body.appendChild(root);
   return root;
 }
 
@@ -125,7 +113,9 @@ async function bootstrapApp() {
   document.documentElement.dataset.appBoot = "mounting";
   await unregisterServiceWorkersForDebug();
   const root = ensureShellMountPoint();
-  enableDirectMobileBootIfNeeded(root);
+  if (root && shouldUseDirectMobileBoot()) {
+    document.documentElement.dataset.bootMode = "direct-mobile";
+  }
   ensureOverlayMountPoint();
   ensureBootFallbackContent(root);
   mountAppShell();

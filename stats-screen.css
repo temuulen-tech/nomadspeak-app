@@ -242,12 +242,6 @@
 }
 
 @media (max-width:600px){
-  .phone-preview-shell{
-    width:100%;
-    max-width:100%;
-    overflow:hidden;
-  }
-
   .app{
     overflow-y:auto;
     overflow-x:hidden;
