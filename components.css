@@ -2039,12 +2039,6 @@ button > *,
 }
 
 @media (max-width:600px){
-  .app{
-    min-height:auto;
-    max-height:none;
-    overflow:visible;
-  }
-
   .panel-header,
   .stats-gauge-layout,
   .stats-thermometer-wrap,

@@ -7,16 +7,6 @@ body[data-active-screen="board-game"]{
   justify-content:stretch;
 }
 
-body[data-active-screen="board-game"] .phone-preview-shell{
-  width:100%;
-  max-width:none;
-  min-height:var(--app-viewport-height);
-  border-radius:0;
-  border:none;
-  padding:0;
-  box-shadow:none;
-}
-
 body[data-active-screen="board-game"] .app{
   min-height:var(--app-viewport-height);
   max-height:var(--app-viewport-height);

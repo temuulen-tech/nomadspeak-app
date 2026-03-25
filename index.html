@@ -2,7 +2,7 @@
 <html lang="mn">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, interactive-widget=resizes-content"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="format-detection" content="telephone=no" />
   <meta name="application-name" content="NomadSpeak" />
@@ -28,12 +28,7 @@
 </head>
 <body class="mode-home" data-mode="home">
 
-  <div class="phone-preview-shell">
-    <div class="phone-frame" role="presentation" aria-hidden="true">
-      <span class="phone-notch"></span>
-    </div>
-
-    <div class="app">
+  <div class="app" id="app-root">
     <div class="world-atmosphere" aria-hidden="true">
       <span class="world-mist world-mist-a"></span>
       <span class="world-mist world-mist-b"></span>
@@ -567,7 +562,6 @@
     <footer class="footer home-only">
       <span class="muted">© NomadSpeak</span>
     </footer>
-    </div>
   </div>
 
   <!-- Shared overlay layer mounts here so index.html stays shell-focused. -->
