@@ -44,6 +44,13 @@ body{
   overflow-x:hidden;
 }
 
+html[data-boot-mode="direct-mobile"] body{
+  display:block;
+  padding:0;
+  align-items:stretch;
+  justify-content:flex-start;
+}
+
 body{
   margin:0;
   min-height:var(--app-viewport-height);

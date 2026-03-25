@@ -7,12 +7,40 @@ import { mountAppShell } from "./render-shell.js";
 import { mountLearningTopActions } from "./shared-ui/learning-top-actions.js";
 import { applyStandardizedButtonLabels } from "./standardized-labels.js";
 
+function isLocalLikeHost(host = window.location.hostname) {
+  if (!host) return false;
+  const normalizedHost = host.trim().toLowerCase();
+  if (["localhost", "127.0.0.1", "::1"].includes(normalizedHost) || normalizedHost.endsWith(".local")) {
+    return true;
+  }
+  if (/^10\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(normalizedHost)) return true;
+  if (/^192\.168\.\d{1,3}\.\d{1,3}$/.test(normalizedHost)) return true;
+  const privateRange172 = normalizedHost.match(/^172\.(\d{1,3})\.\d{1,3}\.\d{1,3}$/);
+  if (privateRange172) {
+    const secondOctet = Number(privateRange172[1]);
+    return secondOctet >= 16 && secondOctet <= 31;
+  }
+  return false;
+}
+
+function isRealMobileBrowser() {
+  const ua = navigator.userAgent || "";
+  const coarsePointer = window.matchMedia?.("(pointer: coarse)").matches;
+  const touchPoints = Number(navigator.maxTouchPoints || 0);
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) && (coarsePointer || touchPoints > 1);
+}
+
+function shouldUseDirectMobileBoot() {
+  const searchParams = new URLSearchParams(window.location.search);
+  if (searchParams.get("mobileBoot") === "off") return false;
+  if (searchParams.get("mobileBoot") === "direct") return true;
+  return isRealMobileBrowser() && isLocalLikeHost();
+}
+
 function shouldBypassServiceWorker() {
   const searchParams = new URLSearchParams(window.location.search);
-  const host = window.location.hostname;
-  const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1" || host.endsWith(".local");
   const isSecureContext = window.location.protocol === "https:";
-  return searchParams.get("sw") === "off" || isLocalHost || !isSecureContext;
+  return searchParams.get("sw") === "off" || isLocalLikeHost() || !isSecureContext;
 }
 
 async function unregisterServiceWorkersForDebug() {
@@ -29,17 +57,55 @@ async function unregisterServiceWorkersForDebug() {
 
 function ensureShellMountPoint() {
   const shellEl = document.querySelector(".phone-preview-shell");
-  if (!shellEl) return true;
-  if (shellEl.querySelector(".app")) return true;
+  const existingRoot = shellEl?.querySelector(".app") || document.querySelector(".app");
+  if (existingRoot) {
+    existingRoot.id = existingRoot.id || "app-root";
+    return existingRoot;
+  }
 
-  const currentUrl = new URL(window.location.href);
-  const alreadyRecovered = currentUrl.searchParams.get("boot-recover") === "1";
-  if (alreadyRecovered) return false;
+  const root = document.createElement("div");
+  root.className = "app";
+  root.id = "app-root";
 
-  currentUrl.searchParams.set("sw", "off");
-  currentUrl.searchParams.set("boot-recover", "1");
-  window.location.replace(currentUrl.toString());
-  return false;
+  const startNodes = [
+    document.getElementById("home-shell"),
+    document.getElementById("quiz-screen"),
+    document.getElementById("sentence-screen"),
+    document.getElementById("sentence-game-screen"),
+    document.getElementById("qa-game-screen"),
+    document.getElementById("screen-shell-aux"),
+  ].filter(Boolean);
+
+  startNodes.forEach((node) => root.appendChild(node));
+  (shellEl || document.body).appendChild(root);
+  return root;
+}
+
+function enableDirectMobileBootIfNeeded(root) {
+  if (!root || !shouldUseDirectMobileBoot()) return root;
+
+  document.documentElement.dataset.bootMode = "direct-mobile";
+  const shell = root.closest(".phone-preview-shell");
+  if (!shell) return root;
+
+  shell.replaceWith(root);
+  return root;
+}
+
+function ensureOverlayMountPoint() {
+  let overlayShell = document.getElementById("overlay-shell");
+  if (overlayShell) return overlayShell;
+  overlayShell = document.createElement("div");
+  overlayShell.id = "overlay-shell";
+  document.body.appendChild(overlayShell);
+  return overlayShell;
+}
+
+function ensureBootFallbackContent(root) {
+  if (!root) return;
+  const hasHomeShell = Boolean(root.querySelector("#home-shell"));
+  if (hasHomeShell) return;
+  root.innerHTML = '<section id="home-shell"></section><section class="card home-only home-hub-card" id="start-screen"></section>';
 }
 
 function updateViewportHeightVars() {
@@ -58,10 +124,10 @@ function updateViewportHeightVars() {
 async function bootstrapApp() {
   document.documentElement.dataset.appBoot = "mounting";
   await unregisterServiceWorkersForDebug();
-  if (!ensureShellMountPoint()) {
-    document.documentElement.dataset.appBoot = "recovering";
-    return;
-  }
+  const root = ensureShellMountPoint();
+  enableDirectMobileBootIfNeeded(root);
+  ensureOverlayMountPoint();
+  ensureBootFallbackContent(root);
   mountAppShell();
   mountLearningTopActions();
   applyStandardizedButtonLabels();
