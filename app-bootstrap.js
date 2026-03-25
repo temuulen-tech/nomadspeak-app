@@ -159,9 +159,11 @@ export function createAppBootstrap(deps = {}) {
   function registerServiceWorker() {
     if (!("serviceWorker" in navigator)) return;
     const host = window.location.hostname;
-    const isLocal = host === "localhost" || host === "127.0.0.1" || host === "::1";
+    const isLocalHost = host === "localhost" || host === "127.0.0.1" || host === "::1" || host.endsWith(".local");
     const isSecureContext = window.location.protocol === "https:";
-    const shouldAvoidServiceWorker = isLocal || !isSecureContext || isWrapperLikeRuntime();
+    const searchParams = new URLSearchParams(window.location.search);
+    const isServiceWorkerDisabled = searchParams.get("sw") === "off";
+    const shouldAvoidServiceWorker = isLocalHost || !isSecureContext || isWrapperLikeRuntime() || isServiceWorkerDisabled;
     if (shouldAvoidServiceWorker) {
       unregisterServiceWorkers();
       return;

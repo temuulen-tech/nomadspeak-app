@@ -1,4 +1,7 @@
-const CACHE_VERSION = 'nomadspeak-shell-v6';
+const CACHE_VERSION = 'nomadspeak-shell-v7';
+const SHELL_CACHE = CACHE_VERSION;
+const RUNTIME_CACHE = `${CACHE_VERSION}-runtime`;
+
 const APP_SHELL_ASSETS = [
   './',
   './index.html',
@@ -51,21 +54,64 @@ const APP_SHELL_ASSETS = [
   './assets/rewards/icons/reward-trophy.png',
 ];
 
+const DESTINATIONS_TO_CACHE = new Set([
+  'style',
+  'script',
+  'image',
+  'font',
+  'audio',
+  'manifest',
+]);
+
 self.addEventListener('install', (event) => {
-  event.waitUntil(
-    caches.open(CACHE_VERSION).then((cache) => cache.addAll(APP_SHELL_ASSETS))
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(SHELL_CACHE);
+    await Promise.allSettled(
+      APP_SHELL_ASSETS.map(async (asset) => {
+        try {
+          await cache.add(asset);
+        } catch (_) {
+          // Keep install resilient if one asset is temporarily unavailable.
+        }
+      })
+    );
+  })());
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) => Promise.all(
-      keys.filter((key) => key !== CACHE_VERSION).map((key) => caches.delete(key))
-    ))
-  );
-  self.clients.claim();
+  event.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(
+      keys
+        .filter((key) => ![SHELL_CACHE, RUNTIME_CACHE].includes(key))
+        .map((key) => caches.delete(key))
+    );
+    await self.clients.claim();
+  })());
 });
+
+async function networkFirst(request, { cacheName, fallbackUrl } = {}) {
+  const cache = await caches.open(cacheName);
+  try {
+    const response = await fetch(request);
+    if (response.ok) {
+      await cache.put(request, response.clone());
+      if (fallbackUrl && request.mode === 'navigate') {
+        await cache.put(fallbackUrl, response.clone());
+      }
+    }
+    return response;
+  } catch (error) {
+    const cachedResponse = await cache.match(request, { ignoreSearch: true });
+    if (cachedResponse) return cachedResponse;
+    if (fallbackUrl) {
+      const fallbackResponse = await cache.match(fallbackUrl, { ignoreSearch: true });
+      if (fallbackResponse) return fallbackResponse;
+    }
+    throw error;
+  }
+}
 
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
@@ -74,40 +120,20 @@ self.addEventListener('fetch', (event) => {
   if (requestUrl.origin !== self.location.origin) return;
 
   const isNavigationRequest = event.request.mode === 'navigate';
-  const requestDestination = event.request.destination;
-  const isStaticAssetRequest = [
-    'style',
-    'script',
-    'image',
-    'font',
-    'audio',
-    'manifest',
-  ].includes(requestDestination) || requestUrl.pathname.endsWith('.json');
+  const isStaticAssetRequest = DESTINATIONS_TO_CACHE.has(event.request.destination)
+    || requestUrl.pathname.endsWith('.json');
 
-  event.respondWith((async () => {
-    const cache = await caches.open(CACHE_VERSION);
+  if (isNavigationRequest) {
+    event.respondWith(networkFirst(event.request, {
+      cacheName: SHELL_CACHE,
+      fallbackUrl: './index.html',
+    }));
+    return;
+  }
 
-    if (isNavigationRequest) {
-      try {
-        const networkResponse = await fetch(event.request);
-        if (networkResponse.ok) {
-          cache.put('./index.html', networkResponse.clone());
-        }
-        return networkResponse;
-      } catch (error) {
-        const fallback = await cache.match('./index.html');
-        if (fallback) return fallback;
-        throw error;
-      }
-    }
-
-    const cachedResponse = await cache.match(event.request, { ignoreSearch: true });
-    if (cachedResponse) return cachedResponse;
-
-    const networkResponse = await fetch(event.request);
-    if (networkResponse.ok && isStaticAssetRequest) {
-      cache.put(event.request, networkResponse.clone());
-    }
-    return networkResponse;
-  })());
+  if (isStaticAssetRequest) {
+    event.respondWith(networkFirst(event.request, {
+      cacheName: RUNTIME_CACHE,
+    }));
+  }
 });
