@@ -40,12 +40,15 @@ img{
 }
 html,
 body{
-  max-width:100%;
+  margin:0;
+  padding:0;
+  width:100%;
+  min-height:100%;
+  max-width:none;
   overflow-x:hidden;
 }
 
 body{
-  margin:0;
   min-height:100dvh;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
   color:var(--text);
@@ -73,6 +76,15 @@ body{
   overscroll-behavior:contain;
   position:relative;
   isolation:isolate;
+}
+
+#app-root{
+  width:100%;
+  max-width:none;
+  min-height:100dvh;
+  margin:0;
+  border-radius:0;
+  box-sizing:border-box;
 }
 
 .app,
