@@ -2139,7 +2139,6 @@ button > *,
   .vault-entry,
   .sentence-row,
   .progress-summary-card,
-  .card,
   .stats-panel{
     overflow:hidden;
   }
