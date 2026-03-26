@@ -387,6 +387,11 @@
 
 /* Mobile stability pass: keep lesson reward strip and controls from clipping on small screens */
 @media (max-width:560px){
+  #quiz-screen .learning-screen-shell{
+    padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
   #quiz-screen .sentence-game-reward-row{
     gap:8px;
   }
@@ -425,6 +430,10 @@
     z-index:auto;
     background:rgba(7, 30, 39, .72);
     backdrop-filter:none;
+  }
+
+  #quiz-screen .actions{
+    padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));
   }
 }
 

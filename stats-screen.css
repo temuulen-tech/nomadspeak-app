@@ -242,6 +242,11 @@
 }
 
 @media (max-width:600px){
+  #stats-screen.stats-screen-shell{
+    padding-bottom:calc(24px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom:calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
   .stats-panel{
     width:100%;
     padding:10px;

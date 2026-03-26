@@ -1080,6 +1080,15 @@
 
 /* Mobile stability pass: stabilize sentence, sentence-game, and QA layouts on narrow screens */
 @media (max-width:560px){
+  #qa-game-screen .learning-screen-shell{
+    padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px));
+    scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #qa-game-screen .qa-round-panel{
+    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
   .sentence-game-toast{
     width:min(calc(100% - 20px), 520px);
     top:10px;

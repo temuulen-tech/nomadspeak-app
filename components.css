@@ -2091,12 +2091,21 @@ button > *,
   .sentence-game-actions,
   .qa-toggle-row,
   .qa-bottom-actions,
+  .qa-actions,
+  .actions,
   .stats-reward-main,
   .stats-reward-left,
   .stats-reward-right{
     flex-direction:column;
     align-items:stretch;
     width:100%;
+  }
+
+  .sentence-game-actions,
+  .qa-bottom-actions,
+  .qa-actions,
+  .actions{
+    padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));
   }
 
   .sentence-row .speak-btn,
