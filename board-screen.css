@@ -947,31 +947,31 @@ body[data-active-screen="board-game"] .app{
 
 @media (max-width:520px){
   .board-game-content-shell{
-    --board-shell-gap:10px;
-    --board-panel-padding:12px;
-    --board-chip-height:36px;
-    --board-control-size:42px;
+    --board-shell-gap:8px;
+    --board-panel-padding:10px;
+    --board-chip-height:32px;
+    --board-control-size:40px;
     grid-template-rows:auto auto auto;
   }
 
   .board-game-top-cluster{
-    gap:6px;
+    gap:4px;
     width:100%;
   }
 
   .board-game-header-panel{
-    gap:8px;
-    padding:8px 10px;
+    gap:6px;
+    padding:7px 9px;
   }
 
   .board-game-status-grid{
     grid-template-columns:repeat(2, minmax(100px, 1fr));
-    gap:8px;
+    gap:6px;
   }
 
   .board-game-status-card{
-    min-height:44px;
-    padding:8px 10px;
+    min-height:40px;
+    padding:6px 8px;
   }
 
   .board-game-mini-status{
@@ -1051,7 +1051,7 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-status-card{
-    min-height:54px;
+    min-height:46px;
   }
 
   .board-game-board-frame{
@@ -1089,21 +1089,21 @@ body[data-active-screen="board-game"] .app{
 
 @media (max-width:420px){
   .board-game-content-shell{
-    padding-inline:8px;
+    padding-inline:7px;
   }
 
   .board-game-header-panel{
-    padding:10px;
+    padding:8px;
   }
 
   .board-game-header-button-label,
   .board-game-status-value{
-    font-size:.95rem;
+    font-size:.9rem;
   }
 
   .board-game-header-button-subtitle,
   .board-game-status-label{
-    font-size:.74rem;
+    font-size:.7rem;
   }
 
   .board-game-board-frame{

@@ -181,6 +181,7 @@
     align-items:stretch;
     width:100%;
     min-width:0;
+    gap:8px;
   }
 
   #quiz-screen .learning-master-row,
@@ -281,7 +282,7 @@
     display:flex;
     flex-direction:column;
     align-items:stretch;
-    gap:var(--space-3);
+    gap:var(--space-2);
   }
 
   #quiz-screen .lesson-title{
@@ -293,19 +294,19 @@
     order:2;
     justify-self:stretch;
     align-items:stretch;
-    gap:var(--space-3);
-    padding:var(--space-3);
+    gap:var(--space-2);
+    padding:var(--space-2);
   }
 
   #quiz-screen .time-widget{
     order:3;
     margin:0;
-    gap:var(--space-2);
+    gap:4px;
   }
 
   #quiz-screen .lesson-controls-panel .topbar{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(130px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(112px, 1fr));
     gap:var(--space-2);
     width:100%;
   }
@@ -314,7 +315,7 @@
   #quiz-screen .lesson-top-controls,
   #quiz-screen .lesson-audio-controls{
     display:grid;
-    grid-template-columns:repeat(auto-fit, minmax(170px, 1fr));
+    grid-template-columns:repeat(auto-fit, minmax(132px, 1fr));
     gap:var(--space-2);
     width:100%;
   }
@@ -331,7 +332,7 @@
   #quiz-screen .start-level-dropdown{
     position:static;
     width:100%;
-    margin-top:8px;
+    margin-top:6px;
     z-index:auto;
   }
 
