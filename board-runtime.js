@@ -6,7 +6,8 @@ import {
   renderBoardMeta,
   renderBoardRollState,
   renderBoardChallenge,
-  renderBoardFeedbackVisual,
+  
+ renderBoardFeedbackVisual,
   renderBoardPopup,
 } from "./render-board.js";
 import { resolveBoardSelectionRoute } from "./chapters.js";
