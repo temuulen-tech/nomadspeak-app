@@ -419,11 +419,11 @@
   }
 
   #quiz-screen .lesson-controls-panel{
-    position:sticky;
-    bottom:calc(env(safe-area-inset-bottom, 0px) + 4px);
-    z-index:9;
-    background:rgba(7, 30, 39, .94);
-    backdrop-filter:blur(6px);
+    position:static;
+    bottom:auto;
+    z-index:auto;
+    background:rgba(7, 30, 39, .72);
+    backdrop-filter:none;
   }
 }
 

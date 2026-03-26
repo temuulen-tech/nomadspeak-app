@@ -205,6 +205,14 @@
   padding-right:4px;
 }
 
+@media (max-width:700px){
+  .sentences-list{
+    max-height:none;
+    overflow:visible;
+    padding-right:0;
+  }
+}
+
 .sentence-row{
   display:flex;
   align-items:center;
