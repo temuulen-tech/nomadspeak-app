@@ -463,7 +463,7 @@
   display:flex !important;
   flex-direction:row !important;
   justify-content:flex-start !important;
-  align-items:center !important;
+  align-items:flex-start !important;
   width:100% !important;
   min-width:0 !important;
   max-width:100% !important;
@@ -471,6 +471,7 @@
   min-inline-size:0 !important;
   max-inline-size:100% !important;
   box-sizing:border-box !important;
+  height:auto !important;
   white-space:normal !important;
   word-break:normal !important;
   overflow-wrap:anywhere !important;

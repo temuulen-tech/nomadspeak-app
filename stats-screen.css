@@ -44,7 +44,7 @@
   background:linear-gradient(145deg,rgba(13,72,51,.68),rgba(8,42,30,.8));
   box-shadow:0 0 0 1px rgba(120,255,182,.06),0 8px 18px rgba(2,31,22,.14);
   box-sizing:border-box;
-  overflow:hidden;
+  overflow:visible;
 }
 
 .progress-summary-card-primary{
