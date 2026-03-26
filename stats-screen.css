@@ -140,7 +140,7 @@
 
 .stats-gauge-main{display:grid;gap:12px;min-width:0;}
 .stats-period-selector{display:flex;gap:8px;align-content:start;flex-wrap:wrap;padding-bottom:2px;}
-.stats-period-btn{padding:6px 12px;font-size:.84rem;line-height:1.15;border-radius:999px;}
+.stats-period-btn{padding:6px 11px;font-size:.82rem;line-height:1.15;border-radius:999px;}
 .stats-period-btn.active{border-color:#ffe28a;background:linear-gradient(180deg,#0f8b60,#0b6f4d);box-shadow:0 0 0 1px rgba(255,238,174,.35) inset;}
 .stats-kpi-block{
   display:grid;
@@ -301,10 +301,11 @@
   .stats-period-btn{
     flex:1 1 120px;
     white-space:normal;
-    word-break:break-word;
+    word-break:normal;
+    overflow-wrap:anywhere;
     text-align:center;
-    padding:8px 10px;
-    font-size:.8rem;
+    padding:7px 9px;
+    font-size:.78rem;
   }
   .stats-kpi-block{
     display:grid;
@@ -340,6 +341,13 @@
     grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));
     justify-content:stretch;
     width:100%;
+  }
+  .stats-reward-tab{
+    min-height:36px;
+    padding:6px 10px;
+    font-size:.78rem;
+    line-height:1.2;
+    overflow-wrap:anywhere;
   }
   .stats-reward-controls{justify-content:space-between;margin-top:8px;}
   .stats-reward-controls,
@@ -452,7 +460,7 @@
 .stats-reward-tab,
 .stats-reward-nav-btn{
   min-width:96px;
-  min-height:40px;
+  min-height:38px;
   justify-content:center;
   text-align:center;
 }

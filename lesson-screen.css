@@ -408,6 +408,23 @@
     width:100%;
     min-width:0;
   }
+
+  #quiz-screen .question{
+    font-size:clamp(1.2rem, 6.2vw, 1.55rem);
+    line-height:1.28;
+    white-space:normal;
+    word-break:normal;
+    overflow-wrap:anywhere;
+    text-wrap:pretty;
+  }
+
+  #quiz-screen .lesson-controls-panel{
+    position:sticky;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 4px);
+    z-index:9;
+    background:rgba(7, 30, 39, .94);
+    backdrop-filter:blur(6px);
+  }
 }
 
 /* Final quiz answer-button guardrail: keep lesson answers full-width, horizontal, and stacked. */
@@ -438,10 +455,10 @@
   justify-content:flex-start !important;
   align-items:center !important;
   width:100% !important;
-  min-width:100% !important;
+  min-width:0 !important;
   max-width:100% !important;
   inline-size:100% !important;
-  min-inline-size:100% !important;
+  min-inline-size:0 !important;
   max-inline-size:100% !important;
   box-sizing:border-box !important;
   white-space:normal !important;
