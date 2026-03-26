@@ -906,17 +906,17 @@ body[data-active-screen="board-game"] .app{
   min-width:120px;
   max-width:none;
   text-align:center;
-  min-height:44px;
+  min-height:40px;
   border-radius:12px;
-  font-size:.8rem;
-  padding:10px 12px;
+  font-size:.75rem;
+  padding:8px 10px;
   box-sizing:border-box;
   overflow:visible;
   background:linear-gradient(160deg, rgba(17,47,53,.84), rgba(21,62,56,.78));
   border:1px solid rgba(220,244,255,.2);
   white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:break-word;
+  word-break:normal;
+  overflow-wrap:anywhere;
 }
 
 .board-game-option-btn.correct{ border-color:#7affae; box-shadow:0 0 0 1px rgba(122,255,174,.45); }
@@ -1069,6 +1069,12 @@ body[data-active-screen="board-game"] .app{
     min-height:0;
   }
 
+  .board-game-bottom-dock{
+    position:sticky;
+    bottom:calc(env(safe-area-inset-bottom, 0px) + 4px);
+    z-index:9;
+  }
+
   .board-game-feedback-hub{
     position:static;
     width:100%;
@@ -1123,6 +1129,18 @@ body[data-active-screen="board-game"] .app{
   .board-game-voyager{
     left:8px;
     bottom:10px;
+  }
+
+  .board-game-controls-panel{
+    padding:8px 10px 10px;
+    gap:6px;
+  }
+
+  .board-game-mini-status{
+    min-height:38px;
+    padding:5px 8px;
+    font-size:.64rem;
+    line-height:1.35;
   }
 }
 
