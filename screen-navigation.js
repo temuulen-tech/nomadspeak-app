@@ -209,7 +209,7 @@ export function createScreenNavigator({
     const domScreenId = initialVisibleScreen.id ? (screenIds[initialVisibleScreen.id] || initialVisibleScreen.id) : null;
     if (document.body) document.body.dataset.activeScreen = domScreenId || "home";
 
-    startSession(initialScreenId);
+    startSession(domScreenId || initialScreenId);
     startTimeUiUpdater();
   }
 
