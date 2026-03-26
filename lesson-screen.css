@@ -85,6 +85,15 @@
   overflow:visible;
 }
 
+#quiz-screen .lesson-question-row,
+#quiz-screen .question-row,
+#quiz-screen .lesson-answers-grid,
+#quiz-screen .actions{
+  min-width:0;
+  width:100%;
+  overflow:visible;
+}
+
 #quiz-screen #options.lesson-answers-grid,
 #quiz-screen .question-text-wrap > .lesson-answers-grid{
   display:grid !important;
@@ -123,6 +132,7 @@
   overflow-wrap:anywhere;
   text-align:left;
   line-height:1.4;
+  height:auto;
 }
 
 #quiz-screen #options.lesson-answers-grid > .option,

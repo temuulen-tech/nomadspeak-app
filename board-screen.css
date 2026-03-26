@@ -331,7 +331,7 @@ body[data-active-screen="board-game"] .app{
 
 .board-game-board-panel{
   position:relative;
-  overflow:hidden;
+  overflow:visible;
   border:1px solid rgba(255,229,161,.18);
   border-radius:0;
   flex:1 1 auto;
@@ -498,7 +498,7 @@ body[data-active-screen="board-game"] .app{
   background:linear-gradient(180deg, rgba(9,30,40,.3), rgba(9,20,30,.14));
   border:1px solid rgba(255,233,168,.2);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.08), 0 16px 32px rgba(0,0,0,.18);
-  overflow:hidden;
+  overflow:visible;
 }
 
 
@@ -586,7 +586,7 @@ body[data-active-screen="board-game"] .app{
   gap:8px;
   width:min(240px, calc(100% - 36px));
   pointer-events:none;
-  overflow:hidden;
+  overflow:visible;
 }
 
 /* Info and action areas */
@@ -635,11 +635,11 @@ body[data-active-screen="board-game"] .app{
   width:100%;
   min-width:120px;
   max-width:none;
-  min-height:32px;
+  min-height:0;
   padding:4px 8px;
   border-radius:12px;
   box-sizing:border-box;
-  overflow:hidden;
+  overflow:visible;
   line-height:1.28;
   text-align:center;
 }
@@ -680,7 +680,7 @@ body[data-active-screen="board-game"] .app{
   max-width:none;
   min-height:44px;
   box-sizing:border-box;
-  overflow:hidden;
+  overflow:visible;
   line-height:1.45;
   overflow-wrap:break-word;
 }
@@ -695,14 +695,15 @@ body[data-active-screen="board-game"] .app{
   overflow:hidden;
   opacity:0;
   pointer-events:none;
-  transition:max-height .28s ease, opacity .28s ease, padding .28s ease;
+  transition:opacity .28s ease, padding .28s ease;
   backdrop-filter:blur(3px);
   box-shadow:0 10px 24px rgba(0,0,0,.14);
 }
 
 .board-game-challenge-panel.show{
   padding:10px;
-  max-height:220px;
+  max-height:none;
+  overflow:visible;
   opacity:1;
   pointer-events:auto;
 }
@@ -910,7 +911,7 @@ body[data-active-screen="board-game"] .app{
   font-size:.8rem;
   padding:10px 12px;
   box-sizing:border-box;
-  overflow:hidden;
+  overflow:visible;
   background:linear-gradient(160deg, rgba(17,47,53,.84), rgba(21,62,56,.78));
   border:1px solid rgba(220,244,255,.2);
   white-space:normal;
@@ -1146,7 +1147,7 @@ body[data-active-screen="board-game"] .app{
 .board-game-mini-status,
 .board-game-option-btn{
   white-space:normal;
-  word-break:keep-all;
-  overflow-wrap:break-word;
+  word-break:normal;
+  overflow-wrap:anywhere;
   line-height:1.35;
 }

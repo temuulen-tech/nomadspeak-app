@@ -854,7 +854,8 @@ button > *,
 
 #quiz-screen .lesson-top-controls #start-btn{
   width:auto;
-  white-space:nowrap;
+  white-space:normal;
+  overflow-wrap:anywhere;
 }
 
 #quiz-screen .lesson-audio-controls .vault-save-btn,
@@ -1468,8 +1469,9 @@ button > *,
   position:relative;
   width:100%;
   display:flex;
-  align-items:center;
+  align-items:flex-start;
   justify-content:center;
+  flex-wrap:wrap;
   gap:18px;
   margin:6px 0 0;
 }
@@ -1496,7 +1498,7 @@ button > *,
   width:100%;
   min-width:0;
   display:flex;
-  align-items:center;
+  align-items:stretch;
   justify-content:center;
 }
 
@@ -1528,8 +1530,8 @@ button > *,
   padding:12px 18px;
   display:flex;
   align-items:center;
-  justify-content:center;
-  text-align:center;
+  justify-content:flex-start;
+  text-align:left;
   white-space:normal;
   word-break:keep-all;
   overflow-wrap:break-word;
