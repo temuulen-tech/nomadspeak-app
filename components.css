@@ -2175,7 +2175,7 @@ button > *,
   .sentence-row,
   .progress-summary-card,
   .stats-panel{
-    overflow:hidden;
+    overflow:visible;
   }
 
   #vault-modal .vault-modal,

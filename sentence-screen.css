@@ -1147,7 +1147,7 @@
   .qa-bank,
   #qa-game-screen .qa-round-content{
     min-width:0;
-    overflow-x:hidden;
+    overflow:visible;
   }
 
   .reward-label-chip{
@@ -1175,6 +1175,6 @@
   .sentence-row,
   #qa-game-screen .qa-round-content,
   .sentence-game-tip-panel{
-    overflow:hidden;
+    overflow:visible;
   }
 }
