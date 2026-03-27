@@ -21,9 +21,9 @@
 ## Gaps to Play Store release candidate
 
 ### Critical missing items (must-have before submission)
-1. **Android app wrapper/build path is missing**
-   - No Android project (`android/`), no Gradle config, no signing config, no package/application id.
-   - No bridge choice committed (Capacitor/TWA/React Native wrapper/etc.).
+1. **Android app wrapper is present but not yet build-complete**
+   - Android scaffold now exists with package id and Capacitor-aligned activity/config.
+   - Build wrapper tooling is still incomplete (missing committed Gradle wrapper files + finalized signing flow).
 
 2. **Store-required policy surface is missing**
    - No public Privacy Policy URL/page in repository or app metadata.
@@ -69,8 +69,8 @@ Why this is cleanest for current state:
 ## Suggested implementation order
 1. **Decide app identity and policy**
    - Final app name, package id, privacy policy URL, data-safety draft.
-2. **Initialize Android wrapper (Capacitor)**
-   - Add Capacitor config and Android project skeleton.
+2. **Complete Android wrapper generation (Capacitor)**
+   - Re-generate with `npx cap add android`, then keep custom resources/versioning aligned.
 3. **Add icon/splash pipelines**
    - Create source assets + generated Android resources.
 4. **Lock offline/install behavior**

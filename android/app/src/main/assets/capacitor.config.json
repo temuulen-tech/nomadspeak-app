@@ -1,0 +1,11 @@
+{
+  "appId": "com.nomadspeak.app",
+  "appName": "NomadSpeak",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "android": {
+    "allowMixedContent": false,
+    "webContentsDebuggingEnabled": false,
+    "backgroundColor": "#062b2f"
+  }
+}
