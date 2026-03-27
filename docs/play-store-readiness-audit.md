@@ -80,6 +80,12 @@ Why this is cleanest for current state:
 6. **Produce internal release candidate (AAB)**
    - Internal testing track before closed/open testing.
 
+
+## Listing materials status (new in this phase)
+- Draft Play Store listing copy package: `docs/PLAY_STORE_LISTING_PACKAGE.md`
+- Draft screenshot/asset submission checklist: `docs/PLAY_STORE_ASSET_CHECKLIST.md`
+- These are first-pass materials and require founder approvals for final publication fields.
+
 ## Exact files likely needed next
 
 ### New files (web + process)
