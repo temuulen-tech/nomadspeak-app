@@ -951,7 +951,7 @@ body[data-active-screen="board-game"] .app{
 @media (max-width:520px){
   .board-game-content-shell{
     --board-shell-gap:8px;
-    --board-panel-padding:10px;
+    --board-panel-padding:9px;
     --board-chip-height:32px;
     --board-control-size:40px;
     grid-template-rows:auto auto auto;
@@ -963,18 +963,18 @@ body[data-active-screen="board-game"] .app{
   }
 
   .board-game-header-panel{
-    gap:5px;
-    padding:6px 8px;
+    gap:6px;
+    padding:7px 9px;
   }
 
   .board-game-status-grid{
-    grid-template-columns:repeat(2, minmax(100px, 1fr));
-    gap:5px;
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:6px;
   }
 
   .board-game-status-card{
-    min-height:38px;
-    padding:5px 7px;
+    min-height:40px;
+    padding:6px 8px;
   }
 
   .board-game-mini-status{
@@ -1110,7 +1110,8 @@ body[data-active-screen="board-game"] .app{
 
   .board-game-header-button-subtitle,
   .board-game-status-label{
-    font-size:.7rem;
+    font-size:.68rem;
+    line-height:1.25;
   }
 
   .board-game-board-frame{

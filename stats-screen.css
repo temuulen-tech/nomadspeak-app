@@ -271,7 +271,7 @@
 
   .progress-summary-card{
     min-height:unset;
-    gap:6px;
+    gap:7px;
     padding:10px;
   }
 
@@ -349,10 +349,10 @@
     width:100%;
   }
   .stats-reward-tab{
-    min-height:32px;
-    padding:4px 8px;
+    min-height:34px;
+    padding:5px 9px;
     font-size:.72rem;
-    line-height:1.2;
+    line-height:1.18;
     overflow-wrap:anywhere;
   }
   .stats-reward-controls{justify-content:space-between;margin-top:8px;}
@@ -432,7 +432,7 @@
 
   .stats-panel-header{
     gap:8px;
-    margin-bottom:8px;
+    margin-bottom:6px;
   }
 
   .stats-time-list li .chip-time{
