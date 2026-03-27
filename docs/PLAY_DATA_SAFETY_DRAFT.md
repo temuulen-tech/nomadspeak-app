@@ -1,30 +1,50 @@
 # NomadSpeak Play Data Safety Draft
 
-Status: **Initial draft for Play Console Data Safety form**.
+Status: **Updated implementation-aligned draft (March 27, 2026)**.
 
-## Data collection mapping (current web baseline)
+## App identifiers in scope
+- App name: **NomadSpeak**
+- Android package (`applicationId`): **`com.nomadspeak.mobile`**
+- Privacy policy source: **`privacy-policy.html`**
 
-### Collected on device
-1. **App activity / progress data**
-   - Examples: lesson progress, score, streak, unlocked rewards, local app preferences.
-   - Storage: Local browser/app storage on the user device.
-   - Purpose: App functionality (gameplay progress and session continuity).
-   - Shared with third parties: **No**.
+## Data collection mapping (current baseline)
 
-2. **Diagnostics (limited, local runtime state)**
-   - Examples: temporary runtime flags used for UI/gameplay flow.
-   - Storage: Volatile runtime memory and/or local storage for app continuity.
-   - Shared with third parties: **No**.
+### 1) Collected and stored on device
+**Data type:** App activity / progress + app preferences  
+**Examples:** lesson progress, score, streak, unlocked state, local preferences  
+**Purpose:** App functionality (restore sessions and progress continuity)  
+**Required:** Yes  
+**Shared with third parties:** No  
+**Sold:** No
 
-## Data handling declarations (intended Play answers)
-- **Data shared:** No.
-- **Data sold:** No.
-- **Data processed ephemerally only:** No (progress is stored to keep continuity).
-- **Required for app functionality:** Yes (progress/state data only).
-- **Encryption in transit:** Yes, production delivery uses HTTPS.
-- **Deletion request mechanism:** User can clear local app/browser storage to remove on-device progress data.
+### 2) Runtime diagnostics/state (local)
+**Data type:** Temporary runtime flags used by app flow  
+**Storage:** In-memory and potentially local storage for continuity  
+**Purpose:** App operation and stability  
+**Shared with third parties:** No  
+**Sold:** No
 
-## Follow-up before submission
-- Re-validate against final Capacitor Android build behavior.
-- Re-validate any analytics/crash SDK decisions (none included in this draft).
-- Ensure Privacy Policy language exactly matches these declarations.
+## Intended Play Data Safety answers (if unchanged at release time)
+- **Does your app collect or share any user data?** Yes (limited app activity/preferences for functionality).
+- **Is any collected data shared with third parties?** No.
+- **Is any data sold?** No.
+- **Is all user data encrypted in transit?** Yes, where network transmission occurs in production.
+- **Can users request that data is deleted?** Yes, by clearing app storage/uninstalling for current on-device model.
+
+## Policy alignment checks
+- Privacy policy declares:
+  - functional progress/preference data handling,
+  - no sale/no ad-data sharing baseline,
+  - user deletion controls,
+  - placeholders for legal contact details.
+
+## Mandatory founder decisions before Play submission
+1. Confirm whether any SDKs will be added before launch (analytics, crash reporting, auth, ads).
+2. Provide final support email, legal publisher name, and policy contact details.
+3. Confirm target audience/children settings and whether the Families policy path applies.
+4. Confirm whether future server-side sync/accounts will launch in v1 (would change Data Safety answers).
+
+## Pre-submission re-validation checklist
+- Build final release AAB and inspect merged manifest + dependencies.
+- Re-run Data Safety answers against actual shipped SDKs/permissions.
+- Confirm privacy policy URL is publicly hosted and exactly matches Play disclosures.

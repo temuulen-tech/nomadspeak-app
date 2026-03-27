@@ -1,4 +1,4 @@
-package com.nomadspeak.app;
+package com.nomadspeak.mobile;
 
 import com.getcapacitor.BridgeActivity;
 

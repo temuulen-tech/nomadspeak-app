@@ -3,7 +3,7 @@
 This folder is now aligned to a **Capacitor-style Android project shape** and includes a real local-web-asset packaging step.
 
 ## What is now concrete
-- Package/application id is `com.nomadspeak.app`.
+- Package/application id is `com.nomadspeak.mobile`.
 - Version baseline is `versionCode 1` / `versionName 1.0.0`.
 - `MainActivity` now extends Capacitor `BridgeActivity`.
 - Manifest includes `INTERNET` permission and activity config changes expected for a WebView wrapper.
