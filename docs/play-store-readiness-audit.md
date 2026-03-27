@@ -33,9 +33,9 @@
    - Current PWA icons are SVG-only (`icon-192.svg`, `icon-512.svg`), while Android launcher/adaptive icon pipelines require PNG/XML asset sets.
    - No Android splash resources (Android 12+ splash configuration, background/icon layers).
 
-4. **App identity/package readiness is not defined**
-   - No finalized `applicationId` / package namespace (e.g., `com.nomadspeak.app`).
-   - No release versioning policy for `versionCode`/`versionName`.
+4. **App identity/package readiness (now baseline-defined)**
+   - Finalized package namespace/application id baseline: `com.nomadspeak.mobile`.
+   - Versioning policy baseline documented (`versionCode`/`versionName`) and must be kept in sync for releases.
 
 ### Medium missing items (recommended before production rollout)
 1. **Offline expectation hardening**

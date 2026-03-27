@@ -1,8 +1,8 @@
 {
-  "name": "nomadspeak-app",
+  "name": "@nomadspeak/mobile-app",
   "private": true,
   "version": "1.0.0",
-  "description": "NomadSpeak – English learning app for Mongolian learners",
+  "description": "NomadSpeak \u2013 English learning app for Mongolian learners",
   "scripts": {
     "test:smoke": "node --test tests/final-readiness-smoke.test.mjs",
     "cap:sync": "npx cap sync",
