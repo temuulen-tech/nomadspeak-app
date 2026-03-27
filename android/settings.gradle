@@ -1,0 +1,2 @@
+rootProject.name = 'NomadSpeak'
+include ':app'

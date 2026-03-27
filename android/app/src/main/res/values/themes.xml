@@ -1,0 +1,7 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <style name="Theme.NomadSpeak" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+        <item name="android:statusBarColor">#062B2F</item>
+        <item name="android:navigationBarColor">#062B2F</item>
+        <item name="android:windowBackground">@drawable/splash</item>
+    </style>
+</resources>
