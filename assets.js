@@ -442,8 +442,8 @@ export const ASSETS = {
     hero: "assets/characters/hero-main.png",
   },
   appIcons: {
-    icon192: "assets/icons/icon-192.svg",
-    icon512: "assets/icons/icon-512.svg",
+    icon192: "assets/icons/nomadspeak-app-icon-192.svg",
+    icon512: "assets/icons/nomadspeak-app-icon-512.svg",
   },
 };
 
