@@ -3,7 +3,7 @@ import type { CapacitorConfig } from '@capacitor/cli';
 const config: CapacitorConfig = {
   appId: 'com.nomadspeak.app',
   appName: 'NomadSpeak',
-  webDir: '.',
+  webDir: 'android/app/src/main/assets/public',
   bundledWebRuntime: false,
   android: {
     allowMixedContent: false,

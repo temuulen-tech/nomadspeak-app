@@ -1,6 +1,6 @@
 package com.nomadspeak.app;
 
-import android.app.Activity;
+import com.getcapacitor.BridgeActivity;
 
-public class MainActivity extends Activity {
+public class MainActivity extends BridgeActivity {
 }

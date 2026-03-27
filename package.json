@@ -7,7 +7,9 @@
     "test:smoke": "node --test tests/final-readiness-smoke.test.mjs",
     "cap:sync": "npx cap sync",
     "cap:open:android": "npx cap open android",
-    "cap:add:android": "npx cap add android"
+    "cap:add:android": "npx cap add android",
+    "android:prepare:web": "node scripts/android/prepare-web-assets.mjs",
+    "android:assemble:debug": "npm run android:prepare:web && (cd android && ./gradlew assembleDebug)"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.2"
