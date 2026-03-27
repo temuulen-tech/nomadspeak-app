@@ -311,6 +311,7 @@ button > *,
 .top-action-buttons .board-game-header-button-label{
   font-size:.88rem;
   font-weight:800;
+  text-wrap:balance;
 }
 
 .top-action-buttons .board-game-header-button-subtitle{
@@ -322,11 +323,11 @@ button > *,
 @media (max-width:700px){
   .top-action-buttons{
     grid-template-columns:repeat(3, minmax(0, 1fr));
-    --top-action-gap:6px;
-    --top-action-min-height:34px;
+    --top-action-gap:5px;
+    --top-action-min-height:36px;
     --top-action-min-width:0;
     --top-action-padding-y:5px;
-    --top-action-padding-x:7px;
+    --top-action-padding-x:8px;
     --top-action-radius:10px;
     gap:var(--top-action-gap);
   }
@@ -345,7 +346,7 @@ button > *,
     min-height:var(--top-action-min-height);
     min-width:0;
     padding:var(--top-action-padding-y) var(--top-action-padding-x);
-    font-size:11px;
+    font-size:10.5px;
     line-height:1.15;
   }
 }

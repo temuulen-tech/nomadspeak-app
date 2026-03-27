@@ -181,7 +181,7 @@
     align-items:stretch;
     width:100%;
     min-width:0;
-    gap:6px;
+    gap:5px;
   }
 
   #quiz-screen .learning-master-row,
@@ -227,7 +227,8 @@
   }
 
   .lesson-title{
-    font-size:28px;
+    font-size:clamp(24px, 7vw, 27px);
+    line-height:1.12;
   }
 
   .panel-header{
@@ -295,7 +296,7 @@
     justify-self:stretch;
     align-items:stretch;
     gap:6px;
-    padding:6px;
+    padding:7px;
   }
 
   #quiz-screen .time-widget{
@@ -463,7 +464,7 @@
   display:flex !important;
   flex-direction:row !important;
   justify-content:flex-start !important;
-  align-items:flex-start !important;
+  align-items:center !important;
   width:100% !important;
   min-width:0 !important;
   max-width:100% !important;

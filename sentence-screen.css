@@ -223,6 +223,7 @@
   border-radius:14px;
   padding:var(--space-3);
   box-shadow:0 0 0 1px rgba(255,239,185,.2) inset, 0 0 14px rgba(255,204,89,.18);
+  overflow:hidden;
 }
 
 .sentence-text{
@@ -268,7 +269,7 @@
 }
 
 .sentence-game-dropzone{
-  margin:14px 0 10px;
+  margin:12px 0 10px;
   min-height:64px;
 }
 
@@ -770,11 +771,15 @@
   .sentence-row{
     align-items:stretch;
     flex-direction:column;
+    gap:10px;
+    padding:10px 12px;
   }
 
   .speak-btn{
     align-self:stretch;
     width:100%;
+    min-height:42px;
+    height:42px;
   }
 
   .sentences-level-picker,
@@ -1148,6 +1153,12 @@
   #qa-game-screen .qa-round-content{
     min-width:0;
     overflow:visible;
+  }
+
+  .sentence-game-dropzone,
+  .sentence-game-pool{
+    gap:8px;
+    padding:10px;
   }
 
   .reward-label-chip{
