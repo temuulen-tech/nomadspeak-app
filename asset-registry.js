@@ -51,7 +51,7 @@ export const APP_ASSET_REGISTRY = {
     icons: [
       createAssetEntry({
         key: "app-icon-192",
-        path: "assets/icons/icon-192.svg",
+        path: "assets/icons/nomadspeak-app-icon-192.svg",
         currentUsage: ["assets.js -> ASSETS.appIcons.icon192", "index.html favicon/apple-touch-icon", "manifest.json", "service-worker.js precache"],
         notes: "Already reused across app shell files; good candidate for later shell metadata normalization.",
         status: ASSET_STATUS.USED,
@@ -59,9 +59,17 @@ export const APP_ASSET_REGISTRY = {
       }),
       createAssetEntry({
         key: "app-icon-512",
-        path: "assets/icons/icon-512.svg",
+        path: "assets/icons/nomadspeak-app-icon-512.svg",
         currentUsage: ["assets.js -> ASSETS.appIcons.icon512", "manifest.json", "service-worker.js precache"],
         notes: "Stable install icon. Keep in registry before any PWA icon expansion.",
+        status: ASSET_STATUS.USED,
+        duplicateGroup: "app-shell-icons",
+      }),
+      createAssetEntry({
+        key: "app-icon-512-maskable",
+        path: "assets/icons/nomadspeak-app-icon-512-maskable.svg",
+        currentUsage: ["manifest.json maskable icon", "service-worker.js precache"],
+        notes: "Maskable placeholder icon for Android/PWA homescreen crop safety until final art handoff.",
         status: ASSET_STATUS.USED,
         duplicateGroup: "app-shell-icons",
       }),
