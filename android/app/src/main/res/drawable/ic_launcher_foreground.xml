@@ -15,7 +15,7 @@
             <solid android:color="@color/brand_on_accent" />
         </shape>
     </item>
-    <item android:gravity="center" android:width="8dp" android:height="42dp" android:left="-22dp">
+    <item android:gravity="center" android:width="8dp" android:height="42dp" android:left="22dp">
         <shape android:shape="rectangle">
             <corners android:radius="2dp" />
             <solid android:color="@color/brand_on_accent" />
