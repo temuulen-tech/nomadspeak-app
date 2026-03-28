@@ -1,7 +1,5 @@
-import type { CapacitorConfig } from '@capacitor/cli';
-
-const config: CapacitorConfig = {
-  appId: 'com.nomadspeak.app',
+module.exports = {
+  appId: 'com.nomadspeak.mobile',
   appName: 'NomadSpeak',
   webDir: 'android/app/src/main/assets/public',
   bundledWebRuntime: false,
@@ -11,5 +9,3 @@ const config: CapacitorConfig = {
     backgroundColor: '#062b2f'
   }
 };
-
-export default config;

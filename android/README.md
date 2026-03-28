@@ -1,34 +1,50 @@
 # Android wrapper path (Capacitor-aligned, runnable prep)
 
-This folder is now aligned to a **Capacitor-style Android project shape** and includes a real local-web-asset packaging step.
+This folder is aligned to a Capacitor-style Android project shape and uses a deterministic local web-asset packaging step.
 
-## What is now concrete
-- Package/application id is `com.nomadspeak.mobile`.
-- Version baseline is `versionCode 1` / `versionName 1.0.0`.
-- `MainActivity` now extends Capacitor `BridgeActivity`.
-- Manifest includes `INTERNET` permission and activity config changes expected for a WebView wrapper.
-- Android project references `:capacitor-android` from `node_modules`.
-- Bundled web payload location is defined at `android/app/src/main/assets/public`.
-- `android/app/src/main/assets/capacitor.config.json` is present so the wrapper can resolve runtime config.
+## Verified baseline
+- Package/application id + namespace are `com.nomadspeak.mobile`.
+- `MainActivity` extends Capacitor `BridgeActivity`.
+- Launcher label is `NomadSpeak` via `@string/app_name`.
+- Adaptive icon + splash resource files are wired in `res/`.
+- Bundled web payload location is `android/app/src/main/assets/public`.
+- Runtime Capacitor config in native assets exists at `android/app/src/main/assets/capacitor.config.json`.
 
-## Local prep command
+## Local web asset packaging
 From repo root:
 
 ```bash
 npm run android:prepare:web
 ```
 
-This copies the current web app shell/assets into:
+This copies the web app into:
 
 ```text
 android/app/src/main/assets/public
 ```
 
-## Current blocker to fully installable build
-- Gradle wrapper files (`android/gradlew`, `android/gradle/wrapper/*`) are still missing from this scaffold.
-- The next setup pass should run `npx cap add android` (or regenerate Android via Capacitor) in an environment where package + Gradle wrapper generation is available.
+## Android build commands
+> Use JDK 17 for Android Gradle Plugin compatibility.
 
-## Next expected step
-1. Regenerate/update Android project with Capacitor tooling (`npx cap add android` or equivalent).
-2. Re-apply any project-specific resources (icons/splash/theme) if overwritten.
-3. Run a first debug build (`assembleDebug`) and verify cold start + gameplay flow.
+Debug APK:
+
+```bash
+npm run android:assemble:debug
+```
+
+Release AAB:
+
+```bash
+npm run android:bundle:release
+```
+
+## Remaining release blockers
+1. Gradle wrapper files are not committed (`android/gradlew`, `android/gradle/wrapper/*`).
+2. Signing config/keystore is not configured yet for release builds.
+3. This environment cannot fetch Gradle/Maven dependencies (HTTP 403), so a local machine/CI with Maven access is required for the first successful build.
+
+## Recommended next step
+On a machine with Maven access and JDK 17:
+1. Generate Gradle wrapper (`gradle wrapper`) from `android/`.
+2. Run `npm run android:prepare:web`.
+3. Run `./gradlew bundleRelease` and sign/upload via Play Console.
