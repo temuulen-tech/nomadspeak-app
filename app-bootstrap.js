@@ -182,8 +182,7 @@ export function createAppBootstrap(deps = {}) {
       unregisterServiceWorkers();
       return;
     }
-    const serviceWorkerUrl = new URL("./service-worker.js", window.location.href);
-    navigator.serviceWorker.register(serviceWorkerUrl, { scope: "./" }).catch(() => {});
+    navigator.serviceWorker.register("/service-worker.js", { scope: "/" }).catch(() => {});
   }
 
   function updateInstallHintVisibility() {
