@@ -9,6 +9,7 @@
     "cap:open:android": "npx @capacitor/cli open android",
     "cap:add:android": "npx @capacitor/cli add android",
     "android:prepare:web": "node scripts/android/prepare-web-assets.mjs",
+    "android:wrapper:init": "cd android && gradle wrapper --gradle-version 8.14.3",
     "android:assemble:debug": "npm run android:prepare:web && (cd android && (./gradlew assembleDebug || gradle assembleDebug))",
     "cap:update:android": "npx @capacitor/cli update android",
     "cap:sync:android": "npm run cap:update:android",
