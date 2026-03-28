@@ -8,9 +8,9 @@
     "cap:open:android": "npx cap open android",
     "cap:add:android": "npx cap add android",
     "android:prepare:web": "node scripts/android/prepare-web-assets.mjs",
-    "android:assemble:debug": "npm run android:prepare:web && (cd android && ./gradlew assembleDebug)",
+    "android:assemble:debug": "npm run android:prepare:web && (cd android && (./gradlew assembleDebug || gradle assembleDebug))",
     "cap:update:android": "npx cap update android",
-    "android:bundle:release": "npm run android:prepare:web && (cd android && ./gradlew bundleRelease)"
+    "android:bundle:release": "npm run android:prepare:web && (cd android && (./gradlew bundleRelease || gradle bundleRelease))"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.2"
