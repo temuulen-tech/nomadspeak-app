@@ -24,13 +24,15 @@ Run from repo root unless noted.
 
 ### 1) Build and stage web assets for Android
 ```bash
-npm run android:prepare:web
+npm run build
 ```
+(`build` is a local alias to `android:prepare:web`.)
 
 ### 2) Sync Capacitor Android project (only needed after Capacitor/plugin/native config changes)
 ```bash
-npm run cap:update:android
+npm run cap:sync:android
 ```
+(`cap:sync:android` aliases the existing `cap:update:android` script.)
 
 ### 3) Build debug APK
 ```bash
