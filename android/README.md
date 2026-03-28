@@ -25,6 +25,7 @@ android/app/src/main/assets/public
 
 ## Android build commands
 > Use JDK 17 for Android Gradle Plugin compatibility.
+> Commands below use `./gradlew` when present, and fall back to system `gradle` when wrapper files are not yet committed.
 
 Debug APK:
 
@@ -38,8 +39,14 @@ Release AAB:
 npm run android:bundle:release
 ```
 
+Capacitor native/plugin update:
+
+```bash
+npm run cap:update:android
+```
+
 ## Remaining release blockers
-1. Gradle wrapper files are not committed (`android/gradlew`, `android/gradle/wrapper/*`).
+1. Gradle wrapper files are not committed (`android/gradlew`, `android/gradle/wrapper/*`), so first-time builds rely on local `gradle` being installed.
 2. Signing config/keystore is not configured yet for release builds.
 3. This environment cannot fetch Gradle/Maven dependencies (HTTP 403), so a local machine/CI with Maven access is required for the first successful build.
 
