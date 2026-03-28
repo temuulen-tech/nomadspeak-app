@@ -20,6 +20,7 @@ This folder is aligned to a Capacitor Android project shape and uses a determini
    - Current fallback: system `gradle` (because wrapper files are not committed yet).
 
 ## Exact local verification commands
+Run `npm install` first so local Capacitor tooling is available before running sync/update scripts.
 Run from repo root unless noted.
 
 ### 1) Build and stage web assets for Android
@@ -32,7 +33,7 @@ npm run build
 ```bash
 npm run cap:sync:android
 ```
-(`cap:sync:android` aliases the existing `cap:update:android` script.)
+(`cap:sync:android` aliases `cap:update:android`, which matches this project's current Android asset workflow.)
 
 ### 3) Build debug APK
 ```bash
