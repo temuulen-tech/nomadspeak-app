@@ -511,48 +511,53 @@
 
         <!-- TODO(source-map): Reward/time-reward UI and QA runtime status should converge on shared render helpers instead of screen-specific hardcoded markup. -->
         <!-- TODO(placement-system): QA status stays standalone below .qa-game-header; future reward/media blocks need adapter-owned containers outside this runtime shell. -->
-        <div class="qa-runtime-status-bar" id="qa-runtime-status-bar" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
-          <span class="qa-runtime-status-text">Түвшин: <span id="qa-status-level">Анхан</span></span>
-          <span class="qa-runtime-status-text">Оноо: <span id="qa-status-score">0</span></span>
-          <span class="qa-runtime-status-text">Асуулт: <span id="qa-status-progress">1/1</span></span>
-        </div>
-
-        <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
-
         <div class="qa-round-panel" id="qa-round-panel">
           <div class="qa-round-content">
-            <div class="qa-learning-tools">
-              <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
-              <button class="secondary learning-utility-btn" id="qa-show-help-btn" type="button">Тоглоомын тайлбарыг унших</button>
-            </div>
-            <div class="qa-toggle-row">
-              <button class="secondary" id="qa-toggle-question-btn" type="button">Асуултыг харах</button>
-              <button class="secondary" id="qa-toggle-answer-btn" type="button">Хариултыг харах</button>
-            </div>
-
-            <p><strong>МН Асуулт:</strong> <span id="qa-mn-question"></span></p>
-            <p class="hidden" id="qa-en-question-wrap"><strong>АН Асуулт:</strong> <span id="qa-en-question"></span></p>
-            <p><strong>МН Хариулт:</strong> <span id="qa-mn-answer"></span></p>
-            <p class="hidden" id="qa-en-answer-wrap"><strong>АН Хариулт:</strong> <span id="qa-en-answer"></span></p>
-
-            <div class="qa-builder-lines">
-              <div>
-                <p class="qa-line-label chip-label">Асуулт бүтээх мөр</p>
-                <div class="qa-build-line" id="qa-question-line"></div>
+            <div class="qa-top-panel">
+              <div class="qa-runtime-status-bar" id="qa-runtime-status-bar" role="status" aria-label="Асуулт хариултын тоглоомын төлөв">
+                <span class="qa-runtime-status-text">Түвшин: <span id="qa-status-level">Анхан</span></span>
+                <span class="qa-runtime-status-text">Оноо: <span id="qa-status-score">0</span></span>
+                <span class="qa-runtime-status-text">Асуулт: <span id="qa-status-progress">1/1</span></span>
               </div>
-              <div>
-                <p class="qa-line-label chip-label">Хариулт бүтээх мөр</p>
-                <div class="qa-build-line" id="qa-answer-line"></div>
+              <div class="qa-learning-tools">
+                <button class="secondary learning-utility-btn" id="qa-show-sentences-btn" type="button">Бүтэн өгүүлбэрүүд харах</button>
               </div>
+              <details class="qa-instructions">
+                <summary>Тоглоомын заавар</summary>
+                <p class="muted">Үгийн сангаас чипүүдийг сонгож эхлээд асуулт, дараа нь хариултын мөрийг бүтээж “Шалгах” товчийг дарна.</p>
+              </details>
             </div>
+            <div class="qa-panel">
+              <div class="qa-toggle-row">
+                <button class="secondary" id="qa-toggle-question-btn" type="button">Асуултыг харах</button>
+                <button class="secondary" id="qa-toggle-answer-btn" type="button">Хариултыг харах</button>
+              </div>
 
-            <div class="qa-bank" id="qa-word-bank"></div>
-            <div class="qa-actions">
-              <button class="primary" id="qa-check-btn" type="button">Шалгах</button>
+              <p class="qa-prompt"><strong>МН Асуулт:</strong> <span id="qa-mn-question"></span></p>
+              <p class="qa-prompt hidden" id="qa-en-question-wrap"><strong>АН Асуулт:</strong> <span id="qa-en-question"></span></p>
+              <p class="qa-prompt"><strong>МН Хариулт:</strong> <span id="qa-mn-answer"></span></p>
+              <p class="qa-prompt hidden" id="qa-en-answer-wrap"><strong>АН Хариулт:</strong> <span id="qa-en-answer"></span></p>
+
+              <div class="qa-builder-lines">
+                <div>
+                  <p class="qa-line-label chip-label">Асуулт бүтээх мөр</p>
+                  <div class="qa-build-line" id="qa-question-line"></div>
+                </div>
+                <div>
+                  <p class="qa-line-label chip-label">Хариулт бүтээх мөр</p>
+                  <div class="qa-build-line" id="qa-answer-line"></div>
+                </div>
+              </div>
+
+              <div class="qa-bank" id="qa-word-bank"></div>
+              <div class="qa-actions">
+                <button class="primary" id="qa-check-btn" type="button">Шалгах</button>
+              </div>
+              <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
             </div>
-            <p class="qa-feedback" id="qa-feedback" aria-live="polite"></p>
           </div>
         </div>
+        <div class="qa-toast hidden" id="qa-toast" role="status" aria-live="polite"></div>
       </div>
     </section>
 
