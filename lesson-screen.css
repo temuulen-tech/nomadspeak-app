@@ -376,7 +376,7 @@
   #quiz-screen{
     display:block;
     overflow:visible;
-    padding:var(--space-1);
+    padding:0;
   }
 
   #quiz-screen .learning-screen-shell{
@@ -498,7 +498,7 @@
 /* Real-phone compact lesson pass: reduce top stack height and surface question/answers sooner. */
 @media (max-width:700px){
   #quiz-screen{
-    padding:2px;
+    padding:0;
   }
 
   #quiz-screen .learning-screen-shell{

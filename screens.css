@@ -64,11 +64,7 @@
 
 @media (max-width:700px){
   .app{
-    padding:
-      var(--app-safe-top)
-      var(--app-safe-right)
-      var(--app-safe-bottom)
-      var(--app-safe-left);
+    padding:var(--app-safe-top) 0 var(--app-safe-bottom);
   }
 
   #home-shell{
@@ -78,7 +74,7 @@
   .learning-screen{
     flex:0 0 auto;
     min-height:auto;
-    padding:var(--space-2);
+    padding:0;
   }
 
   .learning-screen-shell{
