@@ -340,6 +340,26 @@ body{
 }
 
 
+@media (hover:none) and (pointer:coarse){
+  body{
+    overflow-y:auto;
+    overflow-x:hidden;
+  }
+
+  #app-root{
+    height:auto;
+    min-height:var(--app-viewport-height);
+  }
+
+  .app{
+    height:auto;
+    min-height:var(--app-viewport-height);
+    overflow:visible;
+    padding:var(--app-safe-top) 0 var(--app-safe-bottom);
+  }
+}
+
+
 /* Shared screen and learning layout foundations */
 .learning-screen-shell{
   display:flex;
