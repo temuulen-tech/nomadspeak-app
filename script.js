@@ -112,6 +112,7 @@ import { createSentenceGameClimbController, createSentenceGameTipController, cre
 import { createBoardRuntime } from "./board-runtime.js";
 import { showWorldFeedbackChip as renderWorldFeedbackChip, updateCompanionLine as updateCompanionLineUi } from "./world-ui.js";
 import { getAppDom } from "./app-dom.js";
+import { initializeAuthUi } from "./auth-ui.js";
 import {
   createBoardHandlers,
   createChapterCoverHandlers,
@@ -277,6 +278,14 @@ const {
     profileDailyProgressEl,
     profileRewardStageEl,
     profilePlanStatusEl,
+    authStatusEl,
+    authProviderEl,
+    authUserEmailEl,
+    authErrorEl,
+    authGuestHintEl,
+    authLoginFormEl,
+    authSignupFormEl,
+    authLogoutBtn,
   },
   stats: {
     statsTotalXpEl,
@@ -1991,6 +2000,16 @@ const { initializeApp } = createAppBootstrap({
     updateSettings,
     persistCoreAppState,
     updateProfileUI,
+  }),
+  authControls: () => initializeAuthUi({
+    statusEl: authStatusEl,
+    providerEl: authProviderEl,
+    userEmailEl: authUserEmailEl,
+    authErrorEl,
+    loginFormEl: authLoginFormEl,
+    signupFormEl: authSignupFormEl,
+    logoutBtn: authLogoutBtn,
+    guestHintEl: authGuestHintEl,
   }),
   premiumControls: createPremiumControls({
     bindClickOnce,

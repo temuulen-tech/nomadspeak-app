@@ -123,6 +123,9 @@ async function bootstrapApp() {
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
 
+  const { initializeAuth } = await import("./auth.js");
+  await initializeAuth();
+
   const { initializeApp } = await import("./script.js");
   initializeApp();
 

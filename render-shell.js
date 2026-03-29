@@ -108,6 +108,30 @@ const SHELL_TARGETS = [
 
         <div class="profile-grid">
           <article class="profile-card">
+            <h3 class="chip-label">Account</h3>
+            <p class="muted">Auth status: <strong id="auth-status-text">Checking account session...</strong></p>
+            <p class="muted">Signed-in email: <strong id="auth-user-email">—</strong></p>
+            <p class="muted" id="auth-provider-text">Provider: Firebase Auth</p>
+            <p class="muted hidden" id="auth-guest-hint">Firebase config not found. App is running in guest mode.</p>
+            <p class="muted hidden" id="auth-error-text" role="status" aria-live="polite"></p>
+            <form class="auth-form" id="auth-login-form">
+              <label class="profile-label chip-label" for="auth-login-email">Log in email</label>
+              <input class="profile-input" id="auth-login-email" name="email" type="email" autocomplete="email" required />
+              <label class="profile-label chip-label" for="auth-login-password">Password</label>
+              <input class="profile-input" id="auth-login-password" name="password" type="password" autocomplete="current-password" required />
+              <button class="secondary" type="submit">Log in</button>
+            </form>
+            <form class="auth-form" id="auth-signup-form">
+              <label class="profile-label chip-label" for="auth-signup-email">Sign up email</label>
+              <input class="profile-input" id="auth-signup-email" name="email" type="email" autocomplete="email" required />
+              <label class="profile-label chip-label" for="auth-signup-password">Password</label>
+              <input class="profile-input" id="auth-signup-password" name="password" type="password" autocomplete="new-password" minlength="6" required />
+              <button class="primary" type="submit">Sign up</button>
+            </form>
+            <button class="secondary" id="auth-logout-btn" type="button">Log out</button>
+          </article>
+
+          <article class="profile-card">
             <h3 class="chip-label">Ахиц</h3>
             <label class="profile-label chip-label" for="profile-name-input">Хоч нэр</label>
             <input class="profile-input" id="profile-name-input" type="text" maxlength="24" placeholder="Нэрээ оруулна уу" />
