@@ -24,12 +24,16 @@ function isPhoneLikeViewport() {
 
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
+  const setLessonMobileDebugRootClass = (enabled) => {
+    document.documentElement.classList.toggle("lesson-mobile-debug-mode", enabled);
+  };
   const syncLessonMobileDebugMode = () => {
     const enabled = Boolean(lessonScreenEl)
       && isLessonMobileDebugRequested()
       && isPhoneLikeViewport();
     lessonScreenEl?.classList.toggle("lesson-mobile-debug-mode", enabled);
     document.body.classList.toggle("lesson-mobile-debug-mode", enabled);
+    setLessonMobileDebugRootClass(enabled);
   };
 
   const wireControls = () => {
@@ -92,6 +96,7 @@ export function initLessonScreen(handlers = {}) {
     onLeave: () => {
       lessonScreenEl?.classList.remove("lesson-mobile-debug-mode");
       document.body.classList.remove("lesson-mobile-debug-mode");
+      setLessonMobileDebugRootClass(false);
       window.removeEventListener("resize", syncLessonMobileDebugMode);
       window.removeEventListener("orientationchange", syncLessonMobileDebugMode);
       handlers.onDeactivate?.();
