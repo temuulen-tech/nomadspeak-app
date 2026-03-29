@@ -8,8 +8,30 @@ import { SCREEN_NAMES } from "./constants.js";
 import { bindClickOnce } from "./ui.js";
 import { createScreenLifecycle } from "./screen-lifecycle.js";
 
+const LESSON_MOBILE_DEBUG_QUERY_PARAM = "lessonMobileDebug";
+const LESSON_MOBILE_DEBUG_ON_VALUES = new Set(["1", "true", "on", "yes", "plain"]);
+
+function isLessonMobileDebugRequested(search = window.location.search) {
+  const params = new URLSearchParams(search || "");
+  const raw = params.get(LESSON_MOBILE_DEBUG_QUERY_PARAM);
+  if (raw == null) return false;
+  return LESSON_MOBILE_DEBUG_ON_VALUES.has(String(raw).trim().toLowerCase());
+}
+
+function isPhoneLikeViewport() {
+  return window.matchMedia("(max-width: 700px), (hover: none) and (pointer: coarse)").matches;
+}
+
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
+  const syncLessonMobileDebugMode = () => {
+    const enabled = Boolean(lessonScreenEl)
+      && isLessonMobileDebugRequested()
+      && isPhoneLikeViewport();
+    lessonScreenEl?.classList.toggle("lesson-mobile-debug-mode", enabled);
+    document.body.classList.toggle("lesson-mobile-debug-mode", enabled);
+  };
+
   const wireControls = () => {
     const nextBtn = document.getElementById("next-btn");
     const restartBtn = document.getElementById("restart-btn");
@@ -38,6 +60,7 @@ export function initLessonScreen(handlers = {}) {
   };
 
   wireControls();
+  syncLessonMobileDebugMode();
 
   bindClickOnce(document, "lesson:close-start-level-menu-outside-click", (event) => {
     const startLevelDropdown = document.getElementById("start-level-dropdown");
@@ -54,14 +77,24 @@ export function initLessonScreen(handlers = {}) {
     element: lessonScreenEl,
     onEnter: () => {
       wireControls();
+      syncLessonMobileDebugMode();
+      window.addEventListener("resize", syncLessonMobileDebugMode);
+      window.addEventListener("orientationchange", syncLessonMobileDebugMode);
       renderLessonScreen();
       handlers.onActivate?.();
     },
     onReenter: () => {
       wireControls();
+      syncLessonMobileDebugMode();
       renderLessonScreen();
       handlers.onActivate?.();
     },
-    onLeave: () => handlers.onDeactivate?.(),
+    onLeave: () => {
+      lessonScreenEl?.classList.remove("lesson-mobile-debug-mode");
+      document.body.classList.remove("lesson-mobile-debug-mode");
+      window.removeEventListener("resize", syncLessonMobileDebugMode);
+      window.removeEventListener("orientationchange", syncLessonMobileDebugMode);
+      handlers.onDeactivate?.();
+    },
   });
 }
