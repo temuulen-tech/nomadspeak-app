@@ -1,1 +1,64 @@
-/* Screen stylesheet manifest: split into focused screen-specific files. */
+/* Shared app-shell and screen-shell foundations */
+
+.app{
+  contain:layout style;
+}
+
+#home-shell,
+.card{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+}
+
+.card{
+  overflow-x:clip;
+}
+
+.learning-screen{
+  display:flex;
+  flex:1 1 auto;
+  min-height:0;
+}
+
+.learning-screen-shell{
+  flex:1 1 auto;
+  min-height:0;
+  width:100%;
+}
+
+#start-screen,
+#quiz-screen,
+#sentences-screen,
+#sentence-game-screen,
+#qa-game-screen,
+#board-game-intro-screen,
+#board-game-screen,
+#stats-screen{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  margin-inline:0;
+}
+
+@media (max-width:700px){
+  .app{
+    padding:
+      var(--app-safe-top)
+      var(--app-safe-right)
+      var(--app-safe-bottom)
+      var(--app-safe-left);
+  }
+
+  #home-shell{
+    padding:0 var(--space-2) calc(var(--space-3) + var(--app-safe-bottom));
+  }
+
+  .learning-screen{
+    padding:var(--space-2);
+  }
+
+  .learning-screen-shell{
+    padding-bottom:calc(var(--space-3) + var(--app-safe-bottom));
+  }
+}
