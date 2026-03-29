@@ -376,17 +376,20 @@
   #quiz-screen{
     display:block;
     overflow:visible;
+    padding:var(--space-1);
   }
 
   #quiz-screen .learning-screen-shell{
     display:block;
     min-height:fit-content;
     overflow:visible;
+    gap:6px;
+    padding-bottom:calc(var(--space-2) + env(safe-area-inset-bottom, 0px));
   }
 
   #quiz-screen .learning-layout-header{
-    gap:8px;
-    padding:8px;
+    gap:6px;
+    padding:6px;
   }
 
   #quiz-screen .learning-master-row.learning-header-row{
@@ -394,9 +397,9 @@
   }
 
   #quiz-screen .lesson-flow-panel{
-    margin-top:8px;
-    padding:8px;
-    gap:6px;
+    margin-top:6px;
+    padding:6px;
+    gap:4px;
   }
 
   #quiz-screen .lesson-flow-steps{
@@ -409,18 +412,18 @@
   }
 
   #quiz-screen .lesson-reward-copy{
-    font-size:12px;
-    line-height:1.25;
+    font-size:11px;
+    line-height:1.2;
   }
 
   #quiz-screen .question-text-wrap{
     flex:0 0 auto;
-    margin-top:8px;
-    gap:8px;
+    margin-top:6px;
+    gap:6px;
   }
 
   #quiz-screen .lesson-question-row{
-    gap:8px;
+    gap:6px;
   }
 }
 
@@ -442,7 +445,7 @@
 /* Mobile stability pass: keep lesson reward strip and controls from clipping on small screens */
 @media (max-width:560px){
   #quiz-screen .learning-screen-shell{
-    padding-bottom:calc(32px + env(safe-area-inset-bottom, 0px));
+    padding-bottom:calc(18px + env(safe-area-inset-bottom, 0px));
     scroll-padding-bottom:calc(96px + env(safe-area-inset-bottom, 0px));
   }
 
@@ -456,8 +459,8 @@
   }
 
   #quiz-screen .sentence-game-reward-row .reward-img{
-    width:88px;
-    height:88px;
+    width:72px;
+    height:72px;
   }
 
   #quiz-screen .lesson-controls-panel,
@@ -470,8 +473,8 @@
   }
 
   #quiz-screen .question{
-    font-size:clamp(1.2rem, 6.2vw, 1.55rem);
-    line-height:1.28;
+    font-size:clamp(1.05rem, 5.4vw, 1.3rem);
+    line-height:1.22;
     white-space:normal;
     word-break:normal;
     overflow-wrap:anywhere;
@@ -488,6 +491,7 @@
 
   #quiz-screen .actions{
     padding-bottom:calc(8px + env(safe-area-inset-bottom, 0px));
+    margin-top:10px;
   }
 }
 

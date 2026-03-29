@@ -257,6 +257,30 @@ body{
 }
 
 @media (max-width:700px){
+  html,
+  body{
+    height:auto;
+    min-height:100%;
+    overflow-y:auto;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  body{
+    overflow-x:hidden;
+  }
+
+  #app-root{
+    height:auto;
+    min-height:var(--app-viewport-height);
+  }
+
+  .app{
+    height:auto;
+    min-height:var(--app-viewport-height);
+    overflow:visible;
+    overscroll-behavior-y:auto;
+  }
+
   .lesson-question-row{
     flex-direction:column;
     align-items:stretch;
