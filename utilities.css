@@ -94,6 +94,24 @@ body[data-mode="learning"] .app{
   padding-top:10px;
 }
 
+@media (max-width:700px){
+  body.mode-learning,
+  body[data-mode="learning"]{
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  body.mode-learning .app,
+  body[data-mode="learning"] .app{
+    height:auto;
+    min-height:var(--app-viewport-height);
+    overflow:visible;
+    padding-top:max(6px, var(--app-safe-top));
+    overscroll-behavior-y:auto;
+  }
+}
+
 .gf-token-step{ animation:gf-token-float .24s ease; }
 .gf-tile-pulse{ animation:gf-tile-pulse var(--gf-tile-pulse-ms, 1.2s) ease-in-out infinite; }
 .gf-reward-pop{ animation:gf-reward-pop .46s ease; }
