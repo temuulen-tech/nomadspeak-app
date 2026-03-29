@@ -18,12 +18,12 @@
 .learning-screen{
   display:flex;
   flex:1 1 auto;
-  min-height:0;
+  min-height:auto;
 }
 
 .learning-screen-shell{
   flex:1 1 auto;
-  min-height:0;
+  min-height:auto;
   width:100%;
 }
 
@@ -55,10 +55,25 @@
   }
 
   .learning-screen{
+    flex:0 0 auto;
+    min-height:auto;
     padding:var(--space-2);
   }
 
   .learning-screen-shell{
+    flex:0 0 auto;
+    min-height:auto;
     padding-bottom:calc(var(--space-3) + var(--app-safe-bottom));
+  }
+
+  #quiz-screen,
+  #sentences-screen,
+  #sentence-game-screen,
+  #qa-game-screen,
+  #board-game-intro-screen,
+  #board-game-screen,
+  #stats-screen{
+    height:auto;
+    min-height:auto;
   }
 }
