@@ -115,6 +115,7 @@ export function createAppBootstrap(deps = {}) {
     stopTimeUiUpdater,
     audioEngine,
     speechControls,
+    authControls,
     premiumControls,
     installPrompt,
     hasClickBinding,
@@ -386,6 +387,7 @@ export function createAppBootstrap(deps = {}) {
   }
 
   function initializeSpeechAndProfileControls() { speechControls(); }
+  function initializeAuthControls() { authControls?.(); }
   function initializePremiumControls() { premiumControls(); }
 
   function initializeInstallPrompt() {
@@ -439,6 +441,7 @@ export function createAppBootstrap(deps = {}) {
     initializePlayExitControls();
     initializeLifecycleEvents();
     initializeSpeechAndProfileControls();
+    initializeAuthControls();
     initializePremiumControls();
     initializeInstallPrompt();
     initializeActiveScreenTracking();

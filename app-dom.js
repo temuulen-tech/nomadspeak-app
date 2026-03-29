@@ -163,6 +163,14 @@ const profile = {
   profileDailyProgressEl: byId("profile-daily-progress"),
   profileRewardStageEl: byId("profile-reward-stage"),
   profilePlanStatusEl: byId("profile-plan-status"),
+  authStatusEl: byId("auth-status-text"),
+  authProviderEl: byId("auth-provider-text"),
+  authUserEmailEl: byId("auth-user-email"),
+  authErrorEl: byId("auth-error-text"),
+  authGuestHintEl: byId("auth-guest-hint"),
+  authLoginFormEl: byId("auth-login-form"),
+  authSignupFormEl: byId("auth-signup-form"),
+  authLogoutBtn: byId("auth-logout-btn"),
 };
 
 const stats = {

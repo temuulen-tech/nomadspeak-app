@@ -67,3 +67,36 @@ The app should now be treated as the **stable content-ready baseline** for futur
 - Save/progress rewrites unless a real storage migration is required.
 
 This keeps the current UI, button flow, and learner progress intact while making future phases primarily about content production.
+
+## Authentication foundation (Firebase Auth)
+
+NomadSpeak now includes a dedicated auth layer for email/password accounts with persistent sessions.
+
+### Configure Firebase at runtime
+
+Add Firebase web config before `app.js` runs:
+
+```html
+<script>
+  window.__NOMADSPEAK_FIREBASE_CONFIG = {
+    apiKey: "...",
+    authDomain: "...",
+    projectId: "...",
+    appId: "...",
+  };
+</script>
+```
+
+- If config is present, the app uses Firebase Auth with local persistence.
+- If config is missing, the app automatically stays in guest mode so the current app flow still works.
+
+### Auth module API
+
+`auth.js` exposes:
+- `initializeAuth()`
+- `signUpWithEmail(email, password)`
+- `loginWithEmail(email, password)`
+- `logoutUser()`
+- `getCurrentUser()`
+
+`auth-ui.js` wires profile-screen auth forms to that module and keeps account status globally readable from auth state.
