@@ -991,7 +991,7 @@
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
 }
 
 #qa-game-screen .qa-game-header{
@@ -1016,13 +1016,14 @@
   min-height:0;
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
 }
 
-#qa-game-screen .qa-top-panel{
+#qa-game-screen .qa-top-panel,
+#qa-game-screen .topPanel{
   flex:0 0 auto;
   display:grid;
-  gap:8px;
+  gap:6px;
 }
 
 #qa-game-screen #qa-runtime-status-bar{
@@ -1054,20 +1055,21 @@
   color:#ffffff;
 }
 
-#qa-game-screen .qa-panel{
+#qa-game-screen .qa-panel,
+#qa-game-screen .qaPanel{
   display:flex;
   flex-direction:column;
-  flex:1 1 auto;
+  flex:1;
   min-height:0;
   justify-content:flex-start;
-  gap:10px;
+  gap:8px;
   min-width:0;
 }
 
 #qa-game-screen .qa-round-content{
   display:flex;
   flex-direction:column;
-  gap:10px;
+  gap:8px;
   flex:1 1 auto;
   min-height:0;
   min-width:0;
@@ -1079,16 +1081,16 @@
   outline:none;
 }
 .qa-toggle-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:0;}
-.qa-builder-lines{display:grid;gap:8px;margin:4px 0;}
-.qa-prompt{margin:0;font-size:1.02rem;line-height:1.35;}
+.qa-builder-lines{display:grid;gap:7px;margin:2px 0;}
+.qa-prompt{margin:0;font-size:1.12rem;line-height:1.35;}
 .qa-line-label{font-weight:700;margin:0 0 6px;}
-.qa-build-line,.qa-bank{min-height:46px;border:1px dashed #c8d2ea;border-radius:12px;padding:7px;display:flex;gap:7px;flex-wrap:wrap;align-items:flex-start;background:rgba(0,0,0,.16);}
+.qa-build-line,.qa-bank{min-height:42px;border:1px dashed #c8d2ea;border-radius:12px;padding:6px;display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;background:rgba(0,0,0,.16);}
 .qa-build-line.locked{opacity:.5;}
-.qa-chip{border:0;background:linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);color:#f8fffb;padding:6px 10px;border-radius:999px;cursor:pointer;}
+.qa-chip{border:0;background:linear-gradient(145deg, #20ab74 0%, #11987b 52%, #0d6f77 100%);color:#f8fffb;padding:5px 9px;border-radius:999px;cursor:pointer;}
 .qa-chip.placed{background:#12a062;}
 .qa-placeholder{font-size:13px;color:#7582a1;}
-.qa-bank{flex:1 1 auto;min-height:90px;overflow:auto;align-content:flex-start;}
-.qa-actions{margin-top:2px;}
+.qa-bank{flex:1 1 auto;min-height:84px;overflow:auto;align-content:flex-start;}
+.qa-actions{margin-top:0;}
 .qa-feedback{min-height:20px;font-weight:600;color:#263863;line-height:1.35;margin:0;}
 .qa-feedback:empty{display:none;}
 .qa-bottom-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
@@ -1099,8 +1101,11 @@
   margin:0;
   border:1px solid rgba(255,218,126,.4);
   border-radius:10px;
-  padding:4px 8px;
+  padding:3px 7px;
   background:rgba(8,35,45,.45);
+  align-self:flex-start;
+  width:fit-content;
+  max-width:100%;
 }
 
 .qa-instructions summary{
@@ -1164,13 +1169,18 @@
   }
 
   #qa-game-screen .qa-game-header{
-    padding:6px;
+    padding:4px;
+  }
+
+  #qa-game-screen .top-action-buttons{
+    grid-template-columns:repeat(2, minmax(0, 1fr));
+    gap:4px;
   }
 
   #qa-game-screen .top-action-buttons .top-action-button{
-    min-block-size:34px;
-    font-size:.69rem;
-    padding:5px 6px;
+    min-block-size:30px;
+    font-size:.66rem;
+    padding:4px 6px;
   }
 
   .sentence-game-toast{
@@ -1278,7 +1288,7 @@
   }
 
   .qa-prompt{
-    font-size:1.08rem;
+    font-size:1.16rem;
   }
 }
 
