@@ -91,7 +91,7 @@ body[data-mode="learning"] .home-only {
 
 body.mode-learning .app,
 body[data-mode="learning"] .app{
-  padding-top:10px;
+  padding-top:var(--app-safe-top);
 }
 
 @media (max-width:700px){
@@ -107,7 +107,7 @@ body[data-mode="learning"] .app{
     height:auto;
     min-height:var(--app-viewport-height);
     overflow:visible;
-    padding-top:max(6px, var(--app-safe-top));
+    padding-top:var(--app-safe-top);
     overscroll-behavior-y:auto;
   }
 }

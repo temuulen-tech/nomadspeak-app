@@ -73,8 +73,8 @@ body{
   margin:0;
   border-radius:0;
   box-sizing:border-box;
-  padding:calc(20px + var(--app-safe-top)) calc(14px + var(--app-safe-right)) calc(16px + var(--app-safe-bottom)) calc(14px + var(--app-safe-left));
-  background:rgba(3,16,22,.88);
+  padding:var(--app-safe-top) var(--app-safe-right) var(--app-safe-bottom) var(--app-safe-left);
+  background:transparent;
   max-height:none;
   display:flex;
   flex-direction:column;
@@ -252,7 +252,7 @@ body{
 /* Foundational responsive shell rules */
 @media (min-width:700px){
   .app{
-    padding:24px 16px 18px;
+    padding:0;
   }
 }
 
