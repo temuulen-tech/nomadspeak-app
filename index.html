@@ -142,7 +142,7 @@
 
     <!-- QUIZ SCREEN -->
     <!-- TODO(source-map): Lesson top action buttons/status/reward bar are duplicated across learning screens. Extract a shared learning-header/reward fragment after the screen map is validated. -->
-    <section class="card hidden learning-screen" id="quiz-screen">
+    <section class="hidden learning-screen" id="quiz-screen">
       <div class="learning-screen-shell">
       <div class="panel-header learning-layout-header learning-header-compact">
         <div class="learning-master-top learning-action-grid top-action-buttons" data-learning-top-actions="lesson"></div>
@@ -158,17 +158,22 @@
           </div>
         </div>
       </div>
-      <section class="lesson-flow-panel control-panel-gold-outline" aria-label="Хичээлийн дараалал">
-        <div class="lesson-flow-steps" id="lesson-flow-steps">
-          <span class="lesson-flow-step is-active">1. Асуултаа унш</span>
-          <span class="lesson-flow-step">2. Хариултаа сонго</span>
-          <span class="lesson-flow-step">3. Үр дүнгээ хараад үргэлжлүүл</span>
-        </div>
-        <p class="lesson-flow-copy muted" id="lesson-flow-copy">Асуултаа уншаад зөв хариултаа сонгоно уу.</p>
-        <p class="lesson-reward-copy chip-label" id="lesson-reward-copy">Энэ хичээлд 5 алхмаар шагнал нээгдэнэ.</p>
-      </section>
+      <details class="lesson-flow-disclosure">
+        <summary class="lesson-flow-toggle" aria-label="Хичээлийн дараалал">
+          <span class="lesson-flow-toggle-icon" aria-hidden="true">ℹ️</span>
+        </summary>
+        <section class="lesson-flow-panel control-panel-gold-outline" aria-label="Хичээлийн дараалал">
+          <div class="lesson-flow-steps" id="lesson-flow-steps">
+            <span class="lesson-flow-step is-active">1. Асуултаа унш</span>
+            <span class="lesson-flow-step">2. Хариултаа сонго</span>
+            <span class="lesson-flow-step">3. Үр дүнгээ хараад үргэлжлүүл</span>
+          </div>
+          <p class="lesson-flow-copy muted" id="lesson-flow-copy">Асуултаа уншаад зөв хариултаа сонгоно уу.</p>
+          <p class="lesson-reward-copy chip-label" id="lesson-reward-copy">Энэ хичээлд 5 алхмаар шагнал нээгдэнэ.</p>
+        </section>
+      </details>
       <!-- TODO(placement-system): Keep the lesson reward shell as a direct .learning-screen-shell child. Do not move it into header/status wrappers during shared UI migration. -->
-      <div class="sentence-game-reward-middle control-panel-gold-outline learning-progress-compact learning-progress-frame game-status-progress-hidden">
+      <div class="sentence-game-reward-middle learning-progress-compact learning-progress-frame game-status-progress-hidden">
         <div class="sentence-game-reward-row reward-row rewards-group" id="lesson-reward-bar" aria-label="Хичээлийн шагнал нээгдэх явц">
           <article class="reward-tile learning-progress-item" data-level="1">
             <p class="reward-label-chip chip-label">Эхлэл амжилттай!</p>
