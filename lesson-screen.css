@@ -371,6 +371,59 @@
   }
 }
 
+
+@media (max-width:700px){
+  #quiz-screen{
+    display:block;
+    overflow:visible;
+  }
+
+  #quiz-screen .learning-screen-shell{
+    display:block;
+    min-height:fit-content;
+    overflow:visible;
+  }
+
+  #quiz-screen .learning-layout-header{
+    gap:8px;
+    padding:8px;
+  }
+
+  #quiz-screen .learning-master-row.learning-header-row{
+    gap:6px;
+  }
+
+  #quiz-screen .lesson-flow-panel{
+    margin-top:8px;
+    padding:8px;
+    gap:6px;
+  }
+
+  #quiz-screen .lesson-flow-steps{
+    gap:6px;
+  }
+
+  #quiz-screen .lesson-flow-step{
+    padding:5px 8px;
+    font-size:11px;
+  }
+
+  #quiz-screen .lesson-reward-copy{
+    font-size:12px;
+    line-height:1.25;
+  }
+
+  #quiz-screen .question-text-wrap{
+    flex:0 0 auto;
+    margin-top:8px;
+    gap:8px;
+  }
+
+  #quiz-screen .lesson-question-row{
+    gap:8px;
+  }
+}
+
 @media (max-width:420px){
   #quiz-screen .lesson-controls-row,
   #quiz-screen .lesson-audio-controls,
