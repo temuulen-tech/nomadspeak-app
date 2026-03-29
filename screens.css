@@ -51,7 +51,26 @@
   }
 
   #home-shell{
-    padding:0 var(--space-2) calc(var(--space-3) + var(--app-safe-bottom));
+    padding:0 0 calc(var(--space-2) + var(--app-safe-bottom));
+  }
+
+  /* Remove the outer mobile "boxed app" shell from top-level screens only. */
+  #start-screen,
+  #quiz-screen,
+  #sentences-screen,
+  #sentence-game-screen,
+  #qa-game-screen,
+  #board-game-intro-screen,
+  #board-game-screen,
+  #stats-screen,
+  #profile-screen,
+  #end-screen{
+    background:transparent;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    backdrop-filter:none;
+    padding:0;
   }
 
   .learning-screen{
