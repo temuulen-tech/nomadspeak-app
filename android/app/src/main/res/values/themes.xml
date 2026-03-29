@@ -7,4 +7,8 @@
     </style>
 
     <style name="Theme.NomadSpeak" parent="Theme.NomadSpeak.Base" />
+
+    <!-- Capacitor and some plugins still reference the legacy AppTheme names. -->
+    <style name="AppTheme" parent="Theme.NomadSpeak" />
+    <style name="AppTheme.NoActionBar" parent="Theme.NomadSpeak.Base" />
 </resources>
