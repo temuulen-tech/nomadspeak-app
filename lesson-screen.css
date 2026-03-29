@@ -176,6 +176,96 @@
 }
 
 @media (max-width:700px){
+  body.lesson-mobile-debug-mode{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    height:auto !important;
+    min-height:100% !important;
+  }
+
+  body.lesson-mobile-debug-mode #app-root,
+  body.lesson-mobile-debug-mode .app{
+    height:auto !important;
+    min-height:100dvh !important;
+    overflow:visible !important;
+    max-height:none !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode{
+    padding:0 !important;
+    margin:0 !important;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    backdrop-filter:none !important;
+    background:transparent !important;
+    overflow:visible !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode > .learning-screen-shell{
+    display:block !important;
+    width:100% !important;
+    min-height:0 !important;
+    padding:8px 12px calc(20px + var(--app-safe-bottom)) !important;
+    overflow:visible !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode .learning-layout-header{
+    display:block !important;
+    margin:0 0 10px 0 !important;
+    padding:0 !important;
+    border:0 !important;
+    background:transparent !important;
+    box-shadow:none !important;
+    position:static !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode .learning-layout-header .learning-master-row-4,
+  #quiz-screen.lesson-mobile-debug-mode #topbar,
+  #quiz-screen.lesson-mobile-debug-mode .lesson-flow-panel,
+  #quiz-screen.lesson-mobile-debug-mode .sentence-game-reward-middle{
+    display:none !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode .top-action-buttons{
+    display:grid !important;
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+    gap:6px !important;
+    margin:0 !important;
+    width:100% !important;
+    position:static !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode .question-text-wrap,
+  #quiz-screen.lesson-mobile-debug-mode .lesson-question-row,
+  #quiz-screen.lesson-mobile-debug-mode .question-row,
+  #quiz-screen.lesson-mobile-debug-mode .actions{
+    display:block !important;
+    width:100% !important;
+    min-width:0 !important;
+    overflow:visible !important;
+    position:static !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode #question{
+    margin:0 0 10px 0 !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode #options.lesson-answers-grid{
+    display:block !important;
+    width:100% !important;
+    margin:0 !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
+
+  #quiz-screen.lesson-mobile-debug-mode #options.lesson-answers-grid > .option{
+    display:block !important;
+    width:100% !important;
+    margin:0 0 10px 0 !important;
+    min-height:0 !important;
+  }
+
   #quiz-screen .top-action-buttons{
     grid-template-columns:repeat(3, minmax(0, 1fr));
     align-items:stretch;
