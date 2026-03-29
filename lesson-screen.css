@@ -495,6 +495,181 @@
   }
 }
 
+/* Real-phone compact lesson pass: reduce top stack height and surface question/answers sooner. */
+@media (max-width:700px){
+  #quiz-screen{
+    padding:2px;
+  }
+
+  #quiz-screen .learning-screen-shell{
+    gap:4px;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px));
+  }
+
+  #quiz-screen .learning-layout-header{
+    gap:4px;
+    padding:4px;
+    border-radius:10px;
+  }
+
+  #quiz-screen .top-action-buttons{
+    gap:4px;
+  }
+
+  #quiz-screen .top-action-buttons .learning-utility-btn,
+  #quiz-screen .top-action-buttons .primary,
+  #quiz-screen .top-action-buttons .secondary,
+  #quiz-screen .top-action-buttons .learning-level-btn{
+    min-block-size:42px;
+    min-height:42px;
+    padding:7px 8px;
+    font-size:11px;
+    line-height:1.15;
+    border-radius:9px;
+  }
+
+  #quiz-screen .learning-header-row{
+    gap:4px;
+  }
+
+  #quiz-screen .lesson-title{
+    font-size:clamp(20px, 6.2vw, 24px);
+    line-height:1.08;
+  }
+
+  #quiz-screen .learning-today-time{
+    padding:2px 6px;
+    font-size:.64rem;
+    line-height:1.2;
+  }
+
+  #quiz-screen .lesson-controls-panel{
+    gap:4px;
+    padding:6px 8px;
+    border-radius:10px;
+  }
+
+  #quiz-screen .game-status-text{
+    font-size:.72rem;
+    line-height:1.08;
+  }
+
+  #quiz-screen .lesson-flow-panel{
+    margin-top:4px;
+    padding:5px 6px;
+    gap:4px;
+    border-radius:10px;
+    box-shadow:0 0 10px rgba(255,203,92,.14);
+  }
+
+  #quiz-screen .lesson-flow-step{
+    padding:4px 6px;
+    font-size:10px;
+  }
+
+  #quiz-screen .lesson-flow-copy,
+  #quiz-screen .lesson-reward-copy{
+    font-size:10px;
+    line-height:1.16;
+  }
+
+  #quiz-screen .sentence-game-reward-middle{
+    margin-top:4px;
+    padding:5px 6px;
+    border-radius:10px;
+    box-shadow:none;
+  }
+
+  #quiz-screen .sentence-game-reward-row{
+    margin-top:0;
+    gap:6px;
+    flex-wrap:nowrap;
+    justify-content:flex-start;
+    overflow-x:auto;
+    overflow-y:visible;
+    padding-bottom:2px;
+    -webkit-overflow-scrolling:touch;
+    scroll-snap-type:x proximity;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-tile{
+    flex:0 0 88px;
+    max-width:88px;
+    scroll-snap-align:start;
+  }
+
+  #quiz-screen .sentence-game-reward-row .reward-img{
+    width:56px;
+    height:56px;
+  }
+
+  #quiz-screen .reward-label-chip{
+    min-height:0;
+    min-width:0;
+    padding:2px 4px;
+    font-size:10px;
+    line-height:1.12;
+    border-radius:8px;
+    box-shadow:none;
+  }
+
+  #quiz-screen .question-text-wrap{
+    margin-top:4px;
+    gap:4px;
+    padding:0;
+  }
+
+  #quiz-screen .lesson-question-row{
+    gap:4px;
+  }
+
+  #quiz-screen .question{
+    font-size:clamp(1rem, 5.1vw, 1.18rem);
+    line-height:1.2;
+    margin:0;
+  }
+
+  #quiz-screen #options.lesson-answers-grid,
+  #quiz-screen .question-text-wrap > .lesson-answers-grid{
+    gap:8px;
+    margin-top:2px;
+  }
+
+  #quiz-screen #options.lesson-answers-grid > .option,
+  #quiz-screen .lesson-answers-grid > .option{
+    min-height:46px;
+    padding:9px 11px;
+    border-radius:10px;
+  }
+
+  #quiz-screen .result{
+    margin-top:4px;
+    padding:8px;
+    border-radius:10px;
+  }
+
+  #quiz-screen .actions{
+    margin-top:6px;
+    padding-bottom:calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (max-width:420px){
+  #quiz-screen .top-action-buttons{
+    grid-template-columns:repeat(3, minmax(0, 1fr));
+  }
+
+  #quiz-screen .top-action-buttons .learning-utility-btn,
+  #quiz-screen .top-action-buttons .primary,
+  #quiz-screen .top-action-buttons .secondary,
+  #quiz-screen .top-action-buttons .learning-level-btn{
+    min-block-size:40px;
+    min-height:40px;
+    font-size:10px;
+    padding:6px 7px;
+  }
+}
+
 /* Final quiz answer-button guardrail: keep lesson answers full-width, horizontal, and stacked. */
 #quiz-screen .question-text-wrap{
   width:100% !important;
