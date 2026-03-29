@@ -3,8 +3,8 @@
 /* Home shell and header */
 #home-shell{
   gap:var(--space-5);
-  width:calc(100% + 12px);
-  margin-inline:-6px;
+  width:100%;
+  margin-inline:0;
   padding:0 0 var(--space-2);
 }
 
@@ -264,8 +264,8 @@
 @media (max-width:900px){
   #home-shell{
     gap:var(--space-4);
-    width:calc(100% + 8px);
-    margin-inline:-4px;
+    width:100%;
+    margin-inline:0;
   }
 
   .home-header-main-simplified{

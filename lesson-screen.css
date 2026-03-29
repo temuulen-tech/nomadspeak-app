@@ -48,7 +48,7 @@
 
 #quiz-screen .top-action-buttons,
 #quiz-screen .learning-action-grid{
-  grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  grid-template-columns:repeat(3, minmax(0, 1fr));
 }
 
 #quiz-screen .top-action-buttons > .learning-master-row,
@@ -96,14 +96,14 @@
 
 #quiz-screen #options.lesson-answers-grid,
 #quiz-screen .question-text-wrap > .lesson-answers-grid{
-  display:grid !important;
-  grid-template-columns:minmax(0, 1fr) !important;
-  grid-auto-flow:row !important;
-  align-items:stretch !important;
-  justify-items:stretch !important;
-  width:100% !important;
-  min-width:0 !important;
-  max-width:100% !important;
+  display:grid;
+  grid-template-columns:minmax(0, 1fr);
+  grid-auto-flow:row;
+  align-items:stretch;
+  justify-items:stretch;
+  width:100%;
+  min-width:0;
+  max-width:100%;
   gap:10px;
   margin:0;
   padding:0;
@@ -111,24 +111,24 @@
 
 #quiz-screen #options.lesson-answers-grid > .option,
 #quiz-screen .lesson-answers-grid > .option{
-  display:flex !important;
-  flex-direction:row !important;
+  display:flex;
+  flex-direction:row;
   align-items:center;
   justify-content:flex-start;
-  width:100% !important;
-  inline-size:100% !important;
-  min-width:0 !important;
-  min-inline-size:0 !important;
-  max-width:100% !important;
-  max-inline-size:100% !important;
+  width:100%;
+  inline-size:100%;
+  min-width:0;
+  min-inline-size:0;
+  max-width:100%;
+  max-inline-size:100%;
   min-height:50px;
   padding:11px 14px;
   box-sizing:border-box;
   place-self:stretch;
-  writing-mode:horizontal-tb !important;
-  text-orientation:mixed !important;
-  white-space:normal !important;
-  word-break:normal !important;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  white-space:normal;
+  word-break:normal;
   overflow-wrap:anywhere;
   text-align:left;
   line-height:1.4;
@@ -138,11 +138,11 @@
 #quiz-screen #options.lesson-answers-grid > .option,
 #quiz-screen #options.lesson-answers-grid > .option::before,
 #quiz-screen #options.lesson-answers-grid > .option > *{
-  writing-mode:horizontal-tb !important;
-  text-orientation:mixed !important;
-  white-space:normal !important;
-  max-width:100% !important;
-  min-width:0 !important;
+  writing-mode:horizontal-tb;
+  text-orientation:mixed;
+  white-space:normal;
+  max-width:100%;
+  min-width:0;
 }
 .lesson-finish-summary{
   display:flex;
