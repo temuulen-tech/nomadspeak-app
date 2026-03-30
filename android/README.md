@@ -90,3 +90,50 @@ Before producing the upload-ready Play Store artifact, configure all of the foll
 1. `android/gradlew` and `android/gradle/wrapper/*` must be committed (including `gradle-wrapper.jar`).
 2. Release signing configuration/keystore wiring is not yet configured in `android/app/build.gradle`.
 3. Local Java must be pinned to JDK 17 for reliable AGP 8.7.3 builds.
+
+## Windows PowerShell `npx.ps1` execution-policy fix
+If PowerShell shows `npx.ps1 cannot be loaded because running scripts is disabled on this system`, the shell is blocking PowerShell script shims from npm.
+
+### Safest practical local fix (current shell only)
+Run this once in the same PowerShell window before Capacitor commands:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+```
+
+This changes policy only for the current session and resets when that window closes.
+
+### Persistent per-user fix (optional)
+If you want PowerShell shims to work in future sessions without re-running the process command:
+
+```powershell
+Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned
+```
+
+### Commands for this project on Windows
+From repo root:
+
+```powershell
+npm install
+npm run build
+npm run cap:copy:android
+npm run cap:sync:android
+npm run cap:open:android
+```
+
+### Avoiding the `npx.ps1` shim entirely
+This repo now exposes Capacitor scripts that invoke the CLI with `node` directly, so they work even when PowerShell script shims are restricted.
+
+You can also run from Command Prompt (`cmd.exe`) instead of PowerShell:
+
+```cmd
+npm run build
+npm run cap:copy:android
+npm run cap:sync:android
+```
+
+### Asset flow note for this project
+`npm run build` runs `scripts/android/prepare-web-assets.mjs`, which copies web files directly into:
+`android/app/src/main/assets/public`
+
+Then `cap copy/sync` updates the native Android project metadata/plugins so Android Studio and device builds use the latest assets.

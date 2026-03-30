@@ -42,6 +42,7 @@ export function initLessonScreen(handlers = {}) {
     lessonScreenEl?.classList.toggle("lesson-mobile-debug-mode", enabled);
     document.body.classList.toggle("lesson-mobile-debug-mode", enabled);
     setLessonMobileDebugRootClass(enabled);
+    collapseLessonFlowHelpOnMobile();
   };
 
   const wireControls = () => {
