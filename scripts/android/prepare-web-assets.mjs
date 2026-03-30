@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const repoRoot = path.resolve(__dirname, '..', '..');
-const outputDir = path.join(repoRoot, 'android', 'app', 'src', 'main', 'assets', 'public');
+const outputDir = path.join(repoRoot, 'www');
 
 const EXCLUDED_ROOT_NAMES = new Set([
   '.git',
@@ -13,7 +13,8 @@ const EXCLUDED_ROOT_NAMES = new Set([
   'node_modules',
   'docs',
   'tests',
-  'content-packs'
+  'content-packs',
+  'www'
 ]);
 
 const EXCLUDED_SUFFIXES = ['.md', '.ts'];

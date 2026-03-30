@@ -1,7 +1,7 @@
 module.exports = {
   appId: 'com.nomadspeak.mobile',
   appName: 'NomadSpeak',
-  webDir: 'android/app/src/main/assets/public',
+  webDir: 'www',
   bundledWebRuntime: false,
   android: {
     allowMixedContent: false,
