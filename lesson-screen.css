@@ -1197,3 +1197,180 @@
   width:clamp(104px, 12vw, 148px);
   height:clamp(104px, 12vw, 148px);
 }
+
+
+/* Mobile usability hotfix: restore vertical scroll, reduce top chrome, and prioritize question content. */
+@media (max-width:700px){
+  body.mode-learning{
+    overflow-y:auto;
+  }
+
+  #app-root.app{
+    height:auto;
+    min-height:var(--app-viewport-height);
+    overflow-y:auto;
+    overflow-x:hidden;
+    -webkit-overflow-scrolling:touch;
+  }
+
+  #quiz-screen.learning-screen{
+    display:block !important;
+    flex:0 0 auto !important;
+    height:auto !important;
+    min-height:0 !important;
+    overflow:visible !important;
+    padding:0 8px calc(10px + env(safe-area-inset-bottom, 0px));
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    background:transparent !important;
+  }
+
+  #quiz-screen > .learning-screen-shell{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    min-height:0 !important;
+    height:auto !important;
+    overflow:visible !important;
+    padding:0;
+    border:0 !important;
+    border-radius:0 !important;
+    box-shadow:none !important;
+    background:transparent !important;
+  }
+
+  #quiz-screen .learning-layout-header{
+    gap:4px;
+    padding:0;
+    border:0;
+    border-radius:0;
+    box-shadow:none;
+    background:transparent;
+  }
+
+  #quiz-screen .top-action-buttons{
+    gap:4px;
+  }
+
+  #quiz-screen .top-action-buttons .learning-utility-btn,
+  #quiz-screen .top-action-buttons .primary,
+  #quiz-screen .top-action-buttons .secondary,
+  #quiz-screen .top-action-buttons .learning-level-btn,
+  #quiz-screen .top-action-buttons .filter-btn,
+  #quiz-screen .top-action-buttons .sentence-game-difficulty-toggle{
+    min-height:34px;
+    min-block-size:34px;
+    padding:4px 6px;
+    font-size:10px;
+    line-height:1.12;
+    border-radius:8px;
+  }
+
+  #quiz-screen .learning-header-row{
+    gap:4px;
+  }
+
+  #quiz-screen .lesson-title{
+    font-size:clamp(18px, 5.4vw, 22px);
+    line-height:1.08;
+  }
+
+  #quiz-screen .learning-today-time{
+    padding:1px 6px;
+    font-size:.62rem;
+    line-height:1.2;
+  }
+
+  #quiz-screen .lesson-controls-panel{
+    padding:4px 6px;
+    gap:4px;
+    border-radius:8px;
+  }
+
+  #quiz-screen .lesson-controls-panel .topbar,
+  #quiz-screen .lesson-controls-row,
+  #quiz-screen .lesson-top-controls,
+  #quiz-screen .lesson-audio-controls{
+    gap:4px;
+  }
+
+  #quiz-screen .game-status-text{
+    font-size:.7rem;
+    line-height:1.1;
+  }
+
+  #quiz-screen .sentence-game-reward-middle{
+    display:none !important;
+  }
+
+  #quiz-screen .lesson-flow-disclosure{
+    margin-top:0;
+  }
+
+  #quiz-screen .lesson-flow-toggle{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    padding:2px 0;
+  }
+
+  #quiz-screen .lesson-flow-toggle-icon{
+    width:24px;
+    min-height:24px;
+    border-radius:999px;
+  }
+
+  #quiz-screen .lesson-flow-toggle-label{
+    font-size:11px;
+    line-height:1.2;
+  }
+
+  #quiz-screen .lesson-flow-disclosure:not([open]) .lesson-flow-panel{
+    display:none;
+  }
+
+  #quiz-screen .lesson-flow-panel{
+    margin-top:2px;
+    padding:6px;
+    gap:4px;
+    border-radius:8px;
+  }
+
+  #quiz-screen .question-text-wrap{
+    margin-top:0;
+    gap:6px;
+    padding:0;
+    flex:1 1 auto;
+  }
+
+  #quiz-screen .lesson-question-row{
+    margin-top:0;
+    padding:0;
+    gap:4px;
+  }
+
+  #quiz-screen .question{
+    margin:0;
+    font-size:clamp(1rem, 4.9vw, 1.16rem);
+    line-height:1.24;
+  }
+
+  #quiz-screen #options.lesson-answers-grid,
+  #quiz-screen .question-text-wrap > .lesson-answers-grid{
+    gap:8px;
+    margin-top:0;
+  }
+
+  #quiz-screen #options.lesson-answers-grid > .option,
+  #quiz-screen .lesson-answers-grid > .option{
+    min-height:42px;
+    padding:8px 10px;
+    border-radius:9px;
+  }
+
+  #quiz-screen .actions{
+    margin-top:4px;
+    padding-bottom:calc(6px + env(safe-area-inset-bottom, 0px));
+  }
+}

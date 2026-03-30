@@ -22,6 +22,14 @@ function isPhoneLikeViewport() {
   return window.matchMedia("(max-width: 700px), (hover: none) and (pointer: coarse)").matches;
 }
 
+
+function collapseLessonFlowHelpOnMobile() {
+  const disclosureEl = document.querySelector("#quiz-screen .lesson-flow-disclosure");
+  if (!disclosureEl) return;
+  if (!isPhoneLikeViewport()) return;
+  disclosureEl.removeAttribute("open");
+}
+
 export function initLessonScreen(handlers = {}) {
   const lessonScreenEl = document.getElementById("quiz-screen");
   const setLessonMobileDebugRootClass = (enabled) => {
@@ -85,12 +93,14 @@ export function initLessonScreen(handlers = {}) {
       window.addEventListener("resize", syncLessonMobileDebugMode);
       window.addEventListener("orientationchange", syncLessonMobileDebugMode);
       renderLessonScreen();
+      collapseLessonFlowHelpOnMobile();
       handlers.onActivate?.();
     },
     onReenter: () => {
       wireControls();
       syncLessonMobileDebugMode();
       renderLessonScreen();
+      collapseLessonFlowHelpOnMobile();
       handlers.onActivate?.();
     },
     onLeave: () => {
