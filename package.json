@@ -6,14 +6,15 @@
   "scripts": {
     "test:smoke": "node --test tests/final-readiness-smoke.test.mjs",
     "build": "npm run android:prepare:web",
-    "cap:open:android": "npx @capacitor/cli open android",
-    "cap:add:android": "npx @capacitor/cli add android",
+    "cap:open:android": "node ./node_modules/@capacitor/cli/bin/capacitor open android",
+    "cap:add:android": "node ./node_modules/@capacitor/cli/bin/capacitor add android",
     "android:prepare:web": "node scripts/android/prepare-web-assets.mjs",
     "android:wrapper:init": "cd android && gradle wrapper --gradle-version 8.14.3",
     "android:assemble:debug": "npm run android:prepare:web && (cd android && (./gradlew assembleDebug || gradle assembleDebug))",
-    "cap:update:android": "npx @capacitor/cli update android",
-    "cap:sync:android": "npm run cap:update:android",
-    "android:bundle:release": "npm run android:prepare:web && (cd android && (./gradlew bundleRelease || gradle bundleRelease))"
+    "cap:update:android": "node ./node_modules/@capacitor/cli/bin/capacitor update android",
+    "cap:sync:android": "npm run android:prepare:web && node ./node_modules/@capacitor/cli/bin/capacitor update android",
+    "android:bundle:release": "npm run android:prepare:web && (cd android && (./gradlew bundleRelease || gradle bundleRelease))",
+    "cap:copy:android": "npm run android:prepare:web"
   },
   "dependencies": {
     "@capacitor/core": "^7.4.2",
