@@ -1197,3 +1197,115 @@
   width:clamp(104px, 12vw, 148px);
   height:clamp(104px, 12vw, 148px);
 }
+
+/* Emergency phone lesson-flow recovery:
+   prioritize readable question/answers + reliable vertical scrolling. */
+@media (max-width:700px){
+  body[data-active-screen="lesson"]{
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    height:auto !important;
+    min-height:100% !important;
+  }
+
+  body[data-active-screen="lesson"] #app-root,
+  body[data-active-screen="lesson"] .app{
+    height:auto !important;
+    min-height:100dvh !important;
+    overflow-y:auto !important;
+    overflow-x:hidden !important;
+    overscroll-behavior-y:auto !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen.learning-screen{
+    display:block !important;
+    min-height:auto !important;
+    padding:0 !important;
+    overflow:visible !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen > .learning-screen-shell{
+    display:flex !important;
+    flex-direction:column !important;
+    min-height:auto !important;
+    gap:10px !important;
+    padding:10px 12px calc(16px + env(safe-area-inset-bottom, 0px)) !important;
+    overflow:visible !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .learning-layout-header{
+    gap:8px !important;
+    padding:8px !important;
+    border-radius:10px !important;
+    background:rgba(7, 32, 42, .52) !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .top-action-buttons{
+    gap:6px !important;
+    grid-template-columns:repeat(3, minmax(0, 1fr)) !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .top-action-buttons .learning-utility-btn,
+  body[data-active-screen="lesson"] #quiz-screen .top-action-buttons .primary,
+  body[data-active-screen="lesson"] #quiz-screen .top-action-buttons .secondary,
+  body[data-active-screen="lesson"] #quiz-screen .top-action-buttons .learning-level-btn{
+    min-height:42px !important;
+    padding:8px 10px !important;
+    font-size:11px !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .sentence-game-reward-middle{
+    display:none !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .lesson-flow-panel{
+    margin-top:0 !important;
+    padding:8px !important;
+    gap:6px !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .question-text-wrap,
+  body[data-active-screen="lesson"] #quiz-screen .lesson-question-row{
+    margin-top:0 !important;
+    gap:8px !important;
+    width:100% !important;
+    min-width:0 !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .question{
+    margin:0 !important;
+    font-size:clamp(1.02rem, 4.8vw, 1.2rem) !important;
+    line-height:1.28 !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen #options.lesson-answers-grid,
+  body[data-active-screen="lesson"] #quiz-screen .question-text-wrap > .lesson-answers-grid{
+    display:grid !important;
+    grid-template-columns:minmax(0, 1fr) !important;
+    gap:10px !important;
+    margin:0 !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen #options.lesson-answers-grid > .option,
+  body[data-active-screen="lesson"] #quiz-screen .lesson-answers-grid > .option{
+    min-height:48px !important;
+    padding:11px 12px !important;
+    border-radius:10px !important;
+    font-size:.97rem !important;
+    line-height:1.35 !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .result{
+    margin:2px 0 0 !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .actions{
+    margin-top:4px !important;
+    padding-bottom:calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+  }
+
+  body[data-active-screen="lesson"] #quiz-screen .actions #next-btn{
+    width:100% !important;
+    min-height:46px !important;
+  }
+}
