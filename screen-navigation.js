@@ -63,6 +63,11 @@ export function createScreenNavigator({
 
     Object.values(screens).forEach((screenEl) => hideElement(screenEl));
     showElement(targetScreen);
+    const homeShellEl = typeof document?.getElementById === "function" ? document.getElementById("home-shell") : null;
+    if (homeShellEl) {
+      if (targetScreen === state.startScreen) showElement(homeShellEl);
+      else hideElement(homeShellEl);
+    }
 
     setActiveScreenId(resolvedScreenId);
     screenRegistry[resolvedScreenId]?.enter?.({ previousScreenId, nextScreenId: resolvedScreenId });
@@ -201,6 +206,11 @@ export function createScreenNavigator({
 
     const initialScreenId = resolveScreenId(initialVisibleScreen.id);
     const isHomeVisible = initialVisibleScreen === state.startScreen;
+    const homeShellEl = typeof document?.getElementById === "function" ? document.getElementById("home-shell") : null;
+    if (homeShellEl) {
+      if (isHomeVisible) showElement(homeShellEl);
+      else hideElement(homeShellEl);
+    }
 
     setActiveScreenId(initialScreenId);
     screenRegistry[initialScreenId]?.enter?.({ previousScreenId: null, nextScreenId: initialScreenId });
