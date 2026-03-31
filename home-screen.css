@@ -99,38 +99,25 @@
   gap:var(--space-4);
 }
 
-/* Force home shell to occupy full mobile viewport; prevent narrow centered render on Android WebView. */
+/* Home width stability on Android:
+   Use percentage-based width so WebView viewport/inset recalculations do not force
+   a second oversized 100vw layout pass after first paint. */
 body.mode-home,
 body[data-mode="home"]{
   width:100%;
-  min-width:100%;
 }
 
-body.mode-home #app-root,
-body[data-mode="home"] #app-root,
-body.mode-home .app,
-body[data-mode="home"] .app,
 body.mode-home #home-shell,
 body[data-mode="home"] #home-shell,
 body.mode-home #start-screen,
 body[data-mode="home"] #start-screen{
-  width:100vw;
-  min-width:100vw;
+  width:100%;
+  min-width:0;
   max-width:none;
   margin:0;
   left:auto;
   right:auto;
   transform:none;
-}
-
-body.mode-home #app-root,
-body[data-mode="home"] #app-root,
-body.mode-home .app,
-body[data-mode="home"] .app,
-body.mode-home #home-shell,
-body[data-mode="home"] #home-shell{
-  min-height:100vh;
-  min-height:100dvh;
 }
 
 .home-hub-actions{
