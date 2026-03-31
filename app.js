@@ -109,8 +109,22 @@ function updateViewportHeightVars() {
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
 }
 
+
+function ensureViewportMeta() {
+  const viewportContent = "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no";
+  let viewportMeta = document.querySelector('meta[name="viewport"]');
+  if (!viewportMeta) {
+    viewportMeta = document.createElement("meta");
+    viewportMeta.setAttribute("name", "viewport");
+    document.head.prepend(viewportMeta);
+  }
+  if (viewportMeta.getAttribute("content") !== viewportContent) {
+    viewportMeta.setAttribute("content", viewportContent);
+  }
+}
 async function bootstrapApp() {
   document.documentElement.dataset.appBoot = "mounting";
+  ensureViewportMeta();
   await unregisterServiceWorkersForDebug();
   const root = ensureShellMountPoint();
   if (root && shouldUseDirectMobileBoot()) {
