@@ -337,6 +337,24 @@ body{
     grid-template-columns:1fr;
   }
 
+  body.mode-home #app-root,
+  body.mode-home #app-root.app{
+    width:100vw;
+    min-width:100vw;
+    max-width:100vw;
+    margin:0;
+    left:0;
+    transform:none;
+  }
+
+  body.mode-home #home-shell,
+  body.mode-home #start-screen{
+    width:100%;
+    min-width:0;
+    max-width:none;
+    margin-inline:0;
+  }
+
 }
 
 
