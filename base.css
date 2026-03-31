@@ -46,12 +46,13 @@ body{
   margin:0;
   padding:0;
   max-width:none;
+  min-width:0;
   overflow-x:hidden;
 }
 
 body{
   width:100%;
-  min-width:100%;
+  min-width:0;
   height:100%;
   min-height:100dvh;
   font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial;
@@ -66,7 +67,7 @@ body{
 
 .app{
   width:100%;
-  min-width:100%;
+  min-width:0;
   max-width:none;
   height:100%;
   min-height:var(--app-viewport-height);
@@ -87,7 +88,7 @@ body{
 
 #app-root{
   width:100%;
-  min-width:100%;
+  min-width:0;
   max-width:none;
   height:100%;
   min-height:var(--app-viewport-height);
