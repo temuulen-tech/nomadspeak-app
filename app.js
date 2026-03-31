@@ -93,7 +93,7 @@ function ensureBootFallbackContent(root) {
   if (!root) return;
   const hasHomeShell = Boolean(root.querySelector("#home-shell"));
   if (hasHomeShell) return;
-  root.innerHTML = '<section id="home-shell"></section><section class="card home-only home-hub-card" id="start-screen"></section>';
+  root.innerHTML = '<section id="home-shell"></section><section class="home-only home-hub-card" id="start-screen"></section>';
 }
 
 function updateViewportHeightVars() {
