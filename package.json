@@ -2,7 +2,7 @@
   "name": "@nomadspeak/mobile-app",
   "private": true,
   "version": "1.0.0",
-  "description": "NomadSpeak – English learning app for Mongolian learners",
+  "description": "NomadSpeak \u2013 English learning app for Mongolian learners",
   "scripts": {
     "test:smoke": "node --test tests/final-readiness-smoke.test.mjs",
     "build": "npm run android:prepare:web",
@@ -14,7 +14,7 @@
     "cap:update:android": "node ./node_modules/@capacitor/cli/bin/capacitor update android",
     "cap:sync:android": "npm run android:prepare:web && node ./node_modules/@capacitor/cli/bin/capacitor update android",
     "android:bundle:release": "npm run android:prepare:web && (cd android && (./gradlew bundleRelease || gradle bundleRelease))",
-    "cap:copy:android": "npm run android:prepare:web",
+    "cap:copy:android": "npm run android:prepare:web && node ./node_modules/@capacitor/cli/bin/capacitor copy android",
     "android:phone": "node scripts/android/install-debug-phone.mjs"
   },
   "dependencies": {
