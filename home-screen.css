@@ -443,7 +443,6 @@ body[data-mode="home"] #start-screen{
   body.mode-home #start-screen,
   body[data-mode="home"] #start-screen{
     width:100% !important;
-    inline-size:var(--app-viewport-width, 100vw) !important;
     max-width:none !important;
     min-width:0 !important;
     margin:0 !important;
