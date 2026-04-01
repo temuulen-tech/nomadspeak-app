@@ -111,7 +111,7 @@ function updateViewportHeightVars() {
 
 
 function ensureViewportMeta() {
-  const viewportContent = "width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover, shrink-to-fit=no";
+  const viewportContent = "width=device-width, initial-scale=1, viewport-fit=cover";
   let viewportMeta = document.querySelector('meta[name="viewport"]');
   if (!viewportMeta) {
     viewportMeta = document.createElement("meta");
