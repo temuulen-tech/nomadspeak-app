@@ -13,6 +13,23 @@
   <meta name="theme-color" content="#062b2f" />
   <meta name="color-scheme" content="dark" />
   <title>NomadSpeak</title>
+  <style>
+    /* Critical first-paint guard for Android WebView overview/shrink behavior.
+       Ensure hidden shells stay hidden before external CSS loads and keep root width pinned to viewport. */
+    html, body {
+      margin: 0;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+    }
+    #app-root, .app, #home-shell, #start-screen {
+      width: 100%;
+      max-width: 100%;
+      min-width: 0;
+      margin: 0;
+    }
+    .hidden { display: none !important; }
+  </style>
     <link rel="manifest" href="/manifest.json" />
   <link rel="icon" href="/assets/icons/nomadspeak-app-icon-192.svg" type="image/svg+xml" />
   <link rel="apple-touch-icon" href="/assets/icons/nomadspeak-app-icon-192.svg" />
