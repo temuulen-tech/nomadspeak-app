@@ -37,6 +37,88 @@ function shouldUseDirectMobileBoot() {
   return isRealMobileBrowser() && isLocalLikeHost();
 }
 
+function shouldShowAndroidWidthDebugOverlay() {
+  const ua = navigator.userAgent || "";
+  return /Android/i.test(ua);
+}
+
+function formatPx(value) {
+  if (!Number.isFinite(value)) return "n/a";
+  return `${Math.round(value * 100) / 100}px`;
+}
+
+function describeElementWidth(selector, element) {
+  if (!element) {
+    return `${selector}
+  missing: true`;
+  }
+
+  const rect = element.getBoundingClientRect();
+  const styles = window.getComputedStyle(element);
+  return `${selector}
+  offsetWidth: ${formatPx(element.offsetWidth)}
+  clientWidth: ${formatPx(element.clientWidth)}
+  rect.width: ${formatPx(rect.width)}
+  display: ${styles.display}
+  position: ${styles.position}
+  margin-left/right: ${styles.marginLeft} / ${styles.marginRight}
+  max-width: ${styles.maxWidth}
+  width: ${styles.width}`;
+}
+
+function mountAndroidWidthDebugOverlay() {
+  if (!shouldShowAndroidWidthDebugOverlay()) return;
+  if (document.getElementById("android-width-debug-overlay")) return;
+
+  const overlay = document.createElement("pre");
+  overlay.id = "android-width-debug-overlay";
+  overlay.setAttribute("aria-hidden", "true");
+  overlay.style.position = "fixed";
+  overlay.style.left = "0";
+  overlay.style.right = "0";
+  overlay.style.bottom = "0";
+  overlay.style.maxHeight = "46vh";
+  overlay.style.overflow = "auto";
+  overlay.style.margin = "0";
+  overlay.style.padding = "10px 12px";
+  overlay.style.background = "rgba(0,0,0,0.85)";
+  overlay.style.color = "#8dff9a";
+  overlay.style.borderTop = "1px solid rgba(141,255,154,0.35)";
+  overlay.style.font = "11px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+  overlay.style.zIndex = "2147483647";
+  overlay.style.whiteSpace = "pre";
+  overlay.style.pointerEvents = "none";
+
+  const updateOverlay = () => {
+    const viewport = window.visualViewport;
+    const lines = [
+      "[Android Width Debug Overlay]",
+      `time: ${new Date().toISOString()}`,
+      `window.innerWidth: ${formatPx(window.innerWidth)}`,
+      `visualViewport.width: ${formatPx(viewport?.width ?? Number.NaN)}`,
+      `document.documentElement.clientWidth: ${formatPx(document.documentElement?.clientWidth ?? Number.NaN)}`,
+      `document.body.clientWidth: ${formatPx(document.body?.clientWidth ?? Number.NaN)}`,
+      "",
+      describeElementWidth("#app-root", document.getElementById("app-root")),
+      "",
+      describeElementWidth(".app", document.querySelector(".app")),
+      "",
+      describeElementWidth("#home-shell", document.getElementById("home-shell")),
+      "",
+      describeElementWidth("#start-screen", document.getElementById("start-screen")),
+    ];
+    overlay.textContent = lines.join("\n");
+  };
+
+  document.body.appendChild(overlay);
+  updateOverlay();
+  window.addEventListener("resize", updateOverlay, { passive: true });
+  window.addEventListener("orientationchange", updateOverlay, { passive: true });
+  window.visualViewport?.addEventListener("resize", updateOverlay, { passive: true });
+  window.visualViewport?.addEventListener("scroll", updateOverlay, { passive: true });
+  window.setInterval(updateOverlay, 700);
+}
+
 function shouldBypassServiceWorker() {
   const searchParams = new URLSearchParams(window.location.search);
   const isSecureContext = window.location.protocol === "https:";
@@ -152,6 +234,7 @@ async function bootstrapApp() {
   mountLearningTopActions();
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
+  mountAndroidWidthDebugOverlay();
 
   const { initializeAuth } = await import("./auth.js");
   await initializeAuth();
