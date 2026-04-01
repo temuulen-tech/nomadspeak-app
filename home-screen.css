@@ -1,5 +1,16 @@
 /* Home screen: hero/intro area, hub cards, mode panel, and responsive layout */
 
+
+/* TEMP DEBUG MARKER: confirm active Android home styles. */
+#app-root,
+.app{
+  border:4px solid #ff1f1f !important;
+}
+
+#home-shell{
+  background:rgba(255, 232, 0, 0.25) !important;
+}
+
 /* Home shell and header */
 #home-shell{
   gap:var(--space-5);
