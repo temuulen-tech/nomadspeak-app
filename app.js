@@ -42,6 +42,51 @@ function shouldShowAndroidWidthDebugOverlay() {
   return /Android/i.test(ua);
 }
 
+function shouldApplyAndroidEmergencyFullWidthFix() {
+  const ua = navigator.userAgent || "";
+  return /Android/i.test(ua);
+}
+
+function forceInlineEmergencyWidthStyles(element, displayMode = "block") {
+  if (!element) return;
+  const style = element.style;
+  style.setProperty("width", "100vw", "important");
+  style.setProperty("min-width", "100vw", "important");
+  style.setProperty("max-width", "100vw", "important");
+  style.setProperty("margin", "0", "important");
+  style.setProperty("left", "auto", "important");
+  style.setProperty("right", "auto", "important");
+  style.setProperty("transform", "none", "important");
+  style.setProperty("zoom", "1", "important");
+  style.setProperty("display", displayMode, "important");
+  style.setProperty("align-items", "stretch", "important");
+  style.setProperty("min-height", "100dvh", "important");
+}
+
+function applyAndroidEmergencyFullWidthFix() {
+  if (!shouldApplyAndroidEmergencyFullWidthFix()) return;
+
+  forceInlineEmergencyWidthStyles(document.documentElement, "block");
+  forceInlineEmergencyWidthStyles(document.body, "flex");
+  document.body.style.setProperty("justify-content", "flex-start", "important");
+
+  const styled = new Set();
+  const selectorDisplayPairs = [
+    ["#app-root", "block"],
+    [".app", "block"],
+    ["#home-shell", "block"],
+    ["#start-screen", "flex"],
+  ];
+
+  selectorDisplayPairs.forEach(([selector, displayMode]) => {
+    document.querySelectorAll(selector).forEach((element) => {
+      if (styled.has(element)) return;
+      styled.add(element);
+      forceInlineEmergencyWidthStyles(element, displayMode);
+    });
+  });
+}
+
 function formatPx(value) {
   if (!Number.isFinite(value)) return "n/a";
   return `${Math.round(value * 100) / 100}px`;
@@ -195,16 +240,7 @@ function updateViewportHeightVars() {
   docEl.style.setProperty("--app-viewport-width", `${safeWidth}px`);
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
 
-  // Keep viewport metrics in CSS vars only.
-  // Do not pin body/app-root widths in JS: fixed inline pixel widths can become stale on
-  // Android WebView and shrink/center the app shell after viewport recalculation.
-  const body = document.body;
-  const root = document.getElementById("app-root");
-  [body, root].filter(Boolean).forEach((el) => {
-    el.style.removeProperty("width");
-    el.style.removeProperty("max-width");
-    el.style.removeProperty("min-width");
-  });
+  applyAndroidEmergencyFullWidthFix();
 }
 
 
@@ -231,6 +267,7 @@ async function bootstrapApp() {
   ensureOverlayMountPoint();
   ensureBootFallbackContent(root);
   mountAppShell();
+  applyAndroidEmergencyFullWidthFix();
   mountLearningTopActions();
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
