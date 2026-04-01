@@ -429,3 +429,36 @@ body[data-mode="home"] #start-screen{
     overflow-wrap:break-word;
   }
 }
+
+
+/* Android/mobile viewport guard:
+   force full-viewport home layout and neutralize any inherited centering/scaling wrappers. */
+@media (max-width:700px){
+  body.mode-home #app-root,
+  body[data-mode="home"] #app-root,
+  body.mode-home .app,
+  body[data-mode="home"] .app,
+  body.mode-home #home-shell,
+  body[data-mode="home"] #home-shell,
+  body.mode-home #start-screen,
+  body[data-mode="home"] #start-screen{
+    width:100% !important;
+    max-width:none !important;
+    min-width:0 !important;
+    margin:0 !important;
+    left:auto !important;
+    right:auto !important;
+    transform:none !important;
+  }
+
+  body.mode-home #home-shell,
+  body[data-mode="home"] #home-shell{
+    min-height:calc(var(--app-viewport-height) - var(--app-safe-top) - var(--app-safe-bottom));
+  }
+
+  body.mode-home #start-screen,
+  body[data-mode="home"] #start-screen{
+    flex:1 1 auto;
+    min-height:100%;
+  }
+}

@@ -1,7 +1,7 @@
 /* Shared app-shell and screen-shell foundations */
 
 .app{
-  contain:style;
+  contain:none;
 }
 
 #home-shell,
