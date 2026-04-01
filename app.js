@@ -104,9 +104,24 @@ function updateViewportHeightVars() {
   const safeHeight = Number.isFinite(visualViewportHeight) && visualViewportHeight > 0
     ? visualViewportHeight
     : window.innerHeight;
+  const visualViewportWidth = window.visualViewport?.width;
+  const safeWidth = Number.isFinite(visualViewportWidth) && visualViewportWidth > 0
+    ? visualViewportWidth
+    : window.innerWidth;
 
   docEl.style.setProperty("--app-viewport-height", `${safeHeight}px`);
+  docEl.style.setProperty("--app-viewport-width", `${safeWidth}px`);
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
+
+  // Android WebView can keep an old, wider layout viewport and scale the whole page down.
+  // Pin root shell widths to the measured visual viewport to prevent centered "shrunk" rendering.
+  const body = document.body;
+  const root = document.getElementById("app-root");
+  [body, root].filter(Boolean).forEach((el) => {
+    el.style.width = `${safeWidth}px`;
+    el.style.maxWidth = `${safeWidth}px`;
+    el.style.minWidth = "0px";
+  });
 }
 
 
