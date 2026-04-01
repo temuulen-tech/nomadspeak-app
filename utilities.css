@@ -106,7 +106,8 @@ body[data-mode="learning"] .app{
   body[data-mode="learning"] .app{
     height:auto;
     min-height:var(--app-viewport-height);
-    overflow:visible;
+    overflow-y:auto;
+    overflow-x:hidden;
     padding-top:var(--app-safe-top);
     overscroll-behavior-y:auto;
   }
@@ -239,7 +240,8 @@ body[data-mode="learning"] .app{
   body[data-mode="learning"] .app{
     min-height:var(--app-viewport-height);
     height:auto;
-    overflow:visible;
+    overflow-y:auto;
+    overflow-x:hidden;
     padding-left:0;
     padding-right:0;
   }
