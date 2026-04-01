@@ -230,6 +230,21 @@ body[data-mode="learning"] .app{
 
 
 @media (hover:none) and (pointer:coarse){
+  html,
+  body,
+  #app-root,
+  .app,
+  #home-shell,
+  #start-screen{
+    width:100% !important;
+    min-width:0 !important;
+    max-width:100% !important;
+    margin:0 !important;
+    left:auto !important;
+    right:auto !important;
+    transform:none !important;
+  }
+
   body.mode-learning,
   body[data-mode="learning"]{
     overflow-y:auto;
