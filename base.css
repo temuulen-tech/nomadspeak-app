@@ -280,7 +280,8 @@ body{
   .app{
     height:auto;
     min-height:var(--app-viewport-height);
-    overflow:visible;
+    overflow-y:auto;
+    overflow-x:hidden;
     overscroll-behavior-y:auto;
   }
 
@@ -357,7 +358,8 @@ body{
   .app{
     height:auto;
     min-height:var(--app-viewport-height);
-    overflow:visible;
+    overflow-y:auto;
+    overflow-x:hidden;
     padding:var(--app-safe-top) 0 var(--app-safe-bottom);
   }
 }
