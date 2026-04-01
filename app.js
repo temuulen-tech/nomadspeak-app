@@ -113,14 +113,15 @@ function updateViewportHeightVars() {
   docEl.style.setProperty("--app-viewport-width", `${safeWidth}px`);
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
 
-  // Android WebView can keep an old, wider layout viewport and scale the whole page down.
-  // Pin root shell widths to the measured visual viewport to prevent centered "shrunk" rendering.
+  // Keep viewport metrics in CSS vars only.
+  // Do not pin body/app-root widths in JS: fixed inline pixel widths can become stale on
+  // Android WebView and shrink/center the app shell after viewport recalculation.
   const body = document.body;
   const root = document.getElementById("app-root");
   [body, root].filter(Boolean).forEach((el) => {
-    el.style.width = `${safeWidth}px`;
-    el.style.maxWidth = `${safeWidth}px`;
-    el.style.minWidth = "0px";
+    el.style.removeProperty("width");
+    el.style.removeProperty("max-width");
+    el.style.removeProperty("min-width");
   });
 }
 
