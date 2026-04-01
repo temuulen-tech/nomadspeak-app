@@ -101,11 +101,16 @@ function updateViewportHeightVars() {
   if (!docEl) return;
 
   const visualViewportHeight = window.visualViewport?.height;
+  const visualViewportWidth = window.visualViewport?.width;
   const safeHeight = Number.isFinite(visualViewportHeight) && visualViewportHeight > 0
     ? visualViewportHeight
     : window.innerHeight;
+  const safeWidth = Number.isFinite(visualViewportWidth) && visualViewportWidth > 0
+    ? visualViewportWidth
+    : window.innerWidth;
 
   docEl.style.setProperty("--app-viewport-height", `${safeHeight}px`);
+  docEl.style.setProperty("--app-viewport-width", `${safeWidth}px`);
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
 }
 
