@@ -7,7 +7,7 @@ import com.getcapacitor.BridgeActivity;
 public class MainActivity extends BridgeActivity {
     // Temporary host-isolation switch: set true to launch the minimal WebView test page.
     // Set back to false to return to normal app startup.
-    private static final boolean ENABLE_HOST_ISOLATION_TEST_PAGE = false;
+    private static final boolean ENABLE_HOST_ISOLATION_TEST_PAGE = true;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
