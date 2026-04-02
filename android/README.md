@@ -9,6 +9,17 @@ This folder is aligned to a Capacitor Android project shape and uses a determini
 - Bundled web payload location is `android/app/src/main/assets/public`.
 - Runtime Capacitor config in native assets exists at `android/app/src/main/assets/capacitor.config.json`.
 
+## Temporary host-isolation test page switch
+Use this when debugging Android narrow-width rendering:
+
+1. Open `android/app/src/main/java/com/nomadspeak/mobile/MainActivity.java`.
+2. Set `ENABLE_HOST_ISOLATION_TEST_PAGE = true`.
+3. Rebuild/reinstall the Android app.
+
+When enabled, app startup is redirected to `/host-isolation-test.html`, which is a standalone page (no NomadSpeak shell/router/CSS) that renders viewport width metrics directly in the same Android WebView host.
+
+To return to normal app startup, set `ENABLE_HOST_ISOLATION_TEST_PAGE = false` and rebuild.
+
 ## Required Gradle wrapper files (must exist in repo)
 For reliable Android builds without depending on a developer's global Gradle install, commit all of:
 - `android/gradlew`
