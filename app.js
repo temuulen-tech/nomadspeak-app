@@ -181,9 +181,9 @@ function updateViewportHeightVars() {
   const safeHeight = Number.isFinite(visualViewportHeight) && visualViewportHeight > 0
     ? visualViewportHeight
     : window.innerHeight;
-  const visualViewportWidth = window.visualViewport?.width;
-  const safeWidth = Number.isFinite(visualViewportWidth) && visualViewportWidth > 0
-    ? visualViewportWidth
+  const layoutViewportWidth = docEl.clientWidth;
+  const safeWidth = Number.isFinite(layoutViewportWidth) && layoutViewportWidth > 0
+    ? layoutViewportWidth
     : window.innerWidth;
 
   docEl.style.setProperty("--app-viewport-height", `${safeHeight}px`);
