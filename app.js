@@ -37,180 +37,6 @@ function shouldUseDirectMobileBoot() {
   return isRealMobileBrowser() && isLocalLikeHost();
 }
 
-function shouldShowAndroidWidthDebugOverlay() {
-  const ua = navigator.userAgent || "";
-  return /Android/i.test(ua);
-}
-
-function shouldApplyAndroidEmergencyFullWidthFix() {
-  const ua = navigator.userAgent || "";
-  return /Android/i.test(ua);
-}
-
-function forceInlineEmergencyWidthStyles(element, displayMode = "block") {
-  if (!element) return;
-  const style = element.style;
-  style.setProperty("width", "100vw", "important");
-  style.setProperty("min-width", "100vw", "important");
-  style.setProperty("max-width", "100vw", "important");
-  style.setProperty("margin", "0", "important");
-  style.setProperty("left", "auto", "important");
-  style.setProperty("right", "auto", "important");
-  style.setProperty("transform", "none", "important");
-  style.setProperty("zoom", "1", "important");
-  style.setProperty("display", displayMode, "important");
-  style.setProperty("align-items", "stretch", "important");
-  style.setProperty("min-height", "100dvh", "important");
-}
-
-function applyAndroidEmergencyFullWidthFix() {
-  if (!shouldApplyAndroidEmergencyFullWidthFix()) return;
-
-  forceInlineEmergencyWidthStyles(document.documentElement, "block");
-  forceInlineEmergencyWidthStyles(document.body, "flex");
-  document.body.style.setProperty("justify-content", "flex-start", "important");
-
-  const styled = new Set();
-  const selectorDisplayPairs = [
-    ["#app-root", "block"],
-    [".app", "block"],
-    ["#home-shell", "block"],
-    ["#start-screen", "flex"],
-  ];
-
-  selectorDisplayPairs.forEach(([selector, displayMode]) => {
-    document.querySelectorAll(selector).forEach((element) => {
-      if (styled.has(element)) return;
-      styled.add(element);
-      forceInlineEmergencyWidthStyles(element, displayMode);
-    });
-  });
-}
-
-function formatPx(value) {
-  if (!Number.isFinite(value)) return "n/a";
-  return `${Math.round(value * 100) / 100}px`;
-}
-
-function describeElementWidth(selector, element) {
-  if (!element) {
-    return `${selector}
-  missing: true`;
-  }
-
-  const rect = element.getBoundingClientRect();
-  const styles = window.getComputedStyle(element);
-  return `${selector}
-  offsetWidth: ${formatPx(element.offsetWidth)}
-  clientWidth: ${formatPx(element.clientWidth)}
-  rect.width: ${formatPx(rect.width)}
-  display: ${styles.display}
-  position: ${styles.position}
-  margin-left/right: ${styles.marginLeft} / ${styles.marginRight}
-  max-width: ${styles.maxWidth}
-  width: ${styles.width}`;
-}
-
-function mountAndroidWidthDebugOverlay() {
-  if (!shouldShowAndroidWidthDebugOverlay()) return;
-  if (document.getElementById("android-width-debug-overlay")) return;
-
-  const overlay = document.createElement("pre");
-  overlay.id = "android-width-debug-overlay";
-  overlay.setAttribute("aria-hidden", "true");
-  overlay.style.position = "fixed";
-  overlay.style.top = "0";
-  overlay.style.left = "0";
-  overlay.style.width = "100vw";
-  overlay.style.maxWidth = "none";
-  overlay.style.overflow = "auto";
-  overlay.style.margin = "0";
-  overlay.style.padding = "4px";
-  overlay.style.background = "rgba(0,0,0,0.92)";
-  overlay.style.color = "#fff";
-  overlay.style.textShadow = "0 0 1px rgba(141,255,154,0.85)";
-  overlay.style.border = "1px solid rgba(141,255,154,0.35)";
-  overlay.style.fontSize = "8px";
-  overlay.style.lineHeight = "1.1";
-  overlay.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
-  overlay.style.zIndex = "2147483647";
-  overlay.style.whiteSpace = "pre-wrap";
-  overlay.style.overflowWrap = "anywhere";
-  overlay.style.clip = "auto";
-  overlay.style.clipPath = "none";
-  overlay.style.boxSizing = "border-box";
-  overlay.style.pointerEvents = "none";
-
-  const updateOverlay = () => {
-    const viewport = window.visualViewport;
-    const viewportMetaContent = document
-      .querySelector('meta[name="viewport"]')
-      ?.getAttribute("content");
-    const lines = [
-      "[Android Width Debug Overlay]",
-      `time: ${new Date().toISOString()}`,
-      `window.innerWidth: ${formatPx(window.innerWidth)}`,
-      `window.outerWidth: ${window.outerWidth}`,
-      `window.devicePixelRatio: ${window.devicePixelRatio}`,
-      `window.visualViewport.width: ${formatPx(viewport?.width ?? Number.NaN)}`,
-      `window.visualViewport.height: ${formatPx(viewport?.height ?? Number.NaN)}`,
-      `window.visualViewport.scale: ${viewport?.scale}`,
-      `document.documentElement.clientWidth: ${formatPx(document.documentElement?.clientWidth ?? Number.NaN)}`,
-      `document.body.clientWidth: ${formatPx(document.body?.clientWidth ?? Number.NaN)}`,
-      `#app-root width: ${formatPx(document.getElementById("app-root")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
-      `.app width: ${formatPx(document.querySelector(".app")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
-      `#home-shell width: ${formatPx(document.getElementById("home-shell")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
-      `meta viewport content: ${viewportMetaContent || "n/a"}`,
-      "",
-      describeElementWidth("#app-root", document.getElementById("app-root")),
-      "",
-      describeElementWidth(".app", document.querySelector(".app")),
-      "",
-      describeElementWidth("#home-shell", document.getElementById("home-shell")),
-      "",
-      describeElementWidth("#start-screen", document.getElementById("start-screen")),
-    ];
-    overlay.textContent = lines.join("\n");
-  };
-
-  document.body.appendChild(overlay);
-  updateOverlay();
-  window.addEventListener("resize", updateOverlay, { passive: true });
-  window.addEventListener("orientationchange", updateOverlay, { passive: true });
-  window.visualViewport?.addEventListener("resize", updateOverlay, { passive: true });
-  window.visualViewport?.addEventListener("scroll", updateOverlay, { passive: true });
-  window.setInterval(updateOverlay, 700);
-}
-
-function logAndroidViewportDebugValues(reason = "unknown") {
-  if (!shouldShowAndroidWidthDebugOverlay()) return;
-
-  const visualViewport = window.visualViewport;
-  const appRootWidth = document.getElementById("app-root")?.getBoundingClientRect?.().width;
-  const appWidth = document.querySelector(".app")?.getBoundingClientRect?.().width;
-  const homeShellWidth = document.getElementById("home-shell")?.getBoundingClientRect?.().width;
-  const viewportMetaContent = document
-    .querySelector('meta[name="viewport"]')
-    ?.getAttribute("content");
-
-  console.log("[ANDROID_VIEWPORT_DEBUG]", {
-    reason,
-    timestamp: new Date().toISOString(),
-    "window.innerWidth": window.innerWidth,
-    "window.outerWidth": window.outerWidth,
-    "window.devicePixelRatio": window.devicePixelRatio,
-    "window.visualViewport?.width": visualViewport?.width,
-    "window.visualViewport?.height": visualViewport?.height,
-    "window.visualViewport?.scale": visualViewport?.scale,
-    "document.documentElement.clientWidth": document.documentElement?.clientWidth,
-    "document.body.clientWidth": document.body?.clientWidth,
-    "#app-root getBoundingClientRect().width": appRootWidth,
-    ".app getBoundingClientRect().width": appWidth,
-    "#home-shell getBoundingClientRect().width": homeShellWidth,
-    "meta[name=\"viewport\"] content": viewportMetaContent,
-  });
-}
-
 function shouldBypassServiceWorker() {
   const searchParams = new URLSearchParams(window.location.search);
   const isSecureContext = window.location.protocol === "https:";
@@ -287,7 +113,6 @@ function updateViewportHeightVars() {
   docEl.style.setProperty("--app-viewport-width", `${safeWidth}px`);
   docEl.style.setProperty("--app-viewport-offset-top", `${window.visualViewport?.offsetTop || 0}px`);
 
-  applyAndroidEmergencyFullWidthFix();
 }
 
 
@@ -314,12 +139,9 @@ async function bootstrapApp() {
   ensureOverlayMountPoint();
   ensureBootFallbackContent(root);
   mountAppShell();
-  applyAndroidEmergencyFullWidthFix();
   mountLearningTopActions();
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
-  mountAndroidWidthDebugOverlay();
-  logAndroidViewportDebugValues("startup");
 
   const { initializeAuth } = await import("./auth.js");
   await initializeAuth();
@@ -337,11 +159,8 @@ function queueBootstrap() {
     window.visualViewport?.removeEventListener("scroll", updateViewportHeightVars);
 
     updateViewportHeightVars();
-    logAndroidViewportDebugValues("startup-before-bootstrap");
     window.addEventListener("resize", updateViewportHeightVars, { passive: true });
-    window.addEventListener("resize", () => logAndroidViewportDebugValues("window-resize"), { passive: true });
     window.visualViewport?.addEventListener("resize", updateViewportHeightVars, { passive: true });
-    window.visualViewport?.addEventListener("resize", () => logAndroidViewportDebugValues("visualViewport-resize"), { passive: true });
     window.visualViewport?.addEventListener("scroll", updateViewportHeightVars, { passive: true });
 
     bootstrapApp().catch((error) => {

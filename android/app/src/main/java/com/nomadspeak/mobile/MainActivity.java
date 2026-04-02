@@ -13,14 +13,11 @@ public class MainActivity extends BridgeActivity {
         WebSettings settings = bridge.getWebView().getSettings();
         if (settings == null) return;
 
-        // Ensure WebView honors <meta name="viewport" content="width=device-width,...">.
-        // Turning wide viewport OFF can make Android ignore the meta viewport and compute
-        // a much narrower CSS layout width (observed ~171px), which then constrains the
-        // entire app (including fixed overlays) into a centered narrow column.
-        settings.setUseWideViewPort(true);
+        // Disable Android WebView zoom/page scaling behavior so CSS px maps 1:1 and
+        // the app renders full width instead of a zoomed-out "desktop overview".
+        settings.setUseWideViewPort(false);
         settings.setLoadWithOverviewMode(false);
 
-        // Keep scale fixed at 1:1 CSS pixels for app UI so runtime width remains stable.
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
