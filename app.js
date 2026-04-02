@@ -136,13 +136,20 @@ function mountAndroidWidthDebugOverlay() {
 
   const updateOverlay = () => {
     const viewport = window.visualViewport;
+    const viewportMetaContent = document
+      .querySelector('meta[name="viewport"]')
+      ?.getAttribute("content");
     const lines = [
       "[Android Width Debug Overlay]",
       `time: ${new Date().toISOString()}`,
       `window.innerWidth: ${formatPx(window.innerWidth)}`,
+      `window.outerWidth: ${window.outerWidth}`,
+      `window.devicePixelRatio: ${window.devicePixelRatio}`,
       `visualViewport.width: ${formatPx(viewport?.width ?? Number.NaN)}`,
+      `window.visualViewport?.scale: ${viewport?.scale}`,
       `document.documentElement.clientWidth: ${formatPx(document.documentElement?.clientWidth ?? Number.NaN)}`,
       `document.body.clientWidth: ${formatPx(document.body?.clientWidth ?? Number.NaN)}`,
+      `document.querySelector('meta[name="viewport"]')?.getAttribute('content'): ${viewportMetaContent}`,
       "",
       describeElementWidth("#app-root", document.getElementById("app-root")),
       "",
