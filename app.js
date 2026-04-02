@@ -171,6 +171,35 @@ function mountAndroidWidthDebugOverlay() {
   window.setInterval(updateOverlay, 700);
 }
 
+function logAndroidViewportDebugValues(reason = "unknown") {
+  if (!shouldShowAndroidWidthDebugOverlay()) return;
+
+  const visualViewport = window.visualViewport;
+  const appRootWidth = document.getElementById("app-root")?.getBoundingClientRect?.().width;
+  const appWidth = document.querySelector(".app")?.getBoundingClientRect?.().width;
+  const homeShellWidth = document.getElementById("home-shell")?.getBoundingClientRect?.().width;
+  const viewportMetaContent = document
+    .querySelector('meta[name="viewport"]')
+    ?.getAttribute("content");
+
+  console.log("[ANDROID_VIEWPORT_DEBUG]", {
+    reason,
+    timestamp: new Date().toISOString(),
+    "window.innerWidth": window.innerWidth,
+    "window.outerWidth": window.outerWidth,
+    "window.devicePixelRatio": window.devicePixelRatio,
+    "window.visualViewport?.width": visualViewport?.width,
+    "window.visualViewport?.height": visualViewport?.height,
+    "window.visualViewport?.scale": visualViewport?.scale,
+    "document.documentElement.clientWidth": document.documentElement?.clientWidth,
+    "document.body.clientWidth": document.body?.clientWidth,
+    "#app-root getBoundingClientRect().width": appRootWidth,
+    ".app getBoundingClientRect().width": appWidth,
+    "#home-shell getBoundingClientRect().width": homeShellWidth,
+    "meta[name=\"viewport\"] content": viewportMetaContent,
+  });
+}
+
 function shouldBypassServiceWorker() {
   const searchParams = new URLSearchParams(window.location.search);
   const isSecureContext = window.location.protocol === "https:";
@@ -279,6 +308,7 @@ async function bootstrapApp() {
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
   mountAndroidWidthDebugOverlay();
+  logAndroidViewportDebugValues("startup");
 
   const { initializeAuth } = await import("./auth.js");
   await initializeAuth();
@@ -296,8 +326,11 @@ function queueBootstrap() {
     window.visualViewport?.removeEventListener("scroll", updateViewportHeightVars);
 
     updateViewportHeightVars();
+    logAndroidViewportDebugValues("startup-before-bootstrap");
     window.addEventListener("resize", updateViewportHeightVars, { passive: true });
+    window.addEventListener("resize", () => logAndroidViewportDebugValues("window-resize"), { passive: true });
     window.visualViewport?.addEventListener("resize", updateViewportHeightVars, { passive: true });
+    window.visualViewport?.addEventListener("resize", () => logAndroidViewportDebugValues("visualViewport-resize"), { passive: true });
     window.visualViewport?.addEventListener("scroll", updateViewportHeightVars, { passive: true });
 
     bootstrapApp().catch((error) => {
