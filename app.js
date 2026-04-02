@@ -119,19 +119,30 @@ function mountAndroidWidthDebugOverlay() {
   overlay.id = "android-width-debug-overlay";
   overlay.setAttribute("aria-hidden", "true");
   overlay.style.position = "fixed";
+  overlay.style.top = "0";
   overlay.style.left = "0";
   overlay.style.right = "0";
   overlay.style.bottom = "0";
-  overlay.style.maxHeight = "46vh";
+  overlay.style.width = "100vw";
+  overlay.style.maxWidth = "none";
+  overlay.style.maxHeight = "none";
+  overlay.style.height = "100vh";
   overlay.style.overflow = "auto";
   overlay.style.margin = "0";
-  overlay.style.padding = "10px 12px";
-  overlay.style.background = "rgba(0,0,0,0.85)";
-  overlay.style.color = "#8dff9a";
-  overlay.style.borderTop = "1px solid rgba(141,255,154,0.35)";
-  overlay.style.font = "11px/1.35 ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
+  overlay.style.padding = "8px";
+  overlay.style.background = "rgba(0,0,0,0.9)";
+  overlay.style.color = "#ffffff";
+  overlay.style.textShadow = "0 0 1px rgba(141,255,154,0.85)";
+  overlay.style.border = "1px solid rgba(141,255,154,0.35)";
+  overlay.style.fontSize = "9px";
+  overlay.style.lineHeight = "1.2";
+  overlay.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
   overlay.style.zIndex = "2147483647";
   overlay.style.whiteSpace = "pre";
+  overlay.style.wordBreak = "break-all";
+  overlay.style.overflowWrap = "anywhere";
+  overlay.style.clip = "auto";
+  overlay.style.clipPath = "none";
   overlay.style.pointerEvents = "none";
 
   const updateOverlay = () => {
@@ -145,11 +156,15 @@ function mountAndroidWidthDebugOverlay() {
       `window.innerWidth: ${formatPx(window.innerWidth)}`,
       `window.outerWidth: ${window.outerWidth}`,
       `window.devicePixelRatio: ${window.devicePixelRatio}`,
-      `visualViewport.width: ${formatPx(viewport?.width ?? Number.NaN)}`,
+      `window.visualViewport?.width: ${formatPx(viewport?.width ?? Number.NaN)}`,
+      `window.visualViewport?.height: ${formatPx(viewport?.height ?? Number.NaN)}`,
       `window.visualViewport?.scale: ${viewport?.scale}`,
       `document.documentElement.clientWidth: ${formatPx(document.documentElement?.clientWidth ?? Number.NaN)}`,
       `document.body.clientWidth: ${formatPx(document.body?.clientWidth ?? Number.NaN)}`,
-      `document.querySelector('meta[name="viewport"]')?.getAttribute('content'): ${viewportMetaContent}`,
+      `#app-root getBoundingClientRect().width: ${formatPx(document.getElementById("app-root")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
+      `.app getBoundingClientRect().width: ${formatPx(document.querySelector(".app")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
+      `#home-shell getBoundingClientRect().width: ${formatPx(document.getElementById("home-shell")?.getBoundingClientRect?.().width ?? Number.NaN)}`,
+      `meta[name="viewport"] content: ${viewportMetaContent || "n/a"}`,
       "",
       describeElementWidth("#app-root", document.getElementById("app-root")),
       "",
