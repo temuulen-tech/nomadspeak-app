@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <title>NomadSpeak Host Isolation Test</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        width: 100%;
+        min-height: 100%;
+      }
+
+      body {
+        background: #131a32;
+        color: #ffffff;
+        font-family: Arial, Helvetica, sans-serif;
+      }
+
+      #metrics {
+        box-sizing: border-box;
+        width: 100vw;
+        min-height: 100vh;
+        padding: 32px;
+        font-size: clamp(28px, 4vw, 60px);
+        font-weight: 700;
+        line-height: 1.35;
+        white-space: pre-line;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="metrics">Loading...</div>
+    <script>
+      const metricsEl = document.getElementById('metrics');
+
+      function valueOrNA(value) {
+        return value == null ? 'n/a' : String(value);
+      }
+
+      function updateMetrics() {
+        const viewport = window.visualViewport;
+        metricsEl.textContent = [
+          'TEST PAGE',
+          '',
+          `window.innerWidth: ${valueOrNA(window.innerWidth)}`,
+          `window.outerWidth: ${valueOrNA(window.outerWidth)}`,
+          `document.documentElement.clientWidth: ${valueOrNA(document.documentElement && document.documentElement.clientWidth)}`,
+          `document.body.clientWidth: ${valueOrNA(document.body && document.body.clientWidth)}`,
+          `visualViewport.width: ${valueOrNA(viewport && viewport.width)}`,
+          `visualViewport.scale: ${valueOrNA(viewport && viewport.scale)}`
+        ].join('\n');
+      }
+
+      window.addEventListener('resize', updateMetrics);
+      window.addEventListener('orientationchange', updateMetrics);
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', updateMetrics);
+      }
+
+      updateMetrics();
+    </script>
+  </body>
+</html>

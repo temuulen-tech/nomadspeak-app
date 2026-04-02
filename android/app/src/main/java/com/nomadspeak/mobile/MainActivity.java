@@ -5,6 +5,10 @@ import android.webkit.WebSettings;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
+    // Temporary host-isolation switch: set true to launch the minimal WebView test page.
+    // Set back to false to return to normal app startup.
+    private static final boolean ENABLE_HOST_ISOLATION_TEST_PAGE = false;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -21,5 +25,9 @@ public class MainActivity extends BridgeActivity {
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
+
+        if (ENABLE_HOST_ISOLATION_TEST_PAGE) {
+            bridge.getWebView().post(() -> bridge.getWebView().loadUrl(bridge.getLocalUrl() + "/host-isolation-test.html"));
+        }
     }
 }
