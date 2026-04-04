@@ -19,7 +19,7 @@ public class MainActivity extends BridgeActivity {
 
         // Disable Android WebView zoom/page scaling behavior so CSS px maps 1:1 and
         // the app renders full width instead of a zoomed-out "desktop overview".
-        settings.setUseWideViewPort(false);
+        settings.setUseWideViewPort(true);
         settings.setLoadWithOverviewMode(false);
 
         settings.setSupportZoom(false);
