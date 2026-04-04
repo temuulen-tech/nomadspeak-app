@@ -1691,6 +1691,26 @@ const initializeAudioControls = createAudioControls({
   bindManagedEvent,
 });
 
+function isolateGameScreens({ targetScreenId } = {}) {
+  if (targetScreenId !== SCREEN_NAMES.SENTENCE_GAME) {
+    closeSentenceGameTipPanel();
+    sentenceRuntime?.setSentenceGameDifficultyPanelOpen(false);
+    sentenceRuntime?.stopSpeaking();
+    if (sentenceGameToastEl) {
+      sentenceGameToastEl.classList.remove("show", "hide");
+      sentenceGameToastEl.setAttribute("aria-hidden", "true");
+      sentenceGameToastEl.textContent = "";
+    }
+    if (sentenceGameCorrectPanelEl) setHidden(sentenceGameCorrectPanelEl, true);
+  }
+
+  if (targetScreenId !== SCREEN_NAMES.QA_GAME) {
+    qaFlow?.closeQaModal?.();
+    if (qaEnQuestionWrap) setHidden(qaEnQuestionWrap, true);
+    if (qaEnAnswerWrap) setHidden(qaEnAnswerWrap, true);
+  }
+}
+
 const { initializeApp } = createAppBootstrap({
   createProgressUi,
   createAppTimerManager,
@@ -1993,6 +2013,7 @@ const { initializeApp } = createAppBootstrap({
   ensureStoppedIfHidden,
   stopTimeUiUpdater,
   audioEngine,
+  isolateGameScreens,
   speechControls: createSpeechControls({
     bindManagedEvent,
     loadVoices,
