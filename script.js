@@ -1692,6 +1692,21 @@ const initializeAudioControls = createAudioControls({
 });
 
 function isolateGameScreens({ targetScreenId } = {}) {
+  if (targetScreenId !== SCREEN_NAMES.LESSON) {
+    stopSpeaking();
+    if (startLevelDropdown) setExpandedState(startBtn, startLevelDropdown, false);
+    if (questionEl) questionEl.textContent = "";
+    if (optionsEl) optionsEl.replaceChildren();
+    if (resultEl) {
+      resultEl.textContent = "";
+      resultEl.className = "result hidden";
+    }
+    if (nextBtn) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = "Хариулсны дараа дараагийн алхам нээгдэнэ";
+    }
+  }
+
   if (targetScreenId !== SCREEN_NAMES.SENTENCE_GAME) {
     closeSentenceGameTipPanel();
     sentenceRuntime?.setSentenceGameDifficultyPanelOpen(false);
