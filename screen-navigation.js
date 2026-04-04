@@ -40,6 +40,10 @@ export function createScreenNavigator({
   isolateGameScreens = () => {},
 }) {
   const DYNAMIC_SCREEN_CONTENT_SELECTORS = {
+    [SCREEN_NAMES.LESSON]: [
+      "#options",
+      "#result",
+    ],
     [SCREEN_NAMES.SENTENCES]: [
       "#sentences-list",
     ],
