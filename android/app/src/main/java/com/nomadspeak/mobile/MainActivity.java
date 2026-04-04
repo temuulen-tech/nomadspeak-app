@@ -1,9 +1,13 @@
 package com.nomadspeak.mobile;
 
 import android.os.Bundle;
+import android.os.Build;
 import android.util.Log;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Gravity;
+import android.view.WindowInsets;
+import android.view.WindowMetrics;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
@@ -94,6 +98,8 @@ public class MainActivity extends BridgeActivity {
     }
 
     private void logWebViewDiagnostics(String phase, WebView webView) {
+        View decorView = getWindow() != null ? getWindow().getDecorView() : null;
+        FrameLayout contentRoot = findViewById(android.R.id.content);
         ViewGroup.LayoutParams lp = webView.getLayoutParams();
         ViewParent parent = webView.getParent();
         Log.d(
@@ -110,6 +116,10 @@ public class MainActivity extends BridgeActivity {
                 + " padding=(" + webView.getPaddingLeft() + "," + webView.getPaddingTop() + "," + webView.getPaddingRight() + "," + webView.getPaddingBottom() + ")"
                 + " lp=(" + layoutParamsToString(lp) + ")"
         );
+        Log.d(TAG, phase + " decorView=" + viewDiagnostics(decorView));
+        Log.d(TAG, phase + " contentRoot=" + viewDiagnostics(contentRoot));
+        Log.d(TAG, phase + " windowMetrics=" + windowMetricsToString());
+        Log.d(TAG, phase + " displayMetrics=" + displayMetricsToString());
 
         int level = 0;
         while (parent instanceof View && level < 5) {
@@ -141,7 +151,18 @@ public class MainActivity extends BridgeActivity {
     private String buildDiagnosticsText(String phase, WebView webView) {
         StringBuilder diagnostics = new StringBuilder();
         ViewGroup.LayoutParams webViewLp = webView.getLayoutParams();
+        View decorView = getWindow() != null ? getWindow().getDecorView() : null;
+        FrameLayout contentRoot = findViewById(android.R.id.content);
+        View rootContentChild = contentRoot != null && contentRoot.getChildCount() > 0
+            ? contentRoot.getChildAt(0)
+            : null;
+
         diagnostics.append("NATIVE WEBVIEW DIAGNOSTICS [").append(phase).append("]\n");
+        diagnostics.append("windowMetrics=").append(windowMetricsToString()).append('\n');
+        diagnostics.append("displayMetrics=").append(displayMetricsToString()).append('\n');
+        diagnostics.append("decorView=").append(viewDiagnostics(decorView)).append('\n');
+        diagnostics.append("android.R.id.content=").append(viewDiagnostics(contentRoot)).append('\n');
+        diagnostics.append("contentRootChild=").append(viewDiagnostics(rootContentChild)).append('\n');
         diagnostics.append("webView.getWidth()=").append(webView.getWidth()).append('\n');
         diagnostics.append("webView.getHeight()=").append(webView.getHeight()).append('\n');
         diagnostics.append("webView.getScale()=").append(webView.getScale()).append('\n');
@@ -174,5 +195,42 @@ public class MainActivity extends BridgeActivity {
     private String layoutParamsToString(ViewGroup.LayoutParams lp) {
         if (lp == null) return "null";
         return "w=" + lp.width + ",h=" + lp.height + ",class=" + lp.getClass().getName();
+    }
+
+    private String viewDiagnostics(View view) {
+        if (view == null) return "null";
+        return "class=" + view.getClass().getSimpleName()
+            + ",w=" + view.getWidth()
+            + ",h=" + view.getHeight()
+            + ",measuredW=" + view.getMeasuredWidth()
+            + ",measuredH=" + view.getMeasuredHeight()
+            + ",lp=(" + layoutParamsToString(view.getLayoutParams()) + ")"
+            + ",scale=" + view.getScaleX() + "/" + view.getScaleY()
+            + ",translation=" + view.getTranslationX() + "/" + view.getTranslationY()
+            + ",padding=" + view.getPaddingLeft() + "/" + view.getPaddingTop() + "/" + view.getPaddingRight() + "/" + view.getPaddingBottom();
+    }
+
+    private String displayMetricsToString() {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+        if (dm == null) return "null";
+        return "wPx=" + dm.widthPixels + ",hPx=" + dm.heightPixels + ",density=" + dm.density + ",densityDpi=" + dm.densityDpi;
+    }
+
+    private String windowMetricsToString() {
+        if (getWindowManager() == null) return "null";
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            WindowMetrics metrics = getWindowManager().getCurrentWindowMetrics();
+            if (metrics == null) return "null";
+            android.graphics.Rect bounds = metrics.getBounds();
+            WindowInsets insets = metrics.getWindowInsets();
+            return "bounds=" + bounds.width() + "x" + bounds.height() + "@" + bounds.left + "," + bounds.top
+                + ",insets=" + (insets == null ? "null" : insets.toString())
+                + ",isInMultiWindow=" + isInMultiWindowMode();
+        }
+        DisplayMetrics legacy = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(legacy);
+        return "legacyDisplay=" + legacy.widthPixels + "x" + legacy.heightPixels
+            + ",density=" + legacy.density
+            + ",isInMultiWindow=" + isInMultiWindowMode();
     }
 }
