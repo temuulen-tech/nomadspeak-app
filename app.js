@@ -37,83 +37,6 @@ function shouldUseDirectMobileBoot() {
   return isRealMobileBrowser() && isLocalLikeHost();
 }
 
-function shouldShowAndroidWidthDebugOverlay() {
-  const ua = navigator.userAgent || "";
-  return /Android/i.test(ua);
-}
-
-function formatDebugValue(value) {
-  if (typeof value === "number" && Number.isFinite(value)) {
-    return `${Math.round(value * 100) / 100}`;
-  }
-  if (value == null || value === "") return "n/a";
-  return String(value);
-}
-
-function mountAndroidWidthDebugOverlay() {
-  if (!shouldShowAndroidWidthDebugOverlay()) return;
-  if (document.getElementById("android-width-debug-overlay")) return;
-
-  const overlay = document.createElement("pre");
-  overlay.id = "android-width-debug-overlay";
-  overlay.setAttribute("aria-hidden", "true");
-  overlay.style.position = "fixed";
-  overlay.style.left = "0";
-  overlay.style.right = "0";
-  overlay.style.bottom = "0";
-  overlay.style.zIndex = "2147483647";
-  overlay.style.margin = "0";
-  overlay.style.padding = "8px 10px";
-  overlay.style.maxHeight = "45vh";
-  overlay.style.overflow = "auto";
-  overlay.style.boxSizing = "border-box";
-  overlay.style.background = "rgba(0, 0, 0, 0.88)";
-  overlay.style.borderTop = "1px solid rgba(141, 255, 154, 0.5)";
-  overlay.style.color = "#d5ffd5";
-  overlay.style.fontFamily = "ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace";
-  overlay.style.fontSize = "10px";
-  overlay.style.lineHeight = "1.3";
-  overlay.style.whiteSpace = "pre-wrap";
-  overlay.style.overflowWrap = "anywhere";
-  overlay.style.pointerEvents = "none";
-
-  const render = () => {
-    const viewport = window.visualViewport;
-    const appRootWidth = document.getElementById("app-root")?.getBoundingClientRect?.().width;
-    const appWidth = document.querySelector(".app")?.getBoundingClientRect?.().width;
-    const homeShellWidth = document.getElementById("home-shell")?.getBoundingClientRect?.().width;
-    const viewportMetaContent = document
-      .querySelector('meta[name="viewport"]')
-      ?.getAttribute("content");
-
-    const lines = [
-      "[Android Runtime Width Debug]",
-      `window.innerWidth: ${formatDebugValue(window.innerWidth)}`,
-      `window.outerWidth: ${formatDebugValue(window.outerWidth)}`,
-      `window.devicePixelRatio: ${formatDebugValue(window.devicePixelRatio)}`,
-      `window.visualViewport?.width: ${formatDebugValue(viewport?.width)}`,
-      `window.visualViewport?.height: ${formatDebugValue(viewport?.height)}`,
-      `window.visualViewport?.scale: ${formatDebugValue(viewport?.scale)}`,
-      `document.documentElement.clientWidth: ${formatDebugValue(document.documentElement?.clientWidth)}`,
-      `document.body.clientWidth: ${formatDebugValue(document.body?.clientWidth)}`,
-      `#app-root getBoundingClientRect().width: ${formatDebugValue(appRootWidth)}`,
-      `.app getBoundingClientRect().width: ${formatDebugValue(appWidth)}`,
-      `#home-shell getBoundingClientRect().width: ${formatDebugValue(homeShellWidth)}`,
-      `meta[name="viewport"] content: ${formatDebugValue(viewportMetaContent)}`,
-    ];
-
-    overlay.textContent = lines.join("\n");
-  };
-
-  document.body.appendChild(overlay);
-  render();
-  window.addEventListener("resize", render, { passive: true });
-  window.addEventListener("orientationchange", render, { passive: true });
-  window.visualViewport?.addEventListener("resize", render, { passive: true });
-  window.visualViewport?.addEventListener("scroll", render, { passive: true });
-  window.setInterval(render, 700);
-}
-
 function shouldBypassServiceWorker() {
   const searchParams = new URLSearchParams(window.location.search);
   const isSecureContext = window.location.protocol === "https:";
@@ -219,7 +142,6 @@ async function bootstrapApp() {
   mountLearningTopActions();
   applyStandardizedButtonLabels();
   updateViewportHeightVars();
-  mountAndroidWidthDebugOverlay();
 
   const { initializeAuth } = await import("./auth.js");
   await initializeAuth();
