@@ -2,6 +2,7 @@ package com.nomadspeak.mobile;
 
 import android.os.Bundle;
 import android.webkit.WebSettings;
+import android.webkit.WebView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
@@ -11,10 +12,15 @@ public class MainActivity extends BridgeActivity {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+        // Do not restore WebView view state: Android can restore a previously persisted zoom level
+        // (including ~33%) from instance state, which overrides expected 100% page scale.
+        super.onCreate(null);
 
         if (bridge == null || bridge.getWebView() == null) return;
-        WebSettings settings = bridge.getWebView().getSettings();
+        WebView webView = bridge.getWebView();
+        webView.setSaveEnabled(false);
+
+        WebSettings settings = webView.getSettings();
         if (settings == null) return;
 
         // Force phone-sized viewport behavior and neutral scaling across OEM WebView variants.
@@ -22,14 +28,14 @@ public class MainActivity extends BridgeActivity {
         settings.setLoadWithOverviewMode(false);
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
         settings.setTextZoom(100);
-        bridge.getWebView().setInitialScale(100);
+        webView.setInitialScale(100);
 
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
 
         if (ENABLE_HOST_ISOLATION_TEST_PAGE) {
-            bridge.getWebView().post(() -> bridge.getWebView().loadUrl(bridge.getLocalUrl() + "/host-isolation-test.html"));
+            webView.post(() -> webView.loadUrl(bridge.getLocalUrl() + "/host-isolation-test.html"));
         }
     }
 }
