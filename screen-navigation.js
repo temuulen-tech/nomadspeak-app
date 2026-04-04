@@ -37,7 +37,49 @@ export function createScreenNavigator({
   refreshTimeSummaryUI = () => {},
   screenVisibility = {},
   timers = {},
+  isolateGameScreens = () => {},
 }) {
+  const DYNAMIC_SCREEN_CONTENT_SELECTORS = {
+    [SCREEN_NAMES.SENTENCES]: [
+      "#sentences-list",
+    ],
+    [SCREEN_NAMES.SENTENCE_GAME]: [
+      "#sentence-game-dropzone",
+      "#sentence-game-pool",
+      "#sentence-game-feedback",
+      "#sentence-game-toast",
+      "#sentence-game-correct-en",
+      "#sentence-game-correct-mn",
+    ],
+    [SCREEN_NAMES.QA_GAME]: [
+      "#qa-question-line",
+      "#qa-answer-line",
+      "#qa-word-bank",
+      "#qa-feedback",
+      "#qa-toast",
+      "#qa-en-question",
+      "#qa-en-answer",
+    ],
+    [SCREEN_NAMES.BOARD]: [
+      "#board-game-options",
+      "#board-game-feedback-hub",
+      "#board-game-particles",
+    ],
+  };
+
+  function clearElementContent(selector) {
+    const element = document.querySelector(selector);
+    if (!element) return;
+    element.replaceChildren();
+  }
+
+  function isolateNonTargetScreenContent(targetScreenId) {
+    Object.entries(DYNAMIC_SCREEN_CONTENT_SELECTORS).forEach(([screenId, selectors]) => {
+      if (screenId === targetScreenId) return;
+      selectors.forEach((selector) => clearElementContent(selector));
+    });
+  }
+
   function resolveScreenId(screenId) {
     return typeof screenId === "string"
       ? screenId
@@ -60,6 +102,9 @@ export function createScreenNavigator({
 
     const previousScreenId = getActiveScreenId();
     screenRegistry[previousScreenId]?.leave?.({ nextScreenId: resolvedScreenId, previousScreenId });
+
+    isolateNonTargetScreenContent(resolvedScreenId);
+    isolateGameScreens({ targetScreenId: resolvedScreenId, previousScreenId });
 
     Object.values(screens).forEach((screenEl) => hideElement(screenEl));
     showElement(targetScreen);

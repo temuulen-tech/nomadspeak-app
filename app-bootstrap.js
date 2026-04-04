@@ -53,6 +53,7 @@ export function createAppBootstrap(deps = {}) {
     startTimeUiUpdater,
     screenVisibility,
     timers,
+    isolateGameScreens,
     subscribeState,
     renderCoreStateSnapshot,
     loadCoreState,
@@ -276,6 +277,7 @@ export function createAppBootstrap(deps = {}) {
       refreshTimeSummaryUI,
       screenVisibility,
       timers,
+      isolateGameScreens,
     }));
   }
 
