@@ -4,25 +4,21 @@ import android.os.Bundle;
 import android.os.Build;
 import android.util.Log;
 import android.util.DisplayMetrics;
-import android.util.TypedValue;
-import android.view.Gravity;
 import android.view.WindowInsets;
 import android.view.WindowMetrics;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 import com.getcapacitor.BridgeActivity;
 
 public class MainActivity extends BridgeActivity {
     private static final String TAG = "NomadSpeakNativeView";
+    private static final String LOG_PREFIX = "[NOMADSPEAK_NATIVE_DIAG] ";
     // Temporary host-isolation switch: set true to launch the minimal WebView test page.
     // Set back to false to return to normal app startup.
     private static final boolean ENABLE_HOST_ISOLATION_TEST_PAGE = true;
-    private TextView diagnosticsOverlayView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,146 +46,47 @@ public class MainActivity extends BridgeActivity {
         settings.setBuiltInZoomControls(false);
         settings.setDisplayZoomControls(false);
 
-        if (ENABLE_HOST_ISOLATION_TEST_PAGE) {
-            setupDiagnosticsOverlay();
-        }
-
         webView.post(() -> {
             logWebViewDiagnostics("postOnCreate", webView);
-            updateDiagnosticsOverlay("postOnCreate", webView);
         });
         webView.addOnLayoutChangeListener((v, left, top, right, bottom, oldLeft, oldTop, oldRight, oldBottom) ->
         {
             logWebViewDiagnostics("onLayoutChange", webView);
-            updateDiagnosticsOverlay("onLayoutChange", webView);
         }
         );
 
         if (ENABLE_HOST_ISOLATION_TEST_PAGE) {
             webView.post(() -> {
                 webView.loadUrl(bridge.getLocalUrl() + "/host-isolation-test.html");
-                updateDiagnosticsOverlay("testPageLoad", webView);
+                logWebViewDiagnostics("testPageLoad", webView);
             });
         }
-    }
-
-    private void setupDiagnosticsOverlay() {
-        if (diagnosticsOverlayView != null) return;
-        FrameLayout rootView = findViewById(android.R.id.content);
-        if (rootView == null) return;
-
-        TextView diagnosticsView = new TextView(this);
-        diagnosticsView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 11);
-        diagnosticsView.setTextColor(0xFFFFFFFF);
-        diagnosticsView.setBackgroundColor(0xCC000000);
-        diagnosticsView.setPadding(16, 16, 16, 16);
-        diagnosticsView.setClickable(false);
-        diagnosticsView.setFocusable(false);
-        diagnosticsView.setText("Native diagnostics pending...");
-
-        FrameLayout.LayoutParams overlayParams = new FrameLayout.LayoutParams(
-            FrameLayout.LayoutParams.MATCH_PARENT,
-            FrameLayout.LayoutParams.WRAP_CONTENT
-        );
-        overlayParams.gravity = Gravity.TOP;
-
-        rootView.addView(diagnosticsView, overlayParams);
-        diagnosticsOverlayView = diagnosticsView;
     }
 
     private void logWebViewDiagnostics(String phase, WebView webView) {
         View decorView = getWindow() != null ? getWindow().getDecorView() : null;
         FrameLayout contentRoot = findViewById(android.R.id.content);
-        ViewGroup.LayoutParams lp = webView.getLayoutParams();
-        ViewParent parent = webView.getParent();
-        Log.d(
-            TAG,
-            phase
-                + " webView width=" + webView.getWidth()
-                + " height=" + webView.getHeight()
-                + " contentHeight=" + webView.getContentHeight()
-                + " scale=" + webView.getScale()
-                + " scaleX=" + webView.getScaleX()
-                + " scaleY=" + webView.getScaleY()
-                + " translationX=" + webView.getTranslationX()
-                + " translationY=" + webView.getTranslationY()
-                + " padding=(" + webView.getPaddingLeft() + "," + webView.getPaddingTop() + "," + webView.getPaddingRight() + "," + webView.getPaddingBottom() + ")"
-                + " lp=(" + layoutParamsToString(lp) + ")"
-        );
-        Log.d(TAG, phase + " decorView=" + viewDiagnostics(decorView));
-        Log.d(TAG, phase + " contentRoot=" + viewDiagnostics(contentRoot));
-        Log.d(TAG, phase + " windowMetrics=" + windowMetricsToString());
-        Log.d(TAG, phase + " displayMetrics=" + displayMetricsToString());
-
-        int level = 0;
-        while (parent instanceof View && level < 5) {
-            View parentView = (View) parent;
-            ViewGroup.LayoutParams parentLp = parentView.getLayoutParams();
-            Log.d(
-                TAG,
-                phase
-                    + " parent[" + level + "] class=" + parentView.getClass().getName()
-                    + " width=" + parentView.getWidth()
-                    + " height=" + parentView.getHeight()
-                    + " scaleX=" + parentView.getScaleX()
-                    + " scaleY=" + parentView.getScaleY()
-                    + " translationX=" + parentView.getTranslationX()
-                    + " translationY=" + parentView.getTranslationY()
-                    + " padding=(" + parentView.getPaddingLeft() + "," + parentView.getPaddingTop() + "," + parentView.getPaddingRight() + "," + parentView.getPaddingBottom() + ")"
-                    + " lp=(" + layoutParamsToString(parentLp) + ")"
-            );
-            parent = parentView.getParent();
-            level++;
-        }
-    }
-
-    private void updateDiagnosticsOverlay(String phase, WebView webView) {
-        if (!ENABLE_HOST_ISOLATION_TEST_PAGE || diagnosticsOverlayView == null || webView == null) return;
-        diagnosticsOverlayView.setText(buildDiagnosticsText(phase, webView));
-    }
-
-    private String buildDiagnosticsText(String phase, WebView webView) {
-        StringBuilder diagnostics = new StringBuilder();
-        ViewGroup.LayoutParams webViewLp = webView.getLayoutParams();
-        View decorView = getWindow() != null ? getWindow().getDecorView() : null;
-        FrameLayout contentRoot = findViewById(android.R.id.content);
-        View rootContentChild = contentRoot != null && contentRoot.getChildCount() > 0
+        View contentFirstChild = contentRoot != null && contentRoot.getChildCount() > 0
             ? contentRoot.getChildAt(0)
             : null;
-
-        diagnostics.append("NATIVE WEBVIEW DIAGNOSTICS [").append(phase).append("]\n");
-        diagnostics.append("windowMetrics=").append(windowMetricsToString()).append('\n');
-        diagnostics.append("displayMetrics=").append(displayMetricsToString()).append('\n');
-        diagnostics.append("decorView=").append(viewDiagnostics(decorView)).append('\n');
-        diagnostics.append("android.R.id.content=").append(viewDiagnostics(contentRoot)).append('\n');
-        diagnostics.append("contentRootChild=").append(viewDiagnostics(rootContentChild)).append('\n');
-        diagnostics.append("webView.getWidth()=").append(webView.getWidth()).append('\n');
-        diagnostics.append("webView.getHeight()=").append(webView.getHeight()).append('\n');
-        diagnostics.append("webView.getScale()=").append(webView.getScale()).append('\n');
-        diagnostics.append("webView.getScaleX()=").append(webView.getScaleX()).append('\n');
-        diagnostics.append("webView.getScaleY()=").append(webView.getScaleY()).append('\n');
-        diagnostics.append("translationX/Y=").append(webView.getTranslationX()).append(" / ").append(webView.getTranslationY()).append('\n');
-        diagnostics.append("padding L/R/T/B=").append(webView.getPaddingLeft())
-            .append(" / ").append(webView.getPaddingRight())
-            .append(" / ").append(webView.getPaddingTop())
-            .append(" / ").append(webView.getPaddingBottom()).append('\n');
-        diagnostics.append("layout params=").append(layoutParamsToString(webViewLp)).append('\n');
-
-        ViewParent parent = webView.getParent();
-        for (int level = 0; level < 2; level++) {
-            if (!(parent instanceof View)) {
-                diagnostics.append("parent[").append(level).append("]=<none>\n");
-                break;
-            }
-            View parentView = (View) parent;
-            diagnostics.append("parent[").append(level).append("] class=").append(parentView.getClass().getSimpleName())
-                .append(" width=").append(parentView.getWidth())
-                .append(" height=").append(parentView.getHeight())
-                .append(" lp=").append(layoutParamsToString(parentView.getLayoutParams()))
-                .append('\n');
-            parent = parentView.getParent();
-        }
-        return diagnostics.toString().trim();
+        ViewGroup.LayoutParams lp = webView.getLayoutParams();
+        Log.d(TAG, LOG_PREFIX + phase + " decorView width/height=" + sizeToString(decorView));
+        Log.d(TAG, LOG_PREFIX + phase + " decorView scaleX/scaleY=" + scaleToString(decorView));
+        Log.d(TAG, LOG_PREFIX + phase + " decorView translationX/translationY=" + translationToString(decorView));
+        Log.d(TAG, LOG_PREFIX + phase + " decorView padding L/R/T/B=" + paddingToString(decorView));
+        Log.d(TAG, LOG_PREFIX + phase + " android.R.id.content width/height=" + sizeToString(contentRoot));
+        Log.d(TAG, LOG_PREFIX + phase + " android.R.id.content scaleX/scaleY=" + scaleToString(contentRoot));
+        Log.d(TAG, LOG_PREFIX + phase + " android.R.id.content translationX/translationY=" + translationToString(contentRoot));
+        Log.d(TAG, LOG_PREFIX + phase + " android.R.id.content padding L/R/T/B=" + paddingToString(contentRoot));
+        Log.d(TAG, LOG_PREFIX + phase + " android.R.id.content firstChild width/height/layoutParams="
+            + sizeToString(contentFirstChild) + " / " + layoutParamsToString(contentFirstChild != null ? contentFirstChild.getLayoutParams() : null));
+        Log.d(TAG, LOG_PREFIX + phase + " WebView width/height=" + webView.getWidth() + "x" + webView.getHeight());
+        Log.d(TAG, LOG_PREFIX + phase + " WebView scale/scaleX/scaleY=" + webView.getScale() + "/" + webView.getScaleX() + "/" + webView.getScaleY());
+        Log.d(TAG, LOG_PREFIX + phase + " WebView translationX/translationY=" + webView.getTranslationX() + "/" + webView.getTranslationY());
+        Log.d(TAG, LOG_PREFIX + phase + " WebView layoutParams=" + layoutParamsToString(lp));
+        Log.d(TAG, LOG_PREFIX + phase + " WindowMetrics bounds=" + windowMetricsToString());
+        Log.d(TAG, LOG_PREFIX + phase + " DisplayMetrics widthPixels/heightPixels/density=" + displayMetricsToString());
+        Log.d(TAG, LOG_PREFIX + phase + " isInMultiWindowMode=" + isInMultiWindowMode());
     }
 
     private String layoutParamsToString(ViewGroup.LayoutParams lp) {
@@ -197,23 +94,30 @@ public class MainActivity extends BridgeActivity {
         return "w=" + lp.width + ",h=" + lp.height + ",class=" + lp.getClass().getName();
     }
 
-    private String viewDiagnostics(View view) {
+    private String sizeToString(View view) {
         if (view == null) return "null";
-        return "class=" + view.getClass().getSimpleName()
-            + ",w=" + view.getWidth()
-            + ",h=" + view.getHeight()
-            + ",measuredW=" + view.getMeasuredWidth()
-            + ",measuredH=" + view.getMeasuredHeight()
-            + ",lp=(" + layoutParamsToString(view.getLayoutParams()) + ")"
-            + ",scale=" + view.getScaleX() + "/" + view.getScaleY()
-            + ",translation=" + view.getTranslationX() + "/" + view.getTranslationY()
-            + ",padding=" + view.getPaddingLeft() + "/" + view.getPaddingTop() + "/" + view.getPaddingRight() + "/" + view.getPaddingBottom();
+        return view.getWidth() + "x" + view.getHeight();
+    }
+
+    private String scaleToString(View view) {
+        if (view == null) return "null";
+        return view.getScaleX() + "/" + view.getScaleY();
+    }
+
+    private String translationToString(View view) {
+        if (view == null) return "null";
+        return view.getTranslationX() + "/" + view.getTranslationY();
+    }
+
+    private String paddingToString(View view) {
+        if (view == null) return "null";
+        return view.getPaddingLeft() + "/" + view.getPaddingRight() + "/" + view.getPaddingTop() + "/" + view.getPaddingBottom();
     }
 
     private String displayMetricsToString() {
         DisplayMetrics dm = getResources().getDisplayMetrics();
         if (dm == null) return "null";
-        return "wPx=" + dm.widthPixels + ",hPx=" + dm.heightPixels + ",density=" + dm.density + ",densityDpi=" + dm.densityDpi;
+        return dm.widthPixels + "/" + dm.heightPixels + "/" + dm.density;
     }
 
     private String windowMetricsToString() {
@@ -223,14 +127,11 @@ public class MainActivity extends BridgeActivity {
             if (metrics == null) return "null";
             android.graphics.Rect bounds = metrics.getBounds();
             WindowInsets insets = metrics.getWindowInsets();
-            return "bounds=" + bounds.width() + "x" + bounds.height() + "@" + bounds.left + "," + bounds.top
-                + ",insets=" + (insets == null ? "null" : insets.toString())
-                + ",isInMultiWindow=" + isInMultiWindowMode();
+            return bounds.width() + "x" + bounds.height() + "@" + bounds.left + "," + bounds.top
+                + ",insets=" + (insets == null ? "null" : insets.toString());
         }
         DisplayMetrics legacy = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(legacy);
-        return "legacyDisplay=" + legacy.widthPixels + "x" + legacy.heightPixels
-            + ",density=" + legacy.density
-            + ",isInMultiWindow=" + isInMultiWindowMode();
+        return legacy.widthPixels + "x" + legacy.heightPixels + ",density=" + legacy.density;
     }
 }
