@@ -3,7 +3,10 @@
     <style name="Theme.NomadSpeak.Base" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <item name="android:statusBarColor">#062B2F</item>
         <item name="android:navigationBarColor">#062B2F</item>
-        <item name="android:windowBackground">@drawable/splash</item>
+        <!-- IMPORTANT: keep window background as a plain color.
+             Using the splash drawable here leaks drawable insets into decorView padding
+             (e.g., 120dp/260dp => 360px/780px at 3.0 density), shrinking android.R.id.content. -->
+        <item name="android:windowBackground">@color/brand_deep_teal</item>
     </style>
 
     <style name="Theme.NomadSpeak" parent="Theme.NomadSpeak.Base" />
