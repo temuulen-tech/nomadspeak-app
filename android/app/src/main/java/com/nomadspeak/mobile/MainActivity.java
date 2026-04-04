@@ -28,7 +28,9 @@ public class MainActivity extends BridgeActivity {
         settings.setLoadWithOverviewMode(false);
         settings.setLayoutAlgorithm(WebSettings.LayoutAlgorithm.NORMAL);
         settings.setTextZoom(100);
-        webView.setInitialScale(100);
+        // Important: do not force an explicit initial page scale.
+        // On some OEM WebView builds this can lock visualViewport.scale near ~0.33.
+        webView.setInitialScale(0);
 
         settings.setSupportZoom(false);
         settings.setBuiltInZoomControls(false);
