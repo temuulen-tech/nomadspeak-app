@@ -62,6 +62,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     qaModalTitleEl,
     qaModalBodyEl,
   } = dom;
+  const qaRoundContentEl = qaRoundPanelEl?.querySelector?.(".qa-round-content") || null;
+  const qaPanelContentEl = qaRoundPanelEl?.querySelector?.(".qa-panel, .qaPanel") || null;
 
   const {
     getActiveLearningSelection,
@@ -78,6 +80,16 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
   function getState() {
     return runtimeState;
+  }
+
+  function ensureQaGameplayContentVisible() {
+    [qaRoundPanelEl, qaRoundContentEl, qaPanelContentEl, qaQuestionLineEl, qaAnswerLineEl, qaWordBankEl, qaFeedbackEl]
+      .forEach((el) => {
+        if (!el) return;
+        setHidden(el, false);
+        if (el.style?.display === "none") el.style.display = "";
+        if (el.style?.visibility === "hidden") el.style.visibility = "";
+      });
   }
 
   function getQaCurrentRound() {
@@ -241,6 +253,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
 
   function setupQaRound(options = {}) {
     normalizeQaStatusUi();
+    ensureQaGameplayContentVisible();
     const round = options.round || getQaCurrentRound();
     if (!round) {
       runtimeState.qaQuestionSolved = false;
@@ -362,7 +375,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     runtimeState.qaRoundIndex = 0;
     runtimeState.surfacedSavedReviewCount = savedReviewRounds.length;
     runtimeState.queuedReviewKeysByRound = new Set();
-    setHidden(qaRoundPanelEl, false);
+    ensureQaGameplayContentVisible();
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
     if (savedReviewRounds.length) {
@@ -397,7 +410,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     stopQaTimer();
     updateQaTimerUi();
     renderQaRewards();
-    setHidden(qaRoundPanelEl, false);
+    ensureQaGameplayContentVisible();
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
     qaFeedbackEl.textContent = "";
@@ -421,7 +434,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
       qaSetId: round?.qaSetId || runtimeState.qaContentSetId,
     })];
     runtimeState.qaRoundIndex = 0;
-    setHidden(qaRoundPanelEl, false);
+    ensureQaGameplayContentVisible();
     setHidden(qaLevelOptionsEl, true);
     qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
     setupQaRound({ round: runtimeState.qaRoundPool[0], wordBankTokens: buildQaReviewOptions(round) });
