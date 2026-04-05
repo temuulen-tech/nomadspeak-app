@@ -185,23 +185,32 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   }
 
   function renderQaBuilder() {
-    if (!qaQuestionLineEl || !qaAnswerLineEl || !qaWordBankEl) return;
+    const questionLineEl = qaQuestionLineEl || document.getElementById("qa-question-line");
+    const answerLineEl = qaAnswerLineEl || document.getElementById("qa-answer-line");
+    const wordBankEl = qaWordBankEl || document.getElementById("qa-word-bank");
+    if (!questionLineEl || !answerLineEl || !wordBankEl) return;
+    setHidden(questionLineEl, false);
+    setHidden(answerLineEl, false);
+    setHidden(wordBankEl, false);
+    const qaPanelEl = questionLineEl.closest(".qa-panel, .qaPanel");
+    if (qaPanelEl) setHidden(qaPanelEl, false);
+
     const activeLine = runtimeState.qaQuestionSolved ? "answer" : "question";
     const { qaQuestionBuilt, qaAnswerBuilt, qaBank } = runtimeState;
 
-    qaQuestionLineEl.innerHTML = qaQuestionBuilt.length
+    questionLineEl.innerHTML = qaQuestionBuilt.length
       ? qaQuestionBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="question" type="button">${chip.token}</button>`).join("")
       : '<span class="qa-placeholder">Асуултын мөрөнд үгсээ байрлуулна.</span>';
 
-    qaAnswerLineEl.innerHTML = qaAnswerBuilt.length
+    answerLineEl.innerHTML = qaAnswerBuilt.length
       ? qaAnswerBuilt.map((chip) => `<button class="qa-chip placed" data-chip-id="${chip.id}" data-source="answer" type="button">${chip.token}</button>`).join("")
       : '<span class="qa-placeholder">Хариултын мөрөнд үгсээ байрлуулна.</span>';
 
-    toggleClass(qaAnswerLineEl, "locked", !runtimeState.qaQuestionSolved);
+    toggleClass(answerLineEl, "locked", !runtimeState.qaQuestionSolved);
 
-    qaWordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
+    wordBankEl.innerHTML = qaBank.map((chip) => `<button class="qa-chip" data-chip-id="${chip.id}" type="button">${chip.token}</button>`).join("");
 
-    qaWordBankEl.querySelectorAll(".qa-chip").forEach((btn) => {
+    wordBankEl.querySelectorAll(".qa-chip").forEach((btn) => {
       btn.addEventListener("click", () => {
         const nextBank = [...runtimeState.qaBank];
         const questionBuiltRef = [...runtimeState.qaQuestionBuilt];
@@ -219,7 +228,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
       });
     });
 
-    [qaQuestionLineEl, qaAnswerLineEl].forEach((lineEl) => {
+    [questionLineEl, answerLineEl].forEach((lineEl) => {
       lineEl.querySelectorAll(".qa-chip.placed").forEach((btn) => {
         btn.addEventListener("click", () => {
           const source = btn.dataset.source;
@@ -364,7 +373,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     runtimeState.queuedReviewKeysByRound = new Set();
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
-    qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
+    if (qaLevelSelectBtn) qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(levelKey)}`;
     if (savedReviewRounds.length) {
       showWorldFeedbackChip(`🔁 QA review: ${savedReviewRounds.length} алдсан тойрог эхэнд орлоо.`, "reward");
     }
@@ -388,7 +397,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
   function resetQaGameScreen() {
     normalizeQaStatusUi();
     const initialLevel = runtimeState.qaGameLevel || DIFFICULTY_LEVELS.BEGINNER;
-    const nextContentSetId = getActiveLearningSelection().qaSetId || runtimeState.qaContentSetId;
+    const nextContentSetId = getActiveLearningSelection()?.qaSetId || runtimeState.qaContentSetId;
     runtimeState.qaContentSetId = nextContentSetId;
     runtimeState.qaGameLevel = initialLevel;
     runtimeState.qaRoundPool = qaRoundPoolForLevel(initialLevel, nextContentSetId);
@@ -399,8 +408,8 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     renderQaRewards();
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
-    qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
-    qaFeedbackEl.textContent = "";
+    if (qaLevelSelectBtn) qaLevelSelectBtn.textContent = `Сонгосон түвшин: ${qaLevelLabel(initialLevel)}`;
+    if (qaFeedbackEl) qaFeedbackEl.textContent = "";
     if (!getQaContentSet(nextContentSetId)?.rounds?.length) {
       showWorldFeedbackChip("⚠️ Энэ бүлгийн QA багц одоохондоо хоосон байна.", "warning");
     }
@@ -423,7 +432,7 @@ export function createQaFlow({ state = {}, dom = {}, actions = {} } = {}) {
     runtimeState.qaRoundIndex = 0;
     setHidden(qaRoundPanelEl, false);
     setHidden(qaLevelOptionsEl, true);
-    qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
+    if (qaLevelSelectBtn) qaLevelSelectBtn.textContent = "Сонгосон түвшин: Давтах";
     setupQaRound({ round: runtimeState.qaRoundPool[0], wordBankTokens: buildQaReviewOptions(round) });
     startQaTimer();
     updateHeaderStatus();
