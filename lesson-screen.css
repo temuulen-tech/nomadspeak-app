@@ -8,6 +8,12 @@
   padding:var(--space-3);
 }
 
+/* Ensure hidden lesson screen stays hidden on home even when responsive
+   #quiz-screen.learning-screen display overrides are active. */
+#quiz-screen.learning-screen.hidden{
+  display:none !important;
+}
+
 .lesson-flow-steps{
   display:flex;
   flex-wrap:wrap;
