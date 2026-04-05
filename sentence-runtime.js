@@ -263,7 +263,9 @@ export function createSentenceRuntime({ dom = {}, deps = {} } = {}) {
       state.index = -1;
       onSentenceItemsLoaded(state.sentenceItems);
       onSentenceGameStateReset();
-      if (sentenceGameScreenVisible()) initSentenceGameRound();
+      // Round initialization is owned by navigation/explicit callers.
+      // Calling initSentenceGameRound() here duplicates the first render path
+      // when SENTENCE_GAME navigation already does ensureSentenceItemsLoaded().then(initSentenceGameRound).
       return state.sentenceItems;
     } catch (error) {
       if (sentencesListEl) sentencesListEl.innerHTML = '<p class="muted">Өгүүлбэрүүдийг ачаалж чадсангүй.</p>';
