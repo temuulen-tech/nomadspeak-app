@@ -116,6 +116,15 @@ function createLessonWordBank({ id, chapterId, state = PLACEHOLDER_STATES.PLACEH
   };
 }
 
+function createLessonThreeWordBankCompat() {
+  const lessonThreeRefs = getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH3);
+  return createLessonWordBank({
+    id: lessonThreeRefs.wordBankId,
+    chapterId: CHAPTER_IDS.CH3,
+    tokens: [],
+  });
+}
+
 const LESSON_CONTENT_INSERTION_EXAMPLE = {
   pack: {
     id: "world1-ch2-beginner-core",
@@ -236,10 +245,14 @@ export const LESSON_WORD_BANKS = {
     state: PLACEHOLDER_STATES.READY,
     tokens: ["hello", "good morning", "good afternoon", "good evening", "goodbye", "see you later", "name", "who", "fine", "from Mongolia", "school", "here", "morning", "book", "friend", "English", "a little", "water", "tea", "ready", "home", "park", "every day", "night", "nice to meet you", "mother", "family", "father", "work", "breakfast", "bread", "eggs", "rice", "soup", "kitchen", "living room", "time", "seven o'clock", "shop", "bus number two", "left", "right", "bank", "table", "sister", "dinner"],
   }),
+  [getChapterContentRefs(WORLD_IDS.WORLD_1, CHAPTER_IDS.CH3).wordBankId]: createLessonThreeWordBankCompat(),
   ...Object.fromEntries(PLACEHOLDER_CHAPTER_IDS.map((chapterId) => {
+    if (chapterId === CHAPTER_IDS.CH3) {
+      return null;
+    }
     const id = getChapterContentRefs(WORLD_IDS.WORLD_1, chapterId).wordBankId;
     return [id, createLessonWordBank({ id, chapterId, tokens: [] })];
-  })),
+  }).filter(Boolean)),
 };
 
 export const LESSON_BANK = {
