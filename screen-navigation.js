@@ -51,15 +51,6 @@ export function createScreenNavigator({
       "#sentence-game-correct-en",
       "#sentence-game-correct-mn",
     ],
-    [SCREEN_NAMES.QA_GAME]: [
-      "#qa-question-line",
-      "#qa-answer-line",
-      "#qa-word-bank",
-      "#qa-feedback",
-      "#qa-toast",
-      "#qa-en-question",
-      "#qa-en-answer",
-    ],
     [SCREEN_NAMES.BOARD]: [
       "#board-game-options",
       "#board-game-feedback-hub",
